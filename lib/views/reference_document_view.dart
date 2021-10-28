@@ -75,7 +75,7 @@ class ReferenceDocumentView extends GetView<ReferenceDocumentController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _dropdownSearch(
-                    ['ACE'],
+                    lists['Project']!,
                     'Project',
                     50,
                     onChanged: (value) {
@@ -83,7 +83,7 @@ class ReferenceDocumentView extends GetView<ReferenceDocumentController> {
                     },
                   ),
                   _dropdownSearch(
-                    ['Design', 'TQ', 'RC', 'SIN', 'CCN'],
+                    lists['Reference type']!,
                     'Reference type',
                     50 * 5,
                     onChanged: (value) {
@@ -91,11 +91,10 @@ class ReferenceDocumentView extends GetView<ReferenceDocumentController> {
                     },
                   ),
                   _dropdownSearch(
-                    modules,
+                    lists['Module']!,
                     'Module name',
                     50 * 4,
                     onChanged: (value) {
-                      print(value);
                       controller.dropdownFieldModel.moduleNameText = value;
                     },
                   ),
@@ -299,62 +298,116 @@ class ReferenceDocumentView extends GetView<ReferenceDocumentController> {
   onSort(int columnIndex, bool ascending) {
     switch (columnIndex) {
       case 0:
-        controller.referenceDocuments.sort(
-            (referenceDocument1, referenceDocument2) => compare(ascending,
-                referenceDocument1.project, referenceDocument2.project));
+        controller.referenceDocuments.sort((
+          referenceDocument1,
+          referenceDocument2,
+        ) =>
+            compare(
+              ascending,
+              referenceDocument1.project,
+              referenceDocument2.project,
+            ));
         break;
       case 1:
-        controller.referenceDocuments.sort(
-            (referenceDocument1, referenceDocument2) => compare(ascending,
-                referenceDocument1.refType, referenceDocument2.refType));
+        controller.referenceDocuments.sort((
+          referenceDocument1,
+          referenceDocument2,
+        ) =>
+            compare(
+              ascending,
+              referenceDocument1.refType,
+              referenceDocument2.refType,
+            ));
         break;
       case 2:
-        controller.referenceDocuments.sort(
-            (referenceDocument1, referenceDocument2) => compare(ascending,
-                referenceDocument1.moduleName, referenceDocument2.moduleName));
+        controller.referenceDocuments.sort((
+          referenceDocument1,
+          referenceDocument2,
+        ) =>
+            compare(
+              ascending,
+              referenceDocument1.moduleName,
+              referenceDocument2.moduleName,
+            ));
         break;
       case 3:
-        controller.referenceDocuments.sort(
-            (referenceDocument1, referenceDocument2) => compare(
-                ascending, referenceDocument1.docNo, referenceDocument2.docNo));
+        controller.referenceDocuments.sort((
+          referenceDocument1,
+          referenceDocument2,
+        ) =>
+            compare(
+              ascending,
+              referenceDocument1.docNo,
+              referenceDocument2.docNo,
+            ));
         break;
       case 4:
-        controller.referenceDocuments.sort(
-            (referenceDocument1, referenceDocument2) => compare(ascending,
-                referenceDocument1.revCode, referenceDocument2.revCode));
+        controller.referenceDocuments.sort((
+          referenceDocument1,
+          referenceDocument2,
+        ) =>
+            compare(
+              ascending,
+              referenceDocument1.revCode,
+              referenceDocument2.revCode,
+            ));
         break;
       case 5:
-        controller.referenceDocuments.sort(
-            (referenceDocument1, referenceDocument2) => compare(
-                ascending, referenceDocument1.title, referenceDocument2.title));
+        controller.referenceDocuments.sort((
+          referenceDocument1,
+          referenceDocument2,
+        ) =>
+            compare(
+              ascending,
+              referenceDocument1.title,
+              referenceDocument2.title,
+            ));
         break;
       case 6:
-        controller.referenceDocuments.sort(
-            (referenceDocument1, referenceDocument2) => compare(
-                ascending,
-                referenceDocument1.transmittalNo,
-                referenceDocument2.transmittalNo));
+        controller.referenceDocuments.sort((
+          referenceDocument1,
+          referenceDocument2,
+        ) =>
+            compare(
+              ascending,
+              referenceDocument1.transmittalNo,
+              referenceDocument2.transmittalNo,
+            ));
         break;
       case 7:
         controller.referenceDocuments.sort(
-            (referenceDocument1, referenceDocument2) => compare(
-                ascending,
-                referenceDocument1.receiveDate,
-                referenceDocument2.receiveDate));
+          (
+            referenceDocument1,
+            referenceDocument2,
+          ) =>
+              compare(
+            ascending,
+            referenceDocument1.receiveDate,
+            referenceDocument2.receiveDate,
+          ),
+        );
         break;
       case 8:
-        controller.referenceDocuments.sort(
-            (referenceDocument1, referenceDocument2) => compare(
-                ascending,
-                referenceDocument1.actionRequiredNext,
-                referenceDocument2.actionRequiredNext));
+        controller.referenceDocuments.sort((
+          referenceDocument1,
+          referenceDocument2,
+        ) =>
+            compare(
+              ascending,
+              referenceDocument1.actionRequiredNext,
+              referenceDocument2.actionRequiredNext,
+            ));
         break;
       case 9:
-        controller.referenceDocuments.sort(
-            (referenceDocument1, referenceDocument2) => compare(
-                ascending,
-                referenceDocument1.assignedDocsCount,
-                referenceDocument2.assignedDocsCount));
+        controller.referenceDocuments.sort((
+          referenceDocument1,
+          referenceDocument2,
+        ) =>
+            compare(
+              ascending,
+              referenceDocument1.assignedDocsCount,
+              referenceDocument2.assignedDocsCount,
+            ));
         break;
     }
 
@@ -362,6 +415,10 @@ class ReferenceDocumentView extends GetView<ReferenceDocumentController> {
     controller.sortAscending.value = ascending;
   }
 
-  int compare(bool ascending, dynamic value1, dynamic value2) =>
+  int compare(
+    bool ascending,
+    dynamic value1,
+    dynamic value2,
+  ) =>
       ascending ? value1.compareTo(value2) : value2.compareTo(value1);
 }

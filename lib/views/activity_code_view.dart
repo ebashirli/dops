@@ -102,7 +102,7 @@ class ActivityCodeView extends GetView<ActivityCodeController> {
                   ),
                   SizedBox(height: 8),
                   _dropdownSearch(
-                    modules,
+                    lists['Module']!,
                     activityCodeTableColumnNames[2],
                     50 * 4,
                     onChanged: (value) {
@@ -268,15 +268,16 @@ class ActivityCodeView extends GetView<ActivityCodeController> {
         );
       }).toList();
 
-  List<DataRow2> getRows(List<ActivityCodeModel> activityCodes) =>
-      activityCodes.map((ActivityCodeModel activityCode) {
-        final map = activityCode.toMap();
-        List cells = map.values.toList();
-        cells = cells.sublist(1, cells.length);
-        return DataRow2(
-          cells: getCells(cells),
-        );
-      }).toList();
+  List<DataRow2> getRows(List<ActivityCodeModel> activityCodes) {
+    return activityCodes.map((ActivityCodeModel activityCode) {
+      final map = activityCode.toMap();
+      List cells = map.values.toList();
+      cells = cells.sublist(1, cells.length);
+      return DataRow2(
+        cells: getCells(cells),
+      );
+    }).toList();
+  }
 
   List<DataCell> getCells(List<dynamic> cells) => cells.map((data) {
         return DataCell(

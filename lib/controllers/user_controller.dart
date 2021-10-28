@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:dops/models/employeeModel.dart';
-import 'package:dops/modules/customFullScreenDialog.dart';
-import 'package:dops/modules/customSnackBar.dart';
+import 'package:dops/widgets/customFullScreenDialog.dart';
+import 'package:dops/widgets/customSnackBar.dart';
 import 'package:get/get.dart';
 
 class UserController extends GetxController {

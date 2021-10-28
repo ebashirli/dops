@@ -9,3 +9,4 @@ class ActivityCodeBinding extends Bindings {
     );
   }
 }
+

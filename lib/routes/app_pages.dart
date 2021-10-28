@@ -1,7 +1,9 @@
 import 'package:dops/controllers/bindings/activity_code_binding.dart';
+import 'package:dops/controllers/bindings/dropdown_source_lists_binding.dart';
 import 'package:dops/controllers/bindings/home_binding.dart';
 import 'package:dops/controllers/bindings/reference_document_binding.dart';
 import 'package:dops/views/activity_code_view.dart';
+import 'package:dops/views/dropdown_source_lists_view.dart';
 import 'package:dops/views/home_view.dart';
 import 'package:dops/views/reference_document_view.dart';
 import 'package:get/get.dart';
@@ -28,6 +30,11 @@ class AppPages {
       name: _Paths.ACTIVITY_CODE,
       page: () => ActivityCodeView(),
       binding: ActivityCodeBinding(),
+    ),
+    GetPage(
+      name: _Paths.DROPDOWN_SOURCE_LISTS,
+      page: () => DropdownSourceListsView(),
+      binding: DropdownSourceListsBinding(),
     ),
   ];
 }

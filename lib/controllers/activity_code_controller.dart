@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/models/activity_codes_model.dart';
 import 'package:dops/models/dropdown_field_model.dart';
 import 'package:flutter/material.dart';
-import 'package:dops/modules/customFullScreenDialog.dart';
-import 'package:dops/modules/customSnackBar.dart';
+import 'package:dops/widgets/customFullScreenDialog.dart';
+import 'package:dops/widgets/customSnackBar.dart';
 import 'package:get/get.dart';
 
 class ActivityCodeController extends GetxController {
@@ -15,7 +15,6 @@ class ActivityCodeController extends GetxController {
       prioController,
       coefficientController,
       budgetedLaborUnitsController;
-
   late DateTime startController, finishController;
 
   late RxBool sortAscending;
@@ -81,16 +80,16 @@ class ActivityCodeController extends GetxController {
     if (addEditFlag == 1) {
       CustomFullScreenDialog.showDialog();
       collectionReference.add({
-        'activity_id': activityId,
-        'activity_name': activityName,
+        'activityId': activityId,
+        'activityName': activityName,
         'area': area,
         'prio': prio,
         'coefficient': coefficient,
-        'current_priority': prio! / coefficient!,
-        'budgeted_labor_units': budgetedLaborUnits,
+        'currentPriority': prio! / coefficient!,
+        'budgetedLaborUnits': budgetedLaborUnits,
         'start': start,
         'finish': finish,
-        'cumulative': '',
+        'cumulative': 0.0,
       }).whenComplete(() {
         CustomFullScreenDialog.cancelDialog();
         clearEditingControllers();
@@ -112,16 +111,16 @@ class ActivityCodeController extends GetxController {
       //update
       CustomFullScreenDialog.showDialog();
       collectionReference.doc(docId).update({
-        'activity_id': activityId,
-        'activity_name': activityName,
+        'activityId': activityId,
+        'activityName': activityName,
         'area': area,
         'prio': prio,
         'coefficient': coefficient,
-        'current_priority': prio! / coefficient!,
-        'budgeted_labor_units': budgetedLaborUnits,
+        'currentPriority': prio! / coefficient!,
+        'budgetedLaborUnits': budgetedLaborUnits,
         'start': start,
         'finish': finish,
-        'cumulative': '',
+        'cumulative': 0.0,
       }).whenComplete(() {
         CustomFullScreenDialog.cancelDialog();
         clearEditingControllers();
@@ -158,8 +157,10 @@ class ActivityCodeController extends GetxController {
   }
 
   Stream<List<ActivityCodeModel>> getAllActivityCodes() =>
-      collectionReference.snapshots().map((query) =>
-          query.docs.map((item) => ActivityCodeModel.fromMap(item)).toList());
+      collectionReference.snapshots().map((query) => query.docs
+          .map((item) =>
+              ActivityCodeModel.fromMap(item.data() as Map<String, dynamic>))
+          .toList());
 
   void deleteData(String docId) {
     CustomFullScreenDialog.showDialog();

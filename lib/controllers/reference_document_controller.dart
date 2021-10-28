@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:dops/models/dropdown_field_model.dart';
 import 'package:dops/models/reference_document_model.dart';
-import 'package:dops/modules/customFullScreenDialog.dart';
-import 'package:dops/modules/customSnackBar.dart';
+import 'package:dops/widgets/customFullScreenDialog.dart';
+import 'package:dops/widgets/customSnackBar.dart';
 import 'package:get/get.dart';
 
 class ReferenceDocumentController extends GetxController {
@@ -157,7 +157,10 @@ class ReferenceDocumentController extends GetxController {
 
   Stream<List<ReferenceDocumentModel>> getAllReferenceDocuments() =>
       collectionReference.snapshots().map((query) => query.docs
-          .map((item) => ReferenceDocumentModel.fromMap(item))
+          .map(
+            (item) => ReferenceDocumentModel.fromMap(
+                item.data() as Map<String, dynamic>),
+          )
           .toList());
 
   void deleteData(String docId) {

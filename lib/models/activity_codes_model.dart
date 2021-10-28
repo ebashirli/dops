@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
 
 class ActivityCodeModel {
   String? docId;
@@ -27,7 +27,7 @@ class ActivityCodeModel {
     this.cumulative,
   });
 
-  toMap() {
+  Map<String, dynamic> toMap() {
     return {
       'docId': docId,
       'activityId': activityId,
@@ -37,23 +37,33 @@ class ActivityCodeModel {
       'coefficient': coefficient,
       'currentPriority': currentPriority,
       'budgetedLaborUnits': budgetedLaborUnits,
-      'start': start,
-      'finish': finish,
+      'start': start?.millisecondsSinceEpoch,
+      'finish': finish?.millisecondsSinceEpoch,
       'cumulative': cumulative,
     };
   }
 
-  ActivityCodeModel.fromMap(DocumentSnapshot data) {
-    docId = data.id;
-    activityId = data['activity_id'];
-    activityName = data['activity_name'];
-    area = data['area'];
-    prio = int.parse(data['prio']);
-    coefficient = int.parse(data['coefficient']);
-    currentPriority = double.parse(data['current_priority']);
-    budgetedLaborUnits = double.parse(data['budgeted_labor_units']);
-    start = data['start'].toDate();
-    finish = data['finish'].toDate();
-    cumulative = double.parse(data['cumulative']);
+  factory ActivityCodeModel.fromMap(Map<String, dynamic> map) {
+    return ActivityCodeModel(
+      docId: map['docId'] != null ? map['docId'] : null,
+      activityId: map['activityId'] != null ? map['activityId'] : null,
+      activityName: map['activityName'] != null ? map['activityName'] : null,
+      area: map['area'] != null ? map['area'] : null,
+      prio: map['prio'] != null ? map['prio'] : null,
+      coefficient: map['coefficient'] != null ? map['coefficient'] : null,
+      currentPriority:
+          map['currentPriority'] != null ? map['currentPriority'] : null,
+      budgetedLaborUnits:
+          map['budgetedLaborUnits'] != null ? map['budgetedLaborUnits'] : null,
+      start: map['start'] != null ? map['start'].toDate() : null,
+      finish: map['finish'] != null ? map['finish'].toDate() : null,
+      cumulative: map['cumulative'] != null ? map['cumulative'] : null,
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory ActivityCodeModel.fromJson(String source) {
+    return ActivityCodeModel.fromMap(json.decode(source));
   }
 }

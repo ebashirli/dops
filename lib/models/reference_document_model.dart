@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
 
 class ReferenceDocumentModel {
   String? docId;
@@ -27,7 +27,7 @@ class ReferenceDocumentModel {
     this.assignedDocsCount,
   });
 
-  toMap() {
+  Map<String, dynamic> toMap() {
     return {
       'docId': docId,
       'project': project,
@@ -37,23 +37,35 @@ class ReferenceDocumentModel {
       'revCode': revCode,
       'title': title,
       'transmittalNo': transmittalNo,
-      'receiveDate': receiveDate,
+      'receiveDate': receiveDate?.millisecondsSinceEpoch,
       'actionRequiredNext': actionRequiredNext,
       'assignedDocsCount': assignedDocsCount,
     };
   }
 
-  ReferenceDocumentModel.fromMap(DocumentSnapshot data) {
-    docId = data.id;
-    project = data['project'];
-    refType = data['ref_type'];
-    moduleName = data['module_name'];
-    docNo = data['doc_no'];
-    revCode = data['rev_code'];
-    title = data['title'];
-    transmittalNo = data['transmittal_no'];
-    receiveDate = data['receive_date'].toDate();
-    actionRequiredNext = data['action_required_next'];
-    // assignedDocsCount = data['assigned_docs_count'];
+  factory ReferenceDocumentModel.fromMap(Map<String, dynamic> map) {
+    return ReferenceDocumentModel(
+      docId: map['docId'] != null ? map['docId'] : null,
+      project: map['project'] != null ? map['project'] : null,
+      refType: map['refType'] != null ? map['refType'] : null,
+      moduleName: map['moduleName'] != null ? map['moduleName'] : null,
+      docNo: map['docNo'] != null ? map['docNo'] : null,
+      revCode: map['revCode'] != null ? map['revCode'] : null,
+      title: map['title'] != null ? map['title'] : null,
+      transmittalNo: map['transmittalNo'] != null ? map['transmittalNo'] : null,
+      receiveDate: map['receiveDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['receiveDate'])
+          : null,
+      actionRequiredNext:
+          map['actionRequiredNext'] != null ? map['actionRequiredNext'] : null,
+      assignedDocsCount:
+          map['assignedDocsCount'] != null ? map['assignedDocsCount'] : null,
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory ReferenceDocumentModel.fromJson(String source) {
+    return ReferenceDocumentModel.fromMap(json.decode(source));
   }
 }

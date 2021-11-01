@@ -1,38 +1,39 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dops/services/storage_service.dart';
+import 'package:get/get.dart';
 
-class FirebaseStorageService extends StorageService {
-  FirebaseStorageService(this.collectionName);
-
+class FirebaseStorageService extends GetxService {
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-  final String collectionName;
-  late CollectionReference collectionReference =
-      firebaseFirestore.collection(collectionName);
-
-  @override
-  Future<void> deleteById(String docId) {
-    return collectionReference
-        .doc(docId)
-        .delete()
-        .whenComplete(() => 'Done')
-        .catchError((error) => error.toString());
+  final String path;
+  late final CollectionReference ref;
+  FirebaseStorageService(this.path) {
+    ref = firebaseFirestore.collection(path);
   }
 
-  @override
-  Stream<List<Map<String, dynamic>>> getAll() =>
-      collectionReference.snapshots().map((query) => query.docs
-          .map((item) => item.data() as Map<String, dynamic>)
-          .toList());
-
-  @override
-  Future<int> insert(model) {
-    // TODO: implement insert
-    throw UnimplementedError();
+  Future<QuerySnapshot> getData() {
+    return ref.get();
   }
 
-  @override
-  Future<void> update(model) {
-    // TODO: implement update
-    throw UnimplementedError();
+  Stream<QuerySnapshot> getDataAsStream() {
+    return ref.snapshots();
   }
+
+  Future<DocumentSnapshot> getDocumentById(String id) {
+    return ref.doc(id).get();
+  }
+
+  Future<void> removeDocument(String id) {
+    return ref.doc(id).delete();
+  }
+
+  Future<DocumentReference> addDocument(Map data) {
+    return ref.add(data);
+  }
+
+  Future<void> updateDocument(Map<String, dynamic> data, String id) {
+    return ref.doc(id).update(data);
+  }
+
+  // @override
+  // Future<List<Map>> getAll() {
+  // }
 }

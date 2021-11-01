@@ -43,27 +43,24 @@ class ActivityCodeModel {
     };
   }
 
-  factory ActivityCodeModel.fromMap(Map<String, dynamic> map) {
+  factory ActivityCodeModel.fromMap(Map<String, dynamic> map, String docId) {
     return ActivityCodeModel(
-      docId: map['docId'] != null ? map['docId'] : null,
-      activityId: map['activityId'] != null ? map['activityId'] : null,
-      activityName: map['activityName'] != null ? map['activityName'] : null,
-      area: map['area'] != null ? map['area'] : null,
-      prio: map['prio'] != null ? map['prio'] : null,
-      coefficient: map['coefficient'] != null ? map['coefficient'] : null,
-      currentPriority:
-          map['currentPriority'] != null ? map['currentPriority'] : null,
-      budgetedLaborUnits:
-          map['budgetedLaborUnits'] != null ? map['budgetedLaborUnits'] : null,
-      start: map['start'] != null ? map['start'].toDate() : null,
-      finish: map['finish'] != null ? map['finish'].toDate() : null,
-      cumulative: map['cumulative'] != null ? map['cumulative'] : null,
-    );
+        docId: docId,
+        activityId: map['activityId'],
+        activityName: map['activityName'],
+        area: map['area'],
+        prio: map['prio'],
+        coefficient: map['coefficient'],
+        currentPriority: map['currentPriority'],
+        budgetedLaborUnits: map['budgetedLaborUnits'],
+        start: map['start'],
+        finish: map['finish'],
+        cumulative: map['cumulative']);
   }
 
   String toJson() => json.encode(toMap());
 
-  factory ActivityCodeModel.fromJson(String source) {
-    return ActivityCodeModel.fromMap(json.decode(source));
-  }
+  // factory ActivityCodeModel.fromJson(String source) {
+  //   return ActivityCodeModel.fromMap(json.decode(source));
+  // }
 }

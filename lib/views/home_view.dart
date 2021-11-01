@@ -4,8 +4,10 @@ import 'package:get/get.dart';
 import '../controllers/user_controller.dart';
 
 class HomeView extends GetView<UserController> {
+  
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       appBar: AppBar(
         title: Text('Firestore CRUD'),

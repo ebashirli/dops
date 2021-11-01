@@ -1,7 +1,4 @@
-import 'package:dops/controllers/bindings/activity_code_binding.dart';
-import 'package:dops/controllers/bindings/dropdown_source_lists_binding.dart';
-import 'package:dops/controllers/bindings/home_binding.dart';
-import 'package:dops/controllers/bindings/reference_document_binding.dart';
+import 'package:dops/controllers/bindings/bindings.dart';
 import 'package:dops/views/activity_code_view.dart';
 import 'package:dops/views/dropdown_source_lists_view.dart';
 import 'package:dops/views/home_view.dart';
@@ -19,6 +16,7 @@ class AppPages {
     GetPage(
       name: _Paths.HOME,
       page: () => HomeView(),
+      
       binding: HomeBinding(),
     ),
     GetPage(

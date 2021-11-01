@@ -42,7 +42,7 @@ class ActivityCodeController extends GetxController {
     sortColumnIndex = 0.obs;
 
     collectionReference = firebaseFirestore.collection("activity_codes");
-    activityCodes.bindStream(getAllActivityCodes());
+    // activityCodes.bindStream(getAllActivityCodes());
   }
 
   // TODO: write validation rules for all fields
@@ -60,23 +60,94 @@ class ActivityCodeController extends GetxController {
     return null;
   }
 
-  void saveUpdateActivityCode(
-    String docId,
-    String? activityId,
-    String? activityName,
-    String? area,
-    int? prio,
-    int? coefficient,
-    double? budgetedLaborUnits,
-    DateTime? start,
-    DateTime? finish,
-    int addEditFlag,
-  ) {
+  // void saveUpdateActivityCode(
+  //   String docId,
+  //   String? activityId,
+  //   String? activityName,
+  //   String? area,
+  //   int? prio,
+  //   int? coefficient,
+  //   double? budgetedLaborUnits,
+  //   DateTime? start,
+  //   DateTime? finish,
+  //   int addEditFlag,
+  // ) {
+  //   final isValid = activityCodeFormKey.currentState!.validate();
+  //   if (!isValid) {
+  //     return;
+  //   }
+  //   activityCodeFormKey.currentState!.save();
+  //   if (addEditFlag == 1) {
+  //     CustomFullScreenDialog.showDialog();
+  //     collectionReference.add({
+  //       'activityId': activityId,
+  //       'activityName': activityName,
+  //       'area': area,
+  //       'prio': prio,
+  //       'coefficient': coefficient,
+  //       'currentPriority': prio! / coefficient!,
+  //       'budgetedLaborUnits': budgetedLaborUnits,
+  //       'start': start,
+  //       'finish': finish,
+  //       'cumulative': 0.0,
+  //     }).whenComplete(() {
+  //       CustomFullScreenDialog.cancelDialog();
+  //       clearEditingControllers();
+  //       Get.back();
+  //       CustomSnackBar.showSnackBar(
+  //           context: Get.context,
+  //           title: "Activity Code Added",
+  //           message: "Activity Code successfully",
+  //           backgroundColor: Colors.green);
+  //     }).catchError((error) {
+  //       CustomFullScreenDialog.cancelDialog();
+  //       CustomSnackBar.showSnackBar(
+  //           context: Get.context,
+  //           title: "Error",
+  //           message: "Something went wrong",
+  //           backgroundColor: Colors.green);
+  //     });
+  //   } else if (addEditFlag == 2) {
+  //     //update
+  //     CustomFullScreenDialog.showDialog();
+  //     collectionReference.doc(docId).update({
+  //       'activityId': activityId,
+  //       'activityName': activityName,
+  //       'area': area,
+  //       'prio': prio,
+  //       'coefficient': coefficient,
+  //       'currentPriority': prio! / coefficient!,
+  //       'budgetedLaborUnits': budgetedLaborUnits,
+  //       'start': start,
+  //       'finish': finish,
+  //       'cumulative': 0.0,
+  //     }).whenComplete(() {
+  //       CustomFullScreenDialog.cancelDialog();
+  //       clearEditingControllers();
+  //       Get.back();
+  //       CustomSnackBar.showSnackBar(
+  //         context: Get.context,
+  //         title: "Activity Code Updated",
+  //         message: "Activity Code updated successfully",
+  //         backgroundColor: Colors.green,
+  //       );
+  //     }).catchError((error) {
+  //       CustomFullScreenDialog.cancelDialog();
+  //       CustomSnackBar.showSnackBar(
+  //         context: Get.context,
+  //         title: "Error",
+  //         message: "Something went wrong",
+  //         backgroundColor: Colors.red,
+  //       );
+  //     });
+  //   }
+  // }
+  saveUpdateActivityCode({required ActivityCodeModel model, required int addEditFlag}) {
     final isValid = activityCodeFormKey.currentState!.validate();
     if (!isValid) {
       return;
     }
-    activityCodeFormKey.currentState!.save();
+      activityCodeFormKey.currentState!.save();
     if (addEditFlag == 1) {
       CustomFullScreenDialog.showDialog();
       collectionReference.add({
@@ -156,11 +227,8 @@ class ActivityCodeController extends GetxController {
     budgetedLaborUnitsController.clear();
   }
 
-  Stream<List<ActivityCodeModel>> getAllActivityCodes() =>
-      collectionReference.snapshots().map((query) => query.docs
-          .map((item) =>
-              ActivityCodeModel.fromMap(item.data() as Map<String, dynamic>))
-          .toList());
+  Stream<List<ActivityCodeModel>> getAllActivityCodes() => collectionReference.snapshots().map((query) =>
+      query.docs.map((item) => ActivityCodeModel.fromMap(item.data() as Map<String, dynamic>, item.id)).toList());
 
   void deleteData(String docId) {
     CustomFullScreenDialog.showDialog();
@@ -175,10 +243,7 @@ class ActivityCodeController extends GetxController {
     }).catchError((error) {
       CustomFullScreenDialog.cancelDialog();
       CustomSnackBar.showSnackBar(
-          context: Get.context,
-          title: "Error",
-          message: "Something went wrong",
-          backgroundColor: Colors.red);
+          context: Get.context, title: "Error", message: "Something went wrong", backgroundColor: Colors.red);
     });
   }
 }

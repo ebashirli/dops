@@ -201,17 +201,22 @@ class ActivityCodeView extends GetView<ActivityCodeController> {
                       ),
                       onPressed: () {
                         controller.saveUpdateActivityCode(
-                          docId!,
-                          controller.activityIdController.text,
-                          controller.activityNameController.text,
-                          controller.dropdownFieldModel.moduleNameText!,
-                          int.parse(controller.prioController.text),
-                          int.parse(controller.coefficientController.text),
-                          double.parse(
+                          model: ActivityCodeModel(
+                            docId: docId!,
+                            activityId: controller.activityIdController.text,
+                            activityName:                           controller.activityNameController.text,
+                            prio: int.parse(controller.prioController.text),
+                            coefficient: int.parse(controller.coefficientController.text),
+                            budgetedLaborUnits: double.parse(
                               controller.budgetedLaborUnitsController.text),
-                          controller.startController,
-                          controller.finishController,
-                          addEditFlag!,
+                              start: controller.startController,
+                              finish: controller.finishController,
+
+
+                          ),              
+                          controller.dropdownFieldModel.moduleNameText!,
+
+                          addEditFlag: addEditFlag!,
                         );
                       },
                     ),

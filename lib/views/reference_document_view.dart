@@ -51,7 +51,7 @@ class ReferenceDocumentView extends GetView<ReferenceDocumentController> {
       {String? text, int? addEditFlag, String? docId}) {
     Get.defaultDialog(
       barrierDismissible: false,
-      // onCancel: () => Get.back(),
+      onCancel: () => Get.back(),
       cancel: TextButton(
         onPressed: () => Get.back(),
         child: Text('Cancel'),
@@ -279,6 +279,7 @@ class ReferenceDocumentView extends GetView<ReferenceDocumentController> {
 
   List<DataRow2> getRows(List<ReferenceDocumentModel> referenceDocuments) =>
       referenceDocuments.map((ReferenceDocumentModel referenceDocument) {
+        // print('==========${referenceDocument.toMap()} =========');
         final map = referenceDocument.toMap();
         List cells = map.values.toList();
         cells = cells.sublist(1, cells.length);

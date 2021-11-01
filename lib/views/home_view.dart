@@ -31,7 +31,11 @@ class HomeView extends GetView<UserController> {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-              _buildAddEditEmployeeView(text: 'ADD', addEditFlag: 1, docId: '');
+              _buildAddEditEmployeeView(
+                text: 'ADD',
+                addEditFlag: 1,
+                docId: '',
+              );
             },
           ),
         ],

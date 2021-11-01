@@ -1,8 +1,8 @@
-import 'package:dops/models/base_model.dart';
-
-abstract class StorageService {
-  Future<void> create(BaseModel model);
-  Future<Map<String, dynamic>> retrieve();
-  Future<void> update(String id, dynamic value);
-  Future<void> delete(id);
+abstract class StorageService<T> {
+  // Future<Map> find(int id);
+  Stream<List<Map<T, T>>> getAll();
+  Future<int> insert(Map map);
+  Future<void> update(Map map);
+  // Future<String> delete(Map map);
+  Future<void> deleteById(String id);
 }

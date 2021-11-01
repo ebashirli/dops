@@ -109,7 +109,7 @@ class UserController extends GetxController {
 
   Stream<List<EmployeeModel>> getAllEmployees() =>
       collectionEmployees.snapshots().map((query) =>
-          query.docs.map((item) => EmployeeModel.fromMap(item)).toList());
+          query.docs.map((item) => EmployeeModel.fromMap(item as Map<String, dynamic>)).toList());
 
   void deleteData(String docId) {
     CustomFullScreenDialog.showDialog();

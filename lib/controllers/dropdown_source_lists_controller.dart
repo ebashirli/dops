@@ -23,10 +23,11 @@ class DropdownSourceListsController extends GetxController {
 
     dropdownSourceLists.bindStream(getAllDropdownSourceLists());
 
-    // // Creating collection with given document ID and value in Firebase
-    // // Only for first time
+    // // Creating collection with given document
+    // // ID and value in Firebase only for first time
+
     // lists.forEach((key, value) {
-    //   collectionReference.doc(key).set({'list': value});
+    //   firebaseFirestore.collection("lists").doc(key).set({'list': value});
     // });
   }
 

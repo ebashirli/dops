@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:dops/models/dropdown_field_model.dart';
 import 'package:dops/models/reference_document_model.dart';
 import 'package:dops/widgets/customFullScreenDialog.dart';
 import 'package:dops/widgets/customSnackBar.dart';
@@ -8,7 +7,6 @@ import 'package:get/get.dart';
 
 class ReferenceDocumentController extends GetxController {
   final GlobalKey<FormState> referenceDocumentFormKey = GlobalKey<FormState>();
-  DropdownFieldModel dropdownFieldModel = DropdownFieldModel();
 
   late TextEditingController docNoController,
       revCodeController,

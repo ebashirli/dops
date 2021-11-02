@@ -1,51 +1,42 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/models/activity_codes_model.dart';
-import 'package:dops/models/dropdown_field_model.dart';
+import 'package:dops/repositories/activity_code_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:dops/widgets/customFullScreenDialog.dart';
 import 'package:dops/widgets/customSnackBar.dart';
 import 'package:get/get.dart';
 
 class ActivityCodeController extends GetxController {
+  final alma = 'alma';
   final GlobalKey<FormState> activityCodeFormKey = GlobalKey<FormState>();
-  DropdownFieldModel dropdownFieldModel = DropdownFieldModel();
+  final _repository = Get.find<ActivityCodeRepository>();
 
   late TextEditingController activityIdController,
       activityNameController,
       prioController,
       coefficientController,
       budgetedLaborUnitsController;
-  late DateTime startController, finishController;
+  DateTime? startTime, finishTime;
+  RxBool sortAscending = false.obs;
+  RxInt sortColumnIndex = 0.obs;
+  String? areaText;
 
-  late RxBool sortAscending;
-  late RxInt sortColumnIndex;
-
-  //Firestore operation
-  FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-
-  late CollectionReference collectionReference;
-
-  RxList<ActivityCodeModel> activityCodes = RxList<ActivityCodeModel>([]);
+  RxList<ActivityCodeModel> _activityCodes = RxList<ActivityCodeModel>([]);
+  List<ActivityCodeModel> get activityCodes => _activityCodes.value;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     activityIdController = TextEditingController();
     activityNameController = TextEditingController();
     prioController = TextEditingController();
     coefficientController = TextEditingController();
     budgetedLaborUnitsController = TextEditingController();
-    startController = DateTime.now();
-    finishController = DateTime.now();
-
-    sortAscending = false.obs;
-    sortColumnIndex = 0.obs;
-
-    collectionReference = firebaseFirestore.collection("activity_codes");
-    // activityCodes.bindStream(getAllActivityCodes());
+    startTime = DateTime.now();
+    finishTime = DateTime.now();
+    _activityCodes.bindStream(_repository.getAllActivityCodesAsStream());
   }
 
-  // TODO: write validation rules for all fields
   String? validateName(String value) {
     if (value.isEmpty) {
       return "Name can not be empty";
@@ -60,158 +51,27 @@ class ActivityCodeController extends GetxController {
     return null;
   }
 
-  // void saveUpdateActivityCode(
-  //   String docId,
-  //   String? activityId,
-  //   String? activityName,
-  //   String? area,
-  //   int? prio,
-  //   int? coefficient,
-  //   double? budgetedLaborUnits,
-  //   DateTime? start,
-  //   DateTime? finish,
-  //   int addEditFlag,
-  // ) {
-  //   final isValid = activityCodeFormKey.currentState!.validate();
-  //   if (!isValid) {
-  //     return;
-  //   }
-  //   activityCodeFormKey.currentState!.save();
-  //   if (addEditFlag == 1) {
-  //     CustomFullScreenDialog.showDialog();
-  //     collectionReference.add({
-  //       'activityId': activityId,
-  //       'activityName': activityName,
-  //       'area': area,
-  //       'prio': prio,
-  //       'coefficient': coefficient,
-  //       'currentPriority': prio! / coefficient!,
-  //       'budgetedLaborUnits': budgetedLaborUnits,
-  //       'start': start,
-  //       'finish': finish,
-  //       'cumulative': 0.0,
-  //     }).whenComplete(() {
-  //       CustomFullScreenDialog.cancelDialog();
-  //       clearEditingControllers();
-  //       Get.back();
-  //       CustomSnackBar.showSnackBar(
-  //           context: Get.context,
-  //           title: "Activity Code Added",
-  //           message: "Activity Code successfully",
-  //           backgroundColor: Colors.green);
-  //     }).catchError((error) {
-  //       CustomFullScreenDialog.cancelDialog();
-  //       CustomSnackBar.showSnackBar(
-  //           context: Get.context,
-  //           title: "Error",
-  //           message: "Something went wrong",
-  //           backgroundColor: Colors.green);
-  //     });
-  //   } else if (addEditFlag == 2) {
-  //     //update
-  //     CustomFullScreenDialog.showDialog();
-  //     collectionReference.doc(docId).update({
-  //       'activityId': activityId,
-  //       'activityName': activityName,
-  //       'area': area,
-  //       'prio': prio,
-  //       'coefficient': coefficient,
-  //       'currentPriority': prio! / coefficient!,
-  //       'budgetedLaborUnits': budgetedLaborUnits,
-  //       'start': start,
-  //       'finish': finish,
-  //       'cumulative': 0.0,
-  //     }).whenComplete(() {
-  //       CustomFullScreenDialog.cancelDialog();
-  //       clearEditingControllers();
-  //       Get.back();
-  //       CustomSnackBar.showSnackBar(
-  //         context: Get.context,
-  //         title: "Activity Code Updated",
-  //         message: "Activity Code updated successfully",
-  //         backgroundColor: Colors.green,
-  //       );
-  //     }).catchError((error) {
-  //       CustomFullScreenDialog.cancelDialog();
-  //       CustomSnackBar.showSnackBar(
-  //         context: Get.context,
-  //         title: "Error",
-  //         message: "Something went wrong",
-  //         backgroundColor: Colors.red,
-  //       );
-  //     });
-  //   }
-  // }
-  saveUpdateActivityCode({required ActivityCodeModel model, required int addEditFlag}) {
+  updateActivityCode({required ActivityCodeModel model}) {
     final isValid = activityCodeFormKey.currentState!.validate();
     if (!isValid) {
       return;
     }
-      activityCodeFormKey.currentState!.save();
-    if (addEditFlag == 1) {
-      CustomFullScreenDialog.showDialog();
-      collectionReference.add({
-        'activityId': activityId,
-        'activityName': activityName,
-        'area': area,
-        'prio': prio,
-        'coefficient': coefficient,
-        'currentPriority': prio! / coefficient!,
-        'budgetedLaborUnits': budgetedLaborUnits,
-        'start': start,
-        'finish': finish,
-        'cumulative': 0.0,
-      }).whenComplete(() {
-        CustomFullScreenDialog.cancelDialog();
-        clearEditingControllers();
-        Get.back();
-        CustomSnackBar.showSnackBar(
-            context: Get.context,
-            title: "Activity Code Added",
-            message: "Activity Code successfully",
-            backgroundColor: Colors.green);
-      }).catchError((error) {
-        CustomFullScreenDialog.cancelDialog();
-        CustomSnackBar.showSnackBar(
-            context: Get.context,
-            title: "Error",
-            message: "Something went wrong",
-            backgroundColor: Colors.green);
-      });
-    } else if (addEditFlag == 2) {
-      //update
-      CustomFullScreenDialog.showDialog();
-      collectionReference.doc(docId).update({
-        'activityId': activityId,
-        'activityName': activityName,
-        'area': area,
-        'prio': prio,
-        'coefficient': coefficient,
-        'currentPriority': prio! / coefficient!,
-        'budgetedLaborUnits': budgetedLaborUnits,
-        'start': start,
-        'finish': finish,
-        'cumulative': 0.0,
-      }).whenComplete(() {
-        CustomFullScreenDialog.cancelDialog();
-        clearEditingControllers();
-        Get.back();
-        CustomSnackBar.showSnackBar(
-          context: Get.context,
-          title: "Activity Code Updated",
-          message: "Activity Code updated successfully",
-          backgroundColor: Colors.green,
-        );
-      }).catchError((error) {
-        CustomFullScreenDialog.cancelDialog();
-        CustomSnackBar.showSnackBar(
-          context: Get.context,
-          title: "Error",
-          message: "Something went wrong",
-          backgroundColor: Colors.red,
-        );
-      });
-    }
+    activityCodeFormKey.currentState!.save();
+    //update
+    CustomFullScreenDialog.showDialog();
+    _repository
+        .updateActivityCodeModel(model, model.docId!)
+        .whenComplete(whenCompleted('Activity Code Updated '))
+        .catchError((error) {
+      catchError(error);
+    });
+  }
+
+  saveActivityCode({required ActivityCodeModel model}) {
+    CustomFullScreenDialog.showDialog();
+    _repository.addActivityCodeModel(model).whenComplete(whenCompleted('Activity Code Updated ')).catchError((error) {
+      catchError(error);
+    });
   }
 
   @override
@@ -227,23 +87,44 @@ class ActivityCodeController extends GetxController {
     budgetedLaborUnitsController.clear();
   }
 
-  Stream<List<ActivityCodeModel>> getAllActivityCodes() => collectionReference.snapshots().map((query) =>
-      query.docs.map((item) => ActivityCodeModel.fromMap(item.data() as Map<String, dynamic>, item.id)).toList());
-
-  void deleteData(String docId) {
-    CustomFullScreenDialog.showDialog();
-    collectionReference.doc(docId).delete().whenComplete(() {
-      CustomFullScreenDialog.cancelDialog();
-      Get.back();
-      CustomSnackBar.showSnackBar(
-          context: Get.context,
-          title: "Activity Code Deleted",
-          message: "Activity Code deleted successfully",
-          backgroundColor: Colors.green);
-    }).catchError((error) {
-      CustomFullScreenDialog.cancelDialog();
-      CustomSnackBar.showSnackBar(
-          context: Get.context, title: "Error", message: "Something went wrong", backgroundColor: Colors.red);
-    });
+  void fillEditingControllers(ActivityCodeModel model) {
+    activityIdController.text = model.activityId ?? '';
+    activityNameController.text = model.activityName ?? '';
+    prioController.text = model.prio.toString();
+    coefficientController.text = model.coefficient.toString();
+    budgetedLaborUnitsController.text = model.budgetedLaborUnits.toString();
+    startTime = model.start;
+    finishTime = model.finish;
+    areaText = model.area;
   }
+
+  whenCompleted(String title) {
+    CustomFullScreenDialog.cancelDialog();
+    clearEditingControllers();
+    Get.back();
+    CustomSnackBar.showSnackBar(
+        context: Get.context, title: title, message: "$title Successfully", backgroundColor: Colors.green);
+  }
+
+  catchError(FirebaseException error) {
+    {
+      CustomFullScreenDialog.cancelDialog();
+      CustomSnackBar.showSnackBar(
+        context: Get.context,
+        title: "Error",
+        message: "${error.message.toString()}",
+        backgroundColor: Colors.red,
+      );
+    }
+  }
+
+  // void deleteData(String docId) {
+  //   CustomFullScreenDialog.showDialog();
+  //   _repository
+  //       .removeActivityCodeModel(docId)
+  //       .whenComplete(whenCompleted('Deleted Activity Code'))
+  //       .catchError((error) {
+  //     catchError(error);
+  //   });
+  // }
 }

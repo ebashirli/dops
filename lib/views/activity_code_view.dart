@@ -1,8 +1,8 @@
 import 'package:data_table_2/data_table_2.dart';
-import 'package:date_field/date_field.dart';
 import 'package:dops/constants/lists.dart';
 import 'package:dops/controllers/activity_code_controller.dart';
 import 'package:dops/models/activity_codes_model.dart';
+import 'package:dops/widgets/custom_date_time_form_field.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:dops/constants/table_details.dart';
@@ -10,9 +10,11 @@ import 'package:flutter/services.dart';
 import '../constants/style.dart';
 import 'package:get/get.dart';
 
+// ignore: must_be_immutable
 class ActivityCodeView extends GetView<ActivityCodeController> {
   @override
   Widget build(BuildContext context) {
+    print("salam");
     return Scaffold(
       appBar: AppBar(
         title: Text('Activity Codes'),
@@ -20,18 +22,22 @@ class ActivityCodeView extends GetView<ActivityCodeController> {
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-              _buildAddEditActivityCodeView(
-                text: 'Add',
-                addEditFlag: 1,
-                docId: '',
-              );
+              _buildAddEdit();
             },
           )
         ],
       ),
       body: Obx(
         () {
+          // final map = controller.activityCodes[0].toMap();
+          // List cells = map.values.toList();
+          // cells = cells.sublist(1, cells.length);
+          // return Text(cells.length.toString());
+
           return DataTable2(
+            onSelectAll: (value) {
+              print('selected');
+            },
             columns: getColumns(activityCodeTableColumnNames),
             rows: getRows(controller.activityCodes),
             columnSpacing: 12,
@@ -47,8 +53,13 @@ class ActivityCodeView extends GetView<ActivityCodeController> {
     );
   }
 
-  _buildAddEditActivityCodeView(
-      {String? text, int? addEditFlag, String? docId}) {
+  _buildAddEdit({ActivityCodeModel? activityCodeModel}) {
+    if (activityCodeModel != null) {
+      controller.fillEditingControllers(activityCodeModel);
+    } else {
+      controller.clearEditingControllers();
+    }
+
     Get.defaultDialog(
       barrierDismissible: false,
       // onCancel: () => Get.back(),
@@ -56,7 +67,7 @@ class ActivityCodeView extends GetView<ActivityCodeController> {
         onPressed: () => Get.back(),
         child: Text('Cancel'),
       ),
-      title: '$text Activity Code',
+      title: activityCodeModel == null ? 'Add Activity Code' : 'Update Activity Code',
       content: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -75,17 +86,16 @@ class ActivityCodeView extends GetView<ActivityCodeController> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextFormField(
-                    decoration: InputDecoration(
-                      labelText: activityCodeTableColumnNames[0],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
+                      decoration: InputDecoration(
+                        labelText: activityCodeTableColumnNames[0],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                    ),
-                    controller: controller.activityIdController,
-                    validator: (value) {
-                      return controller.validateName(value!);
-                    },
-                  ),
+                      controller: controller.activityIdController,
+                      validator: (value) {
+                        return controller.validateName(value!);
+                      }),
                   SizedBox(height: 10),
                   TextFormField(
                     keyboardType: TextInputType.multiline,
@@ -101,14 +111,9 @@ class ActivityCodeView extends GetView<ActivityCodeController> {
                     },
                   ),
                   SizedBox(height: 8),
-                  _dropdownSearch(
-                    lists['Module']!,
-                    activityCodeTableColumnNames[2],
-                    50 * 4,
-                    onChanged: (value) {
-                      controller.dropdownFieldModel.moduleNameText = value;
-                    },
-                  ),
+                  _dropdownSearch(lists['Module']!, activityCodeTableColumnNames[2], 50 * 4, onChanged: (value) {
+                    controller.areaText = value ?? '';
+                  }),
                   SizedBox(height: 10),
                   TextFormField(
                       controller: controller.prioController,
@@ -116,9 +121,8 @@ class ActivityCodeView extends GetView<ActivityCodeController> {
                       inputFormatters: <TextInputFormatter>[
                         FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                       ],
-                      decoration: InputDecoration(
-                          labelText: activityCodeTableColumnNames[3],
-                          icon: Icon(Icons.phone_iphone))),
+                      decoration:
+                          InputDecoration(labelText: activityCodeTableColumnNames[3], icon: Icon(Icons.phone_iphone))),
                   SizedBox(height: 10),
                   TextFormField(
                       controller: controller.coefficientController,
@@ -126,12 +130,9 @@ class ActivityCodeView extends GetView<ActivityCodeController> {
                       inputFormatters: <TextInputFormatter>[
                         FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                       ],
-                      decoration: InputDecoration(
-                          labelText: activityCodeTableColumnNames[4],
-                          icon: Icon(Icons.phone_iphone))),
-                  SizedBox(
-                    height: 10,
-                  ),
+                      decoration:
+                          InputDecoration(labelText: activityCodeTableColumnNames[4], icon: Icon(Icons.phone_iphone))),
+                  SizedBox(height: 10),
                   TextFormField(
                       controller: controller.budgetedLaborUnitsController,
                       keyboardType: TextInputType.number,
@@ -139,85 +140,48 @@ class ActivityCodeView extends GetView<ActivityCodeController> {
                         FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                       ],
                       decoration: InputDecoration(
-                          labelText: activityCodeTableColumnNames[5],
-                          icon: Icon(Icons.format_list_numbered))),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  DateTimeFormField(
-                    mode: DateTimeFieldPickerMode.date,
-                    decoration: InputDecoration(
-                      hintStyle: TextStyle(color: Colors.black45),
-                      errorStyle: TextStyle(color: Colors.redAccent),
-                      border: OutlineInputBorder(),
-                      suffixIcon: Icon(Icons.event_note),
-                      labelText: activityCodeTableColumnNames[7],
-                    ),
-                    firstDate: DateTime.now().add(const Duration(days: 10)),
-                    initialDate: DateTime.now().add(const Duration(days: 10)),
-                    autovalidateMode: AutovalidateMode.always,
-                    validator: (DateTime? e) =>
-                        (e?.day ?? 0) == 1 ? 'Please not the first day' : null,
+                          labelText: activityCodeTableColumnNames[5], icon: Icon(Icons.format_list_numbered))),
+                  SizedBox(height: 10),
+                  CustomDateTimeFormField(
+                    initialValue: controller.startTime,
+                    labelText: activityCodeTableColumnNames[7],
                     onDateSelected: (DateTime value) {
-                      controller.startController = value;
+                      controller.startTime = value;
                     },
                   ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  DateTimeFormField(
-                    mode: DateTimeFieldPickerMode.date,
-                    decoration: InputDecoration(
-                      hintStyle: TextStyle(color: Colors.black45),
-                      errorStyle: TextStyle(color: Colors.redAccent),
-                      border: OutlineInputBorder(),
-                      suffixIcon: Icon(Icons.event_note),
-                      labelText: activityCodeTableColumnNames[8],
-                    ),
-                    firstDate: DateTime.now().add(const Duration(days: 10)),
-                    initialDate: DateTime.now().add(const Duration(days: 10)),
-                    autovalidateMode: AutovalidateMode.always,
-                    validator: (DateTime? e) =>
-                        (e?.day ?? 0) == 1 ? 'Please not the first day' : null,
+                  SizedBox(height: 10),
+                  CustomDateTimeFormField(
+                    initialValue: controller.finishTime,
+                    labelText: activityCodeTableColumnNames[8],
                     onDateSelected: (DateTime value) {
-                      controller.finishController = value;
+                      controller.finishTime = value;
                     },
                   ),
-                  SizedBox(
-                    height: 10,
-                  ),
+                  SizedBox(height: 10),
                   ConstrainedBox(
-                    constraints: BoxConstraints.tightFor(
-                      width: Get.context!.width,
-                      height: 45,
-                    ),
+                    constraints: BoxConstraints.tightFor(width: Get.context!.width, height: 45),
                     child: ElevatedButton(
                       child: Text(
-                        text!,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                        ),
+                        activityCodeModel != null ? 'Update' : 'Add',
+                        style: TextStyle(color: Colors.black, fontSize: 16),
                       ),
                       onPressed: () {
-                        controller.saveUpdateActivityCode(
-                          model: ActivityCodeModel(
-                            docId: docId!,
-                            activityId: controller.activityIdController.text,
-                            activityName:                           controller.activityNameController.text,
-                            prio: int.parse(controller.prioController.text),
-                            coefficient: int.parse(controller.coefficientController.text),
-                            budgetedLaborUnits: double.parse(
-                              controller.budgetedLaborUnitsController.text),
-                              start: controller.startController,
-                              finish: controller.finishController,
-
-
-                          ),              
-                          controller.dropdownFieldModel.moduleNameText!,
-
-                          addEditFlag: addEditFlag!,
+                        ActivityCodeModel model = ActivityCodeModel(
+                          docId: activityCodeModel != null ? activityCodeModel.docId : null,
+                          activityId: controller.activityIdController.text,
+                          activityName: controller.activityNameController.text,
+                          area: controller.areaText,
+                          prio: int.parse(controller.prioController.text),
+                          coefficient: int.parse(controller.coefficientController.text),
+                          budgetedLaborUnits: double.parse(controller.budgetedLaborUnitsController.text),
+                          start: controller.startTime,
+                          finish: controller.finishTime,
+                          cumulative: 0,
+                          currentPriority: 0,
                         );
+                        activityCodeModel == null
+                            ? controller.saveActivityCode(model: model)
+                            : controller.updateActivityCode(model: model);
                       },
                     ),
                   ),
@@ -230,15 +194,17 @@ class ActivityCodeView extends GetView<ActivityCodeController> {
     );
   }
 
-  Widget _dropdownSearch(
-      List<String> itemsList, String labelText, double maxHeight,
+  Widget _dropdownSearch(List<String> itemsList, String labelText, double maxHeight,
       {dynamic Function(String?)? onChanged}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: DropdownSearch<String>(
+
         maxHeight: maxHeight,
         mode: Mode.MENU,
         items: itemsList,
+        selectedItem: controller.areaText,
+
         dropdownSearchDecoration: InputDecoration(
           labelText: labelText,
           border: OutlineInputBorder(
@@ -260,28 +226,39 @@ class ActivityCodeView extends GetView<ActivityCodeController> {
       confirmTextColor: Colors.black,
       onCancel: () {},
       onConfirm: () {
-        controller.deleteData(docId);
+        // controller.removeActivityCodeModel();
       },
     );
   }
 
-  List<DataColumn2> getColumns(List<String> columns) =>
-      columns.map((String column) {
+  List<DataColumn2> getColumns(List<String> columns) {
+    print('columns: $columns.length');
+    return columns.map(
+      (String column) {
         return DataColumn2(
           label: Text(column),
           onSort: onSort,
         );
-      }).toList();
+      },
+    ).toList();
+  }
 
   List<DataRow2> getRows(List<ActivityCodeModel> activityCodes) {
-    return activityCodes.map((ActivityCodeModel activityCode) {
+    List<DataRow2> dataRows = activityCodes.map((ActivityCodeModel activityCode) {
       final map = activityCode.toMap();
       List cells = map.values.toList();
       cells = cells.sublist(1, cells.length);
+      print('dataRows: $cells');
       return DataRow2(
+        onTap: () {
+          // print('pressed : ${activityCode.activityName}');
+          _buildAddEdit(activityCodeModel: activityCode);
+        },
         cells: getCells(cells),
       );
     }).toList();
+
+    return dataRows;
   }
 
   List<DataCell> getCells(List<dynamic> cells) => cells.map((data) {

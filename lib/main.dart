@@ -1,6 +1,8 @@
 import 'dart:ui';
 
+import 'package:dops/repositories/activity_code_repository.dart';
 import 'package:dops/services/firebase_service/firebase_storage_service.dart';
+import 'package:dops/services/firebase_service/storage_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -8,7 +10,7 @@ import 'package:get/get.dart';
 import 'routes/app_pages.dart';
 
 Future<void> main() async {
-  await initServices();
+   await initServices();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
@@ -17,12 +19,17 @@ Future<void> main() async {
 
 @override
 Future<void> initServices() async {
-  print('This is start of the Services');
-  await Get.putAsync<FirebaseStorageService>(() async => await FirebaseStorageService('lists'),tag: 'lists');
-  await Get.putAsync<FirebaseStorageService>(() async => await FirebaseStorageService('activity_codes'),tag: 'activity_codes');
-  await Get.putAsync<FirebaseStorageService>(() async => await FirebaseStorageService('employees'),tag: 'employees');
-  await Get.putAsync<FirebaseStorageService>(() async => await FirebaseStorageService('reference_documents'),tag: 'reference_documents');
-  print('The Service about to start');
+  print('start');
+//   // await Get.putAsync<StorageService>(() async => await FirebaseStorageService('lists'), tag: 'lists');
+   await Get.putAsync<StorageService>(() async => await FirebaseStorageService('activity_codes'), tag: 'activity_codes');
+//   // await Get.putAsync<StorageService>(() async => await FirebaseStorageService('employees'), tag: 'employees');
+//   // await Get.putAsync<StorageService>(() async => await FirebaseStorageService('reference_documents'),
+//   // tag: 'reference_documents');
+   await Get.putAsync<ActivityCodeRepository>(() async => await ActivityCodeRepository());
+
+  // Get.lazyPut<StorageService>(() => FirebaseStorageService('activity_codes'), tag: 'activity_codes');
+  // Get.lazyPut<ActivityCodeRepository>(() => ActivityCodeRepository());
+  print('done');
 }
 
 class MyApp extends StatelessWidget {

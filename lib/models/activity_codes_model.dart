@@ -4,6 +4,7 @@ class ActivityCodeModel {
   String? docId;
   String? activityId;
   String? activityName;
+  // String? moduleName;
   String? area;
   int? prio;
   int? coefficient;
@@ -14,9 +15,10 @@ class ActivityCodeModel {
   double? cumulative;
 
   ActivityCodeModel({
-    this.docId,
+    required this.docId,
     this.activityId,
     this.activityName,
+    // this.moduleName,
     this.area,
     this.prio,
     this.coefficient,
@@ -30,15 +32,16 @@ class ActivityCodeModel {
   Map<String, dynamic> toMap() {
     return {
       'docId': docId,
-      'activityId': activityId,
-      'activityName': activityName,
+      'activity_id': activityId,
+      'activity_name': activityName,
+      // 'module_name': moduleName,
       'area': area,
       'prio': prio,
       'coefficient': coefficient,
-      'currentPriority': currentPriority,
-      'budgetedLaborUnits': budgetedLaborUnits,
-      'start': start?.millisecondsSinceEpoch,
-      'finish': finish?.millisecondsSinceEpoch,
+      'current_priority': currentPriority,
+      'budgeted_labor_units': budgetedLaborUnits,
+      'start': start,
+      'finish': finish,
       'cumulative': cumulative,
     };
   }
@@ -46,15 +49,16 @@ class ActivityCodeModel {
   factory ActivityCodeModel.fromMap(Map<String, dynamic> map, String docId) {
     return ActivityCodeModel(
         docId: docId,
-        activityId: map['activityId'],
-        activityName: map['activityName'],
+        activityId: map['activity_id'],
+        activityName: map['activity_name'],
+        // moduleName: map['module_name'],
         area: map['area'],
         prio: map['prio'],
         coefficient: map['coefficient'],
-        currentPriority: map['currentPriority'],
-        budgetedLaborUnits: map['budgetedLaborUnits'],
-        start: map['start'],
-        finish: map['finish'],
+        currentPriority: map['current_priority'],
+        budgetedLaborUnits: map['budgeted_labor_units'],
+        start: map['start'].toDate(),
+        finish: map['finish'].toDate(),
         cumulative: map['cumulative']);
   }
 
@@ -63,4 +67,5 @@ class ActivityCodeModel {
   // factory ActivityCodeModel.fromJson(String source) {
   //   return ActivityCodeModel.fromMap(json.decode(source));
   // }
+
 }

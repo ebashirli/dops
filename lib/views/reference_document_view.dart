@@ -11,6 +11,10 @@ import 'package:get/get.dart';
 
 // ignore: must_be_immutable
 class ReferenceDocumentView extends GetView<ReferenceDocumentController> {
+  String moduleNameText = '';
+  String projectText = '';
+  String referenceTypeText = '';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,8 +51,7 @@ class ReferenceDocumentView extends GetView<ReferenceDocumentController> {
     );
   }
 
-  _buildAddEditReferenceDocumentView(
-      {String? text, int? addEditFlag, String? docId}) {
+  _buildAddEditReferenceDocumentView({String? text, int? addEditFlag, String? docId}) {
     Get.defaultDialog(
       barrierDismissible: false,
       onCancel: () => Get.back(),
@@ -79,7 +82,7 @@ class ReferenceDocumentView extends GetView<ReferenceDocumentController> {
                     'Project',
                     50,
                     onChanged: (value) {
-                      controller.dropdownFieldModel.projectText = value;
+                      projectText = value??'-';
                     },
                   ),
                   _dropdownSearch(
@@ -87,7 +90,7 @@ class ReferenceDocumentView extends GetView<ReferenceDocumentController> {
                     'Reference type',
                     50 * 5,
                     onChanged: (value) {
-                      controller.dropdownFieldModel.referenceTypeText = value;
+                     referenceTypeText = value??'-';
                     },
                   ),
                   _dropdownSearch(
@@ -95,7 +98,7 @@ class ReferenceDocumentView extends GetView<ReferenceDocumentController> {
                     'Module name',
                     50 * 4,
                     onChanged: (value) {
-                      controller.dropdownFieldModel.moduleNameText = value;
+                      moduleNameText = value??'-';
                     },
                   ),
                   TextFormField(
@@ -171,8 +174,7 @@ class ReferenceDocumentView extends GetView<ReferenceDocumentController> {
                     firstDate: DateTime.now().add(const Duration(days: 10)),
                     initialDate: DateTime.now().add(const Duration(days: 10)),
                     autovalidateMode: AutovalidateMode.always,
-                    validator: (DateTime? e) =>
-                        (e?.day ?? 0) == 1 ? 'Please not the first day' : null,
+                    validator: (DateTime? e) => (e?.day ?? 0) == 1 ? 'Please not the first day' : null,
                     onDateSelected: (DateTime value) {
                       controller.receiveDateController = value;
                     },
@@ -211,9 +213,9 @@ class ReferenceDocumentView extends GetView<ReferenceDocumentController> {
                       onPressed: () {
                         controller.saveUpdateReferenceDocument(
                           docId!,
-                          controller.dropdownFieldModel.projectText!,
-                          controller.dropdownFieldModel.referenceTypeText!,
-                          controller.dropdownFieldModel.moduleNameText!,
+                          projectText,
+                          referenceTypeText,
+                          moduleNameText,
                           controller.docNoController.text,
                           controller.revCodeController.text,
                           controller.titleController.text,
@@ -234,8 +236,7 @@ class ReferenceDocumentView extends GetView<ReferenceDocumentController> {
     );
   }
 
-  Widget _dropdownSearch(
-      List<String> itemsList, String hintText, double maxHeight,
+  Widget _dropdownSearch(List<String> itemsList, String hintText, double maxHeight,
       {dynamic Function(String?)? onChanged}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
@@ -269,8 +270,7 @@ class ReferenceDocumentView extends GetView<ReferenceDocumentController> {
     );
   }
 
-  List<DataColumn2> getColumns(List<String> columns) =>
-      columns.map((String column) {
+  List<DataColumn2> getColumns(List<String> columns) => columns.map((String column) {
         return DataColumn2(
           label: Text(column),
           onSort: onSort,
@@ -290,9 +290,7 @@ class ReferenceDocumentView extends GetView<ReferenceDocumentController> {
 
   List<DataCell> getCells(List<dynamic> cells) => cells.map((data) {
         return DataCell(
-          Text(data is DateTime
-              ? '${data.month}/${data.day}/${data.year}'
-              : data ?? ''),
+          Text(data is DateTime ? '${data.month}/${data.day}/${data.year}' : data ?? ''),
         );
       }).toList();
 

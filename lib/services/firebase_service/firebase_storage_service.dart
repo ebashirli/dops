@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dops/services/firebase_service/storage_service.dart';
 import 'package:get/get.dart';
 
-class FirebaseStorageService extends GetxService {
+class FirebaseStorageService  extends GetxService implements StorageService {
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   final String path;
   late final CollectionReference ref;

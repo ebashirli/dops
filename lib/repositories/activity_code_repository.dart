@@ -10,7 +10,7 @@ class ActivityCodeRepository {
   Future fetchActivityCodeModels() async {
     QuerySnapshot result = await _api.getData();
     activityCodes = result.docs
-        .map((activityCode) => ActivityCodeModel.fromMap(activityCode.data() as Map<String, dynamic>, activityCode.id))
+        .map((activityCode) => ActivityCodeModel.fromMap(activityCode))
         .toList();
     return activityCodes;
   }
@@ -19,7 +19,7 @@ class ActivityCodeRepository {
     return _api.getDataAsStream().map((QuerySnapshot query) {
       List<ActivityCodeModel> returnValue = [];
       query.docs.forEach((element) {
-        returnValue.add(ActivityCodeModel.fromMap(element.data() as Map<String, dynamic>, element.id));
+        returnValue.add(ActivityCodeModel.fromMap(element));
       });
       return returnValue;
     });
@@ -27,22 +27,18 @@ class ActivityCodeRepository {
 
   Future<ActivityCodeModel> getActivityCodeModelById(String id) async {
     var doc = await _api.getDocumentById(id);
-    return ActivityCodeModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+    return ActivityCodeModel.fromMap(doc.data());
   }
 
-  Future removeActivityCodeModel(String id) async {
+  removeActivityCodeModel(String id) async {
     await _api.removeDocument(id);
-    return;
   }
 
-  Future updateActivityCodeModel(ActivityCodeModel data, String id) async {
+  updateActivityCodeModel(ActivityCodeModel data, String id) async {
     await _api.updateDocument(data.toMap(), id);
-    return;
   }
 
-  Future addActivityCodeModel(ActivityCodeModel data) async {
-    // print(data.toMap());
+  addActivityCodeModel(ActivityCodeModel data) async {
     await _api.addDocument(data.toMap());
-    return;
   }
 }

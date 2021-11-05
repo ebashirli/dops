@@ -5,6 +5,6 @@ abstract class StorageService {
   Stream<QuerySnapshot> getDataAsStream();
   Future getDocumentById(String id);
   Future<void> removeDocument(String id);
-  Future addDocument(Map data);
+  Future<void> addDocument(Map data);
   Future<void> updateDocument(Map<String, dynamic> data, String id);
 }

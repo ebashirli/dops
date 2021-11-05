@@ -28,7 +28,7 @@ class ActivityCodeController extends GetxController {
   String? areaText = '';
 
   RxList<ActivityCodeModel> _activityCodes = RxList<ActivityCodeModel>([]);
-  List<ActivityCodeModel> get activityCodes => _activityCodes.value;
+  List<ActivityCodeModel> get activityCodes => _activityCodes;
 
   @override
   void onInit() async {
@@ -57,7 +57,7 @@ class ActivityCodeController extends GetxController {
     return null;
   }
 
-  updateActivityCode({required ActivityCodeModel model}) {
+  updateActivityCode({required ActivityCodeModel model}) async {
     final isValid = activityCodeFormKey.currentState!.validate();
     if (!isValid) {
       return;
@@ -65,19 +65,16 @@ class ActivityCodeController extends GetxController {
     activityCodeFormKey.currentState!.save();
     //update
     CustomFullScreenDialog.showDialog();
-    _repository
-        .updateActivityCodeModel(model, model.docId!)
-        .whenComplete(whenCompleted('Updated '))
-        .catchError((error) {
-      catchError(error);
-    });
+    await _repository.updateActivityCodeModel(model, model.docId!);
+    CustomFullScreenDialog.cancelDialog();
+    Get.back();
   }
 
-  saveActivityCode({required ActivityCodeModel model}) {
+  saveActivityCode({required ActivityCodeModel model}) async {
     CustomFullScreenDialog.showDialog();
-    _repository.addActivityCodeModel(model).whenComplete(whenCompleted('Updated ')).catchError((error) {
-      catchError(error);
-    });
+    await _repository.addActivityCodeModel(model);
+    CustomFullScreenDialog.cancelDialog();
+    Get.back();
   }
 
   void deleteActivityCode(String id) {
@@ -111,12 +108,10 @@ class ActivityCodeController extends GetxController {
     areaText = model.area;
   }
 
-  whenCompleted(String title) {
-    // CustomFullScreenDialog.cancelDialog();
+  whenCompleted() {
+    CustomFullScreenDialog.cancelDialog();
     clearEditingControllers();
     Get.back();
-    // CustomSnackBar.showSnackBar(
-    //     context: Get.context, title: title, message: "$title Successfully", backgroundColor: Colors.green);
   }
 
   catchError(FirebaseException error) {
@@ -131,17 +126,6 @@ class ActivityCodeController extends GetxController {
     }
   }
 
-  // void deleteData(String docId) {
-  //   CustomFullScreenDialog.showDialog();
-  //   _repository
-  //       .removeActivityCodeModel(docId)
-  //       .whenComplete(whenCompleted('Deleted Activity Code'))
-  //       .catchError((error) {
-  //     catchError(error);
-  //   });
-  // }
-
-  
   buildAddEdit({ActivityCodeModel? activityCodeModel}) {
     if (activityCodeModel != null) {
       fillEditingControllers(activityCodeModel);
@@ -155,7 +139,9 @@ class ActivityCodeController extends GetxController {
 
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: activityCodeModel == null ? 'Add Activity Code' : 'Update Activity Code',
+      title: activityCodeModel == null
+          ? 'Add Activity Code'
+          : 'Update Activity Code',
       content: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -201,7 +187,10 @@ class ActivityCodeController extends GetxController {
                       },
                     ),
                     SizedBox(height: 10),
-                    _dropdownSearch(lists['Module']!, activityCodeTableColumnNames[2], 50 * 4, onChanged: (value) {
+                    _dropdownSearch(
+                        lists['Module']!,
+                        activityCodeTableColumnNames[2],
+                        50 * 4, onChanged: (value) {
                       areaText = value ?? '';
                     }),
                     SizedBox(height: 10),
@@ -212,7 +201,8 @@ class ActivityCodeController extends GetxController {
                           FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                         ],
                         decoration: InputDecoration(
-                            labelText: activityCodeTableColumnNames[3], icon: Icon(Icons.phone_iphone))),
+                            labelText: activityCodeTableColumnNames[3],
+                            icon: Icon(Icons.phone_iphone))),
                     SizedBox(height: 10),
                     TextFormField(
                         controller: coefficientController,
@@ -221,7 +211,8 @@ class ActivityCodeController extends GetxController {
                           FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                         ],
                         decoration: InputDecoration(
-                            labelText: activityCodeTableColumnNames[4], icon: Icon(Icons.phone_iphone))),
+                            labelText: activityCodeTableColumnNames[4],
+                            icon: Icon(Icons.phone_iphone))),
                     SizedBox(height: 10),
                     TextFormField(
                         controller: budgetedLaborUnitsController,
@@ -230,7 +221,8 @@ class ActivityCodeController extends GetxController {
                           FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
                         ],
                         decoration: InputDecoration(
-                            labelText: activityCodeTableColumnNames[5], icon: Icon(Icons.format_list_numbered))),
+                            labelText: activityCodeTableColumnNames[5],
+                            icon: Icon(Icons.format_list_numbered))),
                     SizedBox(height: 10),
                     CustomDateTimeFormField(
                       initialValue: startTime,
@@ -259,21 +251,30 @@ class ActivityCodeController extends GetxController {
                               },
                               icon: Icon(Icons.delete),
                               label: const Text('Delete'),
-                              style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.red)),
+                              style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Colors.red)),
                             ),
                           const Spacer(),
-                          ElevatedButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+                          ElevatedButton(
+                              onPressed: () => Get.back(),
+                              child: const Text('Cancel')),
                           SizedBox(width: 10),
                           ElevatedButton(
                             onPressed: () {
                               ActivityCodeModel model = ActivityCodeModel(
-                                docId: activityCodeModel != null ? activityCodeModel.docId : null,
+                                docId: activityCodeModel != null
+                                    ? activityCodeModel.docId
+                                    : null,
                                 activityId: activityIdController.text,
                                 activityName: activityNameController.text,
                                 area: areaText,
                                 prio: int.parse(prioController.text),
-                                coefficient: int.parse(coefficientController.text),
-                                budgetedLaborUnits: double.parse(budgetedLaborUnitsController.text),
+                                coefficient:
+                                    int.parse(coefficientController.text),
+                                budgetedLaborUnits: double.parse(
+                                    budgetedLaborUnitsController.text),
                                 start: startTime,
                                 finish: finishTime,
                                 cumulative: 0,
@@ -299,8 +300,9 @@ class ActivityCodeController extends GetxController {
       ),
     );
   }
-  
-  Widget _dropdownSearch(List<String> itemsList, String labelText, double maxHeight,
+
+  Widget _dropdownSearch(
+      List<String> itemsList, String labelText, double maxHeight,
       {dynamic Function(String?)? onChanged}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
@@ -320,5 +322,4 @@ class ActivityCodeController extends GetxController {
       ),
     );
   }
-
 }

@@ -1,10 +1,11 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class ActivityCodeModel {
   String? docId;
   String? activityId;
   String? activityName;
-  // String? moduleName;
   String? area;
   int? prio;
   int? coefficient;
@@ -18,7 +19,6 @@ class ActivityCodeModel {
     required this.docId,
     this.activityId,
     this.activityName,
-    // this.moduleName,
     this.area,
     this.prio,
     this.coefficient,
@@ -31,10 +31,8 @@ class ActivityCodeModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'docId': docId,
       'activity_id': activityId,
       'activity_name': activityName,
-      // 'module_name': moduleName,
       'area': area,
       'prio': prio,
       'coefficient': coefficient,
@@ -46,26 +44,21 @@ class ActivityCodeModel {
     };
   }
 
-  factory ActivityCodeModel.fromMap(Map<String, dynamic> map, String docId) {
+  factory ActivityCodeModel.fromMap(DocumentSnapshot data) {
     return ActivityCodeModel(
-        docId: docId,
-        activityId: map['activity_id'],
-        activityName: map['activity_name'],
-        // moduleName: map['module_name'],
-        area: map['area'],
-        prio: map['prio'],
-        coefficient: map['coefficient'],
-        currentPriority: map['current_priority'],
-        budgetedLaborUnits: map['budgeted_labor_units'],
-        start: map['start'].toDate(),
-        finish: map['finish'].toDate(),
-        cumulative: map['cumulative']);
+      docId: data.id,
+      activityId: data['activity_id'],
+      activityName: data['activity_name'],
+      area: data['area'],
+      prio: data['prio'],
+      coefficient: data['coefficient'],
+      currentPriority: data['current_priority'],
+      budgetedLaborUnits: data['budgeted_labor_units'],
+      start: data['start'].toDate(),
+      finish: data['finish'].toDate(),
+      cumulative: data['cumulative'],
+    );
   }
 
   String toJson() => json.encode(toMap());
-
-  // factory ActivityCodeModel.fromJson(String source) {
-  //   return ActivityCodeModel.fromMap(json.decode(source));
-  // }
-
 }

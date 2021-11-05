@@ -10,7 +10,7 @@ import 'package:get/get.dart';
 import 'routes/app_pages.dart';
 
 Future<void> main() async {
-   await initServices();
+  await initServices();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
@@ -20,11 +20,14 @@ Future<void> main() async {
 @override
 Future<void> initServices() async {
 //   // await Get.putAsync<StorageService>(() async => await FirebaseStorageService('lists'), tag: 'lists');
-   await Get.putAsync<StorageService>(() async => await FirebaseStorageService('activity_codes'), tag: 'activity_codes');
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('activity_codes'),
+      tag: 'activity_codes');
 //   // await Get.putAsync<StorageService>(() async => await FirebaseStorageService('employees'), tag: 'employees');
 //   // await Get.putAsync<StorageService>(() async => await FirebaseStorageService('reference_documents'),
 //   // tag: 'reference_documents');
-   await Get.putAsync<ActivityCodeRepository>(() async => await ActivityCodeRepository());
+  await Get.putAsync<ActivityCodeRepository>(
+      () async => await ActivityCodeRepository());
 
   // Get.lazyPut<StorageService>(() => FirebaseStorageService('activity_codes'), tag: 'activity_codes');
   // Get.lazyPut<ActivityCodeRepository>(() => ActivityCodeRepository());

@@ -7,7 +7,6 @@ class DropdownSourceListsView extends GetView<DropdownSourceListsController> {
   @override
   Widget build(BuildContext context) {
     var lists = controller.dropdownSourceLists;
-    print(lists);
     return Scaffold(
       appBar: AppBar(
         title: Text('Lists'),

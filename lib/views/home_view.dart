@@ -1,185 +1,127 @@
+import 'package:dops/controllers/activity_code_controller.dart';
+import 'package:dops/views/activity_code_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../controllers/user_controller.dart';
+import '../controllers/home_controller.dart';
+import '../enum.dart';
 
-class HomeView extends GetView<UserController> {
-  
+class HomeView extends GetView<HomeController> {
+  final activityCodeController = Get.find<ActivityCodeController>();
   @override
   Widget build(BuildContext context) {
-    
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Firestore CRUD'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.golf_course),
+    return Obx(() {
+      return Scaffold(
+        drawer: _buildDrawer(),
+        appBar: _buildAppBar(),
+        body: _buildBody(),
+      );
+    });
+  }
+
+  Widget _buildBody() {
+    switch (controller.homeStates) {
+      case HomeStates.ActivityCodeState:
+        return ActivityCodeView();
+      case HomeStates.ReferenceDocState:
+        return Container(child: const Text('reference'));
+
+      case HomeStates.DropdownSourceListState:
+        return Container(child: const Text('dropwdown'));
+
+      case HomeStates.UserState:
+        return Container(child: const Text('user'));
+    }
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: Text(_buildTitleOfPage()),
+      actions: [
+        IconButton(
             onPressed: () {
-              Get.toNamed('/reference_document');
+              _buildAddDatabase();
             },
-          ),
-          IconButton(
-            icon: Icon(Icons.local_activity),
-            onPressed: () {
-              Get.toNamed('/activity_code');
-            },
-          ),
-          IconButton(
+            icon: Icon(Icons.add))
+      ],
+    );
+  }
+
+  Container _buildDrawer() {
+    return Container(
+      width: 250,
+      color: Colors.white,
+      padding: EdgeInsets.only(top: 100, left: 10, right: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          TextButton.icon(
             icon: Icon(Icons.list_alt),
+            label: const Text('Home'),
             onPressed: () {
-              Get.toNamed('/dropdown_source_lists');
+              controller.homeStates = HomeStates.UserState;
+              Get.back();
             },
           ),
-          IconButton(
-            icon: Icon(Icons.add),
+          SizedBox(height: 10),
+          TextButton.icon(
+            icon: Icon(Icons.golf_course),
+            label: const Text('Reference Documents'),
             onPressed: () {
-              _buildAddEditEmployeeView(
-                text: 'ADD',
-                addEditFlag: 1,
-                docId: '',
-              );
+              controller.homeStates = HomeStates.ReferenceDocState;
+              Get.back();
+            },
+          ),
+          SizedBox(height: 10),
+          TextButton.icon(
+            icon: Icon(Icons.local_activity),
+            label: const Text('Dropdown Source List'),
+            onPressed: () {
+              controller.homeStates = HomeStates.DropdownSourceListState;
+              Get.back();
+            },
+          ),
+          SizedBox(height: 10),
+          TextButton.icon(
+            icon: Icon(Icons.add),
+            label: const Text('Activity Code'),
+            onPressed: () {
+              controller.homeStates = HomeStates.ActivityCodeState;
+              Get.back();
             },
           ),
         ],
       ),
-      // body: DataTable2ScrollupDemo(),
-      body: Obx(
-        () => ListView.builder(
-          itemCount: controller.employees.length,
-          itemBuilder: (context, index) => Card(
-            color: Color(0xff081029),
-            child: ListTile(
-              title: Text(controller.employees[index].name!),
-              subtitle: Text(controller.employees[index].address!),
-              leading: CircleAvatar(
-                child: Text(
-                  controller.employees[index].name!.substring(0, 1).capitalize!,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                backgroundColor: Colors.yellow,
-              ),
-              trailing: IconButton(
-                icon: Icon(
-                  Icons.delete_forever,
-                  color: Colors.red,
-                ),
-                onPressed: () {
-                  displayDeleteDialog(controller.employees[index].docId!);
-                },
-              ),
-              onTap: () {
-                controller.nameController.text =
-                    controller.employees[index].name!;
-                controller.addressController.text =
-                    controller.employees[index].address!;
-                _buildAddEditEmployeeView(
-                    text: 'UPDATE',
-                    addEditFlag: 2,
-                    docId: controller.employees[index].docId!);
-              },
-            ),
-          ),
-        ),
-      ),
     );
   }
 
-  _buildAddEditEmployeeView({String? text, int? addEditFlag, String? docId}) {
-    Get.bottomSheet(
-      Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(16),
-            topLeft: Radius.circular(16),
-          ),
-          color: Color(0xff1E2746),
-        ),
-        child: Padding(
-          padding:
-              const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 16),
-          child: Form(
-            key: controller.userFormKey,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${text} Employee',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      hintText: 'Name',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    controller: controller.nameController,
-                    validator: (value) {
-                      return controller.validateName(value!);
-                    },
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  TextFormField(
-                    keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
-                      hintText: 'Address',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    controller: controller.addressController,
-                    validator: (value) {
-                      return controller.validateAddress(value!);
-                    },
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  ConstrainedBox(
-                    constraints: BoxConstraints.tightFor(
-                        width: Get.context!.width, height: 45),
-                    child: ElevatedButton(
-                      child: Text(
-                        text!,
-                        style: TextStyle(color: Colors.black, fontSize: 16),
-                      ),
-                      onPressed: () {
-                        controller.saveUpdateEmployee(
-                            controller.nameController.text,
-                            controller.addressController.text,
-                            docId!,
-                            addEditFlag!);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+  String _buildTitleOfPage() {
+    switch (controller.homeStates) {
+      case HomeStates.ActivityCodeState:
+        return 'Activity Code';
+      case HomeStates.ReferenceDocState:
+        return 'Reference Documents';
+
+      case HomeStates.DropdownSourceListState:
+        return 'Dropdown Source List';
+
+      case HomeStates.UserState:
+        return 'Users';
+    }
   }
 
-  displayDeleteDialog(String docId) {
-    Get.defaultDialog(
-      title: "Delete Employee",
-      titleStyle: TextStyle(fontSize: 20),
-      middleText: 'Are you sure to delete employee ?',
-      textCancel: "Cancel",
-      textConfirm: "Confirm",
-      confirmTextColor: Colors.black,
-      onCancel: () {},
-      onConfirm: () {
-        controller.deleteData(docId);
-      },
-    );
+  _buildAddDatabase() {
+    switch (controller.homeStates) {
+      case HomeStates.ActivityCodeState:
+        return activityCodeController.buildAddEdit();
+      case HomeStates.ReferenceDocState:
+        return;
+
+      case HomeStates.DropdownSourceListState:
+        return;
+
+      case HomeStates.UserState:
+        return;
+    }
   }
 }

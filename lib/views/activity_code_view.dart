@@ -11,33 +11,25 @@ import '../constants/style.dart';
 import 'package:get/get.dart';
 
 // ignore: must_be_immutable
-class ActivityCodeView extends GetView<ActivityCodeController> {
+class ActivityCodeView extends StatelessWidget {
+  final controller = Get.find<ActivityCodeController>();
   @override
   Widget build(BuildContext context) {
-    print("salam");
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Activity Codes'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              _buildAddEdit();
-            },
-          )
-        ],
-      ),
+      // appBar: AppBar(
+      //   title: Text('Activity Codes'),
+      //   actions: [
+      //     IconButton(
+      //       icon: Icon(Icons.add),
+      //       onPressed: () {
+      //         _buildAddEdit();
+      //       },
+      //     )
+      //   ],
+      // ),
       body: Obx(
         () {
-          // final map = controller.activityCodes[0].toMap();
-          // List cells = map.values.toList();
-          // cells = cells.sublist(1, cells.length);
-          // return Text(cells.length.toString());
-
           return DataTable2(
-            onSelectAll: (value) {
-              print('selected');
-            },
             columns: getColumns(activityCodeTableColumnNames),
             rows: getRows(controller.activityCodes),
             columnSpacing: 12,
@@ -45,6 +37,13 @@ class ActivityCodeView extends GetView<ActivityCodeController> {
             dividerThickness: 1,
             bottomMargin: 10,
             minWidth: 900,
+            dataRowHeight: 40,
+            border: TableBorder(
+              horizontalInside: BorderSide(width: 0.5, color: Colors.grey[400]!),
+              //   verticalInside: BorderSide(width: 0.5, color: Colors.grey[400]!),
+              bottom: BorderSide(width: 0.5, color: Colors.grey[400]!),
+            ),
+            headingTextStyle: TextStyle(fontWeight: FontWeight.bold),
             sortColumnIndex: controller.sortColumnIndex.value,
             sortAscending: controller.sortAscending.value,
           );
@@ -53,159 +52,175 @@ class ActivityCodeView extends GetView<ActivityCodeController> {
     );
   }
 
-  _buildAddEdit({ActivityCodeModel? activityCodeModel}) {
-    if (activityCodeModel != null) {
-      controller.fillEditingControllers(activityCodeModel);
-    } else {
-      controller.clearEditingControllers();
-    }
+  // _buildAddEdit({ActivityCodeModel? activityCodeModel}) {
+  //   if (activityCodeModel != null) {
+  //     controller.fillEditingControllers(activityCodeModel);
+  //   } else {
+  //     controller.clearEditingControllers();
+  //   }
 
-    Get.defaultDialog(
-      barrierDismissible: false,
-      // onCancel: () => Get.back(),
-      cancel: TextButton(
-        onPressed: () => Get.back(),
-        child: Text('Cancel'),
-      ),
-      title: activityCodeModel == null ? 'Add Activity Code' : 'Update Activity Code',
-      content: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(8),
-            topLeft: Radius.circular(8),
-          ),
-          color: light, //Color(0xff1E2746),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: controller.activityCodeFormKey,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextFormField(
-                      decoration: InputDecoration(
-                        labelText: activityCodeTableColumnNames[0],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      controller: controller.activityIdController,
-                      validator: (value) {
-                        return controller.validateName(value!);
-                      }),
-                  SizedBox(height: 10),
-                  TextFormField(
-                    keyboardType: TextInputType.multiline,
-                    decoration: InputDecoration(
-                      labelText: activityCodeTableColumnNames[1],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    controller: controller.activityNameController,
-                    validator: (value) {
-                      return controller.validateAddress(value!);
-                    },
-                  ),
-                  SizedBox(height: 8),
-                  _dropdownSearch(lists['Module']!, activityCodeTableColumnNames[2], 50 * 4, onChanged: (value) {
-                    controller.areaText = value ?? '';
-                  }),
-                  SizedBox(height: 10),
-                  TextFormField(
-                      controller: controller.prioController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                      ],
-                      decoration:
-                          InputDecoration(labelText: activityCodeTableColumnNames[3], icon: Icon(Icons.phone_iphone))),
-                  SizedBox(height: 10),
-                  TextFormField(
-                      controller: controller.coefficientController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                      ],
-                      decoration:
-                          InputDecoration(labelText: activityCodeTableColumnNames[4], icon: Icon(Icons.phone_iphone))),
-                  SizedBox(height: 10),
-                  TextFormField(
-                      controller: controller.budgetedLaborUnitsController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                      ],
-                      decoration: InputDecoration(
-                          labelText: activityCodeTableColumnNames[5], icon: Icon(Icons.format_list_numbered))),
-                  SizedBox(height: 10),
-                  CustomDateTimeFormField(
-                    initialValue: controller.startTime,
-                    labelText: activityCodeTableColumnNames[7],
-                    onDateSelected: (DateTime value) {
-                      controller.startTime = value;
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  CustomDateTimeFormField(
-                    initialValue: controller.finishTime,
-                    labelText: activityCodeTableColumnNames[8],
-                    onDateSelected: (DateTime value) {
-                      controller.finishTime = value;
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  ConstrainedBox(
-                    constraints: BoxConstraints.tightFor(width: Get.context!.width, height: 45),
-                    child: ElevatedButton(
-                      child: Text(
-                        activityCodeModel != null ? 'Update' : 'Add',
-                        style: TextStyle(color: Colors.black, fontSize: 16),
-                      ),
-                      onPressed: () {
-                        ActivityCodeModel model = ActivityCodeModel(
-                          docId: activityCodeModel != null ? activityCodeModel.docId : null,
-                          activityId: controller.activityIdController.text,
-                          activityName: controller.activityNameController.text,
-                          area: controller.areaText,
-                          prio: int.parse(controller.prioController.text),
-                          coefficient: int.parse(controller.coefficientController.text),
-                          budgetedLaborUnits: double.parse(controller.budgetedLaborUnitsController.text),
-                          start: controller.startTime,
-                          finish: controller.finishTime,
-                          cumulative: 0,
-                          currentPriority: 0,
-                        );
-                        activityCodeModel == null
-                            ? controller.saveActivityCode(model: model)
-                            : controller.updateActivityCode(model: model);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  //   Get.defaultDialog(
+  //     barrierDismissible: false,
+  //     // onCancel: () => Get.back(),
+
+  //     radius: 12,
+  //     titlePadding: EdgeInsets.only(top: 20, bottom: 20),
+  //     title: activityCodeModel == null ? 'Add Activity Code' : 'Update Activity Code',
+  //     content: Container(
+  //       decoration: BoxDecoration(
+  //         borderRadius: BorderRadius.only(
+  //           topRight: Radius.circular(8),
+  //           topLeft: Radius.circular(8),
+  //         ),
+  //         color: light, //Color(0xff1E2746),
+  //       ),
+  //       child: Padding(
+  //         padding: const EdgeInsets.all(16),
+  //         child: Form(
+  //           key: controller.activityCodeFormKey,
+  //           autovalidateMode: AutovalidateMode.onUserInteraction,
+  //           child: SingleChildScrollView(
+  //             child: Container(
+  //               width: Get.width * 0.5,
+  //               child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   TextFormField(
+  //                       decoration: InputDecoration(
+  //                         labelText: activityCodeTableColumnNames[0],
+  //                         border: OutlineInputBorder(
+  //                           borderRadius: BorderRadius.circular(8),
+  //                         ),
+  //                       ),
+  //                       controller: controller.activityIdController,
+  //                       validator: (value) {
+  //                         return controller.validateName(value!);
+  //                       }),
+  //                   SizedBox(height: 10),
+  //                   TextFormField(
+  //                     keyboardType: TextInputType.multiline,
+  //                     decoration: InputDecoration(
+  //                       labelText: activityCodeTableColumnNames[1],
+  //                       border: OutlineInputBorder(
+  //                         borderRadius: BorderRadius.circular(8),
+  //                       ),
+  //                     ),
+  //                     controller: controller.activityNameController,
+  //                     validator: (value) {
+  //                       return controller.validateAddress(value!);
+  //                     },
+  //                   ),
+  //                   SizedBox(height: 10),
+  //                   _dropdownSearch(lists['Module']!, activityCodeTableColumnNames[2], 50 * 4, onChanged: (value) {
+  //                     controller.areaText = value ?? '';
+  //                   }),
+  //                   SizedBox(height: 10),
+  //                   TextFormField(
+  //                       controller: controller.prioController,
+  //                       keyboardType: TextInputType.number,
+  //                       inputFormatters: <TextInputFormatter>[
+  //                         FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+  //                       ],
+  //                       decoration: InputDecoration(
+  //                           labelText: activityCodeTableColumnNames[3], icon: Icon(Icons.phone_iphone))),
+  //                   SizedBox(height: 10),
+  //                   TextFormField(
+  //                       controller: controller.coefficientController,
+  //                       keyboardType: TextInputType.number,
+  //                       inputFormatters: <TextInputFormatter>[
+  //                         FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+  //                       ],
+  //                       decoration: InputDecoration(
+  //                           labelText: activityCodeTableColumnNames[4], icon: Icon(Icons.phone_iphone))),
+  //                   SizedBox(height: 10),
+  //                   TextFormField(
+  //                       controller: controller.budgetedLaborUnitsController,
+  //                       keyboardType: TextInputType.number,
+  //                       inputFormatters: <TextInputFormatter>[
+  //                         FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+  //                       ],
+  //                       decoration: InputDecoration(
+  //                           labelText: activityCodeTableColumnNames[5], icon: Icon(Icons.format_list_numbered))),
+  //                   SizedBox(height: 10),
+  //                   CustomDateTimeFormField(
+  //                     initialValue: controller.startTime,
+  //                     labelText: activityCodeTableColumnNames[7],
+  //                     onDateSelected: (DateTime value) {
+  //                       controller.startTime = value;
+  //                     },
+  //                   ),
+  //                   SizedBox(height: 10),
+  //                   CustomDateTimeFormField(
+  //                     initialValue: controller.finishTime,
+  //                     labelText: activityCodeTableColumnNames[8],
+  //                     onDateSelected: (DateTime value) {
+  //                       controller.finishTime = value;
+  //                     },
+  //                   ),
+  //                   SizedBox(height: 10),
+  //                   Container(
+  //                     child: Row(
+  //                       children: <Widget>[
+  //                         if (activityCodeModel != null)
+  //                           ElevatedButton.icon(
+  //                             onPressed: () {
+  //                               controller.deleteActivityCode(activityCodeModel.docId!);
+  //                               Get.back();
+  //                             },
+  //                             icon: Icon(Icons.delete),
+  //                             label: const Text('Delete'),
+  //                             style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.red)),
+  //                           ),
+  //                         const Spacer(),
+  //                         ElevatedButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+  //                         SizedBox(width: 10),
+  //                         ElevatedButton(
+  //                           onPressed: () {
+  //                             ActivityCodeModel model = ActivityCodeModel(
+  //                               docId: activityCodeModel != null ? activityCodeModel.docId : null,
+  //                               activityId: controller.activityIdController.text,
+  //                               activityName: controller.activityNameController.text,
+  //                               area: controller.areaText,
+  //                               prio: int.parse(controller.prioController.text),
+  //                               coefficient: int.parse(controller.coefficientController.text),
+  //                               budgetedLaborUnits: double.parse(controller.budgetedLaborUnitsController.text),
+  //                               start: controller.startTime,
+  //                               finish: controller.finishTime,
+  //                               cumulative: 0,
+  //                               currentPriority: 0,
+  //                             );
+  //                             activityCodeModel == null
+  //                                 ? controller.saveActivityCode(model: model)
+  //                                 : controller.updateActivityCode(model: model);
+  //                           },
+  //                           child: Text(
+  //                             activityCodeModel != null ? 'Update' : 'Add',
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   )
+  //                 ],
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _dropdownSearch(List<String> itemsList, String labelText, double maxHeight,
       {dynamic Function(String?)? onChanged}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: DropdownSearch<String>(
-
         maxHeight: maxHeight,
         mode: Mode.MENU,
         items: itemsList,
         selectedItem: controller.areaText,
-
         dropdownSearchDecoration: InputDecoration(
+          contentPadding: EdgeInsets.only(left: 10),
           labelText: labelText,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
@@ -251,8 +266,8 @@ class ActivityCodeView extends GetView<ActivityCodeController> {
       print('dataRows: $cells');
       return DataRow2(
         onTap: () {
-          // print('pressed : ${activityCode.activityName}');
-          _buildAddEdit(activityCodeModel: activityCode);
+          print('pressed');
+          controller.buildAddEdit(activityCodeModel: activityCode);
         },
         cells: getCells(cells),
       );

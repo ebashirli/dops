@@ -3,13 +3,13 @@ import 'package:get/get.dart';
 
 import '../dropdown_source_lists_controller.dart';
 import '../reference_document_controller.dart';
-import '../user_controller.dart';
+import '../home_controller.dart';
 
 class HomeBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<UserController>(
-      () => UserController(),
+    Get.lazyPut<HomeController>(
+      () => HomeController(),
     );
     Get.lazyPut<ActivityCodeController>(
       () => ActivityCodeController(),

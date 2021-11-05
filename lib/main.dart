@@ -19,7 +19,6 @@ Future<void> main() async {
 
 @override
 Future<void> initServices() async {
-  print('start');
 //   // await Get.putAsync<StorageService>(() async => await FirebaseStorageService('lists'), tag: 'lists');
    await Get.putAsync<StorageService>(() async => await FirebaseStorageService('activity_codes'), tag: 'activity_codes');
 //   // await Get.putAsync<StorageService>(() async => await FirebaseStorageService('employees'), tag: 'employees');
@@ -29,7 +28,6 @@ Future<void> initServices() async {
 
   // Get.lazyPut<StorageService>(() => FirebaseStorageService('activity_codes'), tag: 'activity_codes');
   // Get.lazyPut<ActivityCodeRepository>(() => ActivityCodeRepository());
-  print('done');
 }
 
 class MyApp extends StatelessWidget {

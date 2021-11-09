@@ -1,6 +1,6 @@
 // flutter run -d web-server --web-port 8080 --web-hostname 172.30.134.63
 
-Map<String, List<String>> lists = {
+Map<String, List<String>> listsMap = {
   'Project': [
     'ACE',
   ],
@@ -10,6 +10,13 @@ Map<String, List<String>> lists = {
     'Drilling - MDSM',
     'Drilling - DES',
     'Drilling - General',
+  ],
+  'Reference Type': [
+    'FCN',
+    'CCN',
+    'SIN',
+    'TQ',
+    'Design',
   ],
   'Level': [
     'Under Deck',
@@ -76,13 +83,6 @@ Map<String, List<String>> lists = {
     'Live',
     'Hold',
     'Contains Hold',
-  ],
-  'Reference Type': [
-    'FCN',
-    'CCN',
-    'SIN',
-    'TQ',
-    'Design',
   ],
   'System Designation': [
     'Coordinator',

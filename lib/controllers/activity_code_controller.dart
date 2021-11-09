@@ -4,11 +4,9 @@ import 'package:dops/constants/style.dart';
 import 'package:dops/constants/table_details.dart';
 import 'package:dops/models/activity_codes_model.dart';
 import 'package:dops/repositories/activity_code_repository.dart';
-import 'package:dops/widgets/custom_date_time_form_field.dart';
+import 'package:dops/widgets/custom_widgets.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-import 'package:dops/widgets/customFullScreenDialog.dart';
-import 'package:dops/widgets/customSnackBar.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -19,7 +17,6 @@ class ActivityCodeController extends GetxController {
 
   late TextEditingController activityIdController,
       activityNameController,
-      prioController,
       coefficientController,
       budgetedLaborUnitsController;
   DateTime? startTime, finishTime;
@@ -35,7 +32,6 @@ class ActivityCodeController extends GetxController {
     super.onInit();
     activityIdController = TextEditingController();
     activityNameController = TextEditingController();
-    prioController = TextEditingController();
     coefficientController = TextEditingController();
     budgetedLaborUnitsController = TextEditingController();
     startTime = DateTime.now();
@@ -65,7 +61,7 @@ class ActivityCodeController extends GetxController {
     activityCodeFormKey.currentState!.save();
     //update
     CustomFullScreenDialog.showDialog();
-    await _repository.updateActivityCodeModel(model, model.docId!);
+    await _repository.updateActivityCodeModel(model, model.id!);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
@@ -89,7 +85,6 @@ class ActivityCodeController extends GetxController {
   void clearEditingControllers() {
     activityIdController.clear();
     activityNameController.clear();
-    prioController.clear();
     coefficientController.clear();
     budgetedLaborUnitsController.clear();
     startTime = null;
@@ -100,12 +95,11 @@ class ActivityCodeController extends GetxController {
   void fillEditingControllers(ActivityCodeModel model) {
     activityIdController.text = model.activityId ?? '';
     activityNameController.text = model.activityName ?? '';
-    prioController.text = model.prio.toString();
     coefficientController.text = model.coefficient.toString();
     budgetedLaborUnitsController.text = model.budgetedLaborUnits.toString();
-    startTime = model.start;
-    finishTime = model.finish;
-    areaText = model.area;
+    startTime = model.startDate;
+    finishTime = model.finishDate;
+    areaText = model.moduleName;
   }
 
   whenCompleted() {
@@ -188,21 +182,11 @@ class ActivityCodeController extends GetxController {
                     ),
                     SizedBox(height: 10),
                     _dropdownSearch(
-                        lists['Module']!,
+                        listsMap['Module']!,
                         activityCodeTableColumnNames[2],
                         50 * 4, onChanged: (value) {
                       areaText = value ?? '';
                     }),
-                    SizedBox(height: 10),
-                    TextFormField(
-                        controller: prioController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                        ],
-                        decoration: InputDecoration(
-                            labelText: activityCodeTableColumnNames[3],
-                            icon: Icon(Icons.phone_iphone))),
                     SizedBox(height: 10),
                     TextFormField(
                         controller: coefficientController,
@@ -246,7 +230,7 @@ class ActivityCodeController extends GetxController {
                           if (activityCodeModel != null)
                             ElevatedButton.icon(
                               onPressed: () {
-                                deleteActivityCode(activityCodeModel.docId!);
+                                deleteActivityCode(activityCodeModel.id!);
                                 Get.back();
                               },
                               icon: Icon(Icons.delete),
@@ -264,21 +248,22 @@ class ActivityCodeController extends GetxController {
                           ElevatedButton(
                             onPressed: () {
                               ActivityCodeModel model = ActivityCodeModel(
-                                docId: activityCodeModel != null
-                                    ? activityCodeModel.docId
+                                id: activityCodeModel != null
+                                    ? activityCodeModel.id
                                     : null,
                                 activityId: activityIdController.text,
                                 activityName: activityNameController.text,
-                                area: areaText,
-                                prio: int.parse(prioController.text),
+                                moduleName: areaText,
+                                priority: 0, // TODO: priority colculator
                                 coefficient:
                                     int.parse(coefficientController.text),
+                                currentPriority:
+                                    0 / int.parse(coefficientController.text),
                                 budgetedLaborUnits: double.parse(
                                     budgetedLaborUnitsController.text),
-                                start: startTime,
-                                finish: finishTime,
+                                startDate: startTime,
+                                finishDate: finishTime,
                                 cumulative: 0,
-                                currentPriority: 0,
                               );
                               activityCodeModel == null
                                   ? saveActivityCode(model: model)

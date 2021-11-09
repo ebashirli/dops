@@ -1,27 +1,25 @@
 List<String> referenceDocumentTableColumnNames = [
   'Project',
-  'REF TYPE',
-  'MODULENAME',
-  'DOC NO',
-  'REV_CODE',
-  'TITLE',
-  'TRANSMITTAL_NO or received from',
+  'Rerence Type',
+  'Module Name',
+  'Document number',
+  'Revision code',
+  'Title',
+  'Transmittal number or received from',
   'Receive date',
-  'Action required/ Next',
-  'No of assigned docs',
+  'Action required / Next',
+  'Number of assigned documents',
 ];
 
 List<String> activityCodeTableColumnNames = [
   'Activity ID',
   'Activity Name',
-  'AREA',
-  'PRIO',
+  'Module Name',
+  'Priority',
   'Coefficient',
   'Current Priority',
   'Budgeted Labor Units',
-  'Start',
-  'Finish',
-  'Cumulative %'
+  'Start Date',
+  'Finish Date',
+  'Cumulative (%)',
 ];
-
-

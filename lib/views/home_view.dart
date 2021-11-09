@@ -1,5 +1,7 @@
 import 'package:dops/controllers/activity_code_controller.dart';
+import 'package:dops/controllers/reference_document_controller.dart';
 import 'package:dops/views/activity_code_view.dart';
+import 'package:dops/views/reference_document_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -8,6 +10,8 @@ import '../enum.dart';
 
 class HomeView extends GetView<HomeController> {
   final activityCodeController = Get.find<ActivityCodeController>();
+  final referenceDocumentController = Get.find<ReferenceDocumentController>();
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -23,8 +27,8 @@ class HomeView extends GetView<HomeController> {
     switch (controller.homeStates) {
       case HomeStates.ActivityCodeState:
         return ActivityCodeView();
-      case HomeStates.ReferenceDocState:
-        return Container(child: const Text('reference'));
+      case HomeStates.ReferenceDocumentState:
+        return ReferenceDocumentView();
 
       case HomeStates.DropdownSourceListState:
         return Container(child: const Text('dropwdown'));
@@ -68,7 +72,7 @@ class HomeView extends GetView<HomeController> {
             icon: Icon(Icons.golf_course),
             label: const Text('Reference Documents'),
             onPressed: () {
-              controller.homeStates = HomeStates.ReferenceDocState;
+              controller.homeStates = HomeStates.ReferenceDocumentState;
               Get.back();
             },
           ),
@@ -99,7 +103,7 @@ class HomeView extends GetView<HomeController> {
     switch (controller.homeStates) {
       case HomeStates.ActivityCodeState:
         return 'Activity Code';
-      case HomeStates.ReferenceDocState:
+      case HomeStates.ReferenceDocumentState:
         return 'Reference Documents';
 
       case HomeStates.DropdownSourceListState:
@@ -114,8 +118,8 @@ class HomeView extends GetView<HomeController> {
     switch (controller.homeStates) {
       case HomeStates.ActivityCodeState:
         return activityCodeController.buildAddEdit();
-      case HomeStates.ReferenceDocState:
-        return;
+      case HomeStates.ReferenceDocumentState:
+        return referenceDocumentController.buildAddEdit();
 
       case HomeStates.DropdownSourceListState:
         return;

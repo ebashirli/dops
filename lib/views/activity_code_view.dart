@@ -1,14 +1,14 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:data_table_2/data_table_2.dart';
+
 import 'package:dops/controllers/activity_code_controller.dart';
 import 'package:dops/models/activity_codes_model.dart';
-import 'package:dropdown_search/dropdown_search.dart';
-import 'package:flutter/material.dart';
 import 'package:dops/constants/table_details.dart';
-import 'package:get/get.dart';
 
-// ignore: must_be_immutable
 class ActivityCodeView extends StatelessWidget {
   final controller = Get.find<ActivityCodeController>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +26,7 @@ class ActivityCodeView extends StatelessWidget {
             border: TableBorder(
               horizontalInside:
                   BorderSide(width: 0.5, color: Colors.grey[400]!),
-              //   verticalInside: BorderSide(width: 0.5, color: Colors.grey[400]!),
+              verticalInside: BorderSide(width: 0.5, color: Colors.grey[400]!),
               bottom: BorderSide(width: 0.5, color: Colors.grey[400]!),
             ),
             headingTextStyle: TextStyle(fontWeight: FontWeight.bold),
@@ -38,11 +38,12 @@ class ActivityCodeView extends StatelessWidget {
     );
   }
 
+  // TODO: ad this to delete button
   displayDeleteDialog(String docId) {
     Get.defaultDialog(
       title: "Delete Activity Code",
       titleStyle: TextStyle(fontSize: 20),
-      middleText: 'Are you sure to delete employee ?',
+      middleText: 'Are you sure to delete activity code?',
       textCancel: "Cancel",
       textConfirm: "Confirm",
       confirmTextColor: Colors.black,
@@ -95,7 +96,11 @@ class ActivityCodeView extends StatelessWidget {
     switch (columnIndex) {
       case 0:
         controller.activityCodes.sort(
-          (activityCode1, activityCode2) => compare(
+          (
+            activityCode1,
+            activityCode2,
+          ) =>
+              compare(
             ascending,
             activityCode1.activityId,
             activityCode2.activityId,
@@ -104,7 +109,11 @@ class ActivityCodeView extends StatelessWidget {
         break;
       case 1:
         controller.activityCodes.sort(
-          (activityCode1, activityCode2) => compare(
+          (
+            activityCode1,
+            activityCode2,
+          ) =>
+              compare(
             ascending,
             activityCode1.activityName,
             activityCode2.activityName,
@@ -113,19 +122,27 @@ class ActivityCodeView extends StatelessWidget {
         break;
       case 2:
         controller.activityCodes.sort(
-          (activityCode1, activityCode2) => compare(
+          (
+            activityCode1,
+            activityCode2,
+          ) =>
+              compare(
             ascending,
-            activityCode1.area,
-            activityCode2.area,
+            activityCode1.moduleName,
+            activityCode2.moduleName,
           ),
         );
         break;
       case 3:
         controller.activityCodes.sort(
-          (activityCode1, activityCode2) => compare(
+          (
+            activityCode1,
+            activityCode2,
+          ) =>
+              compare(
             ascending,
-            activityCode1.prio,
-            activityCode2.prio,
+            activityCode1.priority,
+            activityCode2.priority,
           ),
         );
         break;
@@ -144,7 +161,11 @@ class ActivityCodeView extends StatelessWidget {
         break;
       case 5:
         controller.activityCodes.sort(
-          (activityCode1, activityCode2) => compare(
+          (
+            activityCode1,
+            activityCode2,
+          ) =>
+              compare(
             ascending,
             activityCode1.currentPriority,
             activityCode2.currentPriority,
@@ -172,17 +193,21 @@ class ActivityCodeView extends StatelessWidget {
           ) =>
               compare(
             ascending,
-            activityCode1.start,
-            activityCode2.start,
+            activityCode1.startDate,
+            activityCode2.startDate,
           ),
         );
         break;
       case 8:
         controller.activityCodes.sort(
-          (activityCode1, activityCode2) => compare(
+          (
+            activityCode1,
+            activityCode2,
+          ) =>
+              compare(
             ascending,
-            activityCode1.finish,
-            activityCode2.finish,
+            activityCode1.finishDate,
+            activityCode2.finishDate,
           ),
         );
         break;

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:dops/widgets/customFullScreenDialog.dart';
-import 'package:dops/widgets/customSnackBar.dart';
+import 'package:dops/widgets/custom_full_screen_dialog_widget.dart';
+import 'package:dops/widgets/custom_snackbar_widget.dart';
 import 'package:get/get.dart';
 
 class DropdownSourceListsController extends GetxController {
@@ -63,8 +63,6 @@ class DropdownSourceListsController extends GetxController {
     dropdownSourceListsFormKeyList[itemIndex].currentState!.save();
     if (addEditFlag == 1) {
       CustomFullScreenDialog.showDialog();
-      // TODO: correct query
-
       collectionReference.doc(listName).update({
         'list1': newItem,
       }).whenComplete(() {
@@ -87,7 +85,6 @@ class DropdownSourceListsController extends GetxController {
     } else if (addEditFlag == 2) {
       //update
       CustomFullScreenDialog.showDialog();
-      // TODO: correct query
       collectionReference.doc(listName).update({
         '${itemIndex}': newItem,
       }).whenComplete(() {
@@ -131,7 +128,6 @@ class DropdownSourceListsController extends GetxController {
 
   void deleteData(String lstName) {
     CustomFullScreenDialog.showDialog();
-    // TODO: correct query
     collectionReference.doc(lstName).delete().whenComplete(() {
       CustomFullScreenDialog.cancelDialog();
       Get.back();

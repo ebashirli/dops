@@ -1,5 +1,5 @@
 import 'package:dops/controllers/dropdown_source_lists_controller.dart';
-import 'package:dops/widgets/custom_list_items.dart';
+import 'package:dops/widgets/custom_list_items_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

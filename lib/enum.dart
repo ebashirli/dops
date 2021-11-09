@@ -1,1 +1,1 @@
-enum HomeStates{ActivityCodeState,ReferenceDocState, DropdownSourceListState, UserState}
+enum HomeStates{ActivityCodeState,ReferenceDocumentState, DropdownSourceListState, UserState}

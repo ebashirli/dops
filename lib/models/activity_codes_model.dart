@@ -1,31 +1,27 @@
-import 'dart:convert';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class ActivityCodeModel {
-  String? docId;
+  String? id;
   String? activityId;
   String? activityName;
-  String? area;
-  int? prio;
+  String? moduleName;
+  int? priority;
   int? coefficient;
   double? currentPriority;
   double? budgetedLaborUnits;
-  DateTime? start;
-  DateTime? finish;
+  DateTime? startDate;
+  DateTime? finishDate;
   double? cumulative;
 
   ActivityCodeModel({
-    required this.docId,
+    required this.id,
     this.activityId,
     this.activityName,
-    this.area,
-    this.prio,
+    this.moduleName,
+    this.priority,
     this.coefficient,
     this.currentPriority,
     this.budgetedLaborUnits,
-    this.start,
-    this.finish,
+    this.startDate,
+    this.finishDate,
     this.cumulative,
   });
 
@@ -33,32 +29,33 @@ class ActivityCodeModel {
     return {
       'activity_id': activityId,
       'activity_name': activityName,
-      'area': area,
-      'prio': prio,
+      'module_name': moduleName,
+      'priority': priority,
       'coefficient': coefficient,
       'current_priority': currentPriority,
       'budgeted_labor_units': budgetedLaborUnits,
-      'start': start,
-      'finish': finish,
+      'start_date': startDate,
+      'finish_date': finishDate,
       'cumulative': cumulative,
     };
   }
 
-  factory ActivityCodeModel.fromMap(DocumentSnapshot data) {
+  factory ActivityCodeModel.fromMap(
+    Map<String, dynamic> map,
+    String? id,
+  ) {
     return ActivityCodeModel(
-      docId: data.id,
-      activityId: data['activity_id'],
-      activityName: data['activity_name'],
-      area: data['area'],
-      prio: data['prio'],
-      coefficient: data['coefficient'],
-      currentPriority: data['current_priority'],
-      budgetedLaborUnits: data['budgeted_labor_units'],
-      start: data['start'].toDate(),
-      finish: data['finish'].toDate(),
-      cumulative: data['cumulative'],
+      id: id,
+      activityId: map['activity_id'],
+      activityName: map['activity_name'],
+      moduleName: map['module_name'],
+      priority: map['priority'],
+      coefficient: map['coefficient'],
+      currentPriority: map['current_priority'],
+      budgetedLaborUnits: map['budgeted_labor_units'],
+      startDate: map['start_date'].toDate(),
+      finishDate: map['finish_date'].toDate(),
+      cumulative: map['cumulative'],
     );
   }
-
-  String toJson() => json.encode(toMap());
 }

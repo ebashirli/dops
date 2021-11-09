@@ -14,6 +14,9 @@ class HomeBinding extends Bindings {
     Get.lazyPut<ActivityCodeController>(
       () => ActivityCodeController(),
     );
+    Get.lazyPut<ReferenceDocumentController>(
+      () => ReferenceDocumentController(),
+    );
   }
 }
 

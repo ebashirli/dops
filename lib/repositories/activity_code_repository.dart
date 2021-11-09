@@ -9,17 +9,23 @@ class ActivityCodeRepository {
 
   Future fetchActivityCodeModels() async {
     QuerySnapshot result = await _api.getData();
-    activityCodes = result.docs
-        .map((activityCode) => ActivityCodeModel.fromMap(activityCode))
-        .toList();
+    activityCodes = result.docs.map((snapshot) {
+      return ActivityCodeModel.fromMap(
+        snapshot.data() as Map<String, dynamic>,
+        snapshot.id,
+      );
+    }).toList();
     return activityCodes;
   }
 
   Stream<List<ActivityCodeModel>> getAllActivityCodesAsStream() {
     return _api.getDataAsStream().map((QuerySnapshot query) {
       List<ActivityCodeModel> returnValue = [];
-      query.docs.forEach((element) {
-        returnValue.add(ActivityCodeModel.fromMap(element));
+      query.docs.forEach((snapshot) {
+        returnValue.add(ActivityCodeModel.fromMap(
+          snapshot.data() as Map<String, dynamic>,
+          snapshot.id,
+        ));
       });
       return returnValue;
     });
@@ -27,7 +33,7 @@ class ActivityCodeRepository {
 
   Future<ActivityCodeModel> getActivityCodeModelById(String id) async {
     var doc = await _api.getDocumentById(id);
-    return ActivityCodeModel.fromMap(doc.data());
+    return ActivityCodeModel.fromMap(doc.data(), doc.id);
   }
 
   removeActivityCodeModel(String id) async {

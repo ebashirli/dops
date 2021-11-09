@@ -1,71 +1,61 @@
-import 'dart:convert';
-
 class ReferenceDocumentModel {
-  String? docId;
-  String? project;
-  String? refType;
-  String? moduleName;
-  String? docNo;
-  String? revCode;
-  String? title;
-  String? transmittalNo;
-  DateTime? receiveDate;
-  String? actionRequiredNext;
-  String? assignedDocsCount;
+  String? id;
+  String project;
+  String referenceType;
+  String moduleName;
+  String documentNumber;
+  String revisionCode;
+  String title;
+  String transmittalNumber;
+  String requiredActionNext;
+  DateTime receivedDate;
+  int assignedDocumentsCount;
 
   ReferenceDocumentModel({
-    this.docId,
-    this.project,
-    this.refType,
-    this.moduleName,
-    this.docNo,
-    this.revCode,
-    this.title,
-    this.transmittalNo,
-    this.receiveDate,
-    this.actionRequiredNext,
-    this.assignedDocsCount,
+    this.id,
+    required this.project,
+    required this.referenceType,
+    required this.moduleName,
+    required this.documentNumber,
+    required this.revisionCode,
+    required this.title,
+    required this.transmittalNumber,
+    required this.receivedDate,
+    required this.requiredActionNext,
+    required this.assignedDocumentsCount,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'docId': docId,
       'project': project,
-      'refType': refType,
-      'moduleName': moduleName,
-      'docNo': docNo,
-      'revCode': revCode,
+      'reference_type': referenceType,
+      'module_name': moduleName,
+      'document_number': documentNumber,
+      'revision_code': revisionCode,
       'title': title,
-      'transmittalNo': transmittalNo,
-      'receiveDate': receiveDate?.millisecondsSinceEpoch,
-      'actionRequiredNext': actionRequiredNext,
-      'assignedDocsCount': assignedDocsCount,
+      'transmittal_number': transmittalNumber,
+      'received_date': receivedDate,
+      'required_action_next': requiredActionNext,
+      'assigned_documents_count': assignedDocumentsCount,
     };
   }
 
-  factory ReferenceDocumentModel.fromMap(Map<String, dynamic> map) {
+  factory ReferenceDocumentModel.fromMap(
+    Map<String, dynamic> map,
+    String? id,
+  ) {
     return ReferenceDocumentModel(
-      docId: map['docId'] != null ? map['docId'] : null,
-      project: map['project'] != null ? map['project'] : null,
-      refType: map['refType'] != null ? map['refType'] : null,
-      moduleName: map['moduleName'] != null ? map['moduleName'] : null,
-      docNo: map['docNo'] != null ? map['docNo'] : null,
-      revCode: map['revCode'] != null ? map['revCode'] : null,
-      title: map['title'] != null ? map['title'] : null,
-      transmittalNo: map['transmittalNo'] != null ? map['transmittalNo'] : null,
-      receiveDate: map['receiveDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['receiveDate'])
-          : null,
-      actionRequiredNext:
-          map['actionRequiredNext'] != null ? map['actionRequiredNext'] : null,
-      assignedDocsCount:
-          map['assignedDocsCount'] != null ? map['assignedDocsCount'] : null,
+      id: id ?? '',
+      project: map['project'],
+      referenceType: map['reference_type'],
+      moduleName: map['module_name'],
+      documentNumber: map['document_number'],
+      revisionCode: map['revision_code'],
+      title: map['title'],
+      transmittalNumber: map['transmittal_number'],
+      receivedDate: map['received_date'].toDate(),
+      requiredActionNext: map['required_action_next'],
+      assignedDocumentsCount: map['assigned_documents_count'],
     );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  factory ReferenceDocumentModel.fromJson(String source) {
-    return ReferenceDocumentModel.fromMap(json.decode(source));
   }
 }

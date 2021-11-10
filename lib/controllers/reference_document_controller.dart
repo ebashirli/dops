@@ -172,33 +172,27 @@ class ReferenceDocumentController extends GetxController {
                       controller: documentNumberController,
                       labelText: 'Document number',
                     ),
-                    SizedBox(height: 10),
                     CustomStringTextField(
                       controller: revisionCodeController,
                       labelText: 'Revision code',
                     ),
-                    SizedBox(height: 10),
                     CustomStringTextField(
                       controller: titleController,
                       labelText: 'Title',
                     ),
-                    SizedBox(height: 10),
                     CustomStringTextField(
                       controller: transmittalNumberController,
                       labelText: 'Transmittal number',
                     ),
-                    SizedBox(height: 10),
                     CustomDateTimeFormField(
                       labelText: 'Received date',
                       initialValue: receiveDate,
                       onDateSelected: (date) => receiveDate = date,
                     ),
-                    SizedBox(height: 10),
                     CustomStringTextField(
                       controller: requiredActionNextController,
                       labelText: 'Required Action / Next',
                     ),
-                    SizedBox(height: 10),
                     Container(
                       child: Row(
                         children: <Widget>[

@@ -1,7 +1,9 @@
 import 'package:dops/controllers/activity_code_controller.dart';
 import 'package:dops/controllers/reference_document_controller.dart';
+import 'package:dops/controllers/staff_list_controller.dart';
 import 'package:dops/views/activity_code_view.dart';
 import 'package:dops/views/reference_document_view.dart';
+import 'package:dops/views/staff_list_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,6 +13,7 @@ import '../enum.dart';
 class HomeView extends GetView<HomeController> {
   final activityCodeController = Get.find<ActivityCodeController>();
   final referenceDocumentController = Get.find<ReferenceDocumentController>();
+  final staffListController = Get.find<StaffListController>();
 
   @override
   Widget build(BuildContext context) {
@@ -27,14 +30,15 @@ class HomeView extends GetView<HomeController> {
     switch (controller.homeStates) {
       case HomeStates.ActivityCodeState:
         return ActivityCodeView();
+
       case HomeStates.ReferenceDocumentState:
         return ReferenceDocumentView();
 
       case HomeStates.DropdownSourceListState:
         return Container(child: const Text('dropwdown'));
 
-      case HomeStates.UserState:
-        return Container(child: const Text('user'));
+      case HomeStates.StaffListState:
+        return StaffListView();
     }
   }
 
@@ -63,11 +67,10 @@ class HomeView extends GetView<HomeController> {
             icon: Icon(Icons.list_alt),
             label: const Text('Home'),
             onPressed: () {
-              controller.homeStates = HomeStates.UserState;
+              controller.homeStates = HomeStates.StaffListState;
               Get.back();
             },
           ),
-          SizedBox(height: 10),
           TextButton.icon(
             icon: Icon(Icons.golf_course),
             label: const Text('Reference Documents'),
@@ -76,7 +79,6 @@ class HomeView extends GetView<HomeController> {
               Get.back();
             },
           ),
-          SizedBox(height: 10),
           TextButton.icon(
             icon: Icon(Icons.local_activity),
             label: const Text('Dropdown Source List'),
@@ -91,6 +93,15 @@ class HomeView extends GetView<HomeController> {
             label: const Text('Activity Code'),
             onPressed: () {
               controller.homeStates = HomeStates.ActivityCodeState;
+              Get.back();
+            },
+          ),
+          SizedBox(height: 10),
+          TextButton.icon(
+            icon: Icon(Icons.people),
+            label: const Text('Staff List'),
+            onPressed: () {
+              controller.homeStates = HomeStates.StaffListState;
               Get.back();
             },
           ),
@@ -109,8 +120,8 @@ class HomeView extends GetView<HomeController> {
       case HomeStates.DropdownSourceListState:
         return 'Dropdown Source List';
 
-      case HomeStates.UserState:
-        return 'Users';
+      case HomeStates.StaffListState:
+        return 'Staff List';
     }
   }
 
@@ -120,11 +131,9 @@ class HomeView extends GetView<HomeController> {
         return activityCodeController.buildAddEdit();
       case HomeStates.ReferenceDocumentState:
         return referenceDocumentController.buildAddEdit();
-
+      case HomeStates.StaffListState:
+        return staffListController.buildAddEdit();
       case HomeStates.DropdownSourceListState:
-        return;
-
-      case HomeStates.UserState:
         return;
     }
   }

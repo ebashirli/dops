@@ -1,13 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dops/constants/lists.dart';
 import 'package:dops/constants/style.dart';
 import 'package:dops/constants/table_details.dart';
 import 'package:dops/models/activity_codes_model.dart';
 import 'package:dops/repositories/activity_code_repository.dart';
 import 'package:dops/widgets/custom_widgets.dart';
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 class ActivityCodeController extends GetxController {
@@ -22,7 +19,7 @@ class ActivityCodeController extends GetxController {
   DateTime? startTime, finishTime;
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
-  String? areaText = '';
+  String? moduleNameText = '';
 
   RxList<ActivityCodeModel> _activityCodes = RxList<ActivityCodeModel>([]);
   List<ActivityCodeModel> get activityCodes => _activityCodes;
@@ -89,7 +86,7 @@ class ActivityCodeController extends GetxController {
     budgetedLaborUnitsController.clear();
     startTime = null;
     finishTime = null;
-    areaText = null;
+    moduleNameText = null;
   }
 
   void fillEditingControllers(ActivityCodeModel model) {
@@ -99,7 +96,7 @@ class ActivityCodeController extends GetxController {
     budgetedLaborUnitsController.text = model.budgetedLaborUnits.toString();
     startTime = model.startDate;
     finishTime = model.finishDate;
-    areaText = model.moduleName;
+    moduleNameText = model.moduleName;
   }
 
   whenCompleted() {
@@ -155,59 +152,29 @@ class ActivityCodeController extends GetxController {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextFormField(
-                        decoration: InputDecoration(
-                          labelText: activityCodeTableColumnNames[0],
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        controller: activityIdController,
-                        validator: (value) {
-                          return validateName(value!);
-                        }),
-                    SizedBox(height: 10),
-                    TextFormField(
-                      keyboardType: TextInputType.multiline,
-                      decoration: InputDecoration(
-                        labelText: activityCodeTableColumnNames[1],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      controller: activityNameController,
-                      validator: (value) {
-                        return validateAddress(value!);
-                      },
+                    CustomStringTextField(
+                      controller: activityIdController,
+                      labelText: activityCodeTableColumnNames[0],
                     ),
-                    SizedBox(height: 10),
-                    _dropdownSearch(
-                        listsMap['Module']!,
-                        activityCodeTableColumnNames[2],
-                        50 * 4, onChanged: (value) {
-                      areaText = value ?? '';
-                    }),
-                    SizedBox(height: 10),
-                    TextFormField(
-                        controller: coefficientController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                        ],
-                        decoration: InputDecoration(
-                            labelText: activityCodeTableColumnNames[4],
-                            icon: Icon(Icons.phone_iphone))),
-                    SizedBox(height: 10),
-                    TextFormField(
-                        controller: budgetedLaborUnitsController,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                        ],
-                        decoration: InputDecoration(
-                            labelText: activityCodeTableColumnNames[5],
-                            icon: Icon(Icons.format_list_numbered))),
-                    SizedBox(height: 10),
+                    CustomStringTextField(
+                      controller: activityNameController,
+                      labelText: activityCodeTableColumnNames[1],
+                    ),
+                    CustomDropdownSearch(
+                      labelText: 'Module name',
+                      onChanged: (value) {
+                        moduleNameText = value ?? '';
+                      },
+                      selectedItem: moduleNameText,
+                    ),
+                    CustomStringTextField(
+                      controller: coefficientController,
+                      labelText: activityCodeTableColumnNames[4],
+                    ),
+                    CustomNumberTextField(
+                      controller: budgetedLaborUnitsController,
+                      labelText: activityCodeTableColumnNames[5],
+                    ),
                     CustomDateTimeFormField(
                       initialValue: startTime,
                       labelText: activityCodeTableColumnNames[7],
@@ -215,7 +182,6 @@ class ActivityCodeController extends GetxController {
                         startTime = value;
                       },
                     ),
-                    SizedBox(height: 10),
                     CustomDateTimeFormField(
                       initialValue: finishTime,
                       labelText: activityCodeTableColumnNames[8],
@@ -223,7 +189,6 @@ class ActivityCodeController extends GetxController {
                         finishTime = value;
                       },
                     ),
-                    SizedBox(height: 10),
                     Container(
                       child: Row(
                         children: <Widget>[
@@ -253,7 +218,7 @@ class ActivityCodeController extends GetxController {
                                     : null,
                                 activityId: activityIdController.text,
                                 activityName: activityNameController.text,
-                                moduleName: areaText,
+                                moduleName: moduleNameText,
                                 priority: 0, // TODO: priority colculator
                                 coefficient:
                                     int.parse(coefficientController.text),
@@ -282,28 +247,6 @@ class ActivityCodeController extends GetxController {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _dropdownSearch(
-      List<String> itemsList, String labelText, double maxHeight,
-      {dynamic Function(String?)? onChanged}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: DropdownSearch<String>(
-        maxHeight: maxHeight,
-        mode: Mode.MENU,
-        items: itemsList,
-        selectedItem: areaText,
-        dropdownSearchDecoration: InputDecoration(
-          contentPadding: EdgeInsets.only(left: 10),
-          labelText: labelText,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-        onChanged: onChanged,
       ),
     );
   }

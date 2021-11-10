@@ -13,13 +13,14 @@ dependencies:
   image_cropper: ^1.4.0
   flutter_image_compress: ^1.0.0
   data_table_2: ^2.1.1
+  syncfusion_flutter_datagrid: ^19.3.48
   google_fonts: ^2.1.0
   dropdown_search: ^2.0.0
   date_field: ^2.1.2
   sortedmap: ^0.5.1
   get_it: ^7.2.0
   firebase_auth: ^3.1.4
-  sqflite: ^2.0.0+4
+  recase: ^4.0.0
 
   
   flutter: 

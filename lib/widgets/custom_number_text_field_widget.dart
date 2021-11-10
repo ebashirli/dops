@@ -13,16 +13,21 @@ class CustomNumberTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: TextInputType.number,
-      inputFormatters: <TextInputFormatter>[
-        FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+    return Column(
+      children: [
+        TextFormField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          inputFormatters: <TextInputFormatter>[
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+          ],
+          decoration: InputDecoration(
+            labelText: labelText,
+            icon: Icon(Icons.phone_iphone),
+          ),
+        ),
+        SizedBox(height: 10)
       ],
-      decoration: InputDecoration(
-        labelText: labelText,
-        icon: Icon(Icons.phone_iphone),
-      ),
     );
   }
 }

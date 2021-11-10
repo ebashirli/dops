@@ -23,3 +23,25 @@ List<String> activityCodeTableColumnNames = [
   'Finish Date',
   'Cumulative (%)',
 ];
+
+List<String> staffListTableColumnNames = [
+  'Badge No',
+  'Name',
+  'Surname',
+  'Patronymic',
+  'Full name',
+  'Initial (Unique)',
+  'System Designation',
+  'Job Title',
+  'E-mail',
+  'Company',
+  'Date of Birth',
+  'Home Address',
+  'Start date',
+  'Current place',
+  'Contract Finish Date',
+  'Contact',
+  'Emergency Contact',
+  'Emergency Contact Name',
+  'Note'
+];

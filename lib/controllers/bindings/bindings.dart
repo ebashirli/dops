@@ -1,4 +1,5 @@
 import 'package:dops/controllers/activity_code_controller.dart';
+import 'package:dops/controllers/staff_list_controller.dart';
 import 'package:get/get.dart';
 
 import '../dropdown_source_lists_controller.dart';
@@ -16,6 +17,9 @@ class HomeBinding extends Bindings {
     );
     Get.lazyPut<ReferenceDocumentController>(
       () => ReferenceDocumentController(),
+    );
+    Get.lazyPut<StaffListController>(
+      () => StaffListController(),
     );
   }
 }
@@ -43,6 +47,15 @@ class ReferenceDocumentBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<ReferenceDocumentController>(
       () => ReferenceDocumentController(),
+    );
+  }
+}
+
+class StaffListBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut<StaffListController>(
+      () => StaffListController(),
     );
   }
 }

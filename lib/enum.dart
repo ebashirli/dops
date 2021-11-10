@@ -1,1 +1,6 @@
-enum HomeStates{ActivityCodeState,ReferenceDocumentState, DropdownSourceListState, UserState}
+enum HomeStates {
+  ActivityCodeState,
+  ReferenceDocumentState,
+  DropdownSourceListState,
+  StaffListState,
+}

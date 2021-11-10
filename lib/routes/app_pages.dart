@@ -3,6 +3,7 @@ import 'package:dops/views/activity_code_view.dart';
 import 'package:dops/views/dropdown_source_lists_view.dart';
 import 'package:dops/views/home_view.dart';
 import 'package:dops/views/reference_document_view.dart';
+import 'package:dops/views/staff_list_view.dart';
 import 'package:get/get.dart';
 
 part 'app_routes.dart';
@@ -16,7 +17,6 @@ class AppPages {
     GetPage(
       name: _Paths.HOME,
       page: () => HomeView(),
-      
       binding: HomeBinding(),
     ),
     GetPage(
@@ -33,6 +33,11 @@ class AppPages {
       name: _Paths.DROPDOWN_SOURCE_LISTS,
       page: () => DropdownSourceListsView(),
       binding: DropdownSourceListsBinding(),
+    ),
+    GetPage(
+      name: _Paths.STAFF_LIST,
+      page: () => StaffListView(),
+      binding: StaffListBinding(),
     ),
   ];
 }

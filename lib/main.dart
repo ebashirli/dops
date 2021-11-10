@@ -1,7 +1,7 @@
 import 'dart:ui';
-
 import 'package:dops/repositories/activity_code_repository.dart';
 import 'package:dops/repositories/reference_document_repository.dart';
+import 'package:dops/repositories/staff_list_repository.dart';
 import 'package:dops/services/firebase_service/firebase_storage_service.dart';
 import 'package:dops/services/firebase_service/storage_service.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -28,11 +28,18 @@ Future<void> initServices() async {
       () async => await FirebaseStorageService('reference_documents'),
       tag: 'reference_documents');
 
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('staff_lists'),
+      tag: 'staff_lists');
+
   await Get.putAsync<ActivityCodeRepository>(
       () async => await ActivityCodeRepository());
 
   await Get.putAsync<ReferenceDocumentRepository>(
       () async => await ReferenceDocumentRepository());
+
+  await Get.putAsync<StaffListRepository>(
+      () async => await StaffListRepository());
 }
 
 class MyApp extends StatelessWidget {

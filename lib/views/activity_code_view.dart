@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:data_table_2/data_table_2.dart';
-
 import 'package:dops/controllers/activity_code_controller.dart';
 import 'package:dops/models/activity_codes_model.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:dops/constants/table_details.dart';
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ActivityCodeView extends StatelessWidget {
   final controller = Get.find<ActivityCodeController>();
@@ -14,209 +13,114 @@ class ActivityCodeView extends StatelessWidget {
     return Scaffold(
       body: Obx(
         () {
-          return DataTable2(
+          final EmployeeDataSource employeeDataSource =
+              EmployeeDataSource(employeeData: controller.activityCodes);
+
+          return SfDataGrid(
+            source: employeeDataSource,
             columns: getColumns(activityCodeTableColumnNames),
-            rows: getRows(controller.activityCodes),
-            columnSpacing: 12,
-            horizontalMargin: 12,
-            dividerThickness: 1,
-            bottomMargin: 10,
-            minWidth: 900,
-            dataRowHeight: 40,
-            border: TableBorder(
-              horizontalInside:
-                  BorderSide(width: 0.5, color: Colors.grey[400]!),
-              verticalInside: BorderSide(width: 0.5, color: Colors.grey[400]!),
-              bottom: BorderSide(width: 0.5, color: Colors.grey[400]!),
-            ),
-            headingTextStyle: TextStyle(fontWeight: FontWeight.bold),
-            sortColumnIndex: controller.sortColumnIndex.value,
-            sortAscending: controller.sortAscending.value,
+            gridLinesVisibility: GridLinesVisibility.both,
+            headerGridLinesVisibility: GridLinesVisibility.both,
+            columnWidthMode: ColumnWidthMode.fill,
+            allowSorting: true,
+            allowMultiColumnSorting: true,
+            allowTriStateSorting: true,
+            showSortNumbers: true,
+            onCellTap: (details) {
+              if (details.rowColumnIndex.rowIndex == 0) {
+                if (controller.sortAscending.value) {
+                  DataGridSortDirection.descending;
+                  controller.sortAscending.value = false;
+                } else {
+                  DataGridSortDirection.ascending;
+                  controller.sortAscending.value = true;
+                }
+              } else {
+                controller.buildAddEdit(
+                    activityCodeModel: controller
+                        .activityCodes[details.rowColumnIndex.rowIndex - 1]);
+              }
+            },
           );
         },
       ),
     );
   }
 
-  // TODO: ad this to delete button
   displayDeleteDialog(String docId) {
     Get.defaultDialog(
-      title: "Delete Activity Code",
+      title: "Delete Staff List",
       titleStyle: TextStyle(fontSize: 20),
-      middleText: 'Are you sure to delete activity code?',
+      middleText: 'Are you sure to delete staff list?',
       textCancel: "Cancel",
       textConfirm: "Confirm",
       confirmTextColor: Colors.black,
       onCancel: () {},
       onConfirm: () {
-        // controller.removeActivityCodeModel();
+        // controller.removeStaffListModel();
       },
     );
   }
 
-  List<DataColumn2> getColumns(List<String> columns) {
-    return columns.map(
-      (String column) {
-        return DataColumn2(
-          label: Text(column),
-          onSort: onSort,
-        );
-      },
-    ).toList();
+  getColumns(List<String> lst) {
+    return lst
+        .map(
+          (e) => GridColumn(
+            columnWidthMode: ColumnWidthMode.auto,
+            columnName: e.toLowerCase(),
+            // autoFitPadding: const EdgeInsets.all(8.0),
+            label: Center(
+              child: Container(
+                decoration: BoxDecoration(),
+                // padding: EdgeInsets.all(20.0),
+                alignment: Alignment.center,
+                child: Text(e),
+              ),
+            ),
+          ),
+        )
+        .toList();
+  }
+}
+
+List<DataGridRow> _employeeData = [];
+
+class EmployeeDataSource extends DataGridSource {
+  EmployeeDataSource({required List<ActivityCodeModel> employeeData}) {
+    _employeeData = employeeData
+        .map<DataGridRow>(
+          (e) => DataGridRow(
+            cells: e
+                .toMap()
+                .entries
+                .map(
+                  (i) => DataGridCell<dynamic>(
+                    columnName: i.key,
+                    value: i.value,
+                  ),
+                )
+                .toList(),
+          ),
+        )
+        .toList();
   }
 
-  List<DataRow2> getRows(List<ActivityCodeModel> activityCodes) {
-    List<DataRow2> dataRows =
-        activityCodes.map((ActivityCodeModel activityCode) {
-      final map = activityCode.toMap();
-      List cells = map.values.toList();
+  @override
+  List<DataGridRow> get rows => _employeeData;
 
-      return DataRow2(
-        onTap: () {
-          controller.buildAddEdit(activityCodeModel: activityCode);
-        },
-        cells: getCells(cells),
+  @override
+  DataGridRowAdapter buildRow(DataGridRow row) {
+    return DataGridRowAdapter(
+        cells: row.getCells().map<Widget>((e) {
+      return Container(
+        alignment: Alignment.center,
+        // padding: EdgeInsets.all(8.0),
+        child: Text(e.value is DateTime
+            ? '${e.value.month}/${e.value.day}/${e.value.year}'
+            : e.value is num
+                ? e.value.toString()
+                : e.value ?? ''),
       );
-    }).toList();
-
-    return dataRows;
+    }).toList());
   }
-
-  List<DataCell> getCells(List<dynamic> cells) => cells.map((data) {
-        return DataCell(
-          Text(data is DateTime
-              ? '${data.month}/${data.day}/${data.year}'
-              : data is int || data is double
-                  ? data.toString()
-                  : data ?? ''),
-        );
-      }).toList();
-
-  onSort(int columnIndex, bool ascending) {
-    switch (columnIndex) {
-      case 0:
-        controller.activityCodes.sort(
-          (
-            activityCode1,
-            activityCode2,
-          ) =>
-              compare(
-            ascending,
-            activityCode1.activityId,
-            activityCode2.activityId,
-          ),
-        );
-        break;
-      case 1:
-        controller.activityCodes.sort(
-          (
-            activityCode1,
-            activityCode2,
-          ) =>
-              compare(
-            ascending,
-            activityCode1.activityName,
-            activityCode2.activityName,
-          ),
-        );
-        break;
-      case 2:
-        controller.activityCodes.sort(
-          (
-            activityCode1,
-            activityCode2,
-          ) =>
-              compare(
-            ascending,
-            activityCode1.moduleName,
-            activityCode2.moduleName,
-          ),
-        );
-        break;
-      case 3:
-        controller.activityCodes.sort(
-          (
-            activityCode1,
-            activityCode2,
-          ) =>
-              compare(
-            ascending,
-            activityCode1.priority,
-            activityCode2.priority,
-          ),
-        );
-        break;
-      case 4:
-        controller.activityCodes.sort(
-          (
-            activityCode1,
-            activityCode2,
-          ) =>
-              compare(
-            ascending,
-            activityCode1.coefficient,
-            activityCode2.coefficient,
-          ),
-        );
-        break;
-      case 5:
-        controller.activityCodes.sort(
-          (
-            activityCode1,
-            activityCode2,
-          ) =>
-              compare(
-            ascending,
-            activityCode1.currentPriority,
-            activityCode2.currentPriority,
-          ),
-        );
-        break;
-      case 6:
-        controller.activityCodes.sort(
-          (
-            activityCode1,
-            activityCode2,
-          ) =>
-              compare(
-            ascending,
-            activityCode1.budgetedLaborUnits,
-            activityCode2.budgetedLaborUnits,
-          ),
-        );
-        break;
-      case 7:
-        controller.activityCodes.sort(
-          (
-            activityCode1,
-            activityCode2,
-          ) =>
-              compare(
-            ascending,
-            activityCode1.startDate,
-            activityCode2.startDate,
-          ),
-        );
-        break;
-      case 8:
-        controller.activityCodes.sort(
-          (
-            activityCode1,
-            activityCode2,
-          ) =>
-              compare(
-            ascending,
-            activityCode1.finishDate,
-            activityCode2.finishDate,
-          ),
-        );
-        break;
-    }
-
-    controller.sortColumnIndex.value = columnIndex;
-    controller.sortAscending.value = ascending;
-  }
-
-  int compare(bool ascending, dynamic value1, dynamic value2) =>
-      ascending ? value1.compareTo(value2) : value2.compareTo(value1);
 }

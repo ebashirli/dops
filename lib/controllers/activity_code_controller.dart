@@ -167,13 +167,13 @@ class ActivityCodeController extends GetxController {
                       },
                       selectedItem: moduleNameText,
                     ),
-                    CustomStringTextField(
+                    CustomNumberTextField(
                       controller: coefficientController,
                       labelText: activityCodeTableColumnNames[4],
                     ),
                     CustomNumberTextField(
                       controller: budgetedLaborUnitsController,
-                      labelText: activityCodeTableColumnNames[5],
+                      labelText: activityCodeTableColumnNames[6],
                     ),
                     CustomDateTimeFormField(
                       initialValue: startTime,

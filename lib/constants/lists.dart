@@ -4,7 +4,7 @@ Map<String, List<String>> listsMap = {
   'Project': [
     'ACE',
   ],
-  'Module': [
+  'Module name': [
     'Topside',
     'Flare',
     'Drilling - MDSM',

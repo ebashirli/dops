@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:dops/constants/lists.dart';
 
 // ignore: must_be_immutable
-class CustomDropdownSearch extends StatelessWidget {
+class CustomDropdownMenu extends StatelessWidget {
   late String labelText;
   final dynamic Function(String?)? onChanged;
   final String? selectedItem;
   final double? width;
 
-  CustomDropdownSearch({
+  CustomDropdownMenu({
     Key? key,
     required this.labelText,
     required this.onChanged,

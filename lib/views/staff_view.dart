@@ -1,13 +1,13 @@
+import 'package:dops/controllers/staff_controller.dart';
+import 'package:dops/models/staff_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import 'package:dops/constants/table_details.dart';
-import 'package:dops/models/reference_document_model.dart';
-import 'package:dops/controllers/reference_document_controller.dart';
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class ReferenceDocumentView extends StatelessWidget {
-  final controller = Get.find<ReferenceDocumentController>();
+class StaffView extends StatelessWidget {
+  final controller = Get.find<StaffController>();
 
   @override
   Widget build(BuildContext context) {
@@ -15,34 +15,35 @@ class ReferenceDocumentView extends StatelessWidget {
       body: Obx(
         () {
           final EmployeeDataSource employeeDataSource =
-              EmployeeDataSource(employeeData: controller.referenceDocuments);
+              EmployeeDataSource(employeeData: controller.employees);
 
           return SfDataGrid(
-            source: employeeDataSource,
-            columns: getColumns(referenceDocumentTableColumnNames),
-            gridLinesVisibility: GridLinesVisibility.both,
-            headerGridLinesVisibility: GridLinesVisibility.both,
-            columnWidthMode: ColumnWidthMode.fill,
-            allowSorting: true,
-            allowMultiColumnSorting: true,
-            allowTriStateSorting: true,
-            showSortNumbers: true,
-            onCellTap: (details) {
-              if (details.rowColumnIndex.rowIndex == 0) {
-                if (controller.sortAscending.value) {
-                  DataGridSortDirection.descending;
-                  controller.sortAscending.value = false;
+              source: employeeDataSource,
+              columns: getColumns(staffTableColumnNames),
+              gridLinesVisibility: GridLinesVisibility.both,
+              // columnWidthMode: ColumnWidthMode.fitByCellValue,
+              showCheckboxColumn: true,
+              headerGridLinesVisibility: GridLinesVisibility.both,
+              columnWidthMode: ColumnWidthMode.fill,
+              allowSorting: true,
+              allowMultiColumnSorting: true,
+              allowTriStateSorting: true,
+              showSortNumbers: true,
+              onCellTap: (details) {
+                if (details.rowColumnIndex.rowIndex == 0) {
+                  if (controller.sortAscending.value) {
+                    DataGridSortDirection.descending;
+                    controller.sortAscending.value = false;
+                  } else {
+                    DataGridSortDirection.ascending;
+                    controller.sortAscending.value = true;
+                  }
                 } else {
-                  DataGridSortDirection.ascending;
-                  controller.sortAscending.value = true;
+                  controller.buildAddEdit(
+                      aModel: controller
+                          .employees[details.rowColumnIndex.rowIndex - 1]);
                 }
-              } else {
-                controller.buildAddEdit(
-                    aModel: controller.referenceDocuments[
-                        details.rowColumnIndex.rowIndex - 1]);
-              }
-            },
-          );
+              });
         },
       ),
     );
@@ -87,7 +88,7 @@ class ReferenceDocumentView extends StatelessWidget {
 List<DataGridRow> _employeeData = [];
 
 class EmployeeDataSource extends DataGridSource {
-  EmployeeDataSource({required List<ReferenceDocumentModel> employeeData}) {
+  EmployeeDataSource({required List<StaffModel> employeeData}) {
     _employeeData = employeeData
         .map<DataGridRow>(
           (e) => DataGridRow(

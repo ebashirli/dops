@@ -1,13 +1,13 @@
-import 'package:dops/controllers/staff_list_controller.dart';
-import 'package:dops/models/staff_list_model.dart';
+import 'package:dops/controllers/task_controller.dart';
+import 'package:dops/models/task_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:dops/constants/table_details.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class StaffListView extends StatelessWidget {
-  final controller = Get.find<StaffListController>();
+class TaskView extends StatelessWidget {
+  final controller = Get.find<TaskController>();
 
   @override
   Widget build(BuildContext context) {
@@ -15,11 +15,11 @@ class StaffListView extends StatelessWidget {
       body: Obx(
         () {
           final EmployeeDataSource employeeDataSource =
-              EmployeeDataSource(employeeData: controller.staffLists);
+              EmployeeDataSource(employeeData: controller.tasks);
 
           return SfDataGrid(
               source: employeeDataSource,
-              columns: getColumns(staffListTableColumnNames),
+              columns: getColumns(staffTableColumnNames),
               gridLinesVisibility: GridLinesVisibility.both,
               // columnWidthMode: ColumnWidthMode.fitByCellValue,
               showCheckboxColumn: true,
@@ -40,8 +40,8 @@ class StaffListView extends StatelessWidget {
                   }
                 } else {
                   controller.buildAddEdit(
-                      staffListModel: controller
-                          .staffLists[details.rowColumnIndex.rowIndex - 1]);
+                      aModel: controller
+                          .tasks[details.rowColumnIndex.rowIndex - 1]);
                 }
               });
         },
@@ -59,7 +59,7 @@ class StaffListView extends StatelessWidget {
       confirmTextColor: Colors.black,
       onCancel: () {},
       onConfirm: () {
-        // controller.removeStaffListModel();
+        // controller.removeStaffModel();
       },
     );
   }
@@ -88,7 +88,7 @@ class StaffListView extends StatelessWidget {
 List<DataGridRow> _employeeData = [];
 
 class EmployeeDataSource extends DataGridSource {
-  EmployeeDataSource({required List<StaffListModel> employeeData}) {
+  EmployeeDataSource({required List<TaskModel> employeeData}) {
     _employeeData = employeeData
         .map<DataGridRow>(
           (e) => DataGridRow(

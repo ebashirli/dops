@@ -1,16 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/constants/style.dart';
 import 'package:dops/constants/table_details.dart';
-import 'package:dops/models/activity_codes_model.dart';
-import 'package:dops/repositories/activity_code_repository.dart';
+import 'package:dops/models/activity_model.dart';
+import 'package:dops/repositories/activity_repository.dart';
 import 'package:dops/widgets/custom_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class ActivityCodeController extends GetxController {
+class ActivityController extends GetxController {
   final alma = 'alma';
-  final GlobalKey<FormState> activityCodeFormKey = GlobalKey<FormState>();
-  final _repository = Get.find<ActivityCodeRepository>();
+  final GlobalKey<FormState> activityFormKey = GlobalKey<FormState>();
+  final _repository = Get.find<ActivityRepository>();
 
   late TextEditingController activityIdController,
       activityNameController,
@@ -21,8 +21,8 @@ class ActivityCodeController extends GetxController {
   RxInt sortColumnIndex = 0.obs;
   String? moduleNameText = '';
 
-  RxList<ActivityCodeModel> _activityCodes = RxList<ActivityCodeModel>([]);
-  List<ActivityCodeModel> get activityCodes => _activityCodes;
+  RxList<ActivityModel> _activities = RxList<ActivityModel>([]);
+  List<ActivityModel> get activities => _activities;
 
   @override
   void onInit() async {
@@ -33,7 +33,7 @@ class ActivityCodeController extends GetxController {
     budgetedLaborUnitsController = TextEditingController();
     startTime = DateTime.now();
     finishTime = DateTime.now();
-    _activityCodes.bindStream(_repository.getAllActivityCodesAsStream());
+    _activities.bindStream(_repository.getAllActivitiesAsStream());
   }
 
   String? validateName(String value) {
@@ -50,28 +50,28 @@ class ActivityCodeController extends GetxController {
     return null;
   }
 
-  updateActivityCode({required ActivityCodeModel model}) async {
-    final isValid = activityCodeFormKey.currentState!.validate();
+  updateActivity({required ActivityModel model}) async {
+    final isValid = activityFormKey.currentState!.validate();
     if (!isValid) {
       return;
     }
-    activityCodeFormKey.currentState!.save();
+    activityFormKey.currentState!.save();
     //update
     CustomFullScreenDialog.showDialog();
-    await _repository.updateActivityCodeModel(model, model.id!);
+    await _repository.updateActivityModel(model, model.id!);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
-  saveActivityCode({required ActivityCodeModel model}) async {
+  saveActivity({required ActivityModel model}) async {
     CustomFullScreenDialog.showDialog();
-    await _repository.addActivityCodeModel(model);
+    await _repository.addActivityModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
-  void deleteActivityCode(String id) {
-    _repository.removeActivityCodeModel(id);
+  void deleteActivity(String id) {
+    _repository.removeActivityModel(id);
   }
 
   @override
@@ -89,7 +89,7 @@ class ActivityCodeController extends GetxController {
     moduleNameText = null;
   }
 
-  void fillEditingControllers(ActivityCodeModel model) {
+  void fillEditingControllers(ActivityModel model) {
     activityIdController.text = model.activityId ?? '';
     activityNameController.text = model.activityName ?? '';
     coefficientController.text = model.coefficient.toString();
@@ -117,9 +117,9 @@ class ActivityCodeController extends GetxController {
     }
   }
 
-  buildAddEdit({ActivityCodeModel? activityCodeModel}) {
-    if (activityCodeModel != null) {
-      fillEditingControllers(activityCodeModel);
+  buildAddEdit({ActivityModel? aModel}) {
+    if (aModel != null) {
+      fillEditingControllers(aModel);
     } else {
       clearEditingControllers();
     }
@@ -130,9 +130,9 @@ class ActivityCodeController extends GetxController {
 
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: activityCodeModel == null
-          ? 'Add Activity Code'
-          : 'Update Activity Code',
+      title: aModel == null
+          ? 'Add Activity'
+          : 'Update Activity',
       content: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -144,7 +144,7 @@ class ActivityCodeController extends GetxController {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Form(
-            key: activityCodeFormKey,
+            key: activityFormKey,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: SingleChildScrollView(
               child: Container(
@@ -154,13 +154,13 @@ class ActivityCodeController extends GetxController {
                   children: [
                     CustomStringTextField(
                       controller: activityIdController,
-                      labelText: activityCodeTableColumnNames[0],
+                      labelText: activityTableColumnNames[0],
                     ),
                     CustomStringTextField(
                       controller: activityNameController,
-                      labelText: activityCodeTableColumnNames[1],
+                      labelText: activityTableColumnNames[1],
                     ),
-                    CustomDropdownSearch(
+                    CustomDropdownMenu(
                       labelText: 'Module name',
                       onChanged: (value) {
                         moduleNameText = value ?? '';
@@ -169,22 +169,22 @@ class ActivityCodeController extends GetxController {
                     ),
                     CustomNumberTextField(
                       controller: coefficientController,
-                      labelText: activityCodeTableColumnNames[4],
+                      labelText: activityTableColumnNames[4],
                     ),
                     CustomNumberTextField(
                       controller: budgetedLaborUnitsController,
-                      labelText: activityCodeTableColumnNames[6],
+                      labelText: activityTableColumnNames[6],
                     ),
                     CustomDateTimeFormField(
                       initialValue: startTime,
-                      labelText: activityCodeTableColumnNames[7],
+                      labelText: activityTableColumnNames[7],
                       onDateSelected: (DateTime value) {
                         startTime = value;
                       },
                     ),
                     CustomDateTimeFormField(
                       initialValue: finishTime,
-                      labelText: activityCodeTableColumnNames[8],
+                      labelText: activityTableColumnNames[8],
                       onDateSelected: (DateTime value) {
                         finishTime = value;
                       },
@@ -192,10 +192,10 @@ class ActivityCodeController extends GetxController {
                     Container(
                       child: Row(
                         children: <Widget>[
-                          if (activityCodeModel != null)
+                          if (aModel != null)
                             ElevatedButton.icon(
                               onPressed: () {
-                                deleteActivityCode(activityCodeModel.id!);
+                                deleteActivity(aModel.id!);
                                 Get.back();
                               },
                               icon: Icon(Icons.delete),
@@ -212,9 +212,9 @@ class ActivityCodeController extends GetxController {
                           SizedBox(width: 10),
                           ElevatedButton(
                             onPressed: () {
-                              ActivityCodeModel model = ActivityCodeModel(
-                                id: activityCodeModel != null
-                                    ? activityCodeModel.id
+                              ActivityModel model = ActivityModel(
+                                id: aModel != null
+                                    ? aModel.id
                                     : null,
                                 activityId: activityIdController.text,
                                 activityName: activityNameController.text,
@@ -230,12 +230,12 @@ class ActivityCodeController extends GetxController {
                                 finishDate: finishTime,
                                 cumulative: 0,
                               );
-                              activityCodeModel == null
-                                  ? saveActivityCode(model: model)
-                                  : updateActivityCode(model: model);
+                              aModel == null
+                                  ? saveActivity(model: model)
+                                  : updateActivity(model: model);
                             },
                             child: Text(
-                              activityCodeModel != null ? 'Update' : 'Add',
+                              aModel != null ? 'Update' : 'Add',
                             ),
                           ),
                         ],

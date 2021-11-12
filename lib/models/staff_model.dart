@@ -1,4 +1,4 @@
-class StaffListModel {
+class StaffModel {
   String? id;
   String badgeNo;
   String name;
@@ -20,7 +20,7 @@ class StaffListModel {
   String emergencyContactName;
   String note;
 
-  StaffListModel({
+  StaffModel({
     this.id,
     required this.badgeNo,
     required this.name,
@@ -67,11 +67,11 @@ class StaffListModel {
     };
   }
 
-  factory StaffListModel.fromMap(
+  factory StaffModel.fromMap(
     Map<String, dynamic> map,
     String? id,
   ) {
-    return StaffListModel(
+    return StaffModel(
       id: id ?? '',
       badgeNo: map['badge_no'],
       name: map['name'],

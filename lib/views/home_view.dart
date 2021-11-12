@@ -1,9 +1,11 @@
-import 'package:dops/controllers/activity_code_controller.dart';
+import 'package:dops/controllers/activity_controller.dart';
 import 'package:dops/controllers/reference_document_controller.dart';
-import 'package:dops/controllers/staff_list_controller.dart';
-import 'package:dops/views/activity_code_view.dart';
+import 'package:dops/controllers/staff_controller.dart';
+import 'package:dops/controllers/task_controller.dart';
+import 'package:dops/views/activity_view.dart';
 import 'package:dops/views/reference_document_view.dart';
-import 'package:dops/views/staff_list_view.dart';
+import 'package:dops/views/staff_view.dart';
+import 'package:dops/views/task_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,9 +13,10 @@ import '../controllers/home_controller.dart';
 import '../enum.dart';
 
 class HomeView extends GetView<HomeController> {
-  final activityCodeController = Get.find<ActivityCodeController>();
+  final activityController = Get.find<ActivityController>();
   final referenceDocumentController = Get.find<ReferenceDocumentController>();
-  final staffListController = Get.find<StaffListController>();
+  final staffController = Get.find<StaffController>();
+  final taskController = Get.find<TaskController>();
 
   @override
   Widget build(BuildContext context) {
@@ -21,15 +24,18 @@ class HomeView extends GetView<HomeController> {
       return Scaffold(
         drawer: _buildDrawer(),
         appBar: _buildAppBar(),
-        body: _buildBody(),
+        body: Padding(
+          padding: EdgeInsets.all(20),
+          child: _buildBody(),
+        ),
       );
     });
   }
 
   Widget _buildBody() {
     switch (controller.homeStates) {
-      case HomeStates.ActivityCodeState:
-        return ActivityCodeView();
+      case HomeStates.ActivityState:
+        return ActivityView();
 
       case HomeStates.ReferenceDocumentState:
         return ReferenceDocumentView();
@@ -37,8 +43,11 @@ class HomeView extends GetView<HomeController> {
       case HomeStates.DropdownSourceListState:
         return Container(child: const Text('dropwdown'));
 
-      case HomeStates.StaffListState:
-        return StaffListView();
+      case HomeStates.StaffState:
+        return StaffView();
+
+      case HomeStates.TaskState:
+        return TaskView();
     }
   }
 
@@ -67,7 +76,7 @@ class HomeView extends GetView<HomeController> {
             icon: Icon(Icons.list_alt),
             label: const Text('Home'),
             onPressed: () {
-              controller.homeStates = HomeStates.StaffListState;
+              controller.homeStates = HomeStates.StaffState;
               Get.back();
             },
           ),
@@ -90,9 +99,9 @@ class HomeView extends GetView<HomeController> {
           SizedBox(height: 10),
           TextButton.icon(
             icon: Icon(Icons.add),
-            label: const Text('Activity Code'),
+            label: const Text('Activity'),
             onPressed: () {
-              controller.homeStates = HomeStates.ActivityCodeState;
+              controller.homeStates = HomeStates.ActivityState;
               Get.back();
             },
           ),
@@ -101,7 +110,16 @@ class HomeView extends GetView<HomeController> {
             icon: Icon(Icons.people),
             label: const Text('Staff List'),
             onPressed: () {
-              controller.homeStates = HomeStates.StaffListState;
+              controller.homeStates = HomeStates.StaffState;
+              Get.back();
+            },
+          ),
+          SizedBox(height: 10),
+          TextButton.icon(
+            icon: Icon(Icons.task),
+            label: const Text('Tasks'),
+            onPressed: () {
+              controller.homeStates = HomeStates.TaskState;
               Get.back();
             },
           ),
@@ -112,7 +130,7 @@ class HomeView extends GetView<HomeController> {
 
   String _buildTitleOfPage() {
     switch (controller.homeStates) {
-      case HomeStates.ActivityCodeState:
+      case HomeStates.ActivityState:
         return 'Activity Code';
       case HomeStates.ReferenceDocumentState:
         return 'Reference Documents';
@@ -120,19 +138,23 @@ class HomeView extends GetView<HomeController> {
       case HomeStates.DropdownSourceListState:
         return 'Dropdown Source List';
 
-      case HomeStates.StaffListState:
+      case HomeStates.StaffState:
         return 'Staff List';
+      case HomeStates.TaskState:
+        return 'Task List';
     }
   }
 
   _buildAddDatabase() {
     switch (controller.homeStates) {
-      case HomeStates.ActivityCodeState:
-        return activityCodeController.buildAddEdit();
+      case HomeStates.ActivityState:
+        return activityController.buildAddEdit();
       case HomeStates.ReferenceDocumentState:
         return referenceDocumentController.buildAddEdit();
-      case HomeStates.StaffListState:
-        return staffListController.buildAddEdit();
+      case HomeStates.StaffState:
+        return staffController.buildAddEdit();
+      case HomeStates.TaskState:
+        return taskController.buildAddEdit();
       case HomeStates.DropdownSourceListState:
         return;
     }

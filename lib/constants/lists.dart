@@ -108,4 +108,14 @@ Map<String, List<String>> listsMap = {
     'Home',
     'Left',
   ],
+  'Area': [
+    '0-3/South',
+    '0-3/A-B',
+    '0-3/North',
+  ],
+  'Functional Area': [
+    'Comprossion Area',
+    'Filter House',
+    'Mechanical Workshop'
+  ],
 };

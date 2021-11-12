@@ -1,5 +1,5 @@
-import 'package:dops/models/staff_list_model.dart';
-import 'package:dops/repositories/staff_list_repository.dart';
+import 'package:dops/models/staff_model.dart';
+import 'package:dops/repositories/staff_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
@@ -7,9 +7,9 @@ import 'package:get/get.dart';
 import 'package:dops/constants/style.dart';
 import 'package:dops/widgets/custom_widgets.dart';
 
-class StaffListController extends GetxController {
-  final GlobalKey<FormState> staffListFormKey = GlobalKey<FormState>();
-  final _repository = Get.find<StaffListRepository>();
+class StaffController extends GetxController {
+  final GlobalKey<FormState> staffFormKey = GlobalKey<FormState>();
+  final _repository = Get.find<StaffRepository>();
 
   late TextEditingController badgeNoController,
       nameController,
@@ -31,8 +31,8 @@ class StaffListController extends GetxController {
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
 
-  RxList<StaffListModel> _staffLists = RxList<StaffListModel>([]);
-  List<StaffListModel> get staffLists => _staffLists;
+  RxList<StaffModel> _employees = RxList<StaffModel>([]);
+  List<StaffModel> get employees => _employees;
 
   @override
   void onInit() {
@@ -53,33 +53,33 @@ class StaffListController extends GetxController {
     startDate = DateTime.now();
     contractFinishDate = DateTime.now();
 
-    _staffLists.bindStream(_repository.getAllStaffListsAsStream());
+    _employees.bindStream(_repository.getAllEmployeesAsStream());
   }
 
-  saveStaffList({required StaffListModel model}) async {
+  saveStaff({required StaffModel model}) async {
     CustomFullScreenDialog.showDialog();
-    await _repository.addStaffListModel(model);
+    await _repository.addStaffModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
-  updateStaffList({
-    required StaffListModel model,
+  updateStaff({
+    required StaffModel model,
   }) async {
-    final isValid = staffListFormKey.currentState!.validate();
+    final isValid = staffFormKey.currentState!.validate();
     if (!isValid) {
       return;
     }
-    staffListFormKey.currentState!.save();
+    staffFormKey.currentState!.save();
     //update
     CustomFullScreenDialog.showDialog();
-    await _repository.updateStaffListModel(model);
+    await _repository.updateStaffModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
-  void deleteStaffList(String id) {
-    _repository.removeStaffListModel(id);
+  void deleteStaff(String id) {
+    _repository.removeStaffModel(id);
   }
 
   @override
@@ -110,7 +110,7 @@ class StaffListController extends GetxController {
     companyText = '';
   }
 
-  void fillEditingControllers(StaffListModel model) {
+  void fillEditingControllers(StaffModel model) {
     badgeNoController.text = model.badgeNo;
     nameController.text = model.name;
     surnameController.text = model.surname;
@@ -151,9 +151,9 @@ class StaffListController extends GetxController {
     }
   }
 
-  buildAddEdit({StaffListModel? staffListModel}) {
-    if (staffListModel != null) {
-      fillEditingControllers(staffListModel);
+  buildAddEdit({StaffModel? aModel}) {
+    if (aModel != null) {
+      fillEditingControllers(aModel);
     } else {
       clearEditingControllers();
     }
@@ -162,7 +162,7 @@ class StaffListController extends GetxController {
       barrierDismissible: false,
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: staffListModel == null ? 'Add staff' : 'Update staff',
+      title: aModel == null ? 'Add staff' : 'Update staff',
       content: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -174,7 +174,7 @@ class StaffListController extends GetxController {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Form(
-            key: staffListFormKey,
+            key: staffFormKey,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Container(
               width: Get.width * .5,
@@ -211,21 +211,21 @@ class StaffListController extends GetxController {
                             initialValue: dateOfBirth,
                             onDateSelected: (date) => dateOfBirth = date,
                           ),
-                          CustomDropdownSearch(
+                          CustomDropdownMenu(
                             labelText: 'Company',
                             selectedItem: companyText,
                             onChanged: (value) {
                               companyText = value ?? '';
                             },
                           ),
-                          CustomDropdownSearch(
+                          CustomDropdownMenu(
                             labelText: 'System Designation',
                             selectedItem: systemDesignationText,
                             onChanged: (value) {
                               systemDesignationText = value ?? '';
                             },
                           ),
-                          CustomDropdownSearch(
+                          CustomDropdownMenu(
                             labelText: 'Job Title',
                             selectedItem: jobTitleText,
                             onChanged: (value) {
@@ -245,7 +245,7 @@ class StaffListController extends GetxController {
                             controller: homeAddressController,
                             labelText: 'Home Address',
                           ),
-                          CustomDropdownSearch(
+                          CustomDropdownMenu(
                             labelText: 'Employee place',
                             selectedItem: currentPlaceText,
                             onChanged: (value) {
@@ -281,10 +281,10 @@ class StaffListController extends GetxController {
                   Container(
                     child: Row(
                       children: <Widget>[
-                        if (staffListModel != null)
+                        if (aModel != null)
                           ElevatedButton.icon(
                             onPressed: () {
-                              deleteStaffList(staffListModel.id!);
+                              deleteStaff(aModel.id!);
                               Get.back();
                             },
                             icon: Icon(Icons.delete),
@@ -302,9 +302,9 @@ class StaffListController extends GetxController {
                         SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: () {
-                            StaffListModel model = StaffListModel(
-                              id: staffListModel != null
-                                  ? staffListModel.id
+                            StaffModel model = StaffModel(
+                              id: aModel != null
+                                  ? aModel.id
                                   : null,
                               badgeNo: badgeNoController.text,
                               name: nameController.text,
@@ -328,12 +328,12 @@ class StaffListController extends GetxController {
                                   emergencyContactNameController.text,
                               note: noteController.text,
                             );
-                            staffListModel == null
-                                ? saveStaffList(model: model)
-                                : updateStaffList(model: model);
+                            aModel == null
+                                ? saveStaff(model: model)
+                                : updateStaff(model: model);
                           },
                           child: Text(
-                            staffListModel != null ? 'Update' : 'Add',
+                            aModel != null ? 'Update' : 'Add',
                           ),
                         ),
                       ],

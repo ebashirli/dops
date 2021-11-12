@@ -93,8 +93,8 @@ class DropdownSourceListsController extends GetxController {
         Get.back();
         CustomSnackBar.showSnackBar(
           context: Get.context,
-          title: "Activity Code Updated",
-          message: "Activity Code updated successfully",
+          title: "Activity Updated",
+          message: "Activity updated successfully",
           backgroundColor: Colors.green,
         );
       }).catchError((error) {

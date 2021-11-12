@@ -1,4 +1,4 @@
-class ActivityCodeModel {
+class ActivityModel {
   String? id;
   String? activityId;
   String? activityName;
@@ -11,7 +11,7 @@ class ActivityCodeModel {
   DateTime? finishDate;
   double? cumulative;
 
-  ActivityCodeModel({
+  ActivityModel({
     required this.id,
     this.activityId,
     this.activityName,
@@ -40,11 +40,11 @@ class ActivityCodeModel {
     };
   }
 
-  factory ActivityCodeModel.fromMap(
+  factory ActivityModel.fromMap(
     Map<String, dynamic> map,
     String? id,
   ) {
-    return ActivityCodeModel(
+    return ActivityModel(
       id: id,
       activityId: map['activity_id'],
       activityName: map['activity_name'],

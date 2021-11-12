@@ -1,7 +1,8 @@
 import 'dart:ui';
-import 'package:dops/repositories/activity_code_repository.dart';
+import 'package:dops/repositories/activity_repository.dart';
 import 'package:dops/repositories/reference_document_repository.dart';
-import 'package:dops/repositories/staff_list_repository.dart';
+import 'package:dops/repositories/staff_repository.dart';
+import 'package:dops/repositories/task_repository.dart';
 import 'package:dops/services/firebase_service/firebase_storage_service.dart';
 import 'package:dops/services/firebase_service/storage_service.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -21,25 +22,30 @@ Future<void> main() async {
 @override
 Future<void> initServices() async {
   await Get.putAsync<StorageService>(
-      () async => await FirebaseStorageService('activity_codes'),
-      tag: 'activity_codes');
+      () async => await FirebaseStorageService('activities'),
+      tag: 'activities');
 
   await Get.putAsync<StorageService>(
       () async => await FirebaseStorageService('reference_documents'),
       tag: 'reference_documents');
 
   await Get.putAsync<StorageService>(
-      () async => await FirebaseStorageService('staff_lists'),
-      tag: 'staff_lists');
+      () async => await FirebaseStorageService('employees'),
+      tag: 'employees');
+  
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('tasks'),
+      tag: 'tasks');
 
-  await Get.putAsync<ActivityCodeRepository>(
-      () async => await ActivityCodeRepository());
+  await Get.putAsync<ActivityRepository>(
+      () async => await ActivityRepository());
 
   await Get.putAsync<ReferenceDocumentRepository>(
       () async => await ReferenceDocumentRepository());
 
-  await Get.putAsync<StaffListRepository>(
-      () async => await StaffListRepository());
+  await Get.putAsync<StaffRepository>(() async => await StaffRepository());
+
+  await Get.putAsync<TaskRepository>(() async => await TaskRepository());
 }
 
 class MyApp extends StatelessWidget {

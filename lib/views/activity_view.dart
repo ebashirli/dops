@@ -1,12 +1,12 @@
-import 'package:dops/controllers/activity_code_controller.dart';
-import 'package:dops/models/activity_codes_model.dart';
+import 'package:dops/controllers/activity_controller.dart';
+import 'package:dops/models/activity_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dops/constants/table_details.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class ActivityCodeView extends StatelessWidget {
-  final controller = Get.find<ActivityCodeController>();
+class ActivityView extends StatelessWidget {
+  final controller = Get.find<ActivityController>();
 
   @override
   Widget build(BuildContext context) {
@@ -14,11 +14,11 @@ class ActivityCodeView extends StatelessWidget {
       body: Obx(
         () {
           final EmployeeDataSource employeeDataSource =
-              EmployeeDataSource(employeeData: controller.activityCodes);
+              EmployeeDataSource(employeeData: controller.activities);
 
           return SfDataGrid(
             source: employeeDataSource,
-            columns: getColumns(activityCodeTableColumnNames),
+            columns: getColumns(activityTableColumnNames),
             gridLinesVisibility: GridLinesVisibility.both,
             headerGridLinesVisibility: GridLinesVisibility.both,
             columnWidthMode: ColumnWidthMode.fill,
@@ -37,8 +37,8 @@ class ActivityCodeView extends StatelessWidget {
                 }
               } else {
                 controller.buildAddEdit(
-                    activityCodeModel: controller
-                        .activityCodes[details.rowColumnIndex.rowIndex - 1]);
+                    aModel: controller
+                        .activities[details.rowColumnIndex.rowIndex - 1]);
               }
             },
           );
@@ -57,7 +57,7 @@ class ActivityCodeView extends StatelessWidget {
       confirmTextColor: Colors.black,
       onCancel: () {},
       onConfirm: () {
-        // controller.removeStaffListModel();
+        // controller.removeStaffModel();
       },
     );
   }
@@ -86,7 +86,7 @@ class ActivityCodeView extends StatelessWidget {
 List<DataGridRow> _employeeData = [];
 
 class EmployeeDataSource extends DataGridSource {
-  EmployeeDataSource({required List<ActivityCodeModel> employeeData}) {
+  EmployeeDataSource({required List<ActivityModel> employeeData}) {
     _employeeData = employeeData
         .map<DataGridRow>(
           (e) => DataGridRow(

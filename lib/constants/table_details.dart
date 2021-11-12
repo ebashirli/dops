@@ -11,7 +11,7 @@ List<String> referenceDocumentTableColumnNames = [
   'Number of assigned documents',
 ];
 
-List<String> activityCodeTableColumnNames = [
+List<String> activityTableColumnNames = [
   'Activity ID',
   'Activity Name',
   'Module Name',
@@ -24,7 +24,7 @@ List<String> activityCodeTableColumnNames = [
   'Cumulative (%)',
 ];
 
-List<String> staffListTableColumnNames = [
+List<String> staffTableColumnNames = [
   'Badge No',
   'Name',
   'Surname',
@@ -44,4 +44,23 @@ List<String> staffListTableColumnNames = [
   'Emergency Contact',
   'Emergency Contact Name',
   'Note'
+];
+
+List<String> taskTableColumnNames = [
+  'Priority',
+  'Activity Code/Title',
+  'Azfen Drawing Number',
+  'First Sheet Revision',
+  'Tekla Phase',
+  'Drawing Title',
+  'Module',
+  'Issue Type',
+  'Revision Number',
+  'Percentage (%)',
+  'Revision Status',
+  'Level',
+  'Structure Type',
+  'Design Drawing',
+  'Eng. Change Form No.',
+  'Task Create Date',
 ];

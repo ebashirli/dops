@@ -114,9 +114,9 @@ class ReferenceDocumentController extends GetxController {
     }
   }
 
-  buildAddEdit({ReferenceDocumentModel? referenceDocumentModel}) {
-    if (referenceDocumentModel != null) {
-      fillEditingControllers(referenceDocumentModel);
+  buildAddEdit({ReferenceDocumentModel? aModel}) {
+    if (aModel != null) {
+      fillEditingControllers(aModel);
     } else {
       clearEditingControllers();
     }
@@ -125,7 +125,7 @@ class ReferenceDocumentController extends GetxController {
       barrierDismissible: false,
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: referenceDocumentModel == null
+      title: aModel == null
           ? 'Add Reference Document'
           : 'Update Reference Document',
       content: Container(
@@ -147,21 +147,21 @@ class ReferenceDocumentController extends GetxController {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomDropdownSearch(
+                    CustomDropdownMenu(
                       labelText: 'Project',
                       selectedItem: projectText,
                       onChanged: (value) {
                         projectText = value ?? '';
                       },
                     ),
-                    CustomDropdownSearch(
-                      labelText: 'Module',
+                    CustomDropdownMenu(
+                      labelText: 'Module name',
                       selectedItem: moduleNameText,
                       onChanged: (value) {
                         moduleNameText = value ?? '';
                       },
                     ),
-                    CustomDropdownSearch(
+                    CustomDropdownMenu(
                       labelText: 'Reference Type',
                       selectedItem: referenceTypeText,
                       onChanged: (value) {
@@ -196,11 +196,11 @@ class ReferenceDocumentController extends GetxController {
                     Container(
                       child: Row(
                         children: <Widget>[
-                          if (referenceDocumentModel != null)
+                          if (aModel != null)
                             ElevatedButton.icon(
                               onPressed: () {
                                 deleteReferenceDocument(
-                                    referenceDocumentModel.id!);
+                                    aModel.id!);
                                 Get.back();
                               },
                               icon: Icon(Icons.delete),
@@ -221,8 +221,8 @@ class ReferenceDocumentController extends GetxController {
                             onPressed: () {
                               ReferenceDocumentModel model =
                                   ReferenceDocumentModel(
-                                id: referenceDocumentModel != null
-                                    ? referenceDocumentModel.id
+                                id: aModel != null
+                                    ? aModel.id
                                     : null,
                                 project: projectText,
                                 referenceType: referenceTypeText,
@@ -237,12 +237,12 @@ class ReferenceDocumentController extends GetxController {
                                     requiredActionNextController.text,
                                 assignedDocumentsCount: 0,
                               );
-                              referenceDocumentModel == null
+                              aModel == null
                                   ? saveReferenceDocument(model: model)
                                   : updateReferenceDocument(model: model);
                             },
                             child: Text(
-                              referenceDocumentModel != null ? 'Update' : 'Add',
+                              aModel != null ? 'Update' : 'Add',
                             ),
                           ),
                         ],

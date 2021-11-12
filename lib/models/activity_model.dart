@@ -56,8 +56,8 @@ class ActivityModel {
       coefficient: map['coefficient'],
       currentPriority: map['current_priority'],
       budgetedLaborUnits: map['budgeted_labor_units'],
-      startDate: map['start_date'].toDate(),
-      finishDate: map['finish_date'].toDate(),
+      startDate: map['start_date'] != null ? map['start_date'].toDate() : null,
+      finishDate: map['finish_date'] != null ? map['finish_date'].toDate() : null,
       cumulative: map['cumulative'],
       isHidden: map['isHidden'] != null ? map['isHidden'] : null,
 

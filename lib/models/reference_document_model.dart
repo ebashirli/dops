@@ -56,7 +56,8 @@ class ReferenceDocumentModel {
       revisionCode: map['revision_code'],
       title: map['title'],
       transmittalNumber: map['transmittal_number'],
-      receivedDate: map['received_date'].toDate(),
+      receivedDate:
+          map['received_date'] != null ? map['received_date'].toDate() : null,
       requiredActionNext: map['required_action_next'],
       assignedDocumentsCount: map['assigned_documents_count'],
       isHidden: map['isHidden'] != null ? map['isHidden'] : null,

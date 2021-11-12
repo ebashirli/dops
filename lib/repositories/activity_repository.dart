@@ -19,16 +19,22 @@ class ActivityRepository {
   }
 
   Stream<List<ActivityModel>> getAllActivitiesAsStream() {
-    return _api.getDataAsStream().map((QuerySnapshot query) {
-      List<ActivityModel> returnValue = [];
-      query.docs.forEach((snapshot) {
-        returnValue.add(ActivityModel.fromMap(
-          snapshot.data() as Map<String, dynamic>,
-          snapshot.id,
-        ));
-      });
-      return returnValue;
-    });
+    return _api.getDataAsStream().map(
+      (QuerySnapshot query) {
+        List<ActivityModel> returnValue = [];
+        query.docs.forEach(
+          (snapshot) {
+            returnValue.add(
+              ActivityModel.fromMap(
+                snapshot.data() as Map<String, dynamic>,
+                snapshot.id,
+              ),
+            );
+          },
+        );
+        return returnValue;
+      },
+    );
   }
 
   Future<ActivityModel> getActivityModelById(String id) async {

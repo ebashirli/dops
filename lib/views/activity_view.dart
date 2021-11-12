@@ -11,10 +11,18 @@ class ActivityView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(
       () {
-        return TableView(
-          controller: controller,
-          tableName: tableName,
-        );
+        return Stack(children: [
+          if (controller.getDataForTableView.isEmpty)
+            Container(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          TableView(
+            controller: controller,
+            tableName: tableName,
+          )
+        ]);
       },
     );
   }

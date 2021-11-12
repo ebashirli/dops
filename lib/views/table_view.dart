@@ -15,31 +15,36 @@ class TableView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DataSource dataSource = DataSource(data: controller.getDataForTableView);
-    return SfDataGrid(
-      source: dataSource,
-      columns: getColumns(tableColNames[tableName]!),
-      gridLinesVisibility: GridLinesVisibility.both,
-      headerGridLinesVisibility: GridLinesVisibility.both,
-      columnWidthMode: ColumnWidthMode.fill,
-      allowSorting: true,
-      allowMultiColumnSorting: true,
-      allowTriStateSorting: true,
-      showSortNumbers: true,
-      onCellTap: (details) {
-        if (details.rowColumnIndex.rowIndex == 0) {
-          if (controller.sortAscending.value) {
-            DataGridSortDirection.descending;
-            controller.sortAscending.value = false;
-          } else {
-            DataGridSortDirection.ascending;
-            controller.sortAscending.value = true;
-          }
-        } else {
-          controller.buildAddEdit(
-              aModel:
-                  controller.documents[details.rowColumnIndex.rowIndex - 1]);
-        }
+    return Obx(
+      () {
+        final DataSource dataSource =
+            DataSource(data: controller.getDataForTableView);
+        return SfDataGrid(
+          source: dataSource,
+          columns: getColumns(tableColNames[tableName]!),
+          gridLinesVisibility: GridLinesVisibility.both,
+          headerGridLinesVisibility: GridLinesVisibility.both,
+          columnWidthMode: ColumnWidthMode.fill,
+          allowSorting: true,
+          allowMultiColumnSorting: true,
+          allowTriStateSorting: true,
+          showSortNumbers: true,
+          onCellTap: (details) {
+            if (details.rowColumnIndex.rowIndex == 0) {
+              if (controller.sortAscending.value) {
+                DataGridSortDirection.descending;
+                controller.sortAscending.value = false;
+              } else {
+                DataGridSortDirection.ascending;
+                controller.sortAscending.value = true;
+              }
+            } else {
+              controller.buildAddEdit(
+                  aModel: controller
+                      .documents[details.rowColumnIndex.rowIndex - 1]);
+            }
+          },
+        );
       },
     );
   }

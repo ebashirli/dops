@@ -299,7 +299,18 @@ class TaskController extends GetxController {
     return _documents.map((document) {
       Map<String, dynamic> map = {};
       document.toMap().entries.forEach((entry) {
-        map[entry.key] = entry.value.toString();
+        switch (entry.key) {
+          case 'isHidden':
+          case 'area':
+          case 'drawingNumber':
+          case 'functionalArea':
+          case 'note':
+          case 'project':
+          case 'isHidden':
+            break;
+          default:
+            map[entry.key] = entry.value.toString();
+        }
       });
       return map;
     }).toList();

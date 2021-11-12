@@ -20,13 +20,17 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: _buildDrawer(),
-      appBar: _buildAppBar(),
-      body: Padding(
-        padding: EdgeInsets.all(20),
-        child: _buildBody(),
-      ),
+    return Obx(
+      () {
+        return Scaffold(
+          drawer: _buildDrawer(),
+          appBar: _buildAppBar(),
+          body: Padding(
+            padding: EdgeInsets.all(20),
+            child: _buildBody(),
+          ),
+        );
+      },
     );
   }
 
@@ -130,6 +134,7 @@ class HomeView extends GetView<HomeController> {
     switch (controller.homeStates) {
       case HomeStates.ActivityState:
         return 'Activity Code';
+
       case HomeStates.ReferenceDocumentState:
         return 'Reference Documents';
 

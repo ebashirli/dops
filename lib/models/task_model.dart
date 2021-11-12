@@ -1,6 +1,6 @@
 class TaskModel {
   String? id;
-   bool isHidden;
+  bool isHidden;
   String activityCode;
   List<String> area;
   int? changeNumber;

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dops/constants/lists.dart';
 import 'package:dops/constants/style.dart';
 import 'package:dops/constants/table_details.dart';
 import 'package:dops/models/activity_model.dart';
@@ -163,6 +164,7 @@ class ActivityController extends GetxController {
                         moduleNameText = value ?? '';
                       },
                       selectedItem: moduleNameText,
+                      items: listsMap['Module name']!,
                     ),
                     CustomNumberTextField(
                       controller: coefficientController,
@@ -246,13 +248,22 @@ class ActivityController extends GetxController {
     );
   }
 
-  List<Map<String, dynamic>> get getDataForTableView {
+  List<Map<String, String>> get getDataForTableView {
     return _documents.map((document) {
-      Map<String, dynamic> map = {};
+      Map<String, String> map = {};
       document.toMap().entries.forEach((entry) {
-        map[entry.key] = entry.value.toString();
+        switch (entry.key) {
+          case 'isHidden':
+            break;
+          default:
+            map[entry.key] = entry.value.toString();
+        }
       });
       return map;
     }).toList();
+  }
+
+  List<String> getFieldValues(String fieldName) {
+    return _documents.map((doc) => doc.toMap()[fieldName].toString()).toList();
   }
 }

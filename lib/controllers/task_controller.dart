@@ -1,3 +1,6 @@
+import 'package:dops/constants/lists.dart';
+import 'package:dops/controllers/activity_controller.dart';
+import 'package:dops/controllers/reference_document_controller.dart';
 import 'package:dops/models/task_model.dart';
 import 'package:dops/repositories/task_repository.dart';
 import 'package:dops/widgets/custom_multiselect_dropdown_menu_widget.dart';
@@ -11,6 +14,8 @@ import 'package:dops/widgets/custom_widgets.dart';
 class TaskController extends GetxController {
   final GlobalKey<FormState> taskFormKey = GlobalKey<FormState>();
   final _repository = Get.find<TaskRepository>();
+  final activityController = Get.find<ActivityController>();
+  final referenceDocumentController = Get.find<ReferenceDocumentController>();
 
   late TextEditingController drawingNumberController,
       coverSheetRevisionController,
@@ -127,7 +132,9 @@ class TaskController extends GetxController {
     }
   }
 
-  buildAddEdit({TaskModel? aModel}) {
+  buildAddEdit({
+    TaskModel? aModel,
+  }) {
     if (aModel != null) {
       fillEditingControllers(aModel);
     } else {
@@ -163,11 +170,13 @@ class TaskController extends GetxController {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           CustomDropdownMenu(
-                            labelText: 'Activity Code',
+                            labelText: 'Activity code',
                             selectedItem: activityCodeText,
                             onChanged: (value) {
                               activityCodeText = value ?? '';
                             },
+                            items: activityController
+                                .getFieldValues('activity_id'),
                           ),
                           CustomDropdownMenu(
                             labelText: 'Project',
@@ -175,6 +184,7 @@ class TaskController extends GetxController {
                             onChanged: (value) {
                               projectText = value ?? '';
                             },
+                            items: listsMap['Project']!,
                           ),
                           CustomStringTextField(
                             controller: drawingNumberController,
@@ -194,6 +204,7 @@ class TaskController extends GetxController {
                             onChanged: (value) {
                               moduleNameText = value ?? '';
                             },
+                            items: listsMap['Module name']!,
                           ),
                           CustomDropdownMenu(
                             labelText: 'Level',
@@ -201,10 +212,11 @@ class TaskController extends GetxController {
                             onChanged: (value) {
                               levelText = value ?? '';
                             },
+                            items: listsMap['Level']!,
                           ),
                           CustomMultiselectDropdownMenu(
                             hint: 'Area',
-                            items: ['1', '2', '3', '4'],
+                            items: listsMap['Area']!,
                             onChanged: (values) => areaList = values,
                           ),
                           CustomDropdownMenu(
@@ -213,6 +225,7 @@ class TaskController extends GetxController {
                             onChanged: (value) {
                               functionalAreaText = value ?? '';
                             },
+                            items: listsMap['Functional Area']!,
                           ),
                           CustomDropdownMenu(
                             labelText: 'Structure Type',
@@ -220,10 +233,12 @@ class TaskController extends GetxController {
                             onChanged: (value) {
                               structureTypeText = value ?? '';
                             },
+                            items: listsMap['Structure Type']!,
                           ),
                           CustomMultiselectDropdownMenu(
                             hint: 'Design Drawing',
-                            items: ['a', 'b', 'c'],
+                            items: referenceDocumentController
+                                .getFieldValues('document_number'),
                             onChanged: (values) => designDrawingList = values,
                           ),
                           CustomStringTextField(
@@ -300,7 +315,6 @@ class TaskController extends GetxController {
       Map<String, dynamic> map = {};
       document.toMap().entries.forEach((entry) {
         switch (entry.key) {
-          case 'isHidden':
           case 'area':
           case 'drawingNumber':
           case 'functionalArea':
@@ -309,6 +323,7 @@ class TaskController extends GetxController {
           case 'isHidden':
             break;
           default:
+            print(entry.key);
             map[entry.key] = entry.value.toString();
         }
       });

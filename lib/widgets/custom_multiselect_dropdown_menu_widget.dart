@@ -43,7 +43,6 @@ class CustomMultiselectDropdownMenu extends StatelessWidget {
               )
             : Container();
       },
-      // popupItemDisabled: (String s) => s.startsWith('I'),
       clearButtonSplashRadius: 20,
     );
   }

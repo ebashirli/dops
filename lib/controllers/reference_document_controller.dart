@@ -1,3 +1,4 @@
+import 'package:dops/constants/lists.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
@@ -152,6 +153,7 @@ class ReferenceDocumentController extends GetxController {
                       onChanged: (value) {
                         projectText = value ?? '';
                       },
+                      items: listsMap['Project']!,
                     ),
                     CustomDropdownMenu(
                       labelText: 'Module name',
@@ -159,6 +161,7 @@ class ReferenceDocumentController extends GetxController {
                       onChanged: (value) {
                         moduleNameText = value ?? '';
                       },
+                      items: listsMap['Module name']!,
                     ),
                     CustomDropdownMenu(
                       labelText: 'Reference Type',
@@ -166,6 +169,7 @@ class ReferenceDocumentController extends GetxController {
                       onChanged: (value) {
                         referenceTypeText = value ?? '';
                       },
+                      items: listsMap['Reference Type']!,
                     ),
                     CustomStringTextField(
                       controller: documentNumberController,
@@ -254,13 +258,22 @@ class ReferenceDocumentController extends GetxController {
     );
   }
 
-  List<Map<String, dynamic>> get getDataForTableView {
+  List<Map<String, String>> get getDataForTableView {
     return _documents.map((document) {
-      Map<String, dynamic> map = {};
+      Map<String, String> map = {};
       document.toMap().entries.forEach((entry) {
-        map[entry.key] = entry.value.toString();
+        switch (entry.key) {
+          case 'isHidden':
+            break;
+          default:
+            map[entry.key] = entry.value.toString();
+        }
       });
       return map;
     }).toList();
+  }
+
+  List<String> getFieldValues(String fieldName) {
+    return _documents.map((doc) => doc.toMap()[fieldName].toString()).toList();
   }
 }

@@ -9,6 +9,7 @@ class CustomDropdownMenu extends StatelessWidget {
   final dynamic Function(String?)? onChanged;
   final String? selectedItem;
   final double? width;
+  final List<String> items;
 
   CustomDropdownMenu({
     Key? key,
@@ -16,6 +17,7 @@ class CustomDropdownMenu extends StatelessWidget {
     required this.onChanged,
     this.selectedItem,
     this.width,
+    required this.items,
   }) : super(key: key);
 
   @override
@@ -28,9 +30,9 @@ class CustomDropdownMenu extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 8.0),
             child: DropdownSearch<String>(
               selectedItem: selectedItem,
-              maxHeight: listsMap[labelText]!.length * 50,
+              maxHeight: items.length * 50,
               mode: Mode.MENU,
-              items: listsMap[labelText],
+              items: items,
               dropdownSearchDecoration: InputDecoration(
                 contentPadding: EdgeInsets.only(left: 10),
                 labelText: labelText,

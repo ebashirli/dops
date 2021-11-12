@@ -1,5 +1,4 @@
-import 'dart:html';
-
+import 'package:dops/constants/lists.dart';
 import 'package:dops/models/staff_model.dart';
 import 'package:dops/repositories/staff_repository.dart';
 import 'package:flutter/material.dart';
@@ -219,6 +218,7 @@ class StaffController extends GetxController {
                             onChanged: (value) {
                               companyText = value ?? '';
                             },
+                            items: listsMap['Company']!,
                           ),
                           CustomDropdownMenu(
                             labelText: 'System Designation',
@@ -226,6 +226,7 @@ class StaffController extends GetxController {
                             onChanged: (value) {
                               systemDesignationText = value ?? '';
                             },
+                            items: listsMap['System Designation']!,
                           ),
                           CustomDropdownMenu(
                             labelText: 'Job Title',
@@ -233,6 +234,7 @@ class StaffController extends GetxController {
                             onChanged: (value) {
                               jobTitleText = value ?? '';
                             },
+                            items: listsMap['Job Title']!,
                           ),
                           CustomDateTimeFormField(
                             labelText: 'Start Date',
@@ -253,6 +255,7 @@ class StaffController extends GetxController {
                             onChanged: (value) {
                               currentPlaceText = value ?? '';
                             },
+                            items: listsMap['Employee place']!,
                           ),
                           CustomDateTimeFormField(
                             labelText: 'Contract Finish Date',
@@ -298,7 +301,9 @@ class StaffController extends GetxController {
                             ),
                           ),
                         const Spacer(),
-                        ElevatedButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+                        ElevatedButton(
+                            onPressed: () => Get.back(),
+                            child: const Text('Cancel')),
                         SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: () {
@@ -308,7 +313,8 @@ class StaffController extends GetxController {
                               name: nameController.text,
                               surname: surnameController.text,
                               patronymic: patronymicController.text,
-                              fullName: '${nameController.text} ${surnameController.text} ${patronymicController.text}',
+                              fullName:
+                                  '${nameController.text} ${surnameController.text} ${patronymicController.text}',
                               initial: initialController.text,
                               systemDesignation: systemDesignationText,
                               jobTitle: jobTitleText,
@@ -321,10 +327,13 @@ class StaffController extends GetxController {
                               contractFinishDate: contractFinishDate,
                               contact: contactController.text,
                               emergencyContact: emergencyContactController.text,
-                              emergencyContactName: emergencyContactNameController.text,
+                              emergencyContactName:
+                                  emergencyContactNameController.text,
                               note: noteController.text,
                             );
-                            aModel == null ? saveStaff(model: model) : updateStaff(model: model);
+                            aModel == null
+                                ? saveStaff(model: model)
+                                : updateStaff(model: model);
                           },
                           child: Text(
                             aModel != null ? 'Update' : 'Add',

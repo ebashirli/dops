@@ -17,6 +17,7 @@ class TableView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(
       () {
+        
         final DataSource dataSource =
             DataSource(data: controller.getDataForTableView);
         return SfDataGrid(

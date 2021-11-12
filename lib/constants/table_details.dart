@@ -49,7 +49,6 @@ Map<String, List<String>> tableColNames = {
     'Activity Code/Title',
     'Azfen Drawing Number',
     'First Sheet Revision',
-    'Tekla Phase',
     'Drawing Title',
     'Module',
     'Issue Type',

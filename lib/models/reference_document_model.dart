@@ -36,7 +36,7 @@ class ReferenceDocumentModel {
       'revision_code': revisionCode,
       'title': title,
       'transmittal_number': transmittalNumber,
-      'received_date': receivedDate.day,
+      'received_date': receivedDate,
       'required_action_next': requiredActionNext,
       'assigned_documents_count': assignedDocumentsCount,
       'isHidden': isHidden,

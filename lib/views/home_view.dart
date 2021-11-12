@@ -20,16 +20,14 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      return Scaffold(
-        drawer: _buildDrawer(),
-        appBar: _buildAppBar(),
-        body: Padding(
-          padding: EdgeInsets.all(20),
-          child: _buildBody(),
-        ),
-      );
-    });
+    return Scaffold(
+      drawer: _buildDrawer(),
+      appBar: _buildAppBar(),
+      body: Padding(
+        padding: EdgeInsets.all(20),
+        child: _buildBody(),
+      ),
+    );
   }
 
   Widget _buildBody() {

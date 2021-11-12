@@ -24,9 +24,9 @@ class ReferenceDocumentController extends GetxController {
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
 
-  RxList<ReferenceDocumentModel> _referenceDocuments =
+  RxList<ReferenceDocumentModel> _documents =
       RxList<ReferenceDocumentModel>([]);
-  List<ReferenceDocumentModel> get referenceDocuments => _referenceDocuments;
+  List<ReferenceDocumentModel> get documents => _documents;
 
   @override
   void onInit() {
@@ -37,8 +37,7 @@ class ReferenceDocumentController extends GetxController {
     transmittalNumberController = TextEditingController();
     receiveDate = DateTime.now();
     requiredActionNextController = TextEditingController();
-    _referenceDocuments
-        .bindStream(_repository.getAllReferenceDocumentsAsStream());
+    _documents.bindStream(_repository.getAllReferenceDocumentsAsStream());
   }
 
   saveReferenceDocument({required ReferenceDocumentModel model}) async {
@@ -199,8 +198,7 @@ class ReferenceDocumentController extends GetxController {
                           if (aModel != null)
                             ElevatedButton.icon(
                               onPressed: () {
-                                deleteReferenceDocument(
-                                    aModel.id!);
+                                deleteReferenceDocument(aModel.id!);
                                 Get.back();
                               },
                               icon: Icon(Icons.delete),
@@ -221,9 +219,7 @@ class ReferenceDocumentController extends GetxController {
                             onPressed: () {
                               ReferenceDocumentModel model =
                                   ReferenceDocumentModel(
-                                id: aModel != null
-                                    ? aModel.id
-                                    : null,
+                                id: aModel != null ? aModel.id : null,
                                 project: projectText,
                                 referenceType: referenceTypeText,
                                 moduleName: moduleNameText,
@@ -256,5 +252,15 @@ class ReferenceDocumentController extends GetxController {
         ),
       ),
     );
+  }
+
+  List<Map<String, dynamic>> get getDataForTableView {
+    return _documents.map((document) {
+      Map<String, dynamic> map = {};
+      document.toMap().entries.forEach((entry) {
+        map[entry.key] = entry.value.toString();
+      });
+      return map;
+    }).toList();
   }
 }

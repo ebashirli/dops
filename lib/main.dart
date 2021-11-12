@@ -32,7 +32,7 @@ Future<void> initServices() async {
   await Get.putAsync<StorageService>(
       () async => await FirebaseStorageService('employees'),
       tag: 'employees');
-  
+
   await Get.putAsync<StorageService>(
       () async => await FirebaseStorageService('tasks'),
       tag: 'tasks');

@@ -30,8 +30,8 @@ class TaskController extends GetxController {
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
 
-  RxList<TaskModel> _tasks = RxList<TaskModel>([]);
-  List<TaskModel> get tasks => _tasks;
+  RxList<TaskModel> _documents = RxList<TaskModel>([]);
+  List<TaskModel> get documents => _documents;
 
   @override
   void onInit() {
@@ -41,7 +41,7 @@ class TaskController extends GetxController {
     drawingTitleController = TextEditingController();
     noteController = TextEditingController();
 
-    _tasks.bindStream(_repository.getAllTasksAsStream());
+    _documents.bindStream(_repository.getAllTasksAsStream());
   }
 
   saveTask({required TaskModel model}) async {
@@ -293,5 +293,15 @@ class TaskController extends GetxController {
         ),
       ),
     );
+  }
+
+  List<Map<String, dynamic>> get getDataForTableView {
+    return _documents.map((document) {
+      Map<String, dynamic> map = {};
+      document.toMap().entries.forEach((entry) {
+        map[entry.key] = entry.value.toString();
+      });
+      return map;
+    }).toList();
   }
 }

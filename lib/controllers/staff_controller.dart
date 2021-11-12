@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:dops/models/staff_model.dart';
 import 'package:dops/repositories/staff_repository.dart';
 import 'package:flutter/material.dart';
@@ -31,8 +33,8 @@ class StaffController extends GetxController {
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
 
-  RxList<StaffModel> _employees = RxList<StaffModel>([]);
-  List<StaffModel> get employees => _employees;
+  RxList<StaffModel> _documents = RxList<StaffModel>([]);
+  List<StaffModel> get documents => _documents;
 
   @override
   void onInit() {
@@ -53,7 +55,7 @@ class StaffController extends GetxController {
     startDate = DateTime.now();
     contractFinishDate = DateTime.now();
 
-    _employees.bindStream(_repository.getAllEmployeesAsStream());
+    _documents.bindStream(_repository.getAllEmployeesAsStream());
   }
 
   saveStaff({required StaffModel model}) async {
@@ -303,9 +305,7 @@ class StaffController extends GetxController {
                         ElevatedButton(
                           onPressed: () {
                             StaffModel model = StaffModel(
-                              id: aModel != null
-                                  ? aModel.id
-                                  : null,
+                              id: aModel != null ? aModel.id : null,
                               badgeNo: badgeNoController.text,
                               name: nameController.text,
                               surname: surnameController.text,
@@ -346,5 +346,15 @@ class StaffController extends GetxController {
         ),
       ),
     );
+  }
+
+  List<Map<String, dynamic>> get getDataForTableView {
+    return _documents.map((document) {
+      Map<String, dynamic> map = {};
+      document.toMap().entries.forEach((entry) {
+        map[entry.key] = entry.value.toString();
+      });
+      return map;
+    }).toList();
   }
 }

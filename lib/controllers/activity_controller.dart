@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ActivityController extends GetxController {
-  final alma = 'alma';
   final GlobalKey<FormState> activityFormKey = GlobalKey<FormState>();
   final _repository = Get.find<ActivityRepository>();
 
@@ -21,8 +20,8 @@ class ActivityController extends GetxController {
   RxInt sortColumnIndex = 0.obs;
   String? moduleNameText = '';
 
-  RxList<ActivityModel> _activities = RxList<ActivityModel>([]);
-  List<ActivityModel> get activities => _activities;
+  RxList<ActivityModel> _documents = RxList<ActivityModel>([]);
+  List<ActivityModel> get documents => _documents;
 
   @override
   void onInit() async {
@@ -33,7 +32,7 @@ class ActivityController extends GetxController {
     budgetedLaborUnitsController = TextEditingController();
     startTime = DateTime.now();
     finishTime = DateTime.now();
-    _activities.bindStream(_repository.getAllActivitiesAsStream());
+    _documents.bindStream(_repository.getAllActivitiesAsStream());
   }
 
   String? validateName(String value) {
@@ -130,9 +129,7 @@ class ActivityController extends GetxController {
 
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: aModel == null
-          ? 'Add Activity'
-          : 'Update Activity',
+      title: aModel == null ? 'Add Activity' : 'Update Activity',
       content: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -154,11 +151,11 @@ class ActivityController extends GetxController {
                   children: [
                     CustomStringTextField(
                       controller: activityIdController,
-                      labelText: activityTableColumnNames[0],
+                      labelText: tableColNames['activity']![0],
                     ),
                     CustomStringTextField(
                       controller: activityNameController,
-                      labelText: activityTableColumnNames[1],
+                      labelText: tableColNames['activity']![1],
                     ),
                     CustomDropdownMenu(
                       labelText: 'Module name',
@@ -169,22 +166,22 @@ class ActivityController extends GetxController {
                     ),
                     CustomNumberTextField(
                       controller: coefficientController,
-                      labelText: activityTableColumnNames[4],
+                      labelText: tableColNames['activity']![4],
                     ),
                     CustomNumberTextField(
                       controller: budgetedLaborUnitsController,
-                      labelText: activityTableColumnNames[6],
+                      labelText: tableColNames['activity']![6],
                     ),
                     CustomDateTimeFormField(
                       initialValue: startTime,
-                      labelText: activityTableColumnNames[7],
+                      labelText: tableColNames['activity']![7],
                       onDateSelected: (DateTime value) {
                         startTime = value;
                       },
                     ),
                     CustomDateTimeFormField(
                       initialValue: finishTime,
-                      labelText: activityTableColumnNames[8],
+                      labelText: tableColNames['activity']![8],
                       onDateSelected: (DateTime value) {
                         finishTime = value;
                       },
@@ -213,9 +210,7 @@ class ActivityController extends GetxController {
                           ElevatedButton(
                             onPressed: () {
                               ActivityModel model = ActivityModel(
-                                id: aModel != null
-                                    ? aModel.id
-                                    : null,
+                                id: aModel != null ? aModel.id : null,
                                 activityId: activityIdController.text,
                                 activityName: activityNameController.text,
                                 moduleName: moduleNameText,
@@ -249,5 +244,15 @@ class ActivityController extends GetxController {
         ),
       ),
     );
+  }
+
+  List<Map<String, dynamic>> get getDataForTableView {
+    return _documents.map((document) {
+      Map<String, dynamic> map = {};
+      document.toMap().entries.forEach((entry) {
+        map[entry.key] = entry.value.toString();
+      });
+      return map;
+    }).toList();
   }
 }

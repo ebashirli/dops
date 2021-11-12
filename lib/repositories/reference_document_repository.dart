@@ -46,8 +46,9 @@ class ReferenceDocumentRepository {
     );
   }
 
-  removeReferenceDocumentModel(String id) async {
-    await _api.removeDocument(id);
+  removeReferenceDocumentModel(ReferenceDocumentModel data) async {
+    data.isHidden = true;
+    await _api.updateDocument(data.toMap(), data.id!);
   }
 
   updateReferenceDocumentModel(ReferenceDocumentModel data) async {

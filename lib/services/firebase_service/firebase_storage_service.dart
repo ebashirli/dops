@@ -15,7 +15,7 @@ class FirebaseStorageService extends GetxService implements StorageService {
   }
 
   Stream<QuerySnapshot> getDataAsStream() {
-    return ref.snapshots();
+    return ref.where("isHidden", isEqualTo: false).snapshots();
   }
 
   Future<DocumentSnapshot> getDocumentById(String id) {

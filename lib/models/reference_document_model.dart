@@ -1,6 +1,7 @@
 class ReferenceDocumentModel {
   String? id;
   String project;
+  bool isHidden;
   String referenceType;
   String moduleName;
   String documentNumber;
@@ -13,6 +14,7 @@ class ReferenceDocumentModel {
 
   ReferenceDocumentModel({
     this.id,
+    this.isHidden = false,
     required this.project,
     required this.referenceType,
     required this.moduleName,
@@ -37,6 +39,7 @@ class ReferenceDocumentModel {
       'received_date': receivedDate.day,
       'required_action_next': requiredActionNext,
       'assigned_documents_count': assignedDocumentsCount,
+      'isHidden': isHidden,
     };
   }
 
@@ -56,6 +59,7 @@ class ReferenceDocumentModel {
       receivedDate: map['received_date'].toDate(),
       requiredActionNext: map['required_action_next'],
       assignedDocumentsCount: map['assigned_documents_count'],
+      isHidden: map['isHidden'] != null ? map['isHidden'] : null,
     );
   }
 }

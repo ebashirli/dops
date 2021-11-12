@@ -1,5 +1,6 @@
 class ActivityModel {
   String? id;
+  bool isHidden;
   String? activityId;
   String? activityName;
   String? moduleName;
@@ -14,6 +15,7 @@ class ActivityModel {
   ActivityModel({
     required this.id,
     this.activityId,
+    this.isHidden = false,
     this.activityName,
     this.moduleName,
     this.priority,
@@ -37,6 +39,7 @@ class ActivityModel {
       'start_date': startDate,
       'finish_date': finishDate,
       'cumulative': cumulative,
+      'isHidden': isHidden,
     };
   }
 
@@ -56,6 +59,8 @@ class ActivityModel {
       startDate: map['start_date'].toDate(),
       finishDate: map['finish_date'].toDate(),
       cumulative: map['cumulative'],
+      isHidden: map['isHidden'] != null ? map['isHidden'] : null,
+
     );
   }
 }

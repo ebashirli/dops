@@ -80,8 +80,8 @@ class StaffController extends GetxController {
     Get.back();
   }
 
-  void deleteStaff(String id) {
-    _repository.removeStaffModel(id);
+  void deleteStaff(StaffModel data) {
+    _repository.removeStaffModel(data);
   }
 
   @override
@@ -286,7 +286,7 @@ class StaffController extends GetxController {
                         if (aModel != null)
                           ElevatedButton.icon(
                             onPressed: () {
-                              deleteStaff(aModel.id!);
+                              deleteStaff(aModel);
                               Get.back();
                             },
                             icon: Icon(Icons.delete),
@@ -298,9 +298,7 @@ class StaffController extends GetxController {
                             ),
                           ),
                         const Spacer(),
-                        ElevatedButton(
-                            onPressed: () => Get.back(),
-                            child: const Text('Cancel')),
+                        ElevatedButton(onPressed: () => Get.back(), child: const Text('Cancel')),
                         SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: () {
@@ -310,8 +308,7 @@ class StaffController extends GetxController {
                               name: nameController.text,
                               surname: surnameController.text,
                               patronymic: patronymicController.text,
-                              fullName:
-                                  '${nameController.text} ${surnameController.text} ${patronymicController.text}',
+                              fullName: '${nameController.text} ${surnameController.text} ${patronymicController.text}',
                               initial: initialController.text,
                               systemDesignation: systemDesignationText,
                               jobTitle: jobTitleText,
@@ -324,13 +321,10 @@ class StaffController extends GetxController {
                               contractFinishDate: contractFinishDate,
                               contact: contactController.text,
                               emergencyContact: emergencyContactController.text,
-                              emergencyContactName:
-                                  emergencyContactNameController.text,
+                              emergencyContactName: emergencyContactNameController.text,
                               note: noteController.text,
                             );
-                            aModel == null
-                                ? saveStaff(model: model)
-                                : updateStaff(model: model);
+                            aModel == null ? saveStaff(model: model) : updateStaff(model: model);
                           },
                           child: Text(
                             aModel != null ? 'Update' : 'Add',
@@ -352,7 +346,12 @@ class StaffController extends GetxController {
     return _documents.map((document) {
       Map<String, dynamic> map = {};
       document.toMap().entries.forEach((entry) {
-        map[entry.key] = entry.value.toString();
+        switch (entry.key) {
+          case 'isHidden':
+            break;
+          default:
+            map[entry.key] = entry.value.toString();
+        }
       });
       return map;
     }).toList();

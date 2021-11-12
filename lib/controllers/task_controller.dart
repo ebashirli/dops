@@ -66,8 +66,8 @@ class TaskController extends GetxController {
     Get.back();
   }
 
-  void deleteTask(String id) {
-    _repository.removeTaskModel(id);
+  void deleteTask(TaskModel data) {
+    _repository.removeTaskModel(data);
   }
 
   @override
@@ -241,7 +241,7 @@ class TaskController extends GetxController {
                         if (aModel != null)
                           ElevatedButton.icon(
                             onPressed: () {
-                              deleteTask(aModel.id!);
+                              deleteTask(aModel);
                               Get.back();
                             },
                             icon: Icon(Icons.delete),

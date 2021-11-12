@@ -45,8 +45,9 @@ class StaffRepository {
     );
   }
 
-  removeStaffModel(String id) async {
-    await _api.removeDocument(id);
+  removeStaffModel(StaffModel data) async {
+    data.isHidden = true;
+    await _api.updateDocument(data.toMap(), data.id!);
   }
 
   updateStaffModel(StaffModel data) async {

@@ -69,8 +69,8 @@ class ActivityController extends GetxController {
     Get.back();
   }
 
-  void deleteActivity(String id) {
-    _repository.removeActivityModel(id);
+  void deleteActivity(ActivityModel data) {
+    _repository.removeActivityModel(data);
   }
 
   @override
@@ -192,7 +192,7 @@ class ActivityController extends GetxController {
                           if (aModel != null)
                             ElevatedButton.icon(
                               onPressed: () {
-                                deleteActivity(aModel.id!);
+                                deleteActivity(aModel);
                                 Get.back();
                               },
                               icon: Icon(Icons.delete),

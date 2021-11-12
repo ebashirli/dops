@@ -36,8 +36,10 @@ class ActivityRepository {
     return ActivityModel.fromMap(doc.data(), doc.id);
   }
 
-  removeActivityModel(String id) async {
-    await _api.removeDocument(id);
+  removeActivityModel(ActivityModel data) async {
+    data.isHidden = true;
+    await _api.updateDocument(data.toMap(), data.id!);
+    ;
   }
 
   updateActivityModel(ActivityModel data, String id) async {

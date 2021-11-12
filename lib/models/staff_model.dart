@@ -1,6 +1,7 @@
 class StaffModel {
   String? id;
   String badgeNo;
+  bool isHidden;
   String name;
   String surname;
   String patronymic;
@@ -22,6 +23,7 @@ class StaffModel {
 
   StaffModel({
     this.id,
+    this.isHidden = false,
     required this.badgeNo,
     required this.name,
     required this.surname,
@@ -64,6 +66,7 @@ class StaffModel {
       'emergency_contact': emergencyContact,
       'emergency_contact_name': emergencyContactName,
       'note': note,
+      'isHidden': isHidden,
     };
   }
 
@@ -92,6 +95,7 @@ class StaffModel {
       emergencyContact: map['emergency_contact'],
       emergencyContactName: map['emergency_contact_name'],
       note: map['note'],
+      isHidden: map['isHidden'] != null ? map['isHidden'] : null,
     );
   }
 }

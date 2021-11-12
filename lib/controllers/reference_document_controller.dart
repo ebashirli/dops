@@ -62,8 +62,8 @@ class ReferenceDocumentController extends GetxController {
     Get.back();
   }
 
-  void deleteReferenceDocument(String id) {
-    _repository.removeReferenceDocumentModel(id);
+  void deleteReferenceDocument(ReferenceDocumentModel data) {
+    _repository.removeReferenceDocumentModel(data);
   }
 
   @override
@@ -198,7 +198,7 @@ class ReferenceDocumentController extends GetxController {
                           if (aModel != null)
                             ElevatedButton.icon(
                               onPressed: () {
-                                deleteReferenceDocument(aModel.id!);
+                                deleteReferenceDocument(aModel);
                                 Get.back();
                               },
                               icon: Icon(Icons.delete),

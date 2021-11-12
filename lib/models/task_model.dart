@@ -1,26 +1,26 @@
 class TaskModel {
   String? id;
-  final String activityCode;
-  final List<String> area;
-  final int? changeNumber;
-  final String coverSheetRevision;
-  final List<String> designDrawing;
-  final String drawingNumber;
-  final String drawingTitle;
-  final String functionalArea;
-  final bool? isRevised;
-  final String level;
-  final String moduleName;
-  final String note;
-  final double? percentage;
-  final int? priority;
-  final String project;
-  final bool? isRevisionStatusLatest;
-  final int? revisionNumber;
-  final String structureType;
-  final DateTime? taskCreateDate;
-  final String? taskNumber;
-  final bool? isHidden;
+   bool isHidden;
+  String activityCode;
+  List<String> area;
+  int? changeNumber;
+  String coverSheetRevision;
+  List<String> designDrawing;
+  String drawingNumber;
+  String drawingTitle;
+  String functionalArea;
+  bool? isRevised;
+  String level;
+  String moduleName;
+  String note;
+  double? percentage;
+  int? priority;
+  String project;
+  bool? isRevisionStatusLatest;
+  int? revisionNumber;
+  String structureType;
+  DateTime? taskCreateDate;
+  String? taskNumber;
 
   TaskModel({
     this.id,

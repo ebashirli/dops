@@ -45,8 +45,9 @@ class TaskRepository {
     );
   }
 
-  removeTaskModel(String id) async {
-    await _api.removeDocument(id);
+  removeTaskModel(TaskModel data) async {
+    data.isHidden = true;
+    await _api.updateDocument(data.toMap(), data.id!);
   }
 
   updateTaskModel(TaskModel data) async {

@@ -49,7 +49,7 @@ class TaskController extends GetxController {
     _documents.bindStream(_repository.getAllTasksAsStream());
   }
 
-  saveTask({required TaskModel model}) async {
+  saveDocument({required TaskModel model}) async {
     CustomFullScreenDialog.showDialog();
     model.taskCreateDate = DateTime.now();
     await _repository.addTaskModel(model);
@@ -57,7 +57,7 @@ class TaskController extends GetxController {
     Get.back();
   }
 
-  updateTask({
+  updateDocument({
     required TaskModel model,
   }) async {
     final isValid = taskFormKey.currentState!.validate();
@@ -111,8 +111,8 @@ class TaskController extends GetxController {
     functionalAreaText = model.functionalArea;
     structureTypeText = model.structureType;
 
-    designDrawingList = [];
-    areaList = [];
+    designDrawingList = model.designDrawing;
+    areaList = model.area;
   }
 
   whenCompleted() {
@@ -220,6 +220,7 @@ class TaskController extends GetxController {
                             hint: 'Area',
                             items: listsMap['Area']!,
                             onChanged: (values) => areaList = values,
+                            selectedItems: areaList,
                           ),
                           CustomDropdownMenu(
                             labelText: 'Functional Area',
@@ -242,6 +243,7 @@ class TaskController extends GetxController {
                             items: referenceDocumentController
                                 .getFieldValues('document_number'),
                             onChanged: (values) => designDrawingList = values,
+                            selectedItems: designDrawingList,
                           ),
                           CustomStringTextField(
                             controller: noteController,
@@ -293,8 +295,8 @@ class TaskController extends GetxController {
                               functionalArea: functionalAreaText,
                             );
                             aModel == null
-                                ? saveTask(model: model)
-                                : updateTask(model: model);
+                                ? saveDocument(model: model)
+                                : updateDocument(model: aModel);
                           },
                           child: Text(
                             aModel != null ? 'Update' : 'Add',
@@ -316,7 +318,6 @@ class TaskController extends GetxController {
     return _documents.map((document) {
       Map<String, dynamic> map = {};
       document.toMap().entries.forEach((entry) {
-        print(entry);
         switch (entry.key) {
           case 'area':
           case 'drawingNumber':
@@ -329,7 +330,6 @@ class TaskController extends GetxController {
             map[entry.key] = entry.value.toString();
         }
       });
-      print(map);
       return map;
     }).toList();
   }

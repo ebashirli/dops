@@ -4,12 +4,14 @@ class CustomStringTextField extends StatelessWidget {
   final TextEditingController controller;
   final String labelText;
   final double? width;
+  final String? Function(String?)? validator;
 
   const CustomStringTextField({
     Key? key,
     required this.controller,
     required this.labelText,
     this.width,
+    this.validator,
   }) : super(key: key);
 
   @override
@@ -28,9 +30,7 @@ class CustomStringTextField extends StatelessWidget {
               ),
             ),
             controller: controller,
-            validator: (value) {
-              // return validateName(value!);
-            },
+            validator: validator,
           ),
           SizedBox(height: 10),
         ],

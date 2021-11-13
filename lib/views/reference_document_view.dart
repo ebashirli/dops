@@ -1,4 +1,4 @@
-import 'package:dops/views/table_view.dart';
+import 'package:dops/widgets/table_view_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:dops/controllers/reference_document_controller.dart';

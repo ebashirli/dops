@@ -6,12 +6,14 @@ class CustomMultiselectDropdownMenu extends StatelessWidget {
   late List<String> items;
   final void Function(List<String>) onChanged;
   final String hint;
+  final List<String> selectedItems;
 
   CustomMultiselectDropdownMenu({
     Key? key,
     required this.onChanged,
     required this.items,
     required this.hint,
+    required this.selectedItems,
   }) : super(key: key);
 
   @override
@@ -19,6 +21,7 @@ class CustomMultiselectDropdownMenu extends StatelessWidget {
     return Column(
       children: [
         DropdownSearch<String>.multiSelection(
+          selectedItems: selectedItems,
           validator: (List<String>? v) {
             return v == null || v.isEmpty ? "required field" : null;
           },

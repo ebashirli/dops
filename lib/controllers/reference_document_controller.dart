@@ -41,14 +41,14 @@ class ReferenceDocumentController extends GetxController {
     _documents.bindStream(_repository.getAllReferenceDocumentsAsStream());
   }
 
-  saveReferenceDocument({required ReferenceDocumentModel model}) async {
+  saveDocument({required ReferenceDocumentModel model}) async {
     CustomFullScreenDialog.showDialog();
     await _repository.addReferenceDocumentModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
-  updateReferenceDocument({
+  updateDocument({
     required ReferenceDocumentModel model,
   }) async {
     final isValid = referenceDocumentFormKey.currentState!.validate();
@@ -238,8 +238,8 @@ class ReferenceDocumentController extends GetxController {
                                 assignedDocumentsCount: 0,
                               );
                               aModel == null
-                                  ? saveReferenceDocument(model: model)
-                                  : updateReferenceDocument(model: model);
+                                  ? saveDocument(model: model)
+                                  : updateDocument(model: aModel);
                             },
                             child: Text(
                               aModel != null ? 'Update' : 'Add',
@@ -258,7 +258,7 @@ class ReferenceDocumentController extends GetxController {
     );
   }
 
-  List<Map<String, String>> get getDataForTableView {
+  List<Map<String, dynamic>> get getDataForTableView {
     return _documents.map((document) {
       Map<String, String> map = {};
       document.toMap().entries.forEach((entry) {

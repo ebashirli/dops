@@ -1,5 +1,5 @@
 import 'package:dops/controllers/staff_controller.dart';
-import 'package:dops/views/table_view.dart';
+import 'package:dops/widgets/table_view_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

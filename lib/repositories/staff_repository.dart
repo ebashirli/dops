@@ -4,12 +4,12 @@ import 'package:dops/services/firebase_service/storage_service.dart';
 import 'package:get/get.dart';
 
 class StaffRepository {
-  final _api = Get.find<StorageService>(tag: 'employees');
-  late List<StaffModel> employees = [];
+  final _api = Get.find<StorageService>(tag: 'staff');
+  late List<StaffModel> staff = [];
 
   Future fetchStaffModels() async {
     QuerySnapshot result = await _api.getData();
-    employees = result.docs
+    staff = result.docs
         .map(
           (snapshot) => StaffModel.fromMap(
             snapshot.data() as Map<String, dynamic>,
@@ -17,10 +17,10 @@ class StaffRepository {
           ),
         )
         .toList();
-    return employees;
+    return staff;
   }
 
-  Stream<List<StaffModel>> getAllEmployeesAsStream() {
+  Stream<List<StaffModel>> getAllStaffAsStream() {
     return _api.getDataAsStream().map((QuerySnapshot query) {
       List<StaffModel> returnValue = [];
       query.docs.forEach(

@@ -31,8 +31,8 @@ Future<void> initServices() async {
       tag: 'reference_documents');
 
   await Get.putAsync<StorageService>(
-      () async => await FirebaseStorageService('employees'),
-      tag: 'employees');
+      () async => await FirebaseStorageService('staff'),
+      tag: 'staff');
 
   await Get.putAsync<StorageService>(
       () async => await FirebaseStorageService('tasks'),

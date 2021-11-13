@@ -5,7 +5,7 @@ class StaffModel {
   String name;
   String surname;
   String patronymic;
-  String fullName;
+  String? fullName;
   String initial;
   String systemDesignation;
   String jobTitle;
@@ -28,7 +28,7 @@ class StaffModel {
     required this.name,
     required this.surname,
     required this.patronymic,
-    required this.fullName,
+    this.fullName,
     required this.initial,
     required this.systemDesignation,
     required this.jobTitle,

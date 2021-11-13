@@ -1,6 +1,7 @@
 import 'package:dops/constants/lists.dart';
 import 'package:dops/models/staff_model.dart';
 import 'package:dops/repositories/staff_repository.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
@@ -54,17 +55,17 @@ class StaffController extends GetxController {
     startDate = DateTime.now();
     contractFinishDate = DateTime.now();
 
-    _documents.bindStream(_repository.getAllEmployeesAsStream());
+    _documents.bindStream(_repository.getAllStaffAsStream());
   }
 
-  saveStaff({required StaffModel model}) async {
+  saveDocument({required StaffModel model}) async {
     CustomFullScreenDialog.showDialog();
     await _repository.addStaffModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
-  updateStaff({
+  updateDocument({
     required StaffModel model,
   }) async {
     final isValid = staffFormKey.currentState!.validate();
@@ -245,6 +246,10 @@ class StaffController extends GetxController {
                           CustomStringTextField(
                             controller: emailController,
                             labelText: 'E-mail',
+                            validator: (value) =>
+                                EmailValidator.validate(value!)
+                                    ? null
+                                    : "Please enter a valid email",
                           ),
                           CustomStringTextField(
                             controller: homeAddressController,
@@ -266,10 +271,12 @@ class StaffController extends GetxController {
                           CustomStringTextField(
                             controller: contactController,
                             labelText: 'Contact',
+                            validator: validateMobile,
                           ),
                           CustomStringTextField(
                             controller: emergencyContactController,
                             labelText: 'Emergency Contact',
+                            validator: validateMobile,
                           ),
                           CustomStringTextField(
                             controller: emergencyContactNameController,
@@ -314,8 +321,6 @@ class StaffController extends GetxController {
                               name: nameController.text,
                               surname: surnameController.text,
                               patronymic: patronymicController.text,
-                              fullName:
-                                  '${nameController.text} ${surnameController.text} ${patronymicController.text}',
                               initial: initialController.text,
                               systemDesignation: systemDesignationText,
                               jobTitle: jobTitleText,
@@ -333,8 +338,8 @@ class StaffController extends GetxController {
                               note: noteController.text,
                             );
                             aModel == null
-                                ? saveStaff(model: model)
-                                : updateStaff(model: model);
+                                ? saveDocument(model: model)
+                                : updateDocument(model: model);
                           },
                           child: Text(
                             aModel != null ? 'Update' : 'Add',
@@ -359,11 +364,33 @@ class StaffController extends GetxController {
         switch (entry.key) {
           case 'isHidden':
             break;
+          case 'full_name':
+            map[entry.key] =
+                '${map['name']} ${map['surname']} ${map['patronymic']}';
+            break;
+          case 'date_of_birth':
+          case 'start_date':
+          case 'contract_finish_date':
+            map[entry.key] = entry.value.toString().substring(0, 10);
+            break;
           default:
             map[entry.key] = entry.value.toString();
         }
       });
       return map;
     }).toList();
+  }
+
+  String? validateMobile(String? value) {
+    String pattern = r'(^(?:[+0]9)?[0-9]{11}$)';
+    RegExp regExp = new RegExp(pattern);
+    if (value!.length == 0) {
+      return 'Please enter mobile number';
+    } else if (!regExp.hasMatch(value)) {
+      return 'Please enter valid mobile number';
+    } else if (contactController.text == emergencyContactController.text) {
+      return 'Contact and emergency contact cannot be same';
+    }
+    return null;
   }
 }

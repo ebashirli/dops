@@ -17,34 +17,48 @@ class TableView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(
       () {
-        
         final DataSource dataSource =
             DataSource(data: controller.getDataForTableView);
-        return SfDataGrid(
-          source: dataSource,
-          columns: getColumns(tableColNames[tableName]!),
-          gridLinesVisibility: GridLinesVisibility.both,
-          headerGridLinesVisibility: GridLinesVisibility.both,
-          columnWidthMode: ColumnWidthMode.fill,
-          allowSorting: true,
-          allowMultiColumnSorting: true,
-          allowTriStateSorting: true,
-          showSortNumbers: true,
-          onCellTap: (details) {
-            if (details.rowColumnIndex.rowIndex == 0) {
-              if (controller.sortAscending.value) {
-                DataGridSortDirection.descending;
-                controller.sortAscending.value = false;
-              } else {
-                DataGridSortDirection.ascending;
-                controller.sortAscending.value = true;
-              }
-            } else {
-              controller.buildAddEdit(
-                  aModel: controller
-                      .documents[details.rowColumnIndex.rowIndex - 1]);
-            }
-          },
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SfDataGrid(
+              isScrollbarAlwaysShown: false,
+              source: dataSource,
+              columns: getColumns(tableColNames[tableName]!),
+              gridLinesVisibility: GridLinesVisibility.both,
+              headerGridLinesVisibility: GridLinesVisibility.both,
+              columnWidthMode: ColumnWidthMode.fill,
+              allowSorting: true,
+              rowHeight: 30,
+              onCellTap: (details) {
+                if (details.rowColumnIndex.rowIndex == 0) {
+                  // dataSource.sortedColumns
+                  //     .add(SortColumnDetails('id', SortDirection.ascending));
+                  // _employeeDataSource.sort();
+                  if (!controller.sortAscending.value) {
+                    DataGridSortDirection.ascending;
+                    controller.sortAscending.value = false;
+                    dataSource.sort();
+                  } else {
+                    DataGridSortDirection.descending;
+                    controller.sortAscending.value = true;
+                  }
+                } else {
+                  print(dataSource.rows[details.rowColumnIndex.rowIndex]
+                      .getCells()
+                      .map((e) => e.value)
+                      .toList());
+
+                  controller.buildAddEdit(
+                    aModel: controller
+                        .documents[details.rowColumnIndex.rowIndex - 1],
+                  );
+                }
+              },
+            ),
+          ],
         );
       },
     );
@@ -52,7 +66,7 @@ class TableView extends StatelessWidget {
 
   displayDeleteDialog(String docId) {
     Get.defaultDialog(
-      title: "Delete Staff List",
+      title: "Delete a staff member",
       titleStyle: TextStyle(fontSize: 20),
       middleText: 'Are you sure to delete $tableName?',
       textCancel: "Cancel",
@@ -73,9 +87,14 @@ class TableView extends StatelessWidget {
             label: Center(
               child: Container(
                 decoration: BoxDecoration(),
-                // padding: EdgeInsets.all(20.0),
                 alignment: Alignment.center,
-                child: Text(colName),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    colName,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
               ),
             ),
           ),
@@ -114,7 +133,10 @@ class DataSource extends DataGridSource {
       (e) {
         return Container(
           alignment: Alignment.center,
-          child: Text(e.value),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(e.value),
+          ),
         );
       },
     ).toList());

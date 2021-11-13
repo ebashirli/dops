@@ -50,7 +50,7 @@ class ActivityController extends GetxController {
     return null;
   }
 
-  updateActivity({required ActivityModel model}) async {
+  updateDocument({required ActivityModel model}) async {
     final isValid = activityFormKey.currentState!.validate();
     if (!isValid) {
       return;
@@ -63,7 +63,7 @@ class ActivityController extends GetxController {
     Get.back();
   }
 
-  saveActivity({required ActivityModel model}) async {
+  saveDocument({required ActivityModel model}) async {
     CustomFullScreenDialog.showDialog();
     await _repository.addActivityModel(model);
     CustomFullScreenDialog.cancelDialog();
@@ -228,8 +228,8 @@ class ActivityController extends GetxController {
                                 cumulative: 0,
                               );
                               aModel == null
-                                  ? saveActivity(model: model)
-                                  : updateActivity(model: model);
+                                  ? saveDocument(model: model)
+                                  : updateDocument(model: aModel);
                             },
                             child: Text(
                               aModel != null ? 'Update' : 'Add',
@@ -248,7 +248,7 @@ class ActivityController extends GetxController {
     );
   }
 
-  List<Map<String, String>> get getDataForTableView {
+  List<Map<String, dynamic>> get getDataForTableView {
     return _documents.map((document) {
       Map<String, String> map = {};
       document.toMap().entries.forEach((entry) {

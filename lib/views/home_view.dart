@@ -26,10 +26,7 @@ class HomeView extends GetView<HomeController> {
         return Scaffold(
           drawer: _buildDrawer(),
           appBar: _buildAppBar(),
-          body: Padding(
-            padding: EdgeInsets.all(20),
-            child: _buildBody(),
-          ),
+          body: _buildBody(),
         );
       },
     );
@@ -93,7 +90,7 @@ class HomeView extends GetView<HomeController> {
           ),
           TextButton.icon(
             icon: Icon(Icons.local_activity),
-            label: const Text('Dropdown Source List'),
+            label: const Text('Lists'),
             onPressed: () {
               controller.homeStates = HomeStates.DropdownSourceListState;
               Get.back();
@@ -102,7 +99,7 @@ class HomeView extends GetView<HomeController> {
           SizedBox(height: 10),
           TextButton.icon(
             icon: Icon(Icons.add),
-            label: const Text('Activity'),
+            label: const Text('Activities'),
             onPressed: () {
               controller.homeStates = HomeStates.ActivityState;
               Get.back();
@@ -111,7 +108,7 @@ class HomeView extends GetView<HomeController> {
           SizedBox(height: 10),
           TextButton.icon(
             icon: Icon(Icons.people),
-            label: const Text('Staff List'),
+            label: const Text('Staff'),
             onPressed: () {
               controller.homeStates = HomeStates.StaffState;
               Get.back();
@@ -140,12 +137,12 @@ class HomeView extends GetView<HomeController> {
         return 'Reference Documents';
 
       case HomeStates.DropdownSourceListState:
-        return 'Dropdown Source List';
+        return 'Lists';
 
       case HomeStates.StaffState:
-        return 'Staff List';
+        return 'Staff';
       case HomeStates.TaskState:
-        return 'Task List';
+        return 'Tasks';
     }
   }
 

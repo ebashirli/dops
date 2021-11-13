@@ -1,8 +1,6 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 
-import 'package:dops/constants/lists.dart';
-
 // ignore: must_be_immutable
 class CustomDropdownMenu extends StatelessWidget {
   late String labelText;

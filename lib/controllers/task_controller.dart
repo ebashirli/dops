@@ -51,6 +51,7 @@ class TaskController extends GetxController {
 
   saveTask({required TaskModel model}) async {
     CustomFullScreenDialog.showDialog();
+    model.taskCreateDate = DateTime.now();
     await _repository.addTaskModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
@@ -169,6 +170,7 @@ class TaskController extends GetxController {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          SizedBox(height: 10),
                           CustomDropdownMenu(
                             labelText: 'Activity code',
                             selectedItem: activityCodeText,
@@ -314,6 +316,7 @@ class TaskController extends GetxController {
     return _documents.map((document) {
       Map<String, dynamic> map = {};
       document.toMap().entries.forEach((entry) {
+        print(entry);
         switch (entry.key) {
           case 'area':
           case 'drawingNumber':
@@ -323,10 +326,10 @@ class TaskController extends GetxController {
           case 'isHidden':
             break;
           default:
-            print(entry.key);
             map[entry.key] = entry.value.toString();
         }
       });
+      print(map);
       return map;
     }).toList();
   }

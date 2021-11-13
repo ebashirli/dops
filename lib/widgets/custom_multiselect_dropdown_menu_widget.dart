@@ -16,34 +16,39 @@ class CustomMultiselectDropdownMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownSearch<String>.multiSelection(
-      validator: (List<String>? v) {
-        return v == null || v.isEmpty ? "required field" : null;
-      },
-      dropdownSearchDecoration: InputDecoration(
-        hintText: "Select a ${hint.toLowerCase()}",
-        labelText: hint,
-        contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
-        border: OutlineInputBorder(),
-      ),
-      mode: Mode.MENU,
-      showSelectedItems: false,
-      items: items,
-      showClearButton: true,
-      onChanged: onChanged,
-      popupSelectionWidget: (
-        cnt,
-        String item,
-        bool isSelected,
-      ) {
-        return isSelected
-            ? Icon(
-                Icons.check_circle,
-                color: Colors.green[500],
-              )
-            : Container();
-      },
-      clearButtonSplashRadius: 20,
+    return Column(
+      children: [
+        DropdownSearch<String>.multiSelection(
+          validator: (List<String>? v) {
+            return v == null || v.isEmpty ? "required field" : null;
+          },
+          dropdownSearchDecoration: InputDecoration(
+            hintText: "Select a ${hint.toLowerCase()}",
+            labelText: hint,
+            contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
+            border: OutlineInputBorder(),
+          ),
+          mode: Mode.MENU,
+          showSelectedItems: false,
+          items: items,
+          showClearButton: true,
+          onChanged: onChanged,
+          popupSelectionWidget: (
+            cnt,
+            String item,
+            bool isSelected,
+          ) {
+            return isSelected
+                ? Icon(
+                    Icons.check_circle,
+                    color: Colors.green[500],
+                  )
+                : Container();
+          },
+          clearButtonSplashRadius: 20,
+        ),
+        SizedBox(height: 10)
+      ],
     );
   }
 }

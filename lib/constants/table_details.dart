@@ -46,9 +46,9 @@ Map<String, List<String>> tableColNames = {
   ],
   'task': [
     'Priority',
-    'Activity Code/Title',
-    'Azfen Drawing Number',
-    'First Sheet Revision',
+    'Activity Code',
+    'Task Number',
+    'Cover Sheet Revision',
     'Drawing Title',
     'Module',
     'Issue Type',
@@ -58,7 +58,7 @@ Map<String, List<String>> tableColNames = {
     'Level',
     'Structure Type',
     'Design Drawing',
-    'Eng. Change Form No.',
+    'Change No',
     'Task Create Date',
   ],
 };

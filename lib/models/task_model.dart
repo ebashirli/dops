@@ -49,26 +49,26 @@ class TaskModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'activityCode': activityCode,
-      'area': area,
-      'changeNumber': changeNumber,
-      'coverSheetRevision': coverSheetRevision,
-      'designDrawing': designDrawing,
-      'drawingNumber': drawingNumber,
-      'drawingTitle': drawingTitle,
-      'functionalArea': functionalArea,
-      'isRevised': isRevised,
-      'level': level,
-      'moduleName': moduleName,
-      'note': note,
-      'percentage': percentage,
       'priority': priority,
-      'project': project,
-      'isRevisionStatusLatest': isRevisionStatusLatest,
-      'revisionNumber': revisionNumber,
-      'structureType': structureType,
-      'taskCreateDate': taskCreateDate?.millisecondsSinceEpoch,
+      'activityCode': activityCode,
       'taskNumber': taskNumber,
+      'coverSheetRevision': coverSheetRevision,
+      'drawingTitle': drawingTitle,
+      'moduleName': moduleName,
+      'isRevised': isRevised,
+      'revisionNumber': revisionNumber,
+      'percentage': percentage,
+      'isRevisionStatusLatest': isRevisionStatusLatest,
+      'level': level,
+      'structureType': structureType,
+      'designDrawing': designDrawing,
+      'changeNumber': changeNumber,
+      'area': area,
+      'taskCreateDate': taskCreateDate,
+      'drawingNumber': drawingNumber,
+      'functionalArea': functionalArea,
+      'note': note,
+      'project': project,
       'isHidden': isHidden,
     };
   }
@@ -76,30 +76,30 @@ class TaskModel {
   factory TaskModel.fromMap(Map<String, dynamic> map, String? id) {
     return TaskModel(
       id: id ?? null,
+      priority: map['priority'] != null ? map['priority'] : null,
       activityCode: map['activityCode'],
+      taskNumber: map['taskNumber'] != null ? map['taskNumber'] : null,
       coverSheetRevision: map['coverSheetRevision'],
-      drawingNumber: map['drawingNumber'],
       drawingTitle: map['drawingTitle'],
-      functionalArea: map['functionalArea'],
-      level: map['level'],
       moduleName: map['moduleName'],
+      isRevised: map['isRevised'] != null ? map['isRevised'] : null,
+      revisionNumber:
+          map['revisionNumber'] != null ? map['revisionNumber'] : null,
+      percentage: map['percentage'] != null ? map['percentage'] : null,
+      isRevisionStatusLatest: map['isRevisionStatusLatest'] != null
+          ? map['isRevisionStatusLatest']
+          : null,
+      level: map['level'],
+      structureType: map['structureType'],
+      drawingNumber: map['drawingNumber'],
+      changeNumber: map['changeNumber'] != null ? map['changeNumber'] : null,
+      taskCreateDate:
+          map['taskCreateDate'] != null ? map['taskCreateDate'].toDate() : null,
+      functionalArea: map['functionalArea'],
       note: map['note'],
       project: map['project'],
       area: List<String>.from(map['area']),
       designDrawing: List<String>.from(map['designDrawing']),
-      changeNumber: map['changeNumber'] != null ? map['changeNumber'] : null,
-      isRevised: map['isRevised'] != null ? map['isRevised'] : null,
-      percentage: map['percentage'] != null ? map['percentage'] : null,
-      priority: map['priority'] != null ? map['priority'] : null,
-      isRevisionStatusLatest: map['isRevisionStatusLatest'] != null
-          ? map['isRevisionStatusLatest']
-          : null,
-      revisionNumber:
-          map['revisionNumber'] != null ? map['revisionNumber'] : null,
-      structureType: map['structureType'],
-      taskCreateDate:
-          map['taskCreateDate'] != null ? map['taskCreateDate'].toDate() : null,
-      taskNumber: map['taskNumber'] != null ? map['taskNumber'] : null,
       isHidden: map['isHidden'] != null ? map['isHidden'] : null,
     );
   }

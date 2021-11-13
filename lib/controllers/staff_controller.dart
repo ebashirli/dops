@@ -187,6 +187,7 @@ class StaffController extends GetxController {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          SizedBox(height: 10),
                           CustomStringTextField(
                             controller: badgeNoController,
                             labelText: 'Badge No',

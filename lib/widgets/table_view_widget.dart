@@ -34,22 +34,40 @@ class TableView extends StatelessWidget {
               rowHeight: 30,
               onCellTap: (details) {
                 if (details.rowColumnIndex.rowIndex == 0) {
-                  // dataSource.sortedColumns
-                  //     .add(SortColumnDetails('id', SortDirection.ascending));
-                  // _employeeDataSource.sort();
                   if (!controller.sortAscending.value) {
-                    DataGridSortDirection.ascending;
-                    controller.sortAscending.value = false;
+                    print(tableColNames[tableName]![
+                            details.rowColumnIndex.columnIndex]
+                        .toLowerCase());
+                    dataSource.sortedColumns.add(
+                      SortColumnDetails(
+                        name: tableColNames[tableName]![
+                                details.rowColumnIndex.columnIndex]
+                            .toLowerCase(),
+                        sortDirection: DataGridSortDirection.ascending,
+                      ),
+                    );
                     dataSource.sort();
-                  } else {
-                    DataGridSortDirection.descending;
+                    // DataGridSortDirection.ascending;
                     controller.sortAscending.value = true;
+                  } else {
+                    dataSource.sortedColumns.add(
+                      SortColumnDetails(
+                        name: tableColNames[tableName]![
+                                details.rowColumnIndex.columnIndex]
+                            .toLowerCase(),
+                        sortDirection: DataGridSortDirection.descending,
+                      ),
+                    );
+                    dataSource.sort();
+                    // DataGridSortDirection.descending;
+                    controller.sortAscending.value = false;
                   }
                 } else {
-                  print(dataSource.rows[details.rowColumnIndex.rowIndex]
+                  print(details.rowColumnIndex.rowIndex);
+                  print(dataSource.rows[details.rowColumnIndex.rowIndex - 1]
                       .getCells()
                       .map((e) => e.value)
-                      .toList());
+                      .toList()[0]);
 
                   controller.buildAddEdit(
                     aModel: controller
@@ -83,7 +101,7 @@ class TableView extends StatelessWidget {
           (colName) => GridColumn(
             columnWidthMode: ColumnWidthMode.auto,
             columnName: colName.toLowerCase(),
-            // autoFitPadding: const EdgeInsets.all(8.0),
+            autoFitPadding: const EdgeInsets.all(8.0),
             label: Center(
               child: Container(
                 decoration: BoxDecoration(),

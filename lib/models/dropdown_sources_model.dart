@@ -41,20 +41,18 @@ class DropdownSourcesModel {
   }
 
   factory DropdownSourcesModel.fromMap(Map<String, dynamic> map) {
-    print("map");
-    print("map:$map");
     return DropdownSourcesModel(
       id: 'list',
-      companies: map['companies'],
-      employeePlaces: map['employeePlaces'],
-      jobTitles: map['jobTitles'],
-      levels: map['levels'],
-      modules: map['modules'],
-      projects: map['projects'] ,
-      referenceTypes: map['referenceTypes'] ,
-      statuses: map['statuses'],
-      structureTypes: map['structureTypes'],
-      systemDesignations: map['systemDesignations'] ,
+      companies: map['companies'][0],
+      employeePlaces: map['employeePlaces'][0],
+      jobTitles: map['jobTitles'][0],
+      levels: map['levels'][0],
+      modules: map['modules'][0],
+      projects: map['projects'][0] ,
+      referenceTypes: map['referenceTypes'][0] ,
+      statuses: map['statuses'][0],
+      structureTypes: map['structureTypes'][0],
+      systemDesignations: map['systemDesignations'][0] ,
     );
   }
 }

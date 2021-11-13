@@ -13,12 +13,13 @@ class DropdownSourcesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-     
+    return Obx(() {
       // controller..toMap().entries.forEach((element) {
       //   print(element.value);
       //   // fieldNames.add(element.key);
       //   // values.add(element.value as List<String>);
       // });
+      print(controller.document.value.toMap().entries.map((entry) => entry.value).toList().toString());
       return Center(
         child: ListView.separated(
           padding: EdgeInsets.zero,
@@ -37,6 +38,6 @@ class DropdownSourcesView extends StatelessWidget {
           },
         ),
       );
-    
+    });
   }
 }

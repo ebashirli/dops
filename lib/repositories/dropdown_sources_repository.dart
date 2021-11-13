@@ -15,14 +15,18 @@ class DropwdownSourcesRepository {
   Stream<DropdownSourcesModel> getModelAsStream() {
     return _api.getDataAsStream().map(
       (QuerySnapshot query) {
-        late DropdownSourcesModel returnValue = DropdownSourcesModel();
-        // query.docs.forEach(
-        //   (snapshot) {
-        //     // returnValue = DropdownSourcesModel.fromMap(
-        //     //   snapshot.data() as Map<String, dynamic>,
-        //     // );
-        //   },
-        // );
+        late DropdownSourcesModel returnValue;
+        if (query.docs.first.id.isNotEmpty) {
+          query.docs.forEach(
+            (snapshot) {
+              returnValue = DropdownSourcesModel.fromMap(
+                snapshot.data() as Map<String, dynamic>,
+              );
+            },
+          );
+        } else {
+          print('error');
+        }
         return returnValue;
       },
     );

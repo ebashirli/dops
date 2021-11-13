@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 
 import '../controllers/home_controller.dart';
 import '../enum.dart';
+import 'dropdown_sources_view.dart';
 
 class HomeView extends GetView<HomeController> {
   final activityController = Get.find<ActivityController>();
@@ -43,7 +44,7 @@ class HomeView extends GetView<HomeController> {
         return ReferenceDocumentView();
 
       case HomeStates.DropdownSourceListState:
-        return Container(child: const Text('dropwdown'));
+        return DropdownSourcesView();
 
       case HomeStates.StaffState:
         return StaffView();

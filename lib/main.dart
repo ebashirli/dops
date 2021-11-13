@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:dops/repositories/activity_repository.dart';
+import 'package:dops/repositories/dropdown_sources_repository.dart';
 import 'package:dops/repositories/reference_document_repository.dart';
 import 'package:dops/repositories/staff_repository.dart';
 import 'package:dops/repositories/task_repository.dart';
@@ -36,7 +37,9 @@ Future<void> initServices() async {
   await Get.putAsync<StorageService>(
       () async => await FirebaseStorageService('tasks'),
       tag: 'tasks');
-
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('lists'),
+      tag: 'lists');
   await Get.putAsync<ActivityRepository>(
       () async => await ActivityRepository());
 
@@ -46,6 +49,7 @@ Future<void> initServices() async {
   await Get.putAsync<StaffRepository>(() async => await StaffRepository());
 
   await Get.putAsync<TaskRepository>(() async => await TaskRepository());
+  await Get.putAsync<DropwdownSourcesRepository>(() async => await DropwdownSourcesRepository());
 }
 
 class MyApp extends StatelessWidget {

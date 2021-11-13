@@ -3,7 +3,7 @@ import 'package:dops/controllers/staff_controller.dart';
 import 'package:dops/controllers/task_controller.dart';
 import 'package:get/get.dart';
 
-import '../dropdown_source_lists_controller.dart';
+import '../dropdown_sources_controller.dart';
 import '../reference_document_controller.dart';
 import '../home_controller.dart';
 
@@ -25,6 +25,12 @@ class HomeBinding extends Bindings {
     Get.lazyPut<TaskController>(
       () => TaskController(),
     );
+    Get.lazyPut<TaskController>(
+      () => TaskController(),
+    );
+    Get.lazyPut<DropdownSourcesController>(
+      () => DropdownSourcesController(),
+    );
   }
 }
 
@@ -40,8 +46,8 @@ class ActivityBinding extends Bindings {
 class DropdownSourceListsBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<DropdownSourceListsController>(
-      () => DropdownSourceListsController(),
+    Get.lazyPut<DropdownSourcesController>(
+      () => DropdownSourcesController(),
     );
   }
 }

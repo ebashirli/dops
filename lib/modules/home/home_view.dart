@@ -1,17 +1,17 @@
-import 'package:dops/controllers/activity_controller.dart';
-import 'package:dops/controllers/reference_document_controller.dart';
-import 'package:dops/controllers/staff_controller.dart';
-import 'package:dops/controllers/task_controller.dart';
-import 'package:dops/views/activity_view.dart';
-import 'package:dops/views/reference_document_view.dart';
-import 'package:dops/views/staff_view.dart';
-import 'package:dops/views/task_view.dart';
+import '../activity/activity_controller.dart';
+import '../reference_document/reference_document_controller.dart';
+import '../staff/staff_controller.dart';
+import '../task/task_controller.dart';
+import '../activity/activity_view.dart';
+import '../reference_document/reference_document_view.dart';
+import '../staff/staff_view.dart';
+import '../task/task_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../controllers/home_controller.dart';
-import '../enum.dart';
-import 'dropdown_sources_view.dart';
+import 'home_controller.dart';
+import '../../enum.dart';
+import '../dropdown_source/dropdown_sources_view.dart';
 
 class HomeView extends GetView<HomeController> {
   final activityController = Get.find<ActivityController>();

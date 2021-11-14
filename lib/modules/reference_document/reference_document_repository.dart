@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dops/models/reference_document_model.dart';
+import 'package:dops/modules/reference_document/reference_document_model.dart';
 import 'package:dops/services/firebase_service/storage_service.dart';
 import 'package:get/get.dart';
 

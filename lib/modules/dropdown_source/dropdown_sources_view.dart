@@ -1,10 +1,7 @@
-import 'package:dops/constants/lists.dart';
-import 'package:dops/controllers/dropdown_sources_controller.dart';
-import 'package:dops/widgets/custom_list_items_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../enum.dart';
+import 'dropdown_sources_controller.dart';
 
 class DropdownSourcesView extends StatelessWidget {
   final controller = Get.find<DropdownSourcesController>();

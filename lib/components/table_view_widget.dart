@@ -1,7 +1,8 @@
-import 'package:dops/constants/table_details.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+
+import '../constants/table_details.dart';
 
 class TableView extends StatelessWidget {
   final controller;

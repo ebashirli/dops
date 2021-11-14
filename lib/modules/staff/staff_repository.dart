@@ -1,32 +1,32 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dops/models/task_model.dart';
-import 'package:dops/services/firebase_service/storage_service.dart';
+import 'staff_model.dart';
+import '../../services/firebase_service/storage_service.dart';
 import 'package:get/get.dart';
 
-class TaskRepository {
-  final _api = Get.find<StorageService>(tag: 'tasks');
-  late List<TaskModel> tasks = [];
+class StaffRepository {
+  final _api = Get.find<StorageService>(tag: 'staff');
+  late List<StaffModel> staff = [];
 
-  Future fetchTaskModels() async {
+  Future fetchStaffModels() async {
     QuerySnapshot result = await _api.getData();
-    tasks = result.docs
+    staff = result.docs
         .map(
-          (snapshot) => TaskModel.fromMap(
+          (snapshot) => StaffModel.fromMap(
             snapshot.data() as Map<String, dynamic>,
             snapshot.id,
           ),
         )
         .toList();
-    return tasks;
+    return staff;
   }
 
-  Stream<List<TaskModel>> getAllTasksAsStream() {
+  Stream<List<StaffModel>> getAllStaffAsStream() {
     return _api.getDataAsStream().map((QuerySnapshot query) {
-      List<TaskModel> returnValue = [];
+      List<StaffModel> returnValue = [];
       query.docs.forEach(
         (snapshot) {
           returnValue.add(
-            TaskModel.fromMap(
+            StaffModel.fromMap(
               snapshot.data() as Map<String, dynamic>,
               snapshot.id,
             ),
@@ -37,24 +37,24 @@ class TaskRepository {
     });
   }
 
-  Future<TaskModel> getTaskModelById(String id) async {
+  Future<StaffModel> getStaffModelById(String id) async {
     var doc = await _api.getDocumentById(id);
-    return TaskModel.fromMap(
+    return StaffModel.fromMap(
       doc.data(),
       doc.id,
     );
   }
 
-  removeTaskModel(TaskModel data) async {
+  removeStaffModel(StaffModel data) async {
     data.isHidden = true;
     await _api.updateDocument(data.toMap(), data.id!);
   }
 
-  updateTaskModel(TaskModel data) async {
+  updateStaffModel(StaffModel data) async {
     await _api.updateDocument(data.toMap(), data.id!);
   }
 
-  addTaskModel(TaskModel data) async {
+  addStaffModel(StaffModel data) async {
     await _api.addDocument(data.toMap());
   }
 }

@@ -1,4 +1,4 @@
-import 'package:dops/enum.dart';
+import '../../enum.dart';
 import 'package:get/get.dart';
 
 class HomeController extends GetxController {

@@ -1,7 +1,8 @@
-import 'package:dops/controllers/task_controller.dart';
-import 'package:dops/widgets/table_view_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../../components/table_view_widget.dart';
+import 'task_controller.dart';
 
 class TaskView extends StatelessWidget {
   final controller = Get.find<TaskController>();

@@ -1,12 +1,16 @@
-import 'package:dops/constants/lists.dart';
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:dops/constants/style.dart';
-import 'package:dops/models/reference_document_model.dart';
-import 'package:dops/repositories/reference_document_repository.dart';
-import 'package:dops/widgets/custom_widgets.dart';
+import '../../components/custom_date_time_form_field_widget.dart';
+import '../../components/custom_dropdown_menu_widget.dart';
+import '../../components/custom_full_screen_dialog_widget.dart';
+import '../../components/custom_snackbar_widget.dart';
+import '../../components/custom_string_text_field_widget.dart';
+import '../../constants/lists.dart';
+import '../../constants/style.dart';
+import 'reference_document_model.dart';
+import 'reference_document_repository.dart';
 
 class ReferenceDocumentController extends GetxController {
   final GlobalKey<FormState> referenceDocumentFormKey = GlobalKey<FormState>();

@@ -1,12 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dops/constants/lists.dart';
-import 'package:dops/constants/style.dart';
-import 'package:dops/constants/table_details.dart';
-import 'package:dops/models/activity_model.dart';
-import 'package:dops/repositories/activity_repository.dart';
-import 'package:dops/widgets/custom_widgets.dart';
+import '../../components/custom_snackbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../../components/custom_date_time_form_field_widget.dart';
+import '../../components/custom_dropdown_menu_widget.dart';
+import '../../components/custom_full_screen_dialog_widget.dart';
+import '../../components/custom_number_text_field_widget.dart';
+import '../../components/custom_string_text_field_widget.dart';
+import '../../constants/lists.dart';
+import '../../constants/style.dart';
+import '../../constants/table_details.dart';
+import 'activity_model.dart';
+import 'activity_repository.dart';
 
 class ActivityController extends GetxController {
   final GlobalKey<FormState> activityFormKey = GlobalKey<FormState>();

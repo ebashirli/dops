@@ -1,11 +1,12 @@
-import 'package:dops/widgets/table_view_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:dops/controllers/reference_document_controller.dart';
 
-class ReferenceDocumentView extends StatelessWidget {
-  final controller = Get.find<ReferenceDocumentController>();
-  final tableName = 'reference document';
+import '../../components/table_view_widget.dart';
+import 'activity_controller.dart';
+
+class ActivityView extends StatelessWidget {
+  final controller = Get.find<ActivityController>();
+  final tableName = 'activity';
 
   @override
   Widget build(BuildContext context) {

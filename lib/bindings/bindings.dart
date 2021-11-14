@@ -1,11 +1,11 @@
-import 'package:dops/controllers/activity_controller.dart';
-import 'package:dops/controllers/staff_controller.dart';
-import 'package:dops/controllers/task_controller.dart';
+import '../modules/activity/activity_controller.dart';
+import 'package:dops/modules/staff/staff_controller.dart';
+import 'package:dops/modules/task/task_controller.dart';
 import 'package:get/get.dart';
 
-import '../dropdown_sources_controller.dart';
-import '../reference_document_controller.dart';
-import '../home_controller.dart';
+import '../../modules/dropdown_source/dropdown_sources_controller.dart';
+import '../../modules/reference_document/reference_document_controller.dart';
+import '../../modules/home/home_controller.dart';
 
 class HomeBinding extends Bindings {
   @override

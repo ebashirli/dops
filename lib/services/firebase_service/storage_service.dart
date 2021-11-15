@@ -7,4 +7,5 @@ abstract class StorageService {
   Future<void> removeDocument(String id);
   Future<void> addDocument(Map data);
   Future<void> updateDocument(Map<String, dynamic> data, String id);
+  Future<void> incrementFiledValue(String field, List<String> lst);
 }

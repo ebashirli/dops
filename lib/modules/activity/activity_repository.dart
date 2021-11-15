@@ -55,4 +55,8 @@ class ActivityRepository {
   addActivityModel(ActivityModel data) async {
     await _api.addDocument(data.toMap());
   }
+
+  void incrementNumberOfAssignedDocumentField(activityCode) async {
+    await _api.incrementFiledValue('activity_code', [activityCode]);
+  }
 }

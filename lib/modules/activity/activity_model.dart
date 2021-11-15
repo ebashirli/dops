@@ -1,6 +1,5 @@
 class ActivityModel {
   String? id;
-  bool isHidden;
   String? activityId;
   String? activityName;
   String? moduleName;
@@ -11,20 +10,23 @@ class ActivityModel {
   DateTime? startDate;
   DateTime? finishDate;
   double? cumulative;
+  int? assignedDocumentsCount;
+  bool isHidden;
 
   ActivityModel({
     required this.id,
     this.activityId,
-    this.isHidden = false,
     this.activityName,
     this.moduleName,
     this.priority,
-    this.coefficient,
+    this.coefficient = 1,
     this.currentPriority,
     this.budgetedLaborUnits,
     this.startDate,
     this.finishDate,
-    this.cumulative,
+    this.cumulative = 0,
+    this.assignedDocumentsCount = 0,
+    this.isHidden = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -39,6 +41,7 @@ class ActivityModel {
       'start_date': startDate,
       'finish_date': finishDate,
       'cumulative': cumulative,
+      'assigned_documents_count': assignedDocumentsCount,
       'isHidden': isHidden,
     };
   }
@@ -57,10 +60,11 @@ class ActivityModel {
       currentPriority: map['current_priority'],
       budgetedLaborUnits: map['budgeted_labor_units'],
       startDate: map['start_date'] != null ? map['start_date'].toDate() : null,
-      finishDate: map['finish_date'] != null ? map['finish_date'].toDate() : null,
+      finishDate:
+          map['finish_date'] != null ? map['finish_date'].toDate() : null,
       cumulative: map['cumulative'],
+      assignedDocumentsCount: map['assigned_documents_count'],
       isHidden: map['isHidden'] != null ? map['isHidden'] : null,
-
     );
   }
 }

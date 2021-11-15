@@ -58,4 +58,8 @@ class ReferenceDocumentRepository {
   addReferenceDocumentModel(ReferenceDocumentModel data) async {
     await _api.addDocument(data.toMap());
   }
+
+  incrementNumberOfAssignedDocumentField(List<String> designDrawing) async {
+    await _api.incrementFiledValue('document_number', designDrawing);
+  }
 }

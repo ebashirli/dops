@@ -1,12 +1,11 @@
 class TaskModel {
   String? id;
-  bool isHidden;
   String activityCode;
+  String drawingNumber;
   List<String> area;
   int? changeNumber;
   String coverSheetRevision;
   List<String> designDrawing;
-  String drawingNumber;
   String drawingTitle;
   String functionalArea;
   bool? isRevised;
@@ -20,16 +19,16 @@ class TaskModel {
   int? revisionNumber;
   String structureType;
   DateTime? taskCreateDate;
-  String? taskNumber;
+  bool isHidden;
 
   TaskModel({
     this.id,
     required this.activityCode,
+    required this.drawingNumber,
     required this.area,
     this.changeNumber,
     required this.coverSheetRevision,
     required this.designDrawing,
-    required this.drawingNumber,
     required this.drawingTitle,
     required this.functionalArea,
     this.isRevised = false,
@@ -43,7 +42,6 @@ class TaskModel {
     this.revisionNumber,
     required this.structureType,
     this.taskCreateDate,
-    this.taskNumber,
     this.isHidden = false,
   });
 
@@ -51,7 +49,7 @@ class TaskModel {
     return {
       'priority': priority,
       'activityCode': activityCode,
-      'taskNumber': taskNumber,
+      'drawingNumber': drawingNumber,
       'coverSheetRevision': coverSheetRevision,
       'drawingTitle': drawingTitle,
       'moduleName': moduleName,
@@ -65,7 +63,6 @@ class TaskModel {
       'changeNumber': changeNumber,
       'area': area,
       'taskCreateDate': taskCreateDate,
-      'drawingNumber': drawingNumber,
       'functionalArea': functionalArea,
       'note': note,
       'project': project,
@@ -78,7 +75,7 @@ class TaskModel {
       id: id ?? null,
       priority: map['priority'] != null ? map['priority'] : null,
       activityCode: map['activityCode'],
-      taskNumber: map['taskNumber'] != null ? map['taskNumber'] : null,
+      drawingNumber: map['drawingNumber'],
       coverSheetRevision: map['coverSheetRevision'],
       drawingTitle: map['drawingTitle'],
       moduleName: map['moduleName'],
@@ -91,7 +88,6 @@ class TaskModel {
           : null,
       level: map['level'],
       structureType: map['structureType'],
-      drawingNumber: map['drawingNumber'],
       changeNumber: map['changeNumber'] != null ? map['changeNumber'] : null,
       taskCreateDate:
           map['taskCreateDate'] != null ? map['taskCreateDate'].toDate() : null,

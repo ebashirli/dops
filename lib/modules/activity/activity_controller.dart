@@ -80,6 +80,10 @@ class ActivityController extends GetxController {
     _repository.removeActivityModel(data);
   }
 
+  void incrementNumberOfAssignedDocumentField(List<String> activityId) {
+    _repository.incrementNumberOfAssignedDocumentField(activityId);
+  }
+
   @override
   void onReady() {
     super.onReady();
@@ -222,7 +226,6 @@ class ActivityController extends GetxController {
                                 activityId: activityIdController.text,
                                 activityName: activityNameController.text,
                                 moduleName: moduleNameText,
-                                priority: 0, // TODO: priority colculator
                                 coefficient:
                                     int.parse(coefficientController.text),
                                 currentPriority:
@@ -231,7 +234,6 @@ class ActivityController extends GetxController {
                                     budgetedLaborUnitsController.text),
                                 startDate: startTime,
                                 finishDate: finishTime,
-                                cumulative: 0,
                               );
                               aModel == null
                                   ? saveDocument(model: model)

@@ -5,14 +5,14 @@ import 'dropdown_sources_repository.dart';
 import 'package:get/get.dart';
 
 class DropdownSourcesController extends GetxController {
-  DropwdownSourcesRepository _repository = Get.find<DropwdownSourcesRepository>();
+  DropwdownSourcesRepository _repository =
+      Get.find<DropwdownSourcesRepository>();
   Rx<DropdownSourcesModel> document = DropdownSourcesModel().obs;
 
   @override
   void onInit() {
     super.onInit();
     document.bindStream(_repository.getModelAsStream());
-    print(document.value);
   }
 
   updateModel(DropdownSourcesModel model) {

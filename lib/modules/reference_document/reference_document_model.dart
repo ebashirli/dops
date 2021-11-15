@@ -1,20 +1,19 @@
 class ReferenceDocumentModel {
   String? id;
   String project;
-  bool isHidden;
   String referenceType;
   String moduleName;
   String documentNumber;
   String revisionCode;
   String title;
   String transmittalNumber;
-  String requiredActionNext;
+  int requiredActionNext;
   DateTime receivedDate;
   int assignedDocumentsCount;
+  bool isHidden;
 
   ReferenceDocumentModel({
     this.id,
-    this.isHidden = false,
     required this.project,
     required this.referenceType,
     required this.moduleName,
@@ -24,7 +23,8 @@ class ReferenceDocumentModel {
     required this.transmittalNumber,
     required this.receivedDate,
     required this.requiredActionNext,
-    required this.assignedDocumentsCount,
+    this.assignedDocumentsCount = 0,
+    this.isHidden = false,
   });
 
   Map<String, dynamic> toMap() {

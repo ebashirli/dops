@@ -54,6 +54,10 @@ class TaskController extends GetxController {
 
   saveDocument({required TaskModel model}) async {
     CustomFullScreenDialog.showDialog();
+    referenceDocumentController
+        .incrementNumberOfAssignedDocumentField(model.designDrawing);
+    activityController
+        .incrementNumberOfAssignedDocumentField([model.activityCode]);
     model.taskCreateDate = DateTime.now();
     await _repository.addTaskModel(model);
     CustomFullScreenDialog.cancelDialog();
@@ -284,8 +288,8 @@ class TaskController extends GetxController {
                             TaskModel model = TaskModel(
                               id: aModel != null ? aModel.id : null,
                               activityCode: activityCodeText,
-                              designDrawing: designDrawingList,
                               drawingNumber: drawingNumberController.text,
+                              designDrawing: designDrawingList,
                               drawingTitle: drawingTitleController.text,
                               coverSheetRevision:
                                   coverSheetRevisionController.text,
@@ -323,7 +327,6 @@ class TaskController extends GetxController {
       document.toMap().entries.forEach((entry) {
         switch (entry.key) {
           case 'area':
-          case 'drawingNumber':
           case 'functionalArea':
           case 'note':
           case 'project':

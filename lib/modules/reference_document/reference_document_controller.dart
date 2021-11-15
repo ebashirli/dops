@@ -26,6 +26,8 @@ class ReferenceDocumentController extends GetxController {
   String referenceTypeText = '';
   String moduleNameText = '';
 
+  RxInt requiredActionNext = 0.obs;
+
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
 
@@ -71,6 +73,10 @@ class ReferenceDocumentController extends GetxController {
     _repository.removeReferenceDocumentModel(data);
   }
 
+  void incrementNumberOfAssignedDocumentField(List<String> designDrawing) {
+    _repository.incrementNumberOfAssignedDocumentField(designDrawing);
+  }
+
   @override
   void onReady() {
     super.onReady();
@@ -93,7 +99,7 @@ class ReferenceDocumentController extends GetxController {
     revisionCodeController.text = model.revisionCode;
     titleController.text = model.title;
     transmittalNumberController.text = model.transmittalNumber;
-    requiredActionNextController.text = model.requiredActionNext;
+    requiredActionNext.value = model.requiredActionNext;
     receiveDate = model.receivedDate;
     projectText = model.project;
     moduleNameText = model.moduleName;
@@ -191,15 +197,56 @@ class ReferenceDocumentController extends GetxController {
                       controller: transmittalNumberController,
                       labelText: 'Transmittal number',
                     ),
-                    CustomDateTimeFormField(
-                      labelText: 'Received date',
-                      initialValue: receiveDate,
-                      onDateSelected: (date) => receiveDate = date,
-                    ),
-                    CustomStringTextField(
-                      controller: requiredActionNextController,
-                      labelText: 'Required Action / Next',
-                    ),
+                    Obx(() {
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          SizedBox(
+                            width: 400,
+                            child: CustomDateTimeFormField(
+                              labelText: 'Received date',
+                              initialValue: receiveDate,
+                              onDateSelected: (date) => receiveDate = date,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 200,
+                            child: GestureDetector(
+                              onTap: () {
+                                _handleChangedRadio(0);
+                              },
+                              child: ListTile(
+                                title: const Text('Required Action'),
+                                leading: Radio<int>(
+                                  value: 0,
+                                  groupValue: requiredActionNext.value,
+                                  onChanged: (int? value) {
+                                    requiredActionNext.value = value!;
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 200,
+                            child: GestureDetector(
+                              onTap: () {
+                                _handleChangedRadio(1);
+                              },
+                              child: ListTile(
+                                title: const Text('Next'),
+                                leading: Radio<int>(
+                                  value: 1,
+                                  groupValue: requiredActionNext.value,
+                                  onChanged: _handleChangedRadio,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }),
                     Container(
                       child: Row(
                         children: <Widget>[
@@ -237,8 +284,7 @@ class ReferenceDocumentController extends GetxController {
                                 transmittalNumber:
                                     transmittalNumberController.text,
                                 receivedDate: receiveDate,
-                                requiredActionNext:
-                                    requiredActionNextController.text,
+                                requiredActionNext: requiredActionNext.value,
                                 assignedDocumentsCount: 0,
                               );
                               aModel == null
@@ -260,6 +306,10 @@ class ReferenceDocumentController extends GetxController {
         ),
       ),
     );
+  }
+
+  void _handleChangedRadio(int? value) {
+    requiredActionNext.value = value!;
   }
 
   List<Map<String, dynamic>> get getDataForTableView {

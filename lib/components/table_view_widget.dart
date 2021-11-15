@@ -20,6 +20,7 @@ class TableView extends StatelessWidget {
       () {
         final DataSource dataSource =
             DataSource(data: controller.getDataForTableView);
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -36,9 +37,6 @@ class TableView extends StatelessWidget {
               onCellTap: (details) {
                 if (details.rowColumnIndex.rowIndex == 0) {
                   if (!controller.sortAscending.value) {
-                    print(tableColNames[tableName]![
-                            details.rowColumnIndex.columnIndex]
-                        .toLowerCase());
                     dataSource.sortedColumns.add(
                       SortColumnDetails(
                         name: tableColNames[tableName]![
@@ -64,12 +62,6 @@ class TableView extends StatelessWidget {
                     controller.sortAscending.value = false;
                   }
                 } else {
-                  print(details.rowColumnIndex.rowIndex);
-                  print(dataSource.rows[details.rowColumnIndex.rowIndex - 1]
-                      .getCells()
-                      .map((e) => e.value)
-                      .toList()[0]);
-
                   controller.buildAddEdit(
                     aModel: controller
                         .documents[details.rowColumnIndex.rowIndex - 1],

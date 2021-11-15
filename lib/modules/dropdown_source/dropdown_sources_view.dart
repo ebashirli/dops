@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import 'dropdown_sources_controller.dart';
 
+// ignore: must_be_immutable
 class DropdownSourcesView extends StatelessWidget {
   final controller = Get.find<DropdownSourcesController>();
   List<String> fieldNames = [];
@@ -10,31 +11,21 @@ class DropdownSourcesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      // controller..toMap().entries.forEach((element) {
-      //   print(element.value);
-      //   // fieldNames.add(element.key);
-      //   // values.add(element.value as List<String>);
-      // });
-      print(controller.document.value.toMap().entries.map((entry) => entry.value).toList().toString());
-      return Center(
-        child: ListView.separated(
-          padding: EdgeInsets.zero,
-          controller: ScrollController(),
-          scrollDirection: Axis.horizontal,
-          itemCount: 12,
-          separatorBuilder: (context, index) => SizedBox(width: 12),
-          itemBuilder: (context, index) {
-            // print(fieldNames[index].toString());
-            // print(values[index].toString());
-            return Container();
-            // CustomListItems(
-            //   lstName: controller.document.value.toMap().entries.map((entry) => entry.key).toList()[index],
-            //   lst: controller.document.value.toMap().entries.map((entry) => entry.value).toList()[index],
-            // );
-          },
-        ),
-      );
-    });
+    return Text('data');
+
+    // return Obx(() {
+    // return Center(
+    //   child: ListView.separated(
+    //     padding: EdgeInsets.zero,
+    //     controller: ScrollController(),
+    //     scrollDirection: Axis.horizontal,
+    //     itemCount: 12,
+    //     separatorBuilder: (context, index) => SizedBox(width: 12),
+    //     itemBuilder: (context, index) {
+    //       return Container();
+    //     },
+    //   ),
+    // );
+    // });
   }
 }

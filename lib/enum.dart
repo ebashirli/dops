@@ -5,4 +5,4 @@ enum HomeStates {
   StaffState,
   TaskState,
 }
-enum States{ Loading, Completed, Error}
+enum States { Loading, Completed, Error }

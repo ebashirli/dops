@@ -8,7 +8,8 @@ class DropwdownSourcesRepository {
 
   Future<DropdownSourcesModel> getModel() async {
     QuerySnapshot result = await _api.getData();
-    DropdownSourcesModel model = DropdownSourcesModel.fromMap(result.docs.first.data() as Map<String, dynamic>);
+    DropdownSourcesModel model = DropdownSourcesModel.fromMap(
+        result.docs.first.data() as Map<String, dynamic>);
     return model;
   }
 
@@ -24,9 +25,7 @@ class DropwdownSourcesRepository {
               );
             },
           );
-        } else {
-          print('error');
-        }
+        } else {}
         return returnValue;
       },
     );

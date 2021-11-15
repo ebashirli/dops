@@ -9,7 +9,7 @@ Map<String, List<String>> tableColNames = {
     'Transmittal number or received from',
     'Receive date',
     'Action required / Next',
-    'Number of assigned documents',
+    'Number of assigned tasks',
   ],
   'activity': [
     'Activity ID',
@@ -22,6 +22,7 @@ Map<String, List<String>> tableColNames = {
     'Start Date',
     'Finish Date',
     'Cumulative (%)',
+    'Number of assigned tasks',
   ],
   'staff': [
     'Badge No',
@@ -47,7 +48,7 @@ Map<String, List<String>> tableColNames = {
   'task': [
     'Priority',
     'Activity Code',
-    'Task Number',
+    'Drawing Number',
     'Cover Sheet Revision',
     'Drawing Title',
     'Module',

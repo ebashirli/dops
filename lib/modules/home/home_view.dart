@@ -1,3 +1,5 @@
+import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
+
 import '../activity/activity_controller.dart';
 import '../reference_document/reference_document_controller.dart';
 import '../staff/staff_controller.dart';
@@ -18,6 +20,7 @@ class HomeView extends GetView<HomeController> {
   final referenceDocumentController = Get.find<ReferenceDocumentController>();
   final staffController = Get.find<StaffController>();
   final taskController = Get.find<TaskController>();
+  final listController = Get.find<DropdownSourcesController>();
 
   @override
   Widget build(BuildContext context) {
@@ -157,7 +160,7 @@ class HomeView extends GetView<HomeController> {
       case HomeStates.TaskState:
         return taskController.buildAddEdit();
       case HomeStates.DropdownSourceListState:
-        return;
+        return listController.buildAddEdit();
     }
   }
 }

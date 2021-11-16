@@ -5,7 +5,7 @@ class TaskModel {
   List<String> area;
   int? changeNumber;
   String coverSheetRevision;
-  List<String> designDrawing;
+  List<String> designDrawings;
   String drawingTitle;
   String functionalArea;
   bool? isRevised;
@@ -28,7 +28,7 @@ class TaskModel {
     required this.area,
     this.changeNumber,
     required this.coverSheetRevision,
-    required this.designDrawing,
+    required this.designDrawings,
     required this.drawingTitle,
     required this.functionalArea,
     this.isRevised = false,
@@ -59,7 +59,7 @@ class TaskModel {
       'isRevisionStatusLatest': isRevisionStatusLatest,
       'level': level,
       'structureType': structureType,
-      'designDrawing': designDrawing,
+      'designDrawing': designDrawings,
       'changeNumber': changeNumber,
       'area': area,
       'taskCreateDate': taskCreateDate,
@@ -95,7 +95,7 @@ class TaskModel {
       note: map['note'],
       project: map['project'],
       area: List<String>.from(map['area']),
-      designDrawing: List<String>.from(map['designDrawing']),
+      designDrawings: List<String>.from(map['designDrawing']),
       isHidden: map['isHidden'] != null ? map['isHidden'] : null,
     );
   }

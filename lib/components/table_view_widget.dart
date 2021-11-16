@@ -8,7 +8,7 @@ class TableView extends StatelessWidget {
   final controller;
   final String tableName;
 
-  const TableView({
+  TableView({
     Key? key,
     required this.controller,
     required this.tableName,
@@ -33,8 +33,8 @@ class TableView extends StatelessWidget {
               headerGridLinesVisibility: GridLinesVisibility.both,
               columnWidthMode: ColumnWidthMode.fill,
               allowSorting: true,
-              rowHeight: 30,
-              onCellTap: (details) {
+              rowHeight: 70,
+              onCellDoubleTap: (details) {
                 if (details.rowColumnIndex.rowIndex == 0) {
                   if (!controller.sortAscending.value) {
                     dataSource.sortedColumns.add(
@@ -146,7 +146,7 @@ class DataSource extends DataGridSource {
           alignment: Alignment.center,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(e.value),
+            child: Container(child: e.value),
           ),
         );
       },

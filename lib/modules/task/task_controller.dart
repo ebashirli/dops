@@ -1,3 +1,5 @@
+import 'dart:html' as html;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../components/custom_multiselect_dropdown_menu_widget.dart';
 import '../../components/custom_string_text_field_widget.dart';
@@ -55,7 +57,7 @@ class TaskController extends GetxController {
   saveDocument({required TaskModel model}) async {
     CustomFullScreenDialog.showDialog();
     referenceDocumentController
-        .incrementNumberOfAssignedDocumentField(model.designDrawing);
+        .incrementNumberOfAssignedDocumentField(model.designDrawings);
     activityController
         .incrementNumberOfAssignedDocumentField([model.activityCode]);
     model.taskCreateDate = DateTime.now();
@@ -118,7 +120,7 @@ class TaskController extends GetxController {
     functionalAreaText = model.functionalArea;
     structureTypeText = model.structureType;
 
-    designDrawingList = model.designDrawing;
+    designDrawingList = model.designDrawings;
     areaList = model.area;
   }
 
@@ -289,7 +291,7 @@ class TaskController extends GetxController {
                               id: aModel != null ? aModel.id : null,
                               activityCode: activityCodeText,
                               drawingNumber: drawingNumberController.text,
-                              designDrawing: designDrawingList,
+                              designDrawings: designDrawingList,
                               drawingTitle: drawingTitleController.text,
                               coverSheetRevision:
                                   coverSheetRevisionController.text,
@@ -332,11 +334,24 @@ class TaskController extends GetxController {
           case 'project':
           case 'isHidden':
             break;
+          case 'drawingNumber':
+            map[entry.key] = TextButton(
+              child: Text('${entry.value}'),
+              onPressed: () {
+                html.window.open('/#/following', '_blank');
+              },
+            );
+            break;
           default:
-            map[entry.key] = entry.value.toString();
+            map[entry.key] = Text('${entry.value}');
+            break;
         }
       });
       return map;
     }).toList();
+  }
+
+  List<dynamic> getFieldValues(String fieldName) {
+    return _documents.map((doc) => doc.toMap()[fieldName]).toList();
   }
 }

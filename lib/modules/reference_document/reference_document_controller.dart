@@ -1,4 +1,7 @@
+import 'dart:html' as html;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dops/modules/task/task_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -15,6 +18,7 @@ import 'reference_document_repository.dart';
 class ReferenceDocumentController extends GetxController {
   final GlobalKey<FormState> referenceDocumentFormKey = GlobalKey<FormState>();
   final _repository = Get.find<ReferenceDocumentRepository>();
+  late final taskController = Get.find<TaskController>();
 
   late TextEditingController documentNumberController,
       revisionCodeController,
@@ -62,7 +66,6 @@ class ReferenceDocumentController extends GetxController {
       return;
     }
     referenceDocumentFormKey.currentState!.save();
-    //update
     CustomFullScreenDialog.showDialog();
     await _repository.updateReferenceDocumentModel(model);
     CustomFullScreenDialog.cancelDialog();
@@ -313,18 +316,52 @@ class ReferenceDocumentController extends GetxController {
   }
 
   List<Map<String, dynamic>> get getDataForTableView {
-    return _documents.map((document) {
-      Map<String, String> map = {};
-      document.toMap().entries.forEach((entry) {
-        switch (entry.key) {
-          case 'isHidden':
-            break;
-          default:
-            map[entry.key] = entry.value.toString();
-        }
-      });
-      return map;
-    }).toList();
+    return documents.map(
+      (referenceDocument) {
+        Map<String, dynamic> map = {};
+        referenceDocument.toMap().entries.forEach((entry) {
+          switch (entry.key) {
+            case 'isHidden':
+              break;
+            case 'required_action_next':
+              map[entry.key] =
+                  entry.value == 0 ? Text('Action Required') : Text('Next');
+              break;
+            case 'assigned_documents_count':
+              final taskDrawingNumbers = [];
+              taskController.documents.forEach((task) {
+                if (task.designDrawings
+                    .contains(referenceDocument.documentNumber))
+                  taskDrawingNumbers.add('${task.drawingNumber}');
+              });
+              map[entry.key] = TextButton(
+                child: Text('${entry.value}'),
+                onPressed: () {
+                  Get.defaultDialog(
+                    title: 'Assigned tasks',
+                    content: Column(
+                      children: taskDrawingNumbers
+                          .map(
+                            (taskDrawingNumber) => TextButton(
+                              onPressed: () {
+                                html.window.open('/#/following', '_blank');
+                              },
+                              child: Text(taskDrawingNumber),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  );
+                },
+              );
+              break;
+            default:
+              map[entry.key] = Text('${entry.value}');
+          }
+        });
+        return map;
+      },
+    ).toList();
   }
 
   List<String> getFieldValues(String fieldName) {

@@ -1,3 +1,4 @@
+import 'package:dops/modules/task_following/task_following_view.dart';
 import 'package:get/get.dart';
 
 import '../bindings/bindings.dart';
@@ -45,6 +46,11 @@ class AppPages {
       name: _Paths.TASKS,
       page: () => TaskView(),
       binding: TaskBinding(),
+    ),
+    GetPage(
+      name: _Paths.FOLLOWING,
+      page: () => TaskFollowingView(),
+      binding: TaskFollowingBinding(),
     ),
   ];
 }

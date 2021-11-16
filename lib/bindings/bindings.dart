@@ -78,3 +78,12 @@ class TaskBinding extends Bindings {
     );
   }
 }
+
+class TaskFollowingBinding extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut<TaskController>(
+      () => TaskController(),
+    );
+  }
+}

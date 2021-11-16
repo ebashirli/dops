@@ -8,8 +8,7 @@ class DropwdownSourcesRepository {
 
   Future<DropdownSourcesModel> getModel() async {
     QuerySnapshot result = await _api.getData();
-    DropdownSourcesModel model = DropdownSourcesModel.fromMap(
-        result.docs.first.data() as Map<String, dynamic>);
+    DropdownSourcesModel model = DropdownSourcesModel.fromMap(result.docs.first.data() as Map<String, dynamic>);
     return model;
   }
 
@@ -17,21 +16,21 @@ class DropwdownSourcesRepository {
     return _api.getDataAsStream().map(
       (QuerySnapshot query) {
         late DropdownSourcesModel returnValue;
-        if (query.docs.first.id.isNotEmpty) {
-          query.docs.forEach(
-            (snapshot) {
-              returnValue = DropdownSourcesModel.fromMap(
-                snapshot.data() as Map<String, dynamic>,
-              );
-            },
-          );
-        } else {}
+
+        query.docs.forEach(
+          (snapshot) {
+            returnValue = DropdownSourcesModel.fromMap(
+              snapshot.data() as Map<String, dynamic>,
+            );
+          },
+        );
+
         return returnValue;
       },
     );
   }
 
-  updateDropdownSourcesModel(DropdownSourcesModel data) async {
+  Future<void> updateDropdownSourcesModel(DropdownSourcesModel data) async {
     await _api.updateDocument(data.toMap(), data.id);
   }
 

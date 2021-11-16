@@ -1,15 +1,15 @@
 class DropdownSourcesModel {
   String id;
-  List<String>? companies;
-  List<String>? employeePlaces;
-  List<String>? jobTitles;
-  List<String>? levels;
-  List<String>? modules;
-  List<String>? projects;
-  List<String>? referenceTypes;
-  List<String>? statuses;
-  List<String>? structureTypes;
-  List<String>? systemDesignations;
+  List<dynamic>? companies;
+  List<dynamic>? employeePlaces;
+  List<dynamic>? jobTitles;
+  List<dynamic>? levels;
+  List<dynamic>? modules;
+  List<dynamic>? projects;
+  List<dynamic>? referenceTypes;
+  List<dynamic>? statuses;
+  List<dynamic>? structureTypes;
+  List<dynamic>? systemDesignations;
   DropdownSourcesModel({
     this.id = 'list',
     this.companies,
@@ -43,16 +43,16 @@ class DropdownSourcesModel {
   factory DropdownSourcesModel.fromMap(Map<String, dynamic> map) {
     return DropdownSourcesModel(
       id: 'list',
-      companies: map['companies'][0],
-      employeePlaces: map['employeePlaces'][0],
-      jobTitles: map['jobTitles'][0],
-      levels: map['levels'][0],
-      modules: map['modules'][0],
-      projects: map['projects'][0] ,
-      referenceTypes: map['referenceTypes'][0] ,
-      statuses: map['statuses'][0],
-      structureTypes: map['structureTypes'][0],
-      systemDesignations: map['systemDesignations'][0] ,
+      companies: map['companies'],
+      employeePlaces: map['employeePlaces'],
+      jobTitles: map['jobTitles'],
+      levels: map['levels'],
+      modules: map['modules'],
+      projects: map['projects'] ,
+      referenceTypes: map['referenceTypes'] ,
+      statuses: map['statuses'],
+      structureTypes: map['structureTypes'],
+      systemDesignations: map['systemDesignations'] ,
     );
   }
 }

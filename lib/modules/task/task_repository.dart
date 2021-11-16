@@ -21,7 +21,7 @@ class TaskRepository {
   }
 
   Stream<List<TaskModel>> getAllTasksAsStream() {
-    return _api.getDataAsStream().map((QuerySnapshot query) {
+    return _api.getShowingDataAsStream().map((QuerySnapshot query) {
       List<TaskModel> returnValue = [];
       query.docs.forEach(
         (snapshot) {

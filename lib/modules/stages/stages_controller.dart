@@ -10,12 +10,12 @@ import '../../components/custom_full_screen_dialog_widget.dart';
 import '../../components/custom_snackbar_widget.dart';
 import '../../components/custom_string_text_field_widget.dart';
 import '../../constants/style.dart';
-import 'staff_model.dart';
-import 'staff_repository.dart';
+import 'stages_model.dart';
+import 'stages_repository.dart';
 
-class StaffController extends GetxController {
-  final GlobalKey<FormState> staffFormKey = GlobalKey<FormState>();
-  final _repository = Get.find<StaffRepository>();
+class StagesController extends GetxController {
+  final GlobalKey<FormState> stagesFormKey = GlobalKey<FormState>();
+  final _repository = Get.find<StagesRepository>();
   late final dropdownSourcesController = Get.find<DropdownSourcesController>();
 
   late TextEditingController badgeNoController,
@@ -38,8 +38,8 @@ class StaffController extends GetxController {
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
 
-  RxList<StaffModel> _documents = RxList<StaffModel>([]);
-  List<StaffModel> get documents => _documents;
+  RxList<StagesModel> _documents = RxList<StagesModel>([]);
+  List<StagesModel> get documents => _documents;
 
   @override
   void onInit() {
@@ -60,33 +60,33 @@ class StaffController extends GetxController {
     startDate = DateTime.now();
     contractFinishDate = DateTime.now();
 
-    _documents.bindStream(_repository.getAllStaffAsStream());
+    _documents.bindStream(_repository.getAllStagesAsStream());
   }
 
-  saveDocument({required StaffModel model}) async {
+  saveDocument({required StagesModel model}) async {
     CustomFullScreenDialog.showDialog();
-    await _repository.addStaffModel(model);
+    await _repository.addStagesModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
   updateDocument({
-    required StaffModel model,
+    required StagesModel model,
   }) async {
-    final isValid = staffFormKey.currentState!.validate();
+    final isValid = stagesFormKey.currentState!.validate();
     if (!isValid) {
       return;
     }
-    staffFormKey.currentState!.save();
+    stagesFormKey.currentState!.save();
     //update
     CustomFullScreenDialog.showDialog();
-    await _repository.updateStaffModel(model);
+    await _repository.updateStagesModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
-  void deleteStaff(StaffModel data) {
-    _repository.removeStaffModel(data);
+  void deleteStages(StagesModel data) {
+    _repository.removeStagesModel(data);
   }
 
   @override
@@ -117,7 +117,7 @@ class StaffController extends GetxController {
     companyText = '';
   }
 
-  void fillEditingControllers(StaffModel model) {
+  void fillEditingControllers(StagesModel model) {
     badgeNoController.text = model.badgeNo;
     nameController.text = model.name;
     surnameController.text = model.surname;
@@ -158,7 +158,7 @@ class StaffController extends GetxController {
     }
   }
 
-  buildAddEdit({StaffModel? aModel}) {
+  buildAddEdit({StagesModel? aModel}) {
     if (aModel != null) {
       fillEditingControllers(aModel);
     } else {
@@ -169,7 +169,7 @@ class StaffController extends GetxController {
       barrierDismissible: false,
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: aModel == null ? 'Add staff' : 'Update staff',
+      title: aModel == null ? 'Add stages' : 'Update stages',
       content: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -181,7 +181,7 @@ class StaffController extends GetxController {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Form(
-            key: staffFormKey,
+            key: stagesFormKey,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Container(
               width: Get.width * .5,
@@ -306,7 +306,7 @@ class StaffController extends GetxController {
                         if (aModel != null)
                           ElevatedButton.icon(
                             onPressed: () {
-                              deleteStaff(aModel);
+                              deleteStages(aModel);
                               Get.back();
                             },
                             icon: Icon(Icons.delete),
@@ -324,7 +324,7 @@ class StaffController extends GetxController {
                         SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: () {
-                            StaffModel model = StaffModel(
+                            StagesModel model = StagesModel(
                               id: aModel != null ? aModel.id : null,
                               badgeNo: badgeNoController.text,
                               name: nameController.text,

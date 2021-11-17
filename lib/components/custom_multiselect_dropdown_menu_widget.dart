@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class CustomMultiselectDropdownMenu extends StatelessWidget {
-  late List<String> items;
+  late List<dynamic> items;
   final void Function(List<String>) onChanged;
   final String hint;
   final List<String> selectedItems;
@@ -33,7 +33,7 @@ class CustomMultiselectDropdownMenu extends StatelessWidget {
           ),
           mode: Mode.MENU,
           showSelectedItems: false,
-          items: items,
+          items: items.map((e) => e.toString()).toList(),
           showClearButton: true,
           onChanged: onChanged,
           popupSelectionWidget: (

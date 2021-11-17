@@ -7,7 +7,7 @@ class CustomDropdownMenu extends StatelessWidget {
   final dynamic Function(String?)? onChanged;
   final String? selectedItem;
   final double? width;
-  final List<String> items;
+  final List<dynamic> items;
 
   CustomDropdownMenu({
     Key? key,
@@ -30,7 +30,7 @@ class CustomDropdownMenu extends StatelessWidget {
               selectedItem: selectedItem,
               maxHeight: items.length * 50,
               mode: Mode.MENU,
-              items: items,
+              items: items.map((e) => e.toString()).toList(),
               dropdownSearchDecoration: InputDecoration(
                 contentPadding: EdgeInsets.only(left: 10),
                 labelText: labelText,

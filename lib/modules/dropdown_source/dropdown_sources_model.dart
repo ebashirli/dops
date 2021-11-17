@@ -10,6 +10,8 @@ class DropdownSourcesModel {
   List<dynamic>? statuses;
   List<dynamic>? structureTypes;
   List<dynamic>? systemDesignations;
+  List<dynamic>? functionalAreas;
+  List<dynamic>? areas;
   DropdownSourcesModel({
     this.id = 'list',
     this.companies,
@@ -22,11 +24,12 @@ class DropdownSourcesModel {
     this.statuses,
     this.structureTypes,
     this.systemDesignations,
+    this.functionalAreas,
+    this.areas,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      // 'docId': id,
       'companies': companies,
       'employeePlaces': employeePlaces,
       'jobTitles': jobTitles,
@@ -37,6 +40,8 @@ class DropdownSourcesModel {
       'statuses': statuses,
       'structureTypes': structureTypes,
       'systemDesignations': systemDesignations,
+      'functionalAreas': functionalAreas,
+      'areas': areas,
     };
   }
 
@@ -48,11 +53,13 @@ class DropdownSourcesModel {
       jobTitles: map['jobTitles'],
       levels: map['levels'],
       modules: map['modules'],
-      projects: map['projects'] ,
-      referenceTypes: map['referenceTypes'] ,
+      projects: map['projects'],
+      referenceTypes: map['referenceTypes'],
       statuses: map['statuses'],
       structureTypes: map['structureTypes'],
-      systemDesignations: map['systemDesignations'] ,
+      systemDesignations: map['systemDesignations'],
+      functionalAreas: map['functionalAreas'],
+      areas: map['areas'],
     );
   }
 }

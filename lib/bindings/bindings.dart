@@ -79,7 +79,7 @@ class TaskBinding extends Bindings {
   }
 }
 
-class TaskFollowingBinding extends Bindings {
+class StagesBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<TaskController>(

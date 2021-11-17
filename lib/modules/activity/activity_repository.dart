@@ -45,7 +45,6 @@ class ActivityRepository {
   removeActivityModel(ActivityModel data) async {
     data.isHidden = true;
     await _api.updateDocument(data.toMap(), data.id!);
-    ;
   }
 
   updateActivityModel(ActivityModel data, String id) async {
@@ -54,9 +53,5 @@ class ActivityRepository {
 
   addActivityModel(ActivityModel data) async {
     await _api.addDocument(data.toMap());
-  }
-
-  void incrementNumberOfAssignedDocumentField(activityCode) async {
-    await _api.incrementFiledValue('activity_code', [activityCode]);
   }
 }

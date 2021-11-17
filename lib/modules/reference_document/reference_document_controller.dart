@@ -1,16 +1,18 @@
 import 'dart:html' as html;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dops/constants/table_details.dart';
+import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:recase/recase.dart';
 
 import '../../components/custom_date_time_form_field_widget.dart';
 import '../../components/custom_dropdown_menu_widget.dart';
 import '../../components/custom_full_screen_dialog_widget.dart';
 import '../../components/custom_snackbar_widget.dart';
 import '../../components/custom_string_text_field_widget.dart';
-import '../../constants/lists.dart';
 import '../../constants/style.dart';
 import 'reference_document_model.dart';
 import 'reference_document_repository.dart';
@@ -19,6 +21,7 @@ class ReferenceDocumentController extends GetxController {
   final GlobalKey<FormState> referenceDocumentFormKey = GlobalKey<FormState>();
   final _repository = Get.find<ReferenceDocumentRepository>();
   late final taskController = Get.find<TaskController>();
+  late final dropdownSourcesController = Get.find<DropdownSourcesController>();
 
   late TextEditingController documentNumberController,
       revisionCodeController,
@@ -74,10 +77,6 @@ class ReferenceDocumentController extends GetxController {
 
   void deleteReferenceDocument(ReferenceDocumentModel data) {
     _repository.removeReferenceDocumentModel(data);
-  }
-
-  void incrementNumberOfAssignedDocumentField(List<String> designDrawing) {
-    _repository.incrementNumberOfAssignedDocumentField(designDrawing);
   }
 
   @override
@@ -166,7 +165,7 @@ class ReferenceDocumentController extends GetxController {
                       onChanged: (value) {
                         projectText = value ?? '';
                       },
-                      items: listsMap['Project']!,
+                      items: dropdownSourcesController.document.value.projects!,
                     ),
                     CustomDropdownMenu(
                       labelText: 'Module name',
@@ -174,7 +173,7 @@ class ReferenceDocumentController extends GetxController {
                       onChanged: (value) {
                         moduleNameText = value ?? '';
                       },
-                      items: listsMap['Module name']!,
+                      items: dropdownSourcesController.document.value.modules!,
                     ),
                     CustomDropdownMenu(
                       labelText: 'Reference Type',
@@ -182,7 +181,8 @@ class ReferenceDocumentController extends GetxController {
                       onChanged: (value) {
                         referenceTypeText = value ?? '';
                       },
-                      items: listsMap['Reference Type']!,
+                      items: dropdownSourcesController
+                          .document.value.referenceTypes!,
                     ),
                     CustomStringTextField(
                       controller: documentNumberController,
@@ -315,53 +315,55 @@ class ReferenceDocumentController extends GetxController {
     requiredActionNext.value = value!;
   }
 
-  List<Map<String, dynamic>> get getDataForTableView {
-    return documents.map(
-      (referenceDocument) {
-        Map<String, dynamic> map = {};
-        referenceDocument.toMap().entries.forEach((entry) {
-          switch (entry.key) {
-            case 'isHidden':
-              break;
-            case 'required_action_next':
-              map[entry.key] =
-                  entry.value == 0 ? Text('Action Required') : Text('Next');
-              break;
-            case 'assigned_documents_count':
-              final taskDrawingNumbers = [];
-              taskController.documents.forEach((task) {
-                if (task.designDrawings
-                    .contains(referenceDocument.documentNumber))
-                  taskDrawingNumbers.add('${task.drawingNumber}');
-              });
-              map[entry.key] = TextButton(
-                child: Text('${entry.value}'),
-                onPressed: () {
-                  Get.defaultDialog(
-                    title: 'Assigned tasks',
-                    content: Column(
-                      children: taskDrawingNumbers
-                          .map(
-                            (taskDrawingNumber) => TextButton(
-                              onPressed: () {
-                                html.window.open('/#/following', '_blank');
-                              },
-                              child: Text(taskDrawingNumber),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  );
-                },
-              );
-              break;
-            default:
-              map[entry.key] = Text('${entry.value}');
-          }
-        });
-        return map;
-      },
-    ).toList();
+  List<Map<String, Widget>> get getDataForTableView {
+    List<String> mapPropNames = tableColNames['reference document']!
+        .map((colName) => ReCase(colName).snakeCase)
+        .toList();
+
+    return documents.map((referenceDocument) {
+      Map<String, Widget> map = {};
+
+      mapPropNames.forEach((mapPropName) {
+        switch (mapPropName) {
+          case 'assigned_tasks':
+            final assignedTasks = [];
+            taskController.documents.forEach((task) {
+              if (task.designDrawings
+                  .contains(referenceDocument.documentNumber))
+                assignedTasks.add('${task.drawingNumber}');
+            });
+            map[mapPropName] = assignedTasks.length != 0
+                ? TextButton(
+                    child: Text('${assignedTasks.length}'),
+                    onPressed: () {
+                      Get.defaultDialog(
+                        title: 'Assigned tasks',
+                        content: Column(
+                          children: assignedTasks
+                              .map(
+                                (taskDrawingNumber) => TextButton(
+                                  onPressed: () {
+                                    html.window.open('/#/stages', '_blank');
+                                  },
+                                  child: Text(taskDrawingNumber),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      );
+                    },
+                  )
+                : Text('0');
+
+            break;
+          default:
+            map[mapPropName] =
+                Text('${referenceDocument.toMap()[mapPropName]}');
+            break;
+        }
+      });
+      return map;
+    }).toList();
   }
 
   List<String> getFieldValues(String fieldName) {

@@ -10,7 +10,6 @@ class ActivityModel {
   DateTime? startDate;
   DateTime? finishDate;
   double? cumulative;
-  int? assignedDocumentsCount;
   bool isHidden;
 
   ActivityModel({
@@ -25,7 +24,6 @@ class ActivityModel {
     this.startDate,
     this.finishDate,
     this.cumulative = 0,
-    this.assignedDocumentsCount = 0,
     this.isHidden = false,
   });
 
@@ -41,7 +39,6 @@ class ActivityModel {
       'start_date': startDate,
       'finish_date': finishDate,
       'cumulative': cumulative,
-      'assigned_documents_count': assignedDocumentsCount,
       'isHidden': isHidden,
     };
   }
@@ -63,7 +60,6 @@ class ActivityModel {
       finishDate:
           map['finish_date'] != null ? map['finish_date'].toDate() : null,
       cumulative: map['cumulative'],
-      assignedDocumentsCount: map['assigned_documents_count'],
       isHidden: map['isHidden'] != null ? map['isHidden'] : null,
     );
   }

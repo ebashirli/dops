@@ -9,7 +9,7 @@ abstract class Routes {
   static const DROPDOWN_SOURCE_LISTS = _Paths.DROPDOWN_SOURCE_LISTS;
   static const STAFF = _Paths.STAFF;
   static const TASKS = _Paths.TASKS;
-  static const FOLLOWING = _Paths.FOLLOWING;
+  static const STAGES = _Paths.STAGES;
 }
 
 abstract class _Paths {
@@ -19,5 +19,5 @@ abstract class _Paths {
   static const DROPDOWN_SOURCE_LISTS = '/dropdown_source_lists';
   static const STAFF = '/staff';
   static const TASKS = '/tasks';
-  static const FOLLOWING = '/following';
+  static const STAGES = '/stages';
 }

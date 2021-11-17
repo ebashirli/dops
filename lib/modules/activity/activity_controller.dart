@@ -1,9 +1,11 @@
 import 'dart:html' as html;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:recase/recase.dart';
 
 import '../../components/custom_date_time_form_field_widget.dart';
 import '../../components/custom_dropdown_menu_widget.dart';
@@ -11,7 +13,6 @@ import '../../components/custom_full_screen_dialog_widget.dart';
 import '../../components/custom_number_text_field_widget.dart';
 import '../../components/custom_string_text_field_widget.dart';
 import '../../components/custom_snackbar_widget.dart';
-import '../../constants/lists.dart';
 import '../../constants/style.dart';
 import '../../constants/table_details.dart';
 import 'activity_model.dart';
@@ -21,6 +22,7 @@ class ActivityController extends GetxController {
   final GlobalKey<FormState> activityFormKey = GlobalKey<FormState>();
   final _repository = Get.find<ActivityRepository>();
   late final taskController = Get.find<TaskController>();
+  late final dropdownSourcesController = Get.find<DropdownSourcesController>();
 
   late TextEditingController activityIdController,
       activityNameController,
@@ -82,10 +84,6 @@ class ActivityController extends GetxController {
 
   void deleteActivity(ActivityModel data) {
     _repository.removeActivityModel(data);
-  }
-
-  void incrementNumberOfAssignedDocumentField(List<String> activityId) {
-    _repository.incrementNumberOfAssignedDocumentField(activityId);
   }
 
   @override
@@ -178,7 +176,7 @@ class ActivityController extends GetxController {
                         moduleNameText = value ?? '';
                       },
                       selectedItem: moduleNameText,
-                      items: listsMap['Module name']!,
+                      items: dropdownSourcesController.document.value.modules!,
                     ),
                     CustomNumberTextField(
                       controller: coefficientController,
@@ -260,42 +258,49 @@ class ActivityController extends GetxController {
     );
   }
 
-  List<Map<String, dynamic>> get getDataForTableView {
-    return documents.map((activityCode) {
-      Map<String, dynamic> map = {};
-      activityCode.toMap().entries.forEach((entry) {
-        switch (entry.key) {
-          case 'isHidden':
-            break;
-          case 'assigned_documents_count':
-            final taskDrawingNumbers = [];
+  List<Map<String, Widget>> get getDataForTableView {
+    List<String> mapPropNames = tableColNames['activity']!
+        .map((colName) => ReCase(colName).snakeCase)
+        .toList();
+
+    return documents.map((activityModel) {
+      Map<String, Widget> map = {};
+
+      mapPropNames.forEach((mapPropName) {
+        switch (mapPropName) {
+          case 'assigned_tasks':
+            final assignedTasks = [];
             taskController.documents.forEach((task) {
-              if (task.activityCode == activityCode.activityId)
-                taskDrawingNumbers.add('${task.drawingNumber}');
+              if (task.activityCode == activityModel.activityId)
+                assignedTasks.add('${task.drawingNumber}');
             });
-            map[entry.key] = TextButton(
-              child: Text('${entry.value}'),
-              onPressed: () {
-                Get.defaultDialog(
-                  title: 'Assigned tasks',
-                  content: Column(
-                    children: taskDrawingNumbers
-                        .map(
-                          (taskDrawingNumber) => TextButton(
-                            onPressed: () {
-                              html.window.open('/#/following', '_blank');
-                            },
-                            child: Text(taskDrawingNumber),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                );
-              },
-            );
+            map[mapPropName] = assignedTasks.length != 0
+                ? TextButton(
+                    child: Text('${assignedTasks.length}'),
+                    onPressed: () {
+                      Get.defaultDialog(
+                        title: 'Assigned tasks',
+                        content: Column(
+                          children: assignedTasks
+                              .map(
+                                (taskDrawingNumber) => TextButton(
+                                  onPressed: () {
+                                    html.window.open('/#/stages', '_blank');
+                                  },
+                                  child: Text(taskDrawingNumber),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      );
+                    },
+                  )
+                : Text('0');
+
             break;
           default:
-            map[entry.key] = Text('${entry.value}');
+            map[mapPropName] = Text('${activityModel.toMap()[mapPropName]}');
+            break;
         }
       });
       return map;

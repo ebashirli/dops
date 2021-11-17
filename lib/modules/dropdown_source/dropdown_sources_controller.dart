@@ -1,3 +1,4 @@
+import 'package:dops/constants/lists.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:recase/recase.dart';
@@ -7,7 +8,8 @@ import 'dropdown_sources_repository.dart';
 import 'package:get/get.dart';
 
 class DropdownSourcesController extends GetxController {
-  DropwdownSourcesRepository _repository = Get.find<DropwdownSourcesRepository>();
+  DropwdownSourcesRepository _repository =
+      Get.find<DropwdownSourcesRepository>();
   late Rx<DropdownSourcesModel> document;
   Rx<States> state = States.Loading.obs;
   RxString choosenList = 'Companies'.obs;
@@ -23,31 +25,21 @@ class DropdownSourcesController extends GetxController {
     document.bindStream(_repository.getModelAsStream());
   }
 
-  List<String> get listNames => [
-        'Companies',
-        'Employee Places',
-        'Job Titles',
-        'Levels',
-        'Modules',
-        'Projects',
-        'Reference Types',
-        'Statuses',
-        'Structure Types',
-        'System Designations'
-      ];
   Future<void> updateModel(DropdownSourcesModel model) async {
     await _repository.updateDropdownSourcesModel(model);
   }
 
   addNewItem() {
     map = document.value.toMap();
-    map[ReCase(choosenList.value).camelCase] = map[ReCase(choosenList.value).camelCase]..add(textController.text);
+    map[ReCase(choosenList.value).camelCase] =
+        map[ReCase(choosenList.value).camelCase]..add(textController.text);
     newAddedList.add({choosenList.value: textController.text});
     textController.clear();
   }
 
   deleteItem(element, index) {
-    map[ReCase(element.keys.first).camelCase] = map[ReCase(element.keys.first).camelCase]..remove(element.values.first);
+    map[ReCase(element.keys.first).camelCase] =
+        map[ReCase(element.keys.first).camelCase]..remove(element.values.first);
     newAddedList.removeAt(index);
   }
 
@@ -73,7 +65,10 @@ class DropdownSourcesController extends GetxController {
                   isDense: true,
                   contentPadding: EdgeInsets.only(left: 8, bottom: 4),
                   alignLabelWithHint: true,
-                  suffix: IconButton(splashRadius: 16, onPressed: addNewItem, icon: Icon(Icons.add)),
+                  suffix: IconButton(
+                      splashRadius: 16,
+                      onPressed: addNewItem,
+                      icon: Icon(Icons.add)),
                   border: OutlineInputBorder(
                     borderSide: BorderSide(
                       color: Colors.grey,
@@ -130,7 +125,8 @@ class DropdownSourcesController extends GetxController {
       padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       margin: EdgeInsets.all(2),
       // alignment: Alignment.center,
-      decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+          color: Colors.grey[200], borderRadius: BorderRadius.circular(12)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         mainAxisSize: MainAxisSize.min,
@@ -142,10 +138,14 @@ class DropdownSourcesController extends GetxController {
             children: <Widget>[
               Text(
                 element.keys.first.toString(),
-                style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600),
               ),
               SizedBox(height: 4),
-              Text(element.values.first.toString(), style: TextStyle(color: Colors.black, fontSize: 14)),
+              Text(element.values.first.toString(),
+                  style: TextStyle(color: Colors.black, fontSize: 14)),
             ],
           ),
           Align(

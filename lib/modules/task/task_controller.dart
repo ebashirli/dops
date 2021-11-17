@@ -1,6 +1,7 @@
 import 'dart:html' as html;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import '../../components/custom_multiselect_dropdown_menu_widget.dart';
 import '../../components/custom_string_text_field_widget.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,6 @@ import 'package:get/get.dart';
 import '../../components/custom_dropdown_menu_widget.dart';
 import '../../components/custom_full_screen_dialog_widget.dart';
 import '../../components/custom_snackbar_widget.dart';
-import '../../constants/lists.dart';
 import '../../constants/style.dart';
 import '../activity/activity_controller.dart';
 import '../reference_document/reference_document_controller.dart';
@@ -21,6 +21,7 @@ class TaskController extends GetxController {
   final _repository = Get.find<TaskRepository>();
   final activityController = Get.find<ActivityController>();
   final referenceDocumentController = Get.find<ReferenceDocumentController>();
+  final dropdownSourcesController = Get.find<DropdownSourcesController>();
 
   late TextEditingController drawingNumberController,
       coverSheetRevisionController,
@@ -56,10 +57,6 @@ class TaskController extends GetxController {
 
   saveDocument({required TaskModel model}) async {
     CustomFullScreenDialog.showDialog();
-    referenceDocumentController
-        .incrementNumberOfAssignedDocumentField(model.designDrawings);
-    activityController
-        .incrementNumberOfAssignedDocumentField([model.activityCode]);
     model.taskCreateDate = DateTime.now();
     await _repository.addTaskModel(model);
     CustomFullScreenDialog.cancelDialog();
@@ -195,7 +192,8 @@ class TaskController extends GetxController {
                             onChanged: (value) {
                               projectText = value ?? '';
                             },
-                            items: listsMap['Project']!,
+                            items: dropdownSourcesController
+                                .document.value.projects!,
                           ),
                           CustomStringTextField(
                             controller: drawingNumberController,
@@ -215,7 +213,8 @@ class TaskController extends GetxController {
                             onChanged: (value) {
                               moduleNameText = value ?? '';
                             },
-                            items: listsMap['Module name']!,
+                            items: dropdownSourcesController
+                                .document.value.modules!,
                           ),
                           CustomDropdownMenu(
                             labelText: 'Level',
@@ -223,11 +222,13 @@ class TaskController extends GetxController {
                             onChanged: (value) {
                               levelText = value ?? '';
                             },
-                            items: listsMap['Level']!,
+                            items: dropdownSourcesController
+                                .document.value.levels!,
                           ),
                           CustomMultiselectDropdownMenu(
                             hint: 'Area',
-                            items: listsMap['Area']!,
+                            items:
+                                dropdownSourcesController.document.value.areas!,
                             onChanged: (values) => areaList = values,
                             selectedItems: areaList,
                           ),
@@ -237,7 +238,8 @@ class TaskController extends GetxController {
                             onChanged: (value) {
                               functionalAreaText = value ?? '';
                             },
-                            items: listsMap['Functional Area']!,
+                            items: dropdownSourcesController
+                                .document.value.functionalAreas!,
                           ),
                           CustomDropdownMenu(
                             labelText: 'Structure Type',
@@ -245,7 +247,8 @@ class TaskController extends GetxController {
                             onChanged: (value) {
                               structureTypeText = value ?? '';
                             },
-                            items: listsMap['Structure Type']!,
+                            items: dropdownSourcesController
+                                .document.value.structureTypes!,
                           ),
                           CustomMultiselectDropdownMenu(
                             hint: 'Design Drawing',
@@ -338,7 +341,7 @@ class TaskController extends GetxController {
             map[entry.key] = TextButton(
               child: Text('${entry.value}'),
               onPressed: () {
-                html.window.open('/#/following', '_blank');
+                html.window.open('/#/stages', '_blank');
               },
             );
             break;

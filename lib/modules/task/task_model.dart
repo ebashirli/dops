@@ -1,23 +1,23 @@
 class TaskModel {
   String? id;
+  int? priority;
   String activityCode;
   String drawingNumber;
+  String coverSheetRevision;
+  String drawingTitle;
+  String module;
+  bool? issueType;
+  int? revisionNumber;
+  double? percentage;
+  bool? revisionStatus;
+  String level;
+  String structureType;
   List<String> area;
   int? changeNumber;
-  String coverSheetRevision;
   List<String> designDrawings;
-  String drawingTitle;
   String functionalArea;
-  bool? isRevised;
-  String level;
-  String moduleName;
   String note;
-  double? percentage;
-  int? priority;
   String project;
-  bool? isRevisionStatusLatest;
-  int? revisionNumber;
-  String structureType;
   DateTime? taskCreateDate;
   bool isHidden;
 
@@ -31,14 +31,14 @@ class TaskModel {
     required this.designDrawings,
     required this.drawingTitle,
     required this.functionalArea,
-    this.isRevised = false,
+    this.issueType = false,
     required this.level,
-    required this.moduleName,
+    required this.module,
     required this.note,
     this.percentage,
     this.priority,
     required this.project,
-    this.isRevisionStatusLatest = true,
+    this.revisionStatus = true,
     this.revisionNumber,
     required this.structureType,
     this.taskCreateDate,
@@ -47,56 +47,58 @@ class TaskModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'priority': priority,
       'activityCode': activityCode,
+      'project': project,
       'drawingNumber': drawingNumber,
       'coverSheetRevision': coverSheetRevision,
       'drawingTitle': drawingTitle,
-      'moduleName': moduleName,
-      'isRevised': isRevised,
-      'revisionNumber': revisionNumber,
-      'percentage': percentage,
-      'isRevisionStatusLatest': isRevisionStatusLatest,
+      'module': module,
       'level': level,
-      'structureType': structureType,
-      'designDrawing': designDrawings,
-      'changeNumber': changeNumber,
       'area': area,
-      'taskCreateDate': taskCreateDate,
       'functionalArea': functionalArea,
+      'structureType': structureType,
+      'designDrawings': designDrawings,
       'note': note,
-      'project': project,
       'isHidden': isHidden,
+
+      // 'taskCreateDate': taskCreateDate,
+      // 'priority': priority,
+      // 'isRevised': isRevised,
+      // 'revisionNumber': revisionNumber,
+      // 'percentage': percentage,
+      // 'isRevisionStatusLatest': isRevisionStatusLatest,
+      // 'changeNumber': changeNumber,
     };
   }
 
   factory TaskModel.fromMap(Map<String, dynamic> map, String? id) {
     return TaskModel(
       id: id ?? null,
-      priority: map['priority'] != null ? map['priority'] : null,
       activityCode: map['activityCode'],
+      project: map['project'],
       drawingNumber: map['drawingNumber'],
       coverSheetRevision: map['coverSheetRevision'],
       drawingTitle: map['drawingTitle'],
-      moduleName: map['moduleName'],
-      isRevised: map['isRevised'] != null ? map['isRevised'] : null,
-      revisionNumber:
-          map['revisionNumber'] != null ? map['revisionNumber'] : null,
-      percentage: map['percentage'] != null ? map['percentage'] : null,
-      isRevisionStatusLatest: map['isRevisionStatusLatest'] != null
-          ? map['isRevisionStatusLatest']
-          : null,
+      module: map['module'],
       level: map['level'],
+      area: List<String>.from(map['area']),
+      functionalArea: map['functionalArea'],
       structureType: map['structureType'],
-      changeNumber: map['changeNumber'] != null ? map['changeNumber'] : null,
+      designDrawings: List<String>.from(map['designDrawings']),
+      note: map['note'],
       taskCreateDate:
           map['taskCreateDate'] != null ? map['taskCreateDate'].toDate() : null,
-      functionalArea: map['functionalArea'],
-      note: map['note'],
-      project: map['project'],
-      area: List<String>.from(map['area']),
-      designDrawings: List<String>.from(map['designDrawing']),
       isHidden: map['isHidden'] != null ? map['isHidden'] : null,
+
+      // priority: map['priority'] != null ? map['priority'] : null,
+      // isRevised: map['isRevised'] != null ? map['isRevised'] : null,
+      // revisionNumber:
+      //     map['revisionNumber'] != null ? map['revisionNumber'] : null,
+      // percentage: map['percentage'] != null ? map['percentage'] : null,
+      // isRevisionStatusLatest: map['isRevisionStatusLatest'] != null
+      //     ? map['isRevisionStatusLatest']
+      //     : null,
+      // changeNumber: map['changeNumber'] != null ? map['changeNumber'] : null,
     );
   }
 }

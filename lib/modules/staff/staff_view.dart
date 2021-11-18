@@ -7,7 +7,7 @@ import 'staff_controller.dart';
 class StaffView extends StatelessWidget {
   final controller = Get.find<StaffController>();
   final tableName = 'staff';
-  late final List<Map<String, dynamic>> documents;
+  late final List<Map<String, Widget>> documents;
 
   @override
   Widget build(BuildContext context) {

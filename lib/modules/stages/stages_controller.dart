@@ -29,7 +29,7 @@ class StagesController extends GetxController {
       noteController;
 
   late List<String> areaList = [];
-  late List<String> designDrawingList = [];
+  late List<String> designDrawingsList = [];
 
   late String activityCodeText,
       projectText,
@@ -106,7 +106,7 @@ class StagesController extends GetxController {
     functionalAreaText = '';
     structureTypeText = '';
 
-    designDrawingList = [];
+    designDrawingsList = [];
     areaList = [];
   }
 
@@ -161,7 +161,7 @@ class StagesController extends GetxController {
                             activityCodeText = value ?? '';
                           },
                           items:
-                              activityController.getFieldValues('activity_id'),
+                              activityController.getFieldValues('activityId'),
                         ),
                         CustomDropdownMenu(
                           labelText: 'Project',
@@ -178,7 +178,7 @@ class StagesController extends GetxController {
                         ),
                         CustomStringTextField(
                           controller: coverSheetRevisionController,
-                          labelText: 'First Sheet Revision',
+                          labelText: 'Cover Sheet Revision',
                         ),
                         CustomStringTextField(
                           controller: drawingTitleController,
@@ -203,7 +203,7 @@ class StagesController extends GetxController {
                               dropdownSourcesController.document.value.levels!,
                         ),
                         CustomMultiselectDropdownMenu(
-                          hint: 'Area',
+                          labelText: 'Area',
                           items:
                               dropdownSourcesController.document.value.areas!,
                           onChanged: (values) => areaList = values,
@@ -228,11 +228,11 @@ class StagesController extends GetxController {
                               .document.value.structureTypes!,
                         ),
                         CustomMultiselectDropdownMenu(
-                          hint: 'Design Drawing',
+                          labelText: 'Design Drawing',
                           items: referenceDocumentController
-                              .getFieldValues('document_number'),
-                          onChanged: (values) => designDrawingList = values,
-                          selectedItems: designDrawingList,
+                              .getFieldValues('documentNumber'),
+                          onChanged: (values) => designDrawingsList = values,
+                          selectedItems: designDrawingsList,
                         ),
                         CustomStringTextField(
                           controller: noteController,
@@ -251,12 +251,12 @@ class StagesController extends GetxController {
                           TaskModel model = TaskModel(
                             activityCode: activityCodeText,
                             drawingNumber: drawingNumberController.text,
-                            designDrawings: designDrawingList,
+                            designDrawings: designDrawingsList,
                             drawingTitle: drawingTitleController.text,
                             coverSheetRevision:
                                 coverSheetRevisionController.text,
                             level: levelText,
-                            moduleName: moduleNameText,
+                            module: moduleNameText,
                             structureType: structureTypeText,
                             note: noteController.text,
                             area: areaList,

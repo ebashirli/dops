@@ -64,10 +64,14 @@ class TableView extends StatelessWidget {
                 }
               },
               onCellDoubleTap: (details) {
-                controller.buildAddEdit(
-                  id: controller
-                      .documents[details.rowColumnIndex.rowIndex - 1].id,
-                );
+                String idCellValue = dataSource
+                    .rows[details.rowColumnIndex.rowIndex - 1]
+                    .getCells()[0]
+                    .value
+                    .toString();
+                idCellValue = idCellValue.substring(6, idCellValue.length - 2);
+
+                controller.buildAddEdit(id: idCellValue);
               },
             ),
           ],
@@ -90,49 +94,62 @@ class TableView extends StatelessWidget {
   }
 
   getColumns(List<String> colNames) {
-    return colNames
-        .map(
-          (colName) => GridColumn(
-            columnWidthMode: ColumnWidthMode.auto,
-            columnName: colName.toLowerCase(),
-            autoFitPadding: const EdgeInsets.all(8.0),
-            label: Center(
-              child: Container(
-                decoration: BoxDecoration(),
-                alignment: Alignment.center,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    colName,
-                    style: TextStyle(fontWeight: FontWeight.bold),
+    return colNames.map(
+      (colName) {
+        switch (colName) {
+          case 'id':
+            return GridColumn(
+              columnName: colName,
+              width: 200,
+              label: Text(
+                colName,
+              ),
+            );
+          default:
+            return GridColumn(
+              columnWidthMode: ColumnWidthMode.auto,
+              columnName: colName.toLowerCase(),
+              autoFitPadding: const EdgeInsets.all(8.0),
+              label: Center(
+                child: Container(
+                  decoration: BoxDecoration(),
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      colName,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-        )
-        .toList();
+            );
+        }
+      },
+    ).toList();
   }
 }
 
 List<DataGridRow> _data = [];
 
 class DataSource extends DataGridSource {
-  DataSource({required List<Map<String, dynamic>> data}) {
-    _data = data
-        .map<DataGridRow>(
-          (map) => DataGridRow(
-            cells: map.entries
-                .map(
-                  (entry) => DataGridCell<Widget>(
-                    columnName: entry.key,
-                    value: entry.value,
-                  ),
-                )
-                .toList(),
-          ),
-        )
-        .toList();
+  DataSource({required List<Map<String, Widget>> data}) {
+    _data = data.map<DataGridRow>(
+      (map) {
+        return DataGridRow(
+          cells: map.entries.map(
+            (entry) {
+              return DataGridCell<Widget>(
+                columnName: entry.key,
+                value: entry.value,
+              );
+            },
+          ).toList(),
+        );
+      },
+    ).toList();
   }
 
   @override
@@ -141,16 +158,17 @@ class DataSource extends DataGridSource {
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     return DataGridRowAdapter(
-        cells: row.getCells().map<Widget>(
-      (e) {
-        return Container(
-          alignment: Alignment.center,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(child: e.value),
-          ),
-        );
-      },
-    ).toList());
+      cells: row.getCells().map<Widget>(
+        (cell) {
+          return Container(
+            alignment: Alignment.center,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(child: cell.value),
+            ),
+          );
+        },
+      ).toList(),
+    );
   }
 }

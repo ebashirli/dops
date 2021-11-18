@@ -47,24 +47,23 @@ class StaffModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'badge_no': badgeNo,
+      'badgeNo': badgeNo,
       'name': name,
       'surname': surname,
       'patronymic': patronymic,
-      'full_name': fullName,
       'initial': initial,
-      'system_designation': systemDesignation,
-      'job_title': jobTitle,
+      'systemDesignation': systemDesignation,
+      'jobTitle': jobTitle,
       'email': email,
       'company': company,
-      'date_of_birth': dateOfBirth,
-      'home_address': homeAddress,
-      'start_date': startDate,
-      'current_place': currentPlace,
-      'contract_finish_date': contractFinishDate,
+      'dateOfBirth': dateOfBirth,
+      'homeAddress': homeAddress,
+      'startDate': startDate,
+      'currentPlace': currentPlace,
+      'contractFinishDate': contractFinishDate,
       'contact': contact,
-      'emergency_contact': emergencyContact,
-      'emergency_contact_name': emergencyContactName,
+      'emergencyContact': emergencyContact,
+      'emergencyContactName': emergencyContactName,
       'note': note,
       'isHidden': isHidden,
     };
@@ -76,27 +75,26 @@ class StaffModel {
   ) {
     return StaffModel(
       id: id ?? '',
-      badgeNo: map['badge_no'],
+      badgeNo: map['badgeNo'],
       name: map['name'],
       surname: map['surname'],
       patronymic: map['patronymic'],
-      fullName: map['full_name'],
       initial: map['initial'],
-      systemDesignation: map['system_designation'],
-      jobTitle: map['job_title'],
+      systemDesignation: map['systemDesignation'],
+      jobTitle: map['jobTitle'],
       email: map['email'],
       company: map['company'],
       dateOfBirth:
-          map['date_of_birth'] != null ? map['date_of_birth'].toDate() : null,
-      homeAddress: map['home_address'],
-      startDate: map['start_date'] != null ? map['start_date'].toDate() : null,
-      currentPlace: map['current_place'],
-      contractFinishDate: map['contract_finish_date'] != null
-          ? map['contract_finish_date'].toDate()
+          map['dateOfBirth'] != null ? map['dateOfBirth'].toDate() : null,
+      homeAddress: map['homeAddress'],
+      startDate: map['startDate'] != null ? map['startDate'].toDate() : null,
+      currentPlace: map['currentPlace'],
+      contractFinishDate: map['contractFinishDate'] != null
+          ? map['contractFinishDate'].toDate()
           : null,
       contact: map['contact'],
-      emergencyContact: map['emergency_contact'],
-      emergencyContactName: map['emergency_contact_name'],
+      emergencyContact: map['emergencyContact'],
+      emergencyContactName: map['emergencyContactName'],
       note: map['note'],
       isHidden: map['isHidden'] != null ? map['isHidden'] : null,
     );

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dops/constants/table_details.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
@@ -30,10 +31,10 @@ class StaffController extends GetxController {
       emergencyContactNameController,
       noteController;
   late DateTime dateOfBirth, startDate, contractFinishDate;
-  String currentPlaceText = '';
-  String systemDesignationText = '';
-  String jobTitleText = '';
-  String companyText = '';
+  late String currentPlaceText,
+      systemDesignationText,
+      jobTitleText,
+      companyText;
 
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
@@ -49,16 +50,19 @@ class StaffController extends GetxController {
     surnameController = TextEditingController();
     patronymicController = TextEditingController();
     initialController = TextEditingController();
+    dateOfBirth = DateTime.now();
+    companyText = '';
+    systemDesignationText = '';
+    jobTitleText = '';
     emailController = TextEditingController();
     homeAddressController = TextEditingController();
+    currentPlaceText = '';
+    contractFinishDate = DateTime.now();
+    startDate = DateTime.now();
     contactController = TextEditingController();
     emergencyContactController = TextEditingController();
     emergencyContactNameController = TextEditingController();
     noteController = TextEditingController();
-
-    dateOfBirth = DateTime.now();
-    startDate = DateTime.now();
-    contractFinishDate = DateTime.now();
 
     _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
@@ -128,10 +132,10 @@ class StaffController extends GetxController {
     initialController.text = model.initial;
     emailController.text = model.email;
     homeAddressController.text = model.homeAddress;
-    contactController.text = model.currentPlace;
-    emergencyContactController.text = model.contact;
-    emergencyContactNameController.text = model.emergencyContact;
-    noteController.text = model.emergencyContactName;
+    contactController.text = model.contact;
+    emergencyContactController.text = model.emergencyContact;
+    emergencyContactNameController.text = model.emergencyContactName;
+    noteController.text = model.note;
 
     dateOfBirth = model.dateOfBirth;
     startDate = model.startDate;
@@ -215,7 +219,7 @@ class StaffController extends GetxController {
                           ),
                           CustomStringTextField(
                             controller: initialController,
-                            labelText: 'Initial (Unique)',
+                            labelText: 'Initial',
                           ),
                           CustomDateTimeFormField(
                             labelText: 'Date of Birth',
@@ -267,7 +271,7 @@ class StaffController extends GetxController {
                             labelText: 'Home Address',
                           ),
                           CustomDropdownMenu(
-                            labelText: 'Employee place',
+                            labelText: 'Current place',
                             selectedItem: currentPlaceText,
                             onChanged: (value) {
                               currentPlaceText = value ?? '';
@@ -371,26 +375,38 @@ class StaffController extends GetxController {
     );
   }
 
-  List<Map<String, dynamic>> get getDataForTableView {
-    return _documents.map((document) {
-      Map<String, dynamic> map = {};
-      document.toMap().entries.forEach((entry) {
-        switch (entry.key) {
+  List<Map<String, Widget>> get getDataForTableView {
+    List<String> mapPropNames = mapPropNamesGetter('staff');
+
+    return documents.map((staffMember) {
+      Map<String, Widget> map = {};
+      mapPropNames.forEach((mapPropName) {
+        switch (mapPropName) {
+          case 'id':
+            map[mapPropName] = Text(staffMember.id!);
+            break;
           case 'isHidden':
             break;
-          case 'full_name':
-            map[entry.key] =
-                '${map['name']} ${map['surname']} ${map['patronymic']}';
+          case 'fullName':
+            map[mapPropName] = Text(
+              '${staffMember.name} ${staffMember.surname} ${staffMember.patronymic}',
+            );
             break;
-          case 'date_of_birth':
-          case 'start_date':
-          case 'contract_finish_date':
-            map[entry.key] = entry.value.toString().substring(0, 10);
+          case 'dateOfBirth':
+          case 'startDate':
+          case 'contractFinishDate':
+            map[mapPropName] = Text(
+              '${staffMember.toMap()[mapPropName].toString().substring(0, 10)}',
+            );
             break;
           default:
-            map[entry.key] = entry.value.toString();
+            map[mapPropName] = Text(
+              '${staffMember.toMap()[mapPropName]}',
+            );
+            break;
         }
       });
+
       return map;
     }).toList();
   }

@@ -3,8 +3,8 @@ class ActivityModel {
   String? activityId;
   String? activityName;
   String? moduleName;
-  int? priority;
-  int? coefficient;
+  int priority;
+  int coefficient;
   double? currentPriority;
   double? budgetedLaborUnits;
   DateTime? startDate;
@@ -17,7 +17,7 @@ class ActivityModel {
     this.activityId,
     this.activityName,
     this.moduleName,
-    this.priority,
+    this.priority = 0,
     this.coefficient = 1,
     this.currentPriority,
     this.budgetedLaborUnits,
@@ -29,14 +29,14 @@ class ActivityModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'activity_name': activityName,
-      'module_name': moduleName,
+      'activityId': activityId,
+      'activityName': activityName,
+      'moduleName': moduleName,
       'priority': priority,
       'coefficient': coefficient,
-      'current_priority': currentPriority,
-      'budgeted_labor_units': budgetedLaborUnits,
-      'start_date': startDate,
-      'finish_date': finishDate,
+      'budgetedLaborUnits': budgetedLaborUnits,
+      'startDate': startDate,
+      'finishDate': finishDate,
       'cumulative': cumulative,
       'isHidden': isHidden,
     };
@@ -48,16 +48,14 @@ class ActivityModel {
   ) {
     return ActivityModel(
       id: id,
-      activityId: map['activity_id'],
-      activityName: map['activity_name'],
-      moduleName: map['module_name'],
+      activityId: map['activityId'],
+      activityName: map['activityName'],
+      moduleName: map['moduleName'],
       priority: map['priority'],
       coefficient: map['coefficient'],
-      currentPriority: map['current_priority'],
-      budgetedLaborUnits: map['budgeted_labor_units'],
-      startDate: map['start_date'] != null ? map['start_date'].toDate() : null,
-      finishDate:
-          map['finish_date'] != null ? map['finish_date'].toDate() : null,
+      budgetedLaborUnits: map['budgetedLaborUnits'],
+      startDate: map['startDate'] != null ? map['startDate'].toDate() : null,
+      finishDate: map['finishDate'] != null ? map['finishDate'].toDate() : null,
       cumulative: map['cumulative'],
       isHidden: map['isHidden'] != null ? map['isHidden'] : null,
     );

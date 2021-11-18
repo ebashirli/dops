@@ -1,6 +1,7 @@
 import 'dart:html' as html;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dops/constants/table_details.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import '../../components/custom_multiselect_dropdown_menu_widget.dart';
 import '../../components/custom_string_text_field_widget.dart';
@@ -69,6 +70,7 @@ class TaskController extends GetxController {
     required TaskModel updatedModel,
     required String id,
   }) async {
+    // TODO: move following line to Add/update button if it is relevant
     final isValid = taskFormKeyOnStages.currentState!.validate();
     if (!isValid) {
       return;
@@ -117,7 +119,7 @@ class TaskController extends GetxController {
 
     activityCodeText = model.activityCode;
     projectText = model.project;
-    moduleNameText = model.moduleName;
+    moduleNameText = model.module;
     levelText = model.level;
     functionalAreaText = model.functionalArea;
     structureTypeText = model.structureType;
@@ -188,8 +190,8 @@ class TaskController extends GetxController {
                             onChanged: (value) {
                               activityCodeText = value ?? '';
                             },
-                            items: activityController
-                                .getFieldValues('activity_id'),
+                            items:
+                                activityController.getFieldValues('activityId'),
                           ),
                           CustomDropdownMenu(
                             labelText: 'Project',
@@ -206,7 +208,7 @@ class TaskController extends GetxController {
                           ),
                           CustomStringTextField(
                             controller: coverSheetRevisionController,
-                            labelText: 'First Sheet Revision',
+                            labelText: 'Cover Sheet Revision',
                           ),
                           CustomStringTextField(
                             controller: drawingTitleController,
@@ -231,7 +233,7 @@ class TaskController extends GetxController {
                                 .document.value.levels!,
                           ),
                           CustomMultiselectDropdownMenu(
-                            hint: 'Area',
+                            labelText: 'Area',
                             items:
                                 dropdownSourcesController.document.value.areas!,
                             onChanged: (values) => areaList = values,
@@ -256,9 +258,9 @@ class TaskController extends GetxController {
                                 .document.value.structureTypes!,
                           ),
                           CustomMultiselectDropdownMenu(
-                            hint: 'Design Drawing',
+                            labelText: 'Design Drawings',
                             items: referenceDocumentController
-                                .getFieldValues('document_number'),
+                                .getFieldValues('documentNumber'),
                             onChanged: (values) => designDrawingList = values,
                             selectedItems: designDrawingList,
                           ),
@@ -303,7 +305,7 @@ class TaskController extends GetxController {
                               coverSheetRevision:
                                   coverSheetRevisionController.text,
                               level: levelText,
-                              moduleName: moduleNameText,
+                              module: moduleNameText,
                               structureType: structureTypeText,
                               note: noteController.text,
                               area: areaList,
@@ -333,33 +335,47 @@ class TaskController extends GetxController {
     );
   }
 
-  List<Map<String, dynamic>> get getDataForTableView {
-    return _documents.map((document) {
-      Map<String, dynamic> map = {};
-      document.toMap().entries.forEach((entry) {
-        switch (entry.key) {
-          case 'area':
-          case 'functionalArea':
-          case 'note':
-          case 'project':
-          case 'isHidden':
-            break;
-          case 'drawingNumber':
-            map[entry.key] = TextButton(
-              child: Text('${entry.value}'),
-              onPressed: () {
-                openedTaskId.value = document.id!;
-                html.window.open('/#/stages', '_blank');
-              },
-            );
-            break;
-          default:
-            map[entry.key] = Text('${entry.value}');
-            break;
-        }
-      });
-      return map;
-    }).toList();
+  List<Map<String, Widget>> get getDataForTableView {
+    List<String> mapPropNames = mapPropNamesGetter('task');
+
+    return documents.map(
+      (task) {
+        Map<String, Widget> map = {};
+
+        mapPropNames.forEach(
+          (mapPropName) {
+            switch (mapPropName) {
+              case 'id':
+                map[mapPropName] = Text(task.id!);
+                break;
+              case 'area':
+              case 'functionalArea':
+              case 'note':
+              case 'project':
+              case 'isHidden':
+                break;
+              case 'taskCreateDate':
+                map[mapPropName] = Text(task.taskCreateDate.toString());
+                break;
+
+              case 'drawingNumber':
+                map[mapPropName] = TextButton(
+                  child: Text('${task.drawingNumber}'),
+                  onPressed: () {
+                    openedTaskId.value = task.id!;
+                    html.window.open('/#/stages', '_blank');
+                  },
+                );
+                break;
+              default:
+                map[mapPropName] = Text('${task.toMap()[mapPropName] ?? ""}');
+                break;
+            }
+          },
+        );
+        return map;
+      },
+    ).toList();
   }
 
   List<dynamic> getFieldValues(String fieldName) {

@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 class CustomMultiselectDropdownMenu extends StatelessWidget {
   late List<dynamic> items;
   final void Function(List<String>) onChanged;
-  final String hint;
+  final String labelText;
   final List<String> selectedItems;
 
   CustomMultiselectDropdownMenu({
     Key? key,
     required this.onChanged,
     required this.items,
-    required this.hint,
+    required this.labelText,
     required this.selectedItems,
   }) : super(key: key);
 
@@ -26,8 +26,7 @@ class CustomMultiselectDropdownMenu extends StatelessWidget {
             return v == null || v.isEmpty ? "required field" : null;
           },
           dropdownSearchDecoration: InputDecoration(
-            hintText: "Select a ${hint.toLowerCase()}",
-            labelText: hint,
+            labelText: labelText,
             contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
             border: OutlineInputBorder(),
           ),

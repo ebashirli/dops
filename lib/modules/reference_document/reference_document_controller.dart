@@ -6,7 +6,6 @@ import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:recase/recase.dart';
 
 import '../../components/custom_date_time_form_field_widget.dart';
 import '../../components/custom_dropdown_menu_widget.dart';
@@ -26,14 +25,13 @@ class ReferenceDocumentController extends GetxController {
   late TextEditingController documentNumberController,
       revisionCodeController,
       titleController,
-      transmittalNumberController,
-      requiredActionNextController;
+      transmittalNumberController;
   late DateTime receiveDate;
   String projectText = '';
   String referenceTypeText = '';
   String moduleNameText = '';
 
-  RxInt requiredActionNext = 0.obs;
+  RxBool actionRequiredOrNext = false.obs;
 
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
@@ -50,7 +48,7 @@ class ReferenceDocumentController extends GetxController {
     titleController = TextEditingController();
     transmittalNumberController = TextEditingController();
     receiveDate = DateTime.now();
-    requiredActionNextController = TextEditingController();
+
     _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
 
@@ -90,7 +88,6 @@ class ReferenceDocumentController extends GetxController {
     revisionCodeController.clear();
     titleController.clear();
     transmittalNumberController.clear();
-    requiredActionNextController.clear();
     receiveDate = DateTime.now();
     projectText = '';
     moduleNameText = '';
@@ -104,7 +101,7 @@ class ReferenceDocumentController extends GetxController {
     revisionCodeController.text = model.revisionCode;
     titleController.text = model.title;
     transmittalNumberController.text = model.transmittalNumber;
-    requiredActionNext.value = model.requiredActionNext;
+    actionRequiredOrNext.value = model.actionRequiredOrNext;
     receiveDate = model.receivedDate;
     projectText = model.project;
     moduleNameText = model.moduleName;
@@ -219,15 +216,15 @@ class ReferenceDocumentController extends GetxController {
                             width: 200,
                             child: GestureDetector(
                               onTap: () {
-                                _handleChangedRadio(0);
+                                _handleChangedRadio(false);
                               },
                               child: ListTile(
-                                title: const Text('Required Action'),
-                                leading: Radio<int>(
-                                  value: 0,
-                                  groupValue: requiredActionNext.value,
-                                  onChanged: (int? value) {
-                                    requiredActionNext.value = value!;
+                                title: const Text('Action Required'),
+                                leading: Radio<bool>(
+                                  value: false,
+                                  groupValue: actionRequiredOrNext.value,
+                                  onChanged: (bool? value) {
+                                    actionRequiredOrNext.value = value!;
                                   },
                                 ),
                               ),
@@ -237,13 +234,13 @@ class ReferenceDocumentController extends GetxController {
                             width: 200,
                             child: GestureDetector(
                               onTap: () {
-                                _handleChangedRadio(1);
+                                _handleChangedRadio(true);
                               },
                               child: ListTile(
                                 title: const Text('Next'),
-                                leading: Radio<int>(
-                                  value: 1,
-                                  groupValue: requiredActionNext.value,
+                                leading: Radio<bool>(
+                                  value: true,
+                                  groupValue: actionRequiredOrNext.value,
                                   onChanged: _handleChangedRadio,
                                 ),
                               ),
@@ -288,8 +285,9 @@ class ReferenceDocumentController extends GetxController {
                                 transmittalNumber:
                                     transmittalNumberController.text,
                                 receivedDate: receiveDate,
-                                requiredActionNext: requiredActionNext.value,
-                                assignedDocumentsCount: 0,
+                                actionRequiredOrNext:
+                                    actionRequiredOrNext.value,
+                                assignedTasksCount: 0,
                               );
                               id == null
                                   ? saveDocument(model: model)
@@ -312,21 +310,28 @@ class ReferenceDocumentController extends GetxController {
     );
   }
 
-  void _handleChangedRadio(int? value) {
-    requiredActionNext.value = value!;
+  void _handleChangedRadio(bool? value) {
+    actionRequiredOrNext.value = value!;
   }
 
   List<Map<String, Widget>> get getDataForTableView {
-    List<String> mapPropNames = tableColNames['reference document']!
-        .map((colName) => ReCase(colName).snakeCase)
-        .toList();
+    List<String> mapPropNames = mapPropNamesGetter('reference document');
 
     return documents.map((referenceDocument) {
       Map<String, Widget> map = {};
 
       mapPropNames.forEach((mapPropName) {
+        print(mapPropName);
         switch (mapPropName) {
-          case 'assigned_tasks':
+          case 'id':
+            map[mapPropName] = Text(referenceDocument.id!);
+            break;
+          case 'actionRequiredOrNext':
+            map[mapPropName] = !referenceDocument.actionRequiredOrNext
+                ? Text('Action required')
+                : Text('Next');
+            break;
+          case 'assignedTasks':
             final List<List<String>> assignedTasks = [];
             taskController.documents.forEach((task) {
               if (task.designDrawings
@@ -370,6 +375,6 @@ class ReferenceDocumentController extends GetxController {
   }
 
   List<String> getFieldValues(String fieldName) {
-    return _documents.map((doc) => doc.toMap()[fieldName].toString()).toList();
+    return documents.map((doc) => doc.toMap()[fieldName].toString()).toList();
   }
 }

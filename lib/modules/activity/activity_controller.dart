@@ -5,7 +5,6 @@ import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:recase/recase.dart';
 
 import '../../components/custom_date_time_form_field_widget.dart';
 import '../../components/custom_dropdown_menu_widget.dart';
@@ -94,7 +93,7 @@ class ActivityController extends GetxController {
   void clearEditingControllers() {
     activityIdController.clear();
     activityNameController.clear();
-    coefficientController.clear();
+    coefficientController.text = '1';
     budgetedLaborUnitsController.clear();
     startTime = null;
     finishTime = null;
@@ -166,11 +165,11 @@ class ActivityController extends GetxController {
                   children: [
                     CustomStringTextField(
                       controller: activityIdController,
-                      labelText: tableColNames['activity']![0],
+                      labelText: tableColNames['activity']![1],
                     ),
                     CustomStringTextField(
                       controller: activityNameController,
-                      labelText: tableColNames['activity']![1],
+                      labelText: tableColNames['activity']![2],
                     ),
                     CustomDropdownMenu(
                       labelText: 'Module name',
@@ -182,22 +181,22 @@ class ActivityController extends GetxController {
                     ),
                     CustomNumberTextField(
                       controller: coefficientController,
-                      labelText: tableColNames['activity']![4],
+                      labelText: tableColNames['activity']![5],
                     ),
                     CustomNumberTextField(
                       controller: budgetedLaborUnitsController,
-                      labelText: tableColNames['activity']![6],
+                      labelText: tableColNames['activity']![7],
                     ),
                     CustomDateTimeFormField(
                       initialValue: startTime,
-                      labelText: tableColNames['activity']![7],
+                      labelText: tableColNames['activity']![8],
                       onDateSelected: (DateTime value) {
                         startTime = value;
                       },
                     ),
                     CustomDateTimeFormField(
                       initialValue: finishTime,
-                      labelText: tableColNames['activity']![8],
+                      labelText: tableColNames['activity']![9],
                       onDateSelected: (DateTime value) {
                         finishTime = value;
                       },
@@ -231,8 +230,6 @@ class ActivityController extends GetxController {
                                 moduleName: moduleNameText,
                                 coefficient:
                                     int.parse(coefficientController.text),
-                                currentPriority:
-                                    0 / int.parse(coefficientController.text),
                                 budgetedLaborUnits: double.parse(
                                     budgetedLaborUnitsController.text),
                                 startDate: startTime,
@@ -263,19 +260,23 @@ class ActivityController extends GetxController {
   }
 
   List<Map<String, Widget>> get getDataForTableView {
-    List<String> mapPropNames = tableColNames['activity']!
-        .map((colName) => ReCase(colName).snakeCase)
-        .toList();
+    List<String> mapPropNames = mapPropNamesGetter('activity');
 
-    return documents.map((activityModel) {
+    return documents.map((activity) {
       Map<String, Widget> map = {};
-
       mapPropNames.forEach((mapPropName) {
         switch (mapPropName) {
-          case 'assigned_tasks':
+          case 'id':
+            map[mapPropName] = Text(activity.id!);
+            break;
+          case 'currentPriority':
+            map[mapPropName] =
+                Text('${activity.priority / activity.coefficient}');
+            break;
+          case 'assignedTasks':
             final List<List<String>> assignedTasks = [];
             taskController.documents.forEach((task) {
-              if (task.activityCode == activityModel.activityId)
+              if (task.activityCode == activity.activityId)
                 assignedTasks.add([task.drawingNumber, task.id!]);
             });
             map[mapPropName] = assignedTasks.length != 0
@@ -305,10 +306,12 @@ class ActivityController extends GetxController {
 
             break;
           default:
-            map[mapPropName] = Text('${activityModel.toMap()[mapPropName]}');
+            map[mapPropName] = Text('${activity.toMap()[mapPropName]}');
             break;
         }
       });
+      print(activity.activityId);
+      print(map['activityId']);
       return map;
     }).toList();
   }

@@ -79,7 +79,7 @@ class HomeView extends GetView<HomeController> {
             icon: Icon(Icons.list_alt),
             label: const Text('Home'),
             onPressed: () {
-              controller.homeStates = HomeStates.StaffState;
+              controller.homeStates = HomeStates.TaskState;
               Get.back();
             },
           ),

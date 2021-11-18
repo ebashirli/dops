@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 
 import '../bindings/bindings.dart';
 import '../modules/activity/activity_view.dart';
-import '../modules/dropdown_source/dropdown_sources_view.dart';
 import '../modules/home/home_view.dart';
 import '../modules/reference_document/reference_document_view.dart';
 import '../modules/staff/staff_view.dart';
@@ -35,7 +34,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.DROPDOWN_SOURCE_LISTS,
-      page: () => DropdownSourcesView(),
+      page: () => StagesView(),
       binding: DropdownSourceListsBinding(),
     ),
     GetPage(

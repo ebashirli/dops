@@ -62,7 +62,7 @@ class ActivityController extends GetxController {
     return null;
   }
 
-  updateDocument({required ActivityModel model}) async {
+  updateDocument({required ActivityModel model, required String id}) async {
     final isValid = activityFormKey.currentState!.validate();
     if (!isValid) {
       return;
@@ -70,20 +70,20 @@ class ActivityController extends GetxController {
     activityFormKey.currentState!.save();
     //update
     CustomFullScreenDialog.showDialog();
-    await _repository.updateActivityModel(model, model.id!);
+    await _repository.updateModel(model, id);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
   saveDocument({required ActivityModel model}) async {
     CustomFullScreenDialog.showDialog();
-    await _repository.addActivityModel(model);
+    await _repository.addModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
-  void deleteActivity(ActivityModel data) {
-    _repository.removeActivityModel(data);
+  void deleteActivity(String id) {
+    _repository.removeModel(id);
   }
 
   @override
@@ -101,7 +101,9 @@ class ActivityController extends GetxController {
     moduleNameText = null;
   }
 
-  void fillEditingControllers(ActivityModel model) {
+  void fillEditingControllers(String id) async {
+    final ActivityModel model = await _repository.getModelById(id);
+
     activityIdController.text = model.activityId ?? '';
     activityNameController.text = model.activityName ?? '';
     coefficientController.text = model.coefficient.toString();
@@ -129,9 +131,9 @@ class ActivityController extends GetxController {
     }
   }
 
-  buildAddEdit({ActivityModel? aModel}) {
-    if (aModel != null) {
-      fillEditingControllers(aModel);
+  buildAddEdit({String? id}) {
+    if (id != null) {
+      fillEditingControllers(id);
     } else {
       clearEditingControllers();
     }
@@ -142,7 +144,7 @@ class ActivityController extends GetxController {
 
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: aModel == null ? 'Add Activity' : 'Update Activity',
+      title: id == null ? 'Add Activity' : 'Update Activity',
       content: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -203,10 +205,10 @@ class ActivityController extends GetxController {
                     Container(
                       child: Row(
                         children: <Widget>[
-                          if (aModel != null)
+                          if (id != null)
                             ElevatedButton.icon(
                               onPressed: () {
-                                deleteActivity(aModel);
+                                deleteActivity(id);
                                 Get.back();
                               },
                               icon: Icon(Icons.delete),
@@ -224,7 +226,6 @@ class ActivityController extends GetxController {
                           ElevatedButton(
                             onPressed: () {
                               ActivityModel model = ActivityModel(
-                                id: aModel != null ? aModel.id : null,
                                 activityId: activityIdController.text,
                                 activityName: activityNameController.text,
                                 moduleName: moduleNameText,
@@ -237,12 +238,15 @@ class ActivityController extends GetxController {
                                 startDate: startTime,
                                 finishDate: finishTime,
                               );
-                              aModel == null
+                              id == null
                                   ? saveDocument(model: model)
-                                  : updateDocument(model: aModel);
+                                  : updateDocument(
+                                      model: model,
+                                      id: id,
+                                    );
                             },
                             child: Text(
-                              aModel != null ? 'Update' : 'Add',
+                              id != null ? 'Update' : 'Add',
                             ),
                           ),
                         ],
@@ -269,10 +273,10 @@ class ActivityController extends GetxController {
       mapPropNames.forEach((mapPropName) {
         switch (mapPropName) {
           case 'assigned_tasks':
-            final assignedTasks = [];
+            final List<List<String>> assignedTasks = [];
             taskController.documents.forEach((task) {
               if (task.activityCode == activityModel.activityId)
-                assignedTasks.add('${task.drawingNumber}');
+                assignedTasks.add([task.drawingNumber, task.id!]);
             });
             map[mapPropName] = assignedTasks.length != 0
                 ? TextButton(
@@ -283,11 +287,13 @@ class ActivityController extends GetxController {
                         content: Column(
                           children: assignedTasks
                               .map(
-                                (taskDrawingNumber) => TextButton(
+                                (taskDrawingNumberAndId) => TextButton(
                                   onPressed: () {
+                                    taskController.openedTaskId.value =
+                                        taskDrawingNumberAndId[1];
                                     html.window.open('/#/stages', '_blank');
                                   },
-                                  child: Text(taskDrawingNumber),
+                                  child: Text(taskDrawingNumberAndId[0]),
                                 ),
                               )
                               .toList(),

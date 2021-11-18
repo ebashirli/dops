@@ -7,7 +7,7 @@ class ReferenceDocumentRepository {
   final _api = Get.find<StorageService>(tag: 'reference_documents');
   late List<ReferenceDocumentModel> referenceDocuments = [];
 
-  Future fetchReferenceDocumentModels() async {
+  Future fetchModels() async {
     QuerySnapshot result = await _api.getData();
     referenceDocuments = result.docs
         .map(
@@ -20,7 +20,7 @@ class ReferenceDocumentRepository {
     return referenceDocuments;
   }
 
-  Stream<List<ReferenceDocumentModel>> getAllReferenceDocumentsAsStream() {
+  Stream<List<ReferenceDocumentModel>> getAllDocumentsAsStream() {
     return _api.getShowingDataAsStream().map((QuerySnapshot query) {
       List<ReferenceDocumentModel> returnValue = [];
       query.docs.forEach(
@@ -37,8 +37,7 @@ class ReferenceDocumentRepository {
     });
   }
 
-  Future<ReferenceDocumentModel> getReferenceDocumentModelById(
-      String id) async {
+  Future<ReferenceDocumentModel> getModelById(String id) async {
     var doc = await _api.getDocumentById(id);
     return ReferenceDocumentModel.fromMap(
       doc.data(),
@@ -46,16 +45,15 @@ class ReferenceDocumentRepository {
     );
   }
 
-  removeReferenceDocumentModel(ReferenceDocumentModel data) async {
-    data.isHidden = true;
-    await _api.updateDocument(data.toMap(), data.id!);
+  removeModel(String id) async {
+    await _api.updateDocument({'isHidden': true}, id);
   }
 
-  updateReferenceDocumentModel(ReferenceDocumentModel data) async {
-    await _api.updateDocument(data.toMap(), data.id!);
+  updateModel(ReferenceDocumentModel data, String id) async {
+    await _api.updateDocument(data.toMap(), id);
   }
 
-  addReferenceDocumentModel(ReferenceDocumentModel data) async {
+  addModel(ReferenceDocumentModel data) async {
     await _api.addDocument(data.toMap());
   }
 }

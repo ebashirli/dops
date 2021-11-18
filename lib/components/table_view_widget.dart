@@ -34,7 +34,7 @@ class TableView extends StatelessWidget {
               columnWidthMode: ColumnWidthMode.fill,
               allowSorting: true,
               rowHeight: 70,
-              onCellDoubleTap: (details) {
+              onCellTap: (details) {
                 if (details.rowColumnIndex.rowIndex == 0) {
                   if (!controller.sortAscending.value) {
                     dataSource.sortedColumns.add(
@@ -61,12 +61,13 @@ class TableView extends StatelessWidget {
                     // DataGridSortDirection.descending;
                     controller.sortAscending.value = false;
                   }
-                } else {
-                  controller.buildAddEdit(
-                    aModel: controller
-                        .documents[details.rowColumnIndex.rowIndex - 1],
-                  );
                 }
+              },
+              onCellDoubleTap: (details) {
+                controller.buildAddEdit(
+                  id: controller
+                      .documents[details.rowColumnIndex.rowIndex - 1].id,
+                );
               },
             ),
           ],
@@ -123,7 +124,7 @@ class DataSource extends DataGridSource {
           (map) => DataGridRow(
             cells: map.entries
                 .map(
-                  (entry) => DataGridCell<dynamic>(
+                  (entry) => DataGridCell<Widget>(
                     columnName: entry.key,
                     value: entry.value,
                   ),

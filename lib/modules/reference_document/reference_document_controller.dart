@@ -51,18 +51,19 @@ class ReferenceDocumentController extends GetxController {
     transmittalNumberController = TextEditingController();
     receiveDate = DateTime.now();
     requiredActionNextController = TextEditingController();
-    _documents.bindStream(_repository.getAllReferenceDocumentsAsStream());
+    _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
 
   saveDocument({required ReferenceDocumentModel model}) async {
     CustomFullScreenDialog.showDialog();
-    await _repository.addReferenceDocumentModel(model);
+    await _repository.addModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
   updateDocument({
     required ReferenceDocumentModel model,
+    required String id,
   }) async {
     final isValid = referenceDocumentFormKey.currentState!.validate();
     if (!isValid) {
@@ -70,13 +71,13 @@ class ReferenceDocumentController extends GetxController {
     }
     referenceDocumentFormKey.currentState!.save();
     CustomFullScreenDialog.showDialog();
-    await _repository.updateReferenceDocumentModel(model);
+    await _repository.updateModel(model, id);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
-  void deleteReferenceDocument(ReferenceDocumentModel data) {
-    _repository.removeReferenceDocumentModel(data);
+  void deleteReferenceDocument(String id) {
+    _repository.removeModel(id);
   }
 
   @override
@@ -96,7 +97,9 @@ class ReferenceDocumentController extends GetxController {
     referenceTypeText = '';
   }
 
-  void fillEditingControllers(ReferenceDocumentModel model) {
+  void fillEditingControllers(String id) async {
+    final ReferenceDocumentModel model = await _repository.getModelById(id);
+
     documentNumberController.text = model.documentNumber;
     revisionCodeController.text = model.revisionCode;
     titleController.text = model.title;
@@ -126,9 +129,9 @@ class ReferenceDocumentController extends GetxController {
     }
   }
 
-  buildAddEdit({ReferenceDocumentModel? aModel}) {
-    if (aModel != null) {
-      fillEditingControllers(aModel);
+  buildAddEdit({String? id}) {
+    if (id != null) {
+      fillEditingControllers(id);
     } else {
       clearEditingControllers();
     }
@@ -137,9 +140,8 @@ class ReferenceDocumentController extends GetxController {
       barrierDismissible: false,
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: aModel == null
-          ? 'Add Reference Document'
-          : 'Update Reference Document',
+      title:
+          id == null ? 'Add Reference Document' : 'Update Reference Document',
       content: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -253,10 +255,10 @@ class ReferenceDocumentController extends GetxController {
                     Container(
                       child: Row(
                         children: <Widget>[
-                          if (aModel != null)
+                          if (id != null)
                             ElevatedButton.icon(
                               onPressed: () {
-                                deleteReferenceDocument(aModel);
+                                deleteReferenceDocument(id);
                                 Get.back();
                               },
                               icon: Icon(Icons.delete),
@@ -277,7 +279,6 @@ class ReferenceDocumentController extends GetxController {
                             onPressed: () {
                               ReferenceDocumentModel model =
                                   ReferenceDocumentModel(
-                                id: aModel != null ? aModel.id : null,
                                 project: projectText,
                                 referenceType: referenceTypeText,
                                 moduleName: moduleNameText,
@@ -290,12 +291,12 @@ class ReferenceDocumentController extends GetxController {
                                 requiredActionNext: requiredActionNext.value,
                                 assignedDocumentsCount: 0,
                               );
-                              aModel == null
+                              id == null
                                   ? saveDocument(model: model)
-                                  : updateDocument(model: aModel);
+                                  : updateDocument(model: model, id: id);
                             },
                             child: Text(
-                              aModel != null ? 'Update' : 'Add',
+                              id != null ? 'Update' : 'Add',
                             ),
                           ),
                         ],
@@ -326,11 +327,11 @@ class ReferenceDocumentController extends GetxController {
       mapPropNames.forEach((mapPropName) {
         switch (mapPropName) {
           case 'assigned_tasks':
-            final assignedTasks = [];
+            final List<List<String>> assignedTasks = [];
             taskController.documents.forEach((task) {
               if (task.designDrawings
                   .contains(referenceDocument.documentNumber))
-                assignedTasks.add('${task.drawingNumber}');
+                assignedTasks.add([task.drawingNumber, task.id!]);
             });
             map[mapPropName] = assignedTasks.length != 0
                 ? TextButton(
@@ -341,11 +342,13 @@ class ReferenceDocumentController extends GetxController {
                         content: Column(
                           children: assignedTasks
                               .map(
-                                (taskDrawingNumber) => TextButton(
+                                (taskDrawingNumberAndId) => TextButton(
                                   onPressed: () {
+                                    taskController.openedTaskId.value =
+                                        taskDrawingNumberAndId[1];
                                     html.window.open('/#/stages', '_blank');
                                   },
-                                  child: Text(taskDrawingNumber),
+                                  child: Text(taskDrawingNumberAndId[0]),
                                 ),
                               )
                               .toList(),

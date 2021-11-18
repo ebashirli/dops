@@ -37,21 +37,20 @@ class ActivityRepository {
     );
   }
 
-  Future<ActivityModel> getActivityModelById(String id) async {
+  Future<ActivityModel> getModelById(String id) async {
     var doc = await _api.getDocumentById(id);
     return ActivityModel.fromMap(doc.data(), doc.id);
   }
 
-  removeActivityModel(ActivityModel data) async {
-    data.isHidden = true;
-    await _api.updateDocument(data.toMap(), data.id!);
+  removeModel(String id) async {
+    await _api.updateDocument({'isHidden': true}, id);
   }
 
-  updateActivityModel(ActivityModel data, String id) async {
+  updateModel(ActivityModel data, String id) async {
     await _api.updateDocument(data.toMap(), id);
   }
 
-  addActivityModel(ActivityModel data) async {
+  addModel(ActivityModel data) async {
     await _api.addDocument(data.toMap());
   }
 }

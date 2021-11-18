@@ -7,7 +7,7 @@ class StaffRepository {
   final _api = Get.find<StorageService>(tag: 'staff');
   late List<StaffModel> staff = [];
 
-  Future fetchStaffModels() async {
+  Future fetchModels() async {
     QuerySnapshot result = await _api.getData();
     staff = result.docs
         .map(
@@ -20,7 +20,7 @@ class StaffRepository {
     return staff;
   }
 
-  Stream<List<StaffModel>> getAllStaffAsStream() {
+  Stream<List<StaffModel>> getAllDocumentsAsStream() {
     return _api.getShowingDataAsStream().map((QuerySnapshot query) {
       List<StaffModel> returnValue = [];
       query.docs.forEach(
@@ -37,7 +37,7 @@ class StaffRepository {
     });
   }
 
-  Future<StaffModel> getStaffModelById(String id) async {
+  Future<StaffModel> getModelById(String id) async {
     var doc = await _api.getDocumentById(id);
     return StaffModel.fromMap(
       doc.data(),
@@ -45,16 +45,15 @@ class StaffRepository {
     );
   }
 
-  removeStaffModel(StaffModel data) async {
-    data.isHidden = true;
-    await _api.updateDocument(data.toMap(), data.id!);
+  removeModel(String id) async {
+    await _api.updateDocument({'isHidden': true}, id);
   }
 
-  updateStaffModel(StaffModel data) async {
-    await _api.updateDocument(data.toMap(), data.id!);
+  updateModel(StaffModel data, String id) async {
+    await _api.updateDocument(data.toMap(), id);
   }
 
-  addStaffModel(StaffModel data) async {
+  addModel(StaffModel data) async {
     await _api.addDocument(data.toMap());
   }
 }

@@ -17,7 +17,7 @@ import 'task_model.dart';
 import 'task_repository.dart';
 
 class TaskController extends GetxController {
-  final GlobalKey<FormState> taskFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> taskFormKeyOnStages = GlobalKey<FormState>();
   final _repository = Get.find<TaskRepository>();
   final activityController = Get.find<ActivityController>();
   final referenceDocumentController = Get.find<ReferenceDocumentController>();
@@ -38,6 +38,8 @@ class TaskController extends GetxController {
       functionalAreaText,
       structureTypeText;
 
+  RxString openedTaskId = ''.obs;
+
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
 
@@ -52,34 +54,35 @@ class TaskController extends GetxController {
     drawingTitleController = TextEditingController();
     noteController = TextEditingController();
 
-    _documents.bindStream(_repository.getAllTasksAsStream());
+    _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
 
   saveDocument({required TaskModel model}) async {
     CustomFullScreenDialog.showDialog();
     model.taskCreateDate = DateTime.now();
-    await _repository.addTaskModel(model);
+    await _repository.addModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
   updateDocument({
-    required TaskModel model,
+    required TaskModel updatedModel,
+    required String id,
   }) async {
-    final isValid = taskFormKey.currentState!.validate();
+    final isValid = taskFormKeyOnStages.currentState!.validate();
     if (!isValid) {
       return;
     }
-    taskFormKey.currentState!.save();
+    taskFormKeyOnStages.currentState!.save();
     //update
     CustomFullScreenDialog.showDialog();
-    await _repository.updateTaskModel(model);
+    await _repository.updateModel(updatedModel, id);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
-  void deleteTask(TaskModel data) {
-    _repository.removeTaskModel(data);
+  void deleteTask(String id) {
+    _repository.removeModel(id);
   }
 
   @override
@@ -104,7 +107,9 @@ class TaskController extends GetxController {
     areaList = [];
   }
 
-  void fillEditingControllers(TaskModel model) {
+  void fillEditingControllers(String id) async {
+    final TaskModel model = await _repository.getModelById(id);
+
     drawingNumberController.text = model.drawingNumber;
     coverSheetRevisionController.text = model.coverSheetRevision;
     drawingTitleController.text = model.drawingTitle;
@@ -140,10 +145,10 @@ class TaskController extends GetxController {
   }
 
   buildAddEdit({
-    TaskModel? aModel,
+    String? id,
   }) {
-    if (aModel != null) {
-      fillEditingControllers(aModel);
+    if (id != null) {
+      fillEditingControllers(id);
     } else {
       clearEditingControllers();
     }
@@ -152,7 +157,7 @@ class TaskController extends GetxController {
       barrierDismissible: false,
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: aModel == null ? 'Add task' : 'Update task',
+      title: id == null ? 'Add task' : 'Update task',
       content: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -164,7 +169,7 @@ class TaskController extends GetxController {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Form(
-            key: taskFormKey,
+            key: taskFormKeyOnStages,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Container(
               width: Get.width * .5,
@@ -269,10 +274,10 @@ class TaskController extends GetxController {
                   Container(
                     child: Row(
                       children: <Widget>[
-                        if (aModel != null)
+                        if (id != null)
                           ElevatedButton.icon(
                             onPressed: () {
-                              deleteTask(aModel);
+                              deleteTask(id);
                               Get.back();
                             },
                             icon: Icon(Icons.delete),
@@ -290,8 +295,7 @@ class TaskController extends GetxController {
                         SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: () {
-                            TaskModel model = TaskModel(
-                              id: aModel != null ? aModel.id : null,
+                            TaskModel updatedModel = TaskModel(
                               activityCode: activityCodeText,
                               drawingNumber: drawingNumberController.text,
                               designDrawings: designDrawingList,
@@ -306,12 +310,15 @@ class TaskController extends GetxController {
                               project: projectText,
                               functionalArea: functionalAreaText,
                             );
-                            aModel == null
-                                ? saveDocument(model: model)
-                                : updateDocument(model: aModel);
+                            id == null
+                                ? saveDocument(model: updatedModel)
+                                : updateDocument(
+                                    updatedModel: updatedModel,
+                                    id: id,
+                                  );
                           },
                           child: Text(
-                            aModel != null ? 'Update' : 'Add',
+                            id != null ? 'Update' : 'Add',
                           ),
                         ),
                       ],
@@ -341,6 +348,7 @@ class TaskController extends GetxController {
             map[entry.key] = TextButton(
               child: Text('${entry.value}'),
               onPressed: () {
+                openedTaskId.value = document.id!;
                 html.window.open('/#/stages', '_blank');
               },
             );

@@ -1,92 +1,91 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
-import 'package:email_validator/email_validator.dart';
+import 'package:dops/modules/task/task_controller.dart';
+import 'package:dops/modules/task/task_model.dart';
+import 'package:dops/modules/task/task_repository.dart';
+import '../../components/custom_multiselect_dropdown_menu_widget.dart';
+import '../../components/custom_string_text_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../components/custom_date_time_form_field_widget.dart';
 import '../../components/custom_dropdown_menu_widget.dart';
 import '../../components/custom_full_screen_dialog_widget.dart';
 import '../../components/custom_snackbar_widget.dart';
-import '../../components/custom_string_text_field_widget.dart';
 import '../../constants/style.dart';
-import 'stages_model.dart';
-import 'stages_repository.dart';
+import '../activity/activity_controller.dart';
+import '../reference_document/reference_document_controller.dart';
 
 class StagesController extends GetxController {
-  final GlobalKey<FormState> stagesFormKey = GlobalKey<FormState>();
-  final _repository = Get.find<StagesRepository>();
-  late final dropdownSourcesController = Get.find<DropdownSourcesController>();
+  final GlobalKey<FormState> taskFormKey = GlobalKey<FormState>();
+  final _repository = Get.find<TaskRepository>();
+  final activityController = Get.find<ActivityController>();
+  final referenceDocumentController = Get.find<ReferenceDocumentController>();
+  final dropdownSourcesController = Get.find<DropdownSourcesController>();
+  final taskController = Get.find<TaskController>();
 
-  late TextEditingController badgeNoController,
-      nameController,
-      surnameController,
-      patronymicController,
-      initialController,
-      emailController,
-      homeAddressController,
-      contactController,
-      emergencyContactController,
-      emergencyContactNameController,
+  late TextEditingController drawingNumberController,
+      coverSheetRevisionController,
+      drawingTitleController,
       noteController;
-  late DateTime dateOfBirth, startDate, contractFinishDate;
-  String currentPlaceText = '';
-  String systemDesignationText = '';
-  String jobTitleText = '';
-  String companyText = '';
 
-  RxBool sortAscending = false.obs;
-  RxInt sortColumnIndex = 0.obs;
+  late List<String> areaList = [];
+  late List<String> designDrawingList = [];
 
-  RxList<StagesModel> _documents = RxList<StagesModel>([]);
-  List<StagesModel> get documents => _documents;
+  late String activityCodeText,
+      projectText,
+      moduleNameText,
+      levelText,
+      functionalAreaText,
+      structureTypeText;
+
+  RxList<TaskModel> _documents = RxList<TaskModel>([]);
+  List<TaskModel> get documents => _documents;
 
   @override
   void onInit() {
     super.onInit();
-    badgeNoController = TextEditingController();
-    nameController = TextEditingController();
-    surnameController = TextEditingController();
-    patronymicController = TextEditingController();
-    initialController = TextEditingController();
-    emailController = TextEditingController();
-    homeAddressController = TextEditingController();
-    contactController = TextEditingController();
-    emergencyContactController = TextEditingController();
-    emergencyContactNameController = TextEditingController();
+
+    drawingNumberController = TextEditingController();
+    coverSheetRevisionController = TextEditingController();
+    drawingTitleController = TextEditingController();
     noteController = TextEditingController();
 
-    dateOfBirth = DateTime.now();
-    startDate = DateTime.now();
-    contractFinishDate = DateTime.now();
+    activityCodeText = '';
+    projectText = '';
+    moduleNameText = '';
+    levelText = '';
+    functionalAreaText = '';
+    structureTypeText = '';
 
-    _documents.bindStream(_repository.getAllStagesAsStream());
+    _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
 
-  saveDocument({required StagesModel model}) async {
+  saveDocument({required TaskModel model}) async {
     CustomFullScreenDialog.showDialog();
-    await _repository.addStagesModel(model);
+    model.taskCreateDate = DateTime.now();
+    await _repository.addModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
   updateDocument({
-    required StagesModel model,
+    required TaskModel model,
+    required String id,
   }) async {
-    final isValid = stagesFormKey.currentState!.validate();
+    final isValid = taskFormKey.currentState!.validate();
     if (!isValid) {
       return;
     }
-    stagesFormKey.currentState!.save();
+    taskFormKey.currentState!.save();
     //update
     CustomFullScreenDialog.showDialog();
-    await _repository.updateStagesModel(model);
+    await _repository.updateModel(model, id);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
-  void deleteStages(StagesModel data) {
-    _repository.removeStagesModel(data);
+  void deleteTask(String id) {
+    _repository.removeModel(id);
   }
 
   @override
@@ -95,49 +94,20 @@ class StagesController extends GetxController {
   }
 
   void clearEditingControllers() {
-    badgeNoController.clear();
-    nameController.clear();
-    surnameController.clear();
-    patronymicController.clear();
-    initialController.clear();
-    emailController.clear();
-    homeAddressController.clear();
-    contactController.clear();
-    emergencyContactController.clear();
-    emergencyContactNameController.clear();
+    drawingNumberController.clear();
+    coverSheetRevisionController.clear();
+    drawingTitleController.clear();
     noteController.clear();
 
-    dateOfBirth = DateTime.now();
-    startDate = DateTime.now();
-    contractFinishDate = DateTime.now();
+    activityCodeText = '';
+    projectText = '';
+    moduleNameText = '';
+    levelText = '';
+    functionalAreaText = '';
+    structureTypeText = '';
 
-    currentPlaceText = '';
-    systemDesignationText = '';
-    jobTitleText = '';
-    companyText = '';
-  }
-
-  void fillEditingControllers(StagesModel model) {
-    badgeNoController.text = model.badgeNo;
-    nameController.text = model.name;
-    surnameController.text = model.surname;
-    patronymicController.text = model.patronymic;
-    initialController.text = model.initial;
-    emailController.text = model.email;
-    homeAddressController.text = model.homeAddress;
-    contactController.text = model.currentPlace;
-    emergencyContactController.text = model.contact;
-    emergencyContactNameController.text = model.emergencyContact;
-    noteController.text = model.emergencyContactName;
-
-    dateOfBirth = model.dateOfBirth;
-    startDate = model.startDate;
-    contractFinishDate = model.contractFinishDate;
-
-    currentPlaceText = model.currentPlace;
-    systemDesignationText = model.systemDesignation;
-    jobTitleText = model.jobTitle;
-    companyText = model.company;
+    designDrawingList = [];
+    areaList = [];
   }
 
   whenCompleted() {
@@ -158,207 +128,152 @@ class StagesController extends GetxController {
     }
   }
 
-  buildAddEdit({StagesModel? aModel}) {
-    if (aModel != null) {
-      fillEditingControllers(aModel);
-    } else {
-      clearEditingControllers();
-    }
-
-    Get.defaultDialog(
-      barrierDismissible: false,
-      radius: 12,
-      titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: aModel == null ? 'Add stages' : 'Update stages',
-      content: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(8),
-            topLeft: Radius.circular(8),
-          ),
-          color: light, //Color(0xff1E2746),
+  buildEdit({required String id}) {
+    taskController.fillEditingControllers(id);
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(8),
+          topLeft: Radius.circular(8),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: stagesFormKey,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            child: Container(
-              width: Get.width * .5,
-              child: Column(
-                children: [
-                  Container(
-                    height: 540,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 10),
-                          CustomStringTextField(
-                            controller: badgeNoController,
-                            labelText: 'Badge No',
-                          ),
-                          CustomStringTextField(
-                            controller: nameController,
-                            labelText: 'Name',
-                          ),
-                          CustomStringTextField(
-                            controller: surnameController,
-                            labelText: 'Surname',
-                          ),
-                          CustomStringTextField(
-                            controller: patronymicController,
-                            labelText: 'Patronymic',
-                          ),
-                          CustomStringTextField(
-                            controller: initialController,
-                            labelText: 'Initial (Unique)',
-                          ),
-                          CustomDateTimeFormField(
-                            labelText: 'Date of Birth',
-                            initialValue: dateOfBirth,
-                            onDateSelected: (date) => dateOfBirth = date,
-                          ),
-                          CustomDropdownMenu(
-                            labelText: 'Company',
-                            selectedItem: companyText,
-                            onChanged: (value) {
-                              companyText = value ?? '';
-                            },
-                            items: dropdownSourcesController
-                                .document.value.companies!,
-                          ),
-                          CustomDropdownMenu(
-                            labelText: 'System Designation',
-                            selectedItem: systemDesignationText,
-                            onChanged: (value) {
-                              systemDesignationText = value ?? '';
-                            },
-                            items: dropdownSourcesController
-                                .document.value.systemDesignations!,
-                          ),
-                          CustomDropdownMenu(
-                            labelText: 'Job Title',
-                            selectedItem: jobTitleText,
-                            onChanged: (value) {
-                              jobTitleText = value ?? '';
-                            },
-                            items: dropdownSourcesController
-                                .document.value.jobTitles!,
-                          ),
-                          CustomDateTimeFormField(
-                            labelText: 'Start Date',
-                            initialValue: startDate,
-                            onDateSelected: (date) => startDate = date,
-                          ),
-                          CustomStringTextField(
-                            controller: emailController,
-                            labelText: 'E-mail',
-                            validator: (value) =>
-                                EmailValidator.validate(value!)
-                                    ? null
-                                    : "Please enter a valid email",
-                          ),
-                          CustomStringTextField(
-                            controller: homeAddressController,
-                            labelText: 'Home Address',
-                          ),
-                          CustomDropdownMenu(
-                            labelText: 'Employee place',
-                            selectedItem: currentPlaceText,
-                            onChanged: (value) {
-                              currentPlaceText = value ?? '';
-                            },
-                            items: dropdownSourcesController
-                                .document.value.employeePlaces!,
-                          ),
-                          CustomDateTimeFormField(
-                            labelText: 'Contract Finish Date',
-                            initialValue: contractFinishDate,
-                            onDateSelected: (date) => contractFinishDate = date,
-                          ),
-                          CustomStringTextField(
-                            controller: contactController,
-                            labelText: 'Contact',
-                            validator: validateMobile,
-                          ),
-                          CustomStringTextField(
-                            controller: emergencyContactController,
-                            labelText: 'Emergency Contact',
-                            validator: validateMobile,
-                          ),
-                          CustomStringTextField(
-                            controller: emergencyContactNameController,
-                            labelText: 'Emergency Contact Name',
-                          ),
-                          CustomStringTextField(
-                            controller: noteController,
-                            labelText: 'Note',
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Container(
-                    child: Row(
-                      children: <Widget>[
-                        if (aModel != null)
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              deleteStages(aModel);
-                              Get.back();
-                            },
-                            icon: Icon(Icons.delete),
-                            label: const Text('Delete'),
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                Colors.red,
-                              ),
-                            ),
-                          ),
-                        const Spacer(),
-                        ElevatedButton(
-                            onPressed: () => Get.back(),
-                            child: const Text('Cancel')),
-                        SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            StagesModel model = StagesModel(
-                              id: aModel != null ? aModel.id : null,
-                              badgeNo: badgeNoController.text,
-                              name: nameController.text,
-                              surname: surnameController.text,
-                              patronymic: patronymicController.text,
-                              initial: initialController.text,
-                              systemDesignation: systemDesignationText,
-                              jobTitle: jobTitleText,
-                              email: emailController.text,
-                              company: companyText,
-                              dateOfBirth: dateOfBirth,
-                              homeAddress: homeAddressController.text,
-                              startDate: startDate,
-                              currentPlace: currentPlaceText,
-                              contractFinishDate: contractFinishDate,
-                              contact: contactController.text,
-                              emergencyContact: emergencyContactController.text,
-                              emergencyContactName:
-                                  emergencyContactNameController.text,
-                              note: noteController.text,
-                            );
-                            aModel == null
-                                ? saveDocument(model: model)
-                                : updateDocument(model: model);
+        color: light, //Color(0xff1E2746),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: taskFormKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: Container(
+            width: Get.width * .5,
+            child: Column(
+              children: [
+                Container(
+                  height: 540,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 10),
+                        CustomDropdownMenu(
+                          labelText: 'Activity code',
+                          selectedItem: activityCodeText,
+                          onChanged: (value) {
+                            activityCodeText = value ?? '';
                           },
-                          child: Text(
-                            aModel != null ? 'Update' : 'Add',
-                          ),
+                          items:
+                              activityController.getFieldValues('activity_id'),
+                        ),
+                        CustomDropdownMenu(
+                          labelText: 'Project',
+                          selectedItem: projectText,
+                          onChanged: (value) {
+                            projectText = value ?? '';
+                          },
+                          items: dropdownSourcesController
+                              .document.value.projects!,
+                        ),
+                        CustomStringTextField(
+                          controller: drawingNumberController,
+                          labelText: 'Drawing Number',
+                        ),
+                        CustomStringTextField(
+                          controller: coverSheetRevisionController,
+                          labelText: 'First Sheet Revision',
+                        ),
+                        CustomStringTextField(
+                          controller: drawingTitleController,
+                          labelText: 'Drawing Title',
+                        ),
+                        CustomDropdownMenu(
+                          labelText: 'Module name',
+                          selectedItem: moduleNameText,
+                          onChanged: (value) {
+                            moduleNameText = value ?? '';
+                          },
+                          items:
+                              dropdownSourcesController.document.value.modules!,
+                        ),
+                        CustomDropdownMenu(
+                          labelText: 'Level',
+                          selectedItem: levelText,
+                          onChanged: (value) {
+                            levelText = value ?? '';
+                          },
+                          items:
+                              dropdownSourcesController.document.value.levels!,
+                        ),
+                        CustomMultiselectDropdownMenu(
+                          hint: 'Area',
+                          items:
+                              dropdownSourcesController.document.value.areas!,
+                          onChanged: (values) => areaList = values,
+                          selectedItems: areaList,
+                        ),
+                        CustomDropdownMenu(
+                          labelText: 'Functional Area',
+                          selectedItem: functionalAreaText,
+                          onChanged: (value) {
+                            functionalAreaText = value ?? '';
+                          },
+                          items: dropdownSourcesController
+                              .document.value.functionalAreas!,
+                        ),
+                        CustomDropdownMenu(
+                          labelText: 'Structure Type',
+                          selectedItem: structureTypeText,
+                          onChanged: (value) {
+                            structureTypeText = value ?? '';
+                          },
+                          items: dropdownSourcesController
+                              .document.value.structureTypes!,
+                        ),
+                        CustomMultiselectDropdownMenu(
+                          hint: 'Design Drawing',
+                          items: referenceDocumentController
+                              .getFieldValues('document_number'),
+                          onChanged: (values) => designDrawingList = values,
+                          selectedItems: designDrawingList,
+                        ),
+                        CustomStringTextField(
+                          controller: noteController,
+                          labelText: 'Note',
                         ),
                       ],
                     ),
-                  )
-                ],
-              ),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Container(
+                  child: Row(
+                    children: <Widget>[
+                      ElevatedButton(
+                        onPressed: () {
+                          TaskModel model = TaskModel(
+                            activityCode: activityCodeText,
+                            drawingNumber: drawingNumberController.text,
+                            designDrawings: designDrawingList,
+                            drawingTitle: drawingTitleController.text,
+                            coverSheetRevision:
+                                coverSheetRevisionController.text,
+                            level: levelText,
+                            moduleName: moduleNameText,
+                            structureType: structureTypeText,
+                            note: noteController.text,
+                            area: areaList,
+                            project: projectText,
+                            functionalArea: functionalAreaText,
+                          );
+                          updateDocument(
+                            model: model,
+                            id: id,
+                          );
+                        },
+                        child: Text('Update'),
+                      ),
+                    ],
+                  ),
+                )
+              ],
             ),
           ),
         ),
@@ -366,40 +281,7 @@ class StagesController extends GetxController {
     );
   }
 
-  List<Map<String, dynamic>> get getDataForTableView {
-    return _documents.map((document) {
-      Map<String, dynamic> map = {};
-      document.toMap().entries.forEach((entry) {
-        switch (entry.key) {
-          case 'isHidden':
-            break;
-          case 'full_name':
-            map[entry.key] =
-                '${map['name']} ${map['surname']} ${map['patronymic']}';
-            break;
-          case 'date_of_birth':
-          case 'start_date':
-          case 'contract_finish_date':
-            map[entry.key] = entry.value.toString().substring(0, 10);
-            break;
-          default:
-            map[entry.key] = entry.value.toString();
-        }
-      });
-      return map;
-    }).toList();
-  }
-
-  String? validateMobile(String? value) {
-    String pattern = r'(^(?:[+0]9)?[0-9]{11}$)';
-    RegExp regExp = new RegExp(pattern);
-    if (value!.length == 0) {
-      return 'Please enter mobile number';
-    } else if (!regExp.hasMatch(value)) {
-      return 'Please enter valid mobile number';
-    } else if (contactController.text == emergencyContactController.text) {
-      return 'Contact and emergency contact cannot be same';
-    }
-    return null;
+  List<dynamic> getFieldValues(String fieldName) {
+    return _documents.map((doc) => doc.toMap()[fieldName]).toList();
   }
 }

@@ -60,18 +60,19 @@ class StaffController extends GetxController {
     startDate = DateTime.now();
     contractFinishDate = DateTime.now();
 
-    _documents.bindStream(_repository.getAllStaffAsStream());
+    _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
 
   saveDocument({required StaffModel model}) async {
     CustomFullScreenDialog.showDialog();
-    await _repository.addStaffModel(model);
+    await _repository.addModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
   updateDocument({
     required StaffModel model,
+    required String id,
   }) async {
     final isValid = staffFormKey.currentState!.validate();
     if (!isValid) {
@@ -80,13 +81,13 @@ class StaffController extends GetxController {
     staffFormKey.currentState!.save();
     //update
     CustomFullScreenDialog.showDialog();
-    await _repository.updateStaffModel(model);
+    await _repository.updateModel(model, id);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
-  void deleteStaff(StaffModel data) {
-    _repository.removeStaffModel(data);
+  void deleteStaff(String id) {
+    _repository.removeModel(id);
   }
 
   @override
@@ -117,7 +118,9 @@ class StaffController extends GetxController {
     companyText = '';
   }
 
-  void fillEditingControllers(StaffModel model) {
+  void fillEditingControllers(String id) async {
+    final StaffModel model = await _repository.getModelById(id);
+
     badgeNoController.text = model.badgeNo;
     nameController.text = model.name;
     surnameController.text = model.surname;
@@ -158,9 +161,9 @@ class StaffController extends GetxController {
     }
   }
 
-  buildAddEdit({StaffModel? aModel}) {
-    if (aModel != null) {
-      fillEditingControllers(aModel);
+  buildAddEdit({String? id}) {
+    if (id != null) {
+      fillEditingControllers(id);
     } else {
       clearEditingControllers();
     }
@@ -169,7 +172,7 @@ class StaffController extends GetxController {
       barrierDismissible: false,
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: aModel == null ? 'Add staff' : 'Update staff',
+      title: id == null ? 'Add staff' : 'Update staff',
       content: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -303,10 +306,10 @@ class StaffController extends GetxController {
                   Container(
                     child: Row(
                       children: <Widget>[
-                        if (aModel != null)
+                        if (id != null)
                           ElevatedButton.icon(
                             onPressed: () {
-                              deleteStaff(aModel);
+                              deleteStaff(id);
                               Get.back();
                             },
                             icon: Icon(Icons.delete),
@@ -325,7 +328,6 @@ class StaffController extends GetxController {
                         ElevatedButton(
                           onPressed: () {
                             StaffModel model = StaffModel(
-                              id: aModel != null ? aModel.id : null,
                               badgeNo: badgeNoController.text,
                               name: nameController.text,
                               surname: surnameController.text,
@@ -346,12 +348,15 @@ class StaffController extends GetxController {
                                   emergencyContactNameController.text,
                               note: noteController.text,
                             );
-                            aModel == null
+                            id == null
                                 ? saveDocument(model: model)
-                                : updateDocument(model: model);
+                                : updateDocument(
+                                    model: model,
+                                    id: id,
+                                  );
                           },
                           child: Text(
-                            aModel != null ? 'Update' : 'Add',
+                            id != null ? 'Update' : 'Add',
                           ),
                         ),
                       ],

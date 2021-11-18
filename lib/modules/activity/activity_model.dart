@@ -13,7 +13,7 @@ class ActivityModel {
   bool isHidden;
 
   ActivityModel({
-    required this.id,
+    this.id,
     this.activityId,
     this.activityName,
     this.moduleName,
@@ -29,7 +29,6 @@ class ActivityModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'activity_id': activityId,
       'activity_name': activityName,
       'module_name': moduleName,
       'priority': priority,

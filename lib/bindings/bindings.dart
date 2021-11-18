@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import '../../modules/dropdown_source/dropdown_sources_controller.dart';
 import '../../modules/reference_document/reference_document_controller.dart';
 import '../../modules/home/home_controller.dart';
+import '../../modules/stages/stages_controller.dart';
 
 class HomeBinding extends Bindings {
   @override
@@ -82,8 +83,22 @@ class TaskBinding extends Bindings {
 class StagesBinding extends Bindings {
   @override
   void dependencies() {
+    Get.lazyPut<ActivityController>(
+      () => ActivityController(),
+    );
+    Get.lazyPut<ReferenceDocumentController>(
+      () => ReferenceDocumentController(),
+    );
+    Get.lazyPut<DropdownSourcesController>(
+      () => DropdownSourcesController(),
+    );
+
     Get.lazyPut<TaskController>(
       () => TaskController(),
+    );
+
+    Get.lazyPut<StagesController>(
+      () => StagesController(),
     );
   }
 }

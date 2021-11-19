@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dops/constants/stages_details.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
+import 'package:dops/modules/staff/staff_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:dops/modules/task/task_repository.dart';
@@ -16,12 +18,15 @@ import '../activity/activity_controller.dart';
 import '../reference_document/reference_document_controller.dart';
 
 class StagesController extends GetxController {
+  final RxList<Item> _data = generateItems(stageNames).obs;
+
   final GlobalKey<FormState> taskFormKey = GlobalKey<FormState>();
   final _repository = Get.find<TaskRepository>();
   final activityController = Get.find<ActivityController>();
   final referenceDocumentController = Get.find<ReferenceDocumentController>();
   final dropdownSourcesController = Get.find<DropdownSourcesController>();
   final taskController = Get.find<TaskController>();
+  final staffController = Get.find<StaffController>();
 
   late TextEditingController drawingNumberController,
       coverSheetRevisionController,
@@ -30,6 +35,7 @@ class StagesController extends GetxController {
 
   late List<String> areaList = [];
   late List<String> designDrawingsList = [];
+  late List<String> assigned3DAdmins = [];
 
   late String activityCodeText,
       projectText,
@@ -55,14 +61,6 @@ class StagesController extends GetxController {
     structureTypeText = '';
   }
 
-  saveDocument({required TaskModel model}) async {
-    CustomFullScreenDialog.showDialog();
-    model.taskCreateDate = DateTime.now();
-    await _repository.addModel(model);
-    CustomFullScreenDialog.cancelDialog();
-    Get.back();
-  }
-
   updateDocument({
     required TaskModel model,
     required String id,
@@ -72,37 +70,13 @@ class StagesController extends GetxController {
       return;
     }
     taskFormKey.currentState!.save();
-    //update
     CustomFullScreenDialog.showDialog();
     await _repository.updateModel(model, id);
-    CustomFullScreenDialog.cancelDialog();
-    Get.back();
-  }
-
-  void deleteTask(String id) {
-    _repository.removeModel(id);
   }
 
   @override
   void onReady() {
     super.onReady();
-  }
-
-  void clearEditingControllers() {
-    drawingNumberController.clear();
-    coverSheetRevisionController.clear();
-    drawingTitleController.clear();
-    noteController.clear();
-
-    activityCodeText = '';
-    projectText = '';
-    moduleNameText = '';
-    levelText = '';
-    functionalAreaText = '';
-    structureTypeText = '';
-
-    designDrawingsList = [];
-    areaList = [];
   }
 
   void fillEditingControllers(TaskModel model) {
@@ -120,11 +94,11 @@ class StagesController extends GetxController {
 
     designDrawingsList = model.designDrawings;
     areaList = model.area;
+    // assigned3DAdmins = model.assigned3DAdmins;
   }
 
   whenCompleted() {
     CustomFullScreenDialog.cancelDialog();
-    clearEditingControllers();
     Get.back();
   }
 
@@ -140,9 +114,9 @@ class StagesController extends GetxController {
     }
   }
 
-  buildEdit({required String id}) {
+  Widget buildEdit() {
     fillEditingControllers(taskController.documents
-        .where((document) => document.id == id)
+        .where((document) => document.id == taskController.openedTaskId.value)
         .toList()[0]);
 
     return Container(
@@ -369,7 +343,7 @@ class StagesController extends GetxController {
                           );
                           updateDocument(
                             model: model,
-                            id: id,
+                            id: taskController.openedTaskId.value,
                           );
                         },
                         child: Text('Update'),
@@ -384,4 +358,210 @@ class StagesController extends GetxController {
       ),
     );
   }
+
+  Widget buildPanel() {
+    return ExpansionPanelList(
+      expansionCallback: (int index, bool isExpanded) {
+        // setState(() {
+        _data[index].isExpanded = !isExpanded;
+        // });
+      },
+      children: [
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(stageNames[0]),
+            );
+          },
+          body: Container(
+              child: Column(
+            children: <Widget>[
+              Row(
+                children: <Widget>[],
+              ),
+              Row(
+                children: <Widget>[
+                  CustomMultiselectDropdownMenu(
+                    labelText: 'Assign ${stageNames[0]}',
+                    items: staffController.documents
+                        .map((document) =>
+                            '${document.name} ${document.surname} ${document.patronymic}')
+                        .toList(),
+                    onChanged: (values) => assigned3DAdmins = values,
+                    selectedItems: assigned3DAdmins,
+                  )
+                ],
+              ),
+            ],
+          )),
+          isExpanded: _data[0].isExpanded,
+        ),
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(stageNames[1]),
+            );
+          },
+          body: ListTile(
+              title: Text('item.expandedValue'),
+              subtitle:
+                  const Text('To delete this panel, tap the trash can icon'),
+              trailing: const Icon(Icons.delete),
+              onTap: () {
+                // setState(() {
+                //   _data.removeWhere((Item currentItem) => item == currentItem);
+                // });
+              }),
+          isExpanded: _data[1].isExpanded,
+        ),
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(stageNames[2]),
+            );
+          },
+          body: ListTile(
+              title: Text('item.expandedValue'),
+              subtitle:
+                  const Text('To delete this panel, tap the trash can icon'),
+              trailing: const Icon(Icons.delete),
+              onTap: () {
+                // setState(() {
+                //   _data.removeWhere((Item currentItem) => item == currentItem);
+                // });
+              }),
+          isExpanded: _data[2].isExpanded,
+        ),
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(stageNames[3]),
+            );
+          },
+          body: ListTile(
+              title: Text('item.expandedValue'),
+              subtitle:
+                  const Text('To delete this panel, tap the trash can icon'),
+              trailing: const Icon(Icons.delete),
+              onTap: () {
+                // setState(() {
+                //   _data.removeWhere((Item currentItem) => item == currentItem);
+                // });
+              }),
+          isExpanded: _data[3].isExpanded,
+        ),
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(stageNames[4]),
+            );
+          },
+          body: ListTile(
+              title: Text('item.expandedValue'),
+              subtitle:
+                  const Text('To delete this panel, tap the trash can icon'),
+              trailing: const Icon(Icons.delete),
+              onTap: () {
+                // setState(() {
+                //   _data.removeWhere((Item currentItem) => item == currentItem);
+                // });
+              }),
+          isExpanded: _data[4].isExpanded,
+        ),
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(stageNames[5]),
+            );
+          },
+          body: ListTile(
+              title: Text('item.expandedValue'),
+              subtitle:
+                  const Text('To delete this panel, tap the trash can icon'),
+              trailing: const Icon(Icons.delete),
+              onTap: () {
+                // setState(() {
+                //   _data.removeWhere((Item currentItem) => item == currentItem);
+                // });
+              }),
+          isExpanded: _data[5].isExpanded,
+        ),
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(stageNames[6]),
+            );
+          },
+          body: ListTile(
+              title: Text('item.expandedValue'),
+              subtitle:
+                  const Text('To delete this panel, tap the trash can icon'),
+              trailing: const Icon(Icons.delete),
+              onTap: () {
+                // setState(() {
+                //   _data.removeWhere((Item currentItem) => item == currentItem);
+                // });
+              }),
+          isExpanded: _data[6].isExpanded,
+        ),
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(stageNames[7]),
+            );
+          },
+          body: ListTile(
+              title: Text('item.expandedValue'),
+              subtitle:
+                  const Text('To delete this panel, tap the trash can icon'),
+              trailing: const Icon(Icons.delete),
+              onTap: () {
+                // setState(() {
+                //   _data.removeWhere((Item currentItem) => item == currentItem);
+                // });
+              }),
+          isExpanded: _data[7].isExpanded,
+        ),
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(stageNames[8]),
+            );
+          },
+          body: ListTile(
+              title: Text('item.expandedValue'),
+              subtitle:
+                  const Text('To delete this panel, tap the trash can icon'),
+              trailing: const Icon(Icons.delete),
+              onTap: () {
+                // setState(() {
+                //   _data.removeWhere((Item currentItem) => item == currentItem);
+                // });
+              }),
+          isExpanded: _data[8].isExpanded,
+        ),
+      ],
+    );
+  }
+}
+
+class Item {
+  Item({
+    required this.expandedValue,
+    required this.headerValue,
+    this.isExpanded = false,
+  });
+
+  String expandedValue;
+  String headerValue;
+  bool isExpanded;
+}
+
+List<Item> generateItems(List<String> stageNames) {
+  return List<Item>.generate(stageNames.length, (int index) {
+    return Item(
+      headerValue: stageNames[index],
+      expandedValue: 'This is item ${stageNames[index]}',
+    );
+  });
 }

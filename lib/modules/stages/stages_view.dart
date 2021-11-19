@@ -24,9 +24,8 @@ class _StagesViewState extends State<StagesView> {
           child: Column(
             children: [
               Container(
-                child: controller.buildEdit(
-                    id:
-                        taskController.openedTaskId.value),
+                child:
+                    controller.buildEdit(id: taskController.openedTaskId.value),
               ),
               Container(child: _buildPanel()),
             ],
@@ -43,26 +42,170 @@ class _StagesViewState extends State<StagesView> {
           _data[index].isExpanded = !isExpanded;
         });
       },
-      children: _data.map<ExpansionPanel>((Item item) {
-        return ExpansionPanel(
+      children: [
+        ExpansionPanel(
           headerBuilder: (BuildContext context, bool isExpanded) {
             return ListTile(
-              title: Text(item.headerValue),
+              title: Text(stageNames[0]),
             );
           },
           body: ListTile(
-              title: Text(item.expandedValue),
+              title: Text('item.expandedValue'),
               subtitle:
                   const Text('To delete this panel, tap the trash can icon'),
               trailing: const Icon(Icons.delete),
               onTap: () {
-                setState(() {
-                  _data.removeWhere((Item currentItem) => item == currentItem);
-                });
+                // setState(() {
+                //   _data.removeWhere((Item currentItem) => item == currentItem);
+                // });
               }),
-          isExpanded: item.isExpanded,
-        );
-      }).toList(),
+          isExpanded: _data[0].isExpanded,
+        ),
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(stageNames[1]),
+            );
+          },
+          body: ListTile(
+              title: Text('item.expandedValue'),
+              subtitle:
+                  const Text('To delete this panel, tap the trash can icon'),
+              trailing: const Icon(Icons.delete),
+              onTap: () {
+                // setState(() {
+                //   _data.removeWhere((Item currentItem) => item == currentItem);
+                // });
+              }),
+          isExpanded: _data[1].isExpanded,
+        ),
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(stageNames[2]),
+            );
+          },
+          body: ListTile(
+              title: Text('item.expandedValue'),
+              subtitle:
+                  const Text('To delete this panel, tap the trash can icon'),
+              trailing: const Icon(Icons.delete),
+              onTap: () {
+                // setState(() {
+                //   _data.removeWhere((Item currentItem) => item == currentItem);
+                // });
+              }),
+          isExpanded: _data[2].isExpanded,
+        ),
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(stageNames[3]),
+            );
+          },
+          body: ListTile(
+              title: Text('item.expandedValue'),
+              subtitle:
+                  const Text('To delete this panel, tap the trash can icon'),
+              trailing: const Icon(Icons.delete),
+              onTap: () {
+                // setState(() {
+                //   _data.removeWhere((Item currentItem) => item == currentItem);
+                // });
+              }),
+          isExpanded: _data[3].isExpanded,
+        ),
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(stageNames[4]),
+            );
+          },
+          body: ListTile(
+              title: Text('item.expandedValue'),
+              subtitle:
+                  const Text('To delete this panel, tap the trash can icon'),
+              trailing: const Icon(Icons.delete),
+              onTap: () {
+                // setState(() {
+                //   _data.removeWhere((Item currentItem) => item == currentItem);
+                // });
+              }),
+          isExpanded: _data[4].isExpanded,
+        ),
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(stageNames[5]),
+            );
+          },
+          body: ListTile(
+              title: Text('item.expandedValue'),
+              subtitle:
+                  const Text('To delete this panel, tap the trash can icon'),
+              trailing: const Icon(Icons.delete),
+              onTap: () {
+                // setState(() {
+                //   _data.removeWhere((Item currentItem) => item == currentItem);
+                // });
+              }),
+          isExpanded: _data[5].isExpanded,
+        ),
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(stageNames[6]),
+            );
+          },
+          body: ListTile(
+              title: Text('item.expandedValue'),
+              subtitle:
+                  const Text('To delete this panel, tap the trash can icon'),
+              trailing: const Icon(Icons.delete),
+              onTap: () {
+                // setState(() {
+                //   _data.removeWhere((Item currentItem) => item == currentItem);
+                // });
+              }),
+          isExpanded: _data[6].isExpanded,
+        ),
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(stageNames[7]),
+            );
+          },
+          body: ListTile(
+              title: Text('item.expandedValue'),
+              subtitle:
+                  const Text('To delete this panel, tap the trash can icon'),
+              trailing: const Icon(Icons.delete),
+              onTap: () {
+                // setState(() {
+                //   _data.removeWhere((Item currentItem) => item == currentItem);
+                // });
+              }),
+          isExpanded: _data[7].isExpanded,
+        ),
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              title: Text(stageNames[8]),
+            );
+          },
+          body: ListTile(
+              title: Text('item.expandedValue'),
+              subtitle:
+                  const Text('To delete this panel, tap the trash can icon'),
+              trailing: const Icon(Icons.delete),
+              onTap: () {
+                // setState(() {
+                //   _data.removeWhere((Item currentItem) => item == currentItem);
+                // });
+              }),
+          isExpanded: _data[8].isExpanded,
+        ),
+      ],
     );
   }
 }

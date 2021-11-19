@@ -1,8 +1,7 @@
-import 'dart:html' as html;
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/constants/table_details.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
+import 'package:dops/routes/app_pages.dart';
 import '../../components/custom_multiselect_dropdown_menu_widget.dart';
 import '../../components/custom_string_text_field_widget.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +29,7 @@ class TaskController extends GetxController {
       noteController;
 
   late List<String> areaList = [];
-  late List<String> designDrawingList = [];
+  late List<String> designDrawingsList = [];
 
   late String activityCodeText,
       projectText,
@@ -105,13 +104,11 @@ class TaskController extends GetxController {
     functionalAreaText = '';
     structureTypeText = '';
 
-    designDrawingList = [];
+    designDrawingsList = [];
     areaList = [];
   }
 
-  void fillEditingControllers(String id) async {
-    final TaskModel model = await _repository.getModelById(id);
-
+  void fillEditingControllers(TaskModel model) {
     drawingNumberController.text = model.drawingNumber;
     coverSheetRevisionController.text = model.coverSheetRevision;
     drawingTitleController.text = model.drawingTitle;
@@ -124,7 +121,7 @@ class TaskController extends GetxController {
     functionalAreaText = model.functionalArea;
     structureTypeText = model.structureType;
 
-    designDrawingList = model.designDrawings;
+    designDrawingsList = model.designDrawings;
     areaList = model.area;
   }
 
@@ -150,7 +147,8 @@ class TaskController extends GetxController {
     String? id,
   }) {
     if (id != null) {
-      fillEditingControllers(id);
+      fillEditingControllers(
+          documents.where((document) => document.id == id).toList()[0]);
     } else {
       clearEditingControllers();
     }
@@ -261,8 +259,8 @@ class TaskController extends GetxController {
                             labelText: 'Design Drawings',
                             items: referenceDocumentController
                                 .getFieldValues('documentNumber'),
-                            onChanged: (values) => designDrawingList = values,
-                            selectedItems: designDrawingList,
+                            onChanged: (values) => designDrawingsList = values,
+                            selectedItems: designDrawingsList,
                           ),
                           CustomStringTextField(
                             controller: noteController,
@@ -300,7 +298,7 @@ class TaskController extends GetxController {
                             TaskModel updatedModel = TaskModel(
                               activityCode: activityCodeText,
                               drawingNumber: drawingNumberController.text,
-                              designDrawings: designDrawingList,
+                              designDrawings: designDrawingsList,
                               drawingTitle: drawingTitleController.text,
                               coverSheetRevision:
                                   coverSheetRevisionController.text,
@@ -363,7 +361,7 @@ class TaskController extends GetxController {
                   child: Text('${task.drawingNumber}'),
                   onPressed: () {
                     openedTaskId.value = task.id!;
-                    html.window.open('/#/stages', '_blank');
+                    Get.toNamed(Routes.STAGES);
                   },
                 );
                 break;

@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 
 class CustomStringTextField extends StatelessWidget {
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final String labelText;
   final double? width;
   final String? Function(String?)? validator;
+  final String? initialValue;
+  final bool readOnly;
 
   const CustomStringTextField({
     Key? key,
-    required this.controller,
+    this.controller,
     required this.labelText,
     this.width,
     this.validator,
+    this.initialValue,
+    this.readOnly = false,
   }) : super(key: key);
 
   @override
@@ -22,6 +26,8 @@ class CustomStringTextField extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           TextFormField(
+            initialValue: initialValue,
+            readOnly: readOnly,
             decoration: InputDecoration(
               contentPadding: EdgeInsets.all(10),
               labelText: labelText,

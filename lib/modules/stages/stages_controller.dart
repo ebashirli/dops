@@ -38,9 +38,6 @@ class StagesController extends GetxController {
       functionalAreaText,
       structureTypeText;
 
-  RxList<TaskModel> _documents = RxList<TaskModel>([]);
-  List<TaskModel> get documents => _documents;
-
   @override
   void onInit() {
     super.onInit();
@@ -56,8 +53,6 @@ class StagesController extends GetxController {
     levelText = '';
     functionalAreaText = '';
     structureTypeText = '';
-
-    _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
 
   saveDocument({required TaskModel model}) async {
@@ -110,6 +105,23 @@ class StagesController extends GetxController {
     areaList = [];
   }
 
+  void fillEditingControllers(TaskModel model) {
+    drawingNumberController.text = model.drawingNumber;
+    coverSheetRevisionController.text = model.coverSheetRevision;
+    drawingTitleController.text = model.drawingTitle;
+    noteController.text = model.note;
+
+    activityCodeText = model.activityCode;
+    projectText = model.project;
+    moduleNameText = model.module;
+    levelText = model.level;
+    functionalAreaText = model.functionalArea;
+    structureTypeText = model.structureType;
+
+    designDrawingsList = model.designDrawings;
+    areaList = model.area;
+  }
+
   whenCompleted() {
     CustomFullScreenDialog.cancelDialog();
     clearEditingControllers();
@@ -129,7 +141,10 @@ class StagesController extends GetxController {
   }
 
   buildEdit({required String id}) {
-    taskController.fillEditingControllers(id);
+    fillEditingControllers(taskController.documents
+        .where((document) => document.id == id)
+        .toList()[0]);
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(
@@ -148,95 +163,183 @@ class StagesController extends GetxController {
             child: Column(
               children: [
                 Container(
-                  height: 540,
+                  height: 350,
                   child: SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(height: 10),
-                        CustomDropdownMenu(
-                          labelText: 'Activity code',
-                          selectedItem: activityCodeText,
-                          onChanged: (value) {
-                            activityCodeText = value ?? '';
-                          },
-                          items:
-                              activityController.getFieldValues('activityId'),
+                        Row(
+                          children: [
+                            CustomDropdownMenu(
+                              width: 250,
+                              labelText: 'Activity code',
+                              selectedItem: activityCodeText,
+                              onChanged: (value) {
+                                activityCodeText = value ?? '';
+                              },
+                              items: activityController
+                                  .getFieldValues('activityId'),
+                            ),
+                            SizedBox(width: 10),
+                            CustomStringTextField(
+                              readOnly: true,
+                              width: 80,
+                              initialValue: '1',
+                              labelText: 'Priority',
+                            ),
+                            SizedBox(width: 10),
+                            CustomDropdownMenu(
+                              width: 100,
+                              labelText: 'Project',
+                              selectedItem: projectText,
+                              onChanged: (value) {
+                                projectText = value ?? '';
+                              },
+                              items: dropdownSourcesController
+                                  .document.value.projects!,
+                            ),
+                            SizedBox(width: 10),
+                            CustomDropdownMenu(
+                              width: 200,
+                              labelText: 'Module name',
+                              selectedItem: moduleNameText,
+                              onChanged: (value) {
+                                moduleNameText = value ?? '';
+                              },
+                              items: dropdownSourcesController
+                                  .document.value.modules!,
+                            ),
+                          ],
                         ),
-                        CustomDropdownMenu(
-                          labelText: 'Project',
-                          selectedItem: projectText,
-                          onChanged: (value) {
-                            projectText = value ?? '';
-                          },
-                          items: dropdownSourcesController
-                              .document.value.projects!,
+                        SizedBox(height: 10),
+                        Row(
+                          children: [
+                            CustomStringTextField(
+                              width: 180,
+                              controller: drawingNumberController,
+                              labelText: 'Drawing Number',
+                            ),
+                            SizedBox(width: 10),
+                            CustomStringTextField(
+                              width: 150,
+                              controller: coverSheetRevisionController,
+                              labelText: 'Cover Sheet Revision',
+                            ),
+                            SizedBox(width: 10),
+                            CustomStringTextField(
+                              width: 150,
+                              controller: drawingTitleController,
+                              labelText: 'Drawing Title',
+                            ),
+                            SizedBox(width: 10),
+                            CustomDropdownMenu(
+                              width: 150,
+                              labelText: 'Level',
+                              selectedItem: levelText,
+                              onChanged: (value) {
+                                levelText = value ?? '';
+                              },
+                              items: dropdownSourcesController
+                                  .document.value.levels!,
+                            ),
+                          ],
                         ),
-                        CustomStringTextField(
-                          controller: drawingNumberController,
-                          labelText: 'Drawing Number',
+                        Row(
+                          children: [
+                            Container(
+                              width: 200,
+                              child: CustomMultiselectDropdownMenu(
+                                labelText: 'Design Drawing',
+                                items: referenceDocumentController
+                                    .getFieldValues('documentNumber'),
+                                onChanged: (values) =>
+                                    designDrawingsList = values,
+                                selectedItems: designDrawingsList,
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Container(
+                              width: 300,
+                              child: CustomMultiselectDropdownMenu(
+                                labelText: 'Area',
+                                items: dropdownSourcesController
+                                    .document.value.areas!,
+                                onChanged: (values) => areaList = values,
+                                selectedItems: areaList,
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            CustomStringTextField(
+                              readOnly: true,
+                              width: 100,
+                              initialValue: '0',
+                              labelText: 'Issue Type',
+                            ),
+                          ],
                         ),
-                        CustomStringTextField(
-                          controller: coverSheetRevisionController,
-                          labelText: 'Cover Sheet Revision',
+                        SizedBox(height: 10),
+                        Row(
+                          children: [
+                            CustomDropdownMenu(
+                              width: 200,
+                              labelText: 'Functional Area',
+                              selectedItem: functionalAreaText,
+                              onChanged: (value) {
+                                functionalAreaText = value ?? '';
+                              },
+                              items: dropdownSourcesController
+                                  .document.value.functionalAreas!,
+                            ),
+                            SizedBox(width: 10),
+                            CustomDropdownMenu(
+                              width: 200,
+                              labelText: 'Structure Type',
+                              selectedItem: structureTypeText,
+                              onChanged: (value) {
+                                structureTypeText = value ?? '';
+                              },
+                              items: dropdownSourcesController
+                                  .document.value.structureTypes!,
+                            ),
+                            SizedBox(width: 10),
+                            CustomStringTextField(
+                              readOnly: true,
+                              width: 150,
+                              initialValue: '0',
+                              labelText: 'Revision Number',
+                            ),
+                          ],
                         ),
-                        CustomStringTextField(
-                          controller: drawingTitleController,
-                          labelText: 'Drawing Title',
-                        ),
-                        CustomDropdownMenu(
-                          labelText: 'Module name',
-                          selectedItem: moduleNameText,
-                          onChanged: (value) {
-                            moduleNameText = value ?? '';
-                          },
-                          items:
-                              dropdownSourcesController.document.value.modules!,
-                        ),
-                        CustomDropdownMenu(
-                          labelText: 'Level',
-                          selectedItem: levelText,
-                          onChanged: (value) {
-                            levelText = value ?? '';
-                          },
-                          items:
-                              dropdownSourcesController.document.value.levels!,
-                        ),
-                        CustomMultiselectDropdownMenu(
-                          labelText: 'Area',
-                          items:
-                              dropdownSourcesController.document.value.areas!,
-                          onChanged: (values) => areaList = values,
-                          selectedItems: areaList,
-                        ),
-                        CustomDropdownMenu(
-                          labelText: 'Functional Area',
-                          selectedItem: functionalAreaText,
-                          onChanged: (value) {
-                            functionalAreaText = value ?? '';
-                          },
-                          items: dropdownSourcesController
-                              .document.value.functionalAreas!,
-                        ),
-                        CustomDropdownMenu(
-                          labelText: 'Structure Type',
-                          selectedItem: structureTypeText,
-                          onChanged: (value) {
-                            structureTypeText = value ?? '';
-                          },
-                          items: dropdownSourcesController
-                              .document.value.structureTypes!,
-                        ),
-                        CustomMultiselectDropdownMenu(
-                          labelText: 'Design Drawing',
-                          items: referenceDocumentController
-                              .getFieldValues('documentNumber'),
-                          onChanged: (values) => designDrawingsList = values,
-                          selectedItems: designDrawingsList,
-                        ),
-                        CustomStringTextField(
-                          controller: noteController,
-                          labelText: 'Note',
+                        Row(
+                          children: [
+                            CustomStringTextField(
+                              width: 200,
+                              controller: noteController,
+                              labelText: 'Note',
+                            ),
+                            SizedBox(width: 10),
+                            CustomStringTextField(
+                              readOnly: true,
+                              width: 100,
+                              initialValue: '100%',
+                              labelText: 'Percentage',
+                            ),
+                            SizedBox(width: 10),
+                            CustomStringTextField(
+                              readOnly: true,
+                              width: 120,
+                              initialValue: '0',
+                              labelText: 'Revision Status',
+                            ),
+                            SizedBox(width: 10),
+                            CustomStringTextField(
+                              readOnly: true,
+                              width: 120,
+                              initialValue: '0',
+                              labelText: 'Change Number',
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -245,6 +348,7 @@ class StagesController extends GetxController {
                 SizedBox(height: 10),
                 Container(
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
                       ElevatedButton(
                         onPressed: () {
@@ -279,9 +383,5 @@ class StagesController extends GetxController {
         ),
       ),
     );
-  }
-
-  List<dynamic> getFieldValues(String fieldName) {
-    return _documents.map((doc) => doc.toMap()[fieldName]).toList();
   }
 }

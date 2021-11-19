@@ -1,8 +1,7 @@
-import 'dart:html' as html;
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
+import 'package:dops/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -290,9 +289,10 @@ class ActivityController extends GetxController {
                               .map(
                                 (taskDrawingNumberAndId) => TextButton(
                                   onPressed: () {
+                                    Get.back();
                                     taskController.openedTaskId.value =
                                         taskDrawingNumberAndId[1];
-                                    html.window.open('/#/stages', '_blank');
+                                    Get.toNamed(Routes.STAGES);
                                   },
                                   child: Text(taskDrawingNumberAndId[0]),
                                 ),

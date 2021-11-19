@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dops/components/custom_expansion_panel.dart';
+import 'package:dops/components/custom_expansion_panel_body.dart';
 import 'package:dops/constants/stages_details.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/modules/staff/staff_controller.dart';
@@ -13,12 +15,18 @@ import 'package:get/get.dart';
 import '../../components/custom_dropdown_menu_widget.dart';
 import '../../components/custom_full_screen_dialog_widget.dart';
 import '../../components/custom_snackbar_widget.dart';
-import '../../constants/style.dart';
 import '../activity/activity_controller.dart';
 import '../reference_document/reference_document_controller.dart';
 
 class StagesController extends GetxController {
-  final RxList<Item> _data = generateItems(stageNames).obs;
+  final RxList<List> isExpandedList = List<List>.generate(
+    9,
+    (int index) => [
+      false,
+      [],
+    ],
+    growable: false,
+  ).obs;
 
   final GlobalKey<FormState> taskFormKey = GlobalKey<FormState>();
   final _repository = Get.find<TaskRepository>();
@@ -114,246 +122,237 @@ class StagesController extends GetxController {
     }
   }
 
-  Widget buildEdit() {
+  Widget buildEditForm() {
     fillEditingControllers(taskController.documents
         .where((document) => document.id == taskController.openedTaskId.value)
         .toList()[0]);
 
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.only(
-          topRight: Radius.circular(8),
-          topLeft: Radius.circular(8),
-        ),
-        color: light, //Color(0xff1E2746),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: taskFormKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          child: Container(
-            width: Get.width * .5,
-            child: Column(
-              children: [
-                Container(
-                  height: 350,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+    return Form(
+      key: taskFormKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      child: Container(
+        width: Get.width * .5,
+        child: Column(
+          children: [
+            Container(
+              height: 350,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        SizedBox(height: 10),
-                        Row(
-                          children: [
-                            CustomDropdownMenu(
-                              width: 250,
-                              labelText: 'Activity code',
-                              selectedItem: activityCodeText,
-                              onChanged: (value) {
-                                activityCodeText = value ?? '';
-                              },
-                              items: activityController
-                                  .getFieldValues('activityId'),
-                            ),
-                            SizedBox(width: 10),
-                            CustomStringTextField(
-                              readOnly: true,
-                              width: 80,
-                              initialValue: '1',
-                              labelText: 'Priority',
-                            ),
-                            SizedBox(width: 10),
-                            CustomDropdownMenu(
-                              width: 100,
-                              labelText: 'Project',
-                              selectedItem: projectText,
-                              onChanged: (value) {
-                                projectText = value ?? '';
-                              },
-                              items: dropdownSourcesController
-                                  .document.value.projects!,
-                            ),
-                            SizedBox(width: 10),
-                            CustomDropdownMenu(
-                              width: 200,
-                              labelText: 'Module name',
-                              selectedItem: moduleNameText,
-                              onChanged: (value) {
-                                moduleNameText = value ?? '';
-                              },
-                              items: dropdownSourcesController
-                                  .document.value.modules!,
-                            ),
-                          ],
+                        CustomDropdownMenu(
+                          width: 250,
+                          labelText: 'Activity code',
+                          selectedItem: activityCodeText,
+                          onChanged: (value) {
+                            activityCodeText = value ?? '';
+                          },
+                          items:
+                              activityController.getFieldValues('activityId'),
                         ),
-                        SizedBox(height: 10),
-                        Row(
-                          children: [
-                            CustomStringTextField(
-                              width: 180,
-                              controller: drawingNumberController,
-                              labelText: 'Drawing Number',
-                            ),
-                            SizedBox(width: 10),
-                            CustomStringTextField(
-                              width: 150,
-                              controller: coverSheetRevisionController,
-                              labelText: 'Cover Sheet Revision',
-                            ),
-                            SizedBox(width: 10),
-                            CustomStringTextField(
-                              width: 150,
-                              controller: drawingTitleController,
-                              labelText: 'Drawing Title',
-                            ),
-                            SizedBox(width: 10),
-                            CustomDropdownMenu(
-                              width: 150,
-                              labelText: 'Level',
-                              selectedItem: levelText,
-                              onChanged: (value) {
-                                levelText = value ?? '';
-                              },
-                              items: dropdownSourcesController
-                                  .document.value.levels!,
-                            ),
-                          ],
+                        SizedBox(width: 10),
+                        CustomStringTextField(
+                          readOnly: true,
+                          width: 80,
+                          initialValue: '1',
+                          labelText: 'Priority',
                         ),
-                        Row(
-                          children: [
-                            Container(
-                              width: 200,
-                              child: CustomMultiselectDropdownMenu(
-                                labelText: 'Design Drawing',
-                                items: referenceDocumentController
-                                    .getFieldValues('documentNumber'),
-                                onChanged: (values) =>
-                                    designDrawingsList = values,
-                                selectedItems: designDrawingsList,
-                              ),
-                            ),
-                            SizedBox(width: 10),
-                            Container(
-                              width: 300,
-                              child: CustomMultiselectDropdownMenu(
-                                labelText: 'Area',
-                                items: dropdownSourcesController
-                                    .document.value.areas!,
-                                onChanged: (values) => areaList = values,
-                                selectedItems: areaList,
-                              ),
-                            ),
-                            SizedBox(width: 10),
-                            CustomStringTextField(
-                              readOnly: true,
-                              width: 100,
-                              initialValue: '0',
-                              labelText: 'Issue Type',
-                            ),
-                          ],
+                        SizedBox(width: 10),
+                        CustomDropdownMenu(
+                          width: 100,
+                          labelText: 'Project',
+                          selectedItem: projectText,
+                          onChanged: (value) {
+                            projectText = value ?? '';
+                          },
+                          items: dropdownSourcesController
+                              .document.value.projects!,
                         ),
-                        SizedBox(height: 10),
-                        Row(
-                          children: [
-                            CustomDropdownMenu(
-                              width: 200,
-                              labelText: 'Functional Area',
-                              selectedItem: functionalAreaText,
-                              onChanged: (value) {
-                                functionalAreaText = value ?? '';
-                              },
-                              items: dropdownSourcesController
-                                  .document.value.functionalAreas!,
-                            ),
-                            SizedBox(width: 10),
-                            CustomDropdownMenu(
-                              width: 200,
-                              labelText: 'Structure Type',
-                              selectedItem: structureTypeText,
-                              onChanged: (value) {
-                                structureTypeText = value ?? '';
-                              },
-                              items: dropdownSourcesController
-                                  .document.value.structureTypes!,
-                            ),
-                            SizedBox(width: 10),
-                            CustomStringTextField(
-                              readOnly: true,
-                              width: 150,
-                              initialValue: '0',
-                              labelText: 'Revision Number',
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            CustomStringTextField(
-                              width: 200,
-                              controller: noteController,
-                              labelText: 'Note',
-                            ),
-                            SizedBox(width: 10),
-                            CustomStringTextField(
-                              readOnly: true,
-                              width: 100,
-                              initialValue: '100%',
-                              labelText: 'Percentage',
-                            ),
-                            SizedBox(width: 10),
-                            CustomStringTextField(
-                              readOnly: true,
-                              width: 120,
-                              initialValue: '0',
-                              labelText: 'Revision Status',
-                            ),
-                            SizedBox(width: 10),
-                            CustomStringTextField(
-                              readOnly: true,
-                              width: 120,
-                              initialValue: '0',
-                              labelText: 'Change Number',
-                            ),
-                          ],
+                        SizedBox(width: 10),
+                        CustomDropdownMenu(
+                          width: 200,
+                          labelText: 'Module name',
+                          selectedItem: moduleNameText,
+                          onChanged: (value) {
+                            moduleNameText = value ?? '';
+                          },
+                          items:
+                              dropdownSourcesController.document.value.modules!,
                         ),
                       ],
                     ),
-                  ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CustomStringTextField(
+                          width: 180,
+                          controller: drawingNumberController,
+                          labelText: 'Drawing Number',
+                        ),
+                        SizedBox(width: 10),
+                        CustomStringTextField(
+                          width: 150,
+                          controller: coverSheetRevisionController,
+                          labelText: 'Cover Sheet Revision',
+                        ),
+                        SizedBox(width: 10),
+                        CustomStringTextField(
+                          width: 150,
+                          controller: drawingTitleController,
+                          labelText: 'Drawing Title',
+                        ),
+                        SizedBox(width: 10),
+                        CustomDropdownMenu(
+                          width: 150,
+                          labelText: 'Level',
+                          selectedItem: levelText,
+                          onChanged: (value) {
+                            levelText = value ?? '';
+                          },
+                          items:
+                              dropdownSourcesController.document.value.levels!,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 200,
+                          child: CustomMultiselectDropdownMenu(
+                            labelText: 'Design Drawing',
+                            items: referenceDocumentController
+                                .getFieldValues('documentNumber'),
+                            onChanged: (values) => designDrawingsList = values,
+                            selectedItems: designDrawingsList,
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Container(
+                          width: 300,
+                          child: CustomMultiselectDropdownMenu(
+                            labelText: 'Area',
+                            items:
+                                dropdownSourcesController.document.value.areas!,
+                            onChanged: (values) => areaList = values,
+                            selectedItems: areaList,
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        CustomStringTextField(
+                          readOnly: true,
+                          width: 100,
+                          initialValue: '0',
+                          labelText: 'Issue Type',
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CustomDropdownMenu(
+                          width: 200,
+                          labelText: 'Functional Area',
+                          selectedItem: functionalAreaText,
+                          onChanged: (value) {
+                            functionalAreaText = value ?? '';
+                          },
+                          items: dropdownSourcesController
+                              .document.value.functionalAreas!,
+                        ),
+                        SizedBox(width: 10),
+                        CustomDropdownMenu(
+                          width: 200,
+                          labelText: 'Structure Type',
+                          selectedItem: structureTypeText,
+                          onChanged: (value) {
+                            structureTypeText = value ?? '';
+                          },
+                          items: dropdownSourcesController
+                              .document.value.structureTypes!,
+                        ),
+                        SizedBox(width: 10),
+                        CustomStringTextField(
+                          readOnly: true,
+                          width: 150,
+                          initialValue: '0',
+                          labelText: 'Revision Number',
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CustomStringTextField(
+                          width: 200,
+                          controller: noteController,
+                          labelText: 'Note',
+                        ),
+                        SizedBox(width: 10),
+                        CustomStringTextField(
+                          readOnly: true,
+                          width: 100,
+                          initialValue: '100%',
+                          labelText: 'Percentage',
+                        ),
+                        SizedBox(width: 10),
+                        CustomStringTextField(
+                          readOnly: true,
+                          width: 120,
+                          initialValue: '0',
+                          labelText: 'Revision Status',
+                        ),
+                        SizedBox(width: 10),
+                        CustomStringTextField(
+                          readOnly: true,
+                          width: 120,
+                          initialValue: '0',
+                          labelText: 'Change Number',
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                SizedBox(height: 10),
-                Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      ElevatedButton(
-                        onPressed: () {
-                          TaskModel model = TaskModel(
-                            activityCode: activityCodeText,
-                            drawingNumber: drawingNumberController.text,
-                            designDrawings: designDrawingsList,
-                            drawingTitle: drawingTitleController.text,
-                            coverSheetRevision:
-                                coverSheetRevisionController.text,
-                            level: levelText,
-                            module: moduleNameText,
-                            structureType: structureTypeText,
-                            note: noteController.text,
-                            area: areaList,
-                            project: projectText,
-                            functionalArea: functionalAreaText,
-                          );
-                          updateDocument(
-                            model: model,
-                            id: taskController.openedTaskId.value,
-                          );
-                        },
-                        child: Text('Update'),
-                      ),
-                    ],
-                  ),
-                )
-              ],
+              ),
             ),
-          ),
+            SizedBox(height: 10),
+            Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  ElevatedButton(
+                    onPressed: () {
+                      TaskModel model = TaskModel(
+                        activityCode: activityCodeText,
+                        drawingNumber: drawingNumberController.text,
+                        designDrawings: designDrawingsList,
+                        drawingTitle: drawingTitleController.text,
+                        coverSheetRevision: coverSheetRevisionController.text,
+                        level: levelText,
+                        module: moduleNameText,
+                        structureType: structureTypeText,
+                        note: noteController.text,
+                        area: areaList,
+                        project: projectText,
+                        functionalArea: functionalAreaText,
+                      );
+                      updateDocument(
+                        model: model,
+                        id: taskController.openedTaskId.value,
+                      );
+                    },
+                    child: Text('Update'),
+                  ),
+                ],
+              ),
+            )
+          ],
         ),
       ),
     );
@@ -362,206 +361,17 @@ class StagesController extends GetxController {
   Widget buildPanel() {
     return ExpansionPanelList(
       expansionCallback: (int index, bool isExpanded) {
-        // setState(() {
-        _data[index].isExpanded = !isExpanded;
-        // });
+        isExpandedList[0][index] = !isExpanded;
       },
-      children: [
-        ExpansionPanel(
-          headerBuilder: (BuildContext context, bool isExpanded) {
-            return ListTile(
-              title: Text(stageNames[0]),
-            );
-          },
-          body: Container(
-              child: Column(
-            children: <Widget>[
-              Row(
-                children: <Widget>[],
-              ),
-              Row(
-                children: <Widget>[
-                  CustomMultiselectDropdownMenu(
-                    labelText: 'Assign ${stageNames[0]}',
-                    items: staffController.documents
-                        .map((document) =>
-                            '${document.name} ${document.surname} ${document.patronymic}')
-                        .toList(),
-                    onChanged: (values) => assigned3DAdmins = values,
-                    selectedItems: assigned3DAdmins,
-                  )
-                ],
-              ),
-            ],
-          )),
-          isExpanded: _data[0].isExpanded,
+      children: List<ExpansionPanel>.generate(
+        9,
+        (int index) => CustomExpansionPanel(
+          isExpanded: isExpandedList[index][0],
+          title: stageNames[index],
+          body: CustomExpansionPanelBody(items: null,),
         ),
-        ExpansionPanel(
-          headerBuilder: (BuildContext context, bool isExpanded) {
-            return ListTile(
-              title: Text(stageNames[1]),
-            );
-          },
-          body: ListTile(
-              title: Text('item.expandedValue'),
-              subtitle:
-                  const Text('To delete this panel, tap the trash can icon'),
-              trailing: const Icon(Icons.delete),
-              onTap: () {
-                // setState(() {
-                //   _data.removeWhere((Item currentItem) => item == currentItem);
-                // });
-              }),
-          isExpanded: _data[1].isExpanded,
-        ),
-        ExpansionPanel(
-          headerBuilder: (BuildContext context, bool isExpanded) {
-            return ListTile(
-              title: Text(stageNames[2]),
-            );
-          },
-          body: ListTile(
-              title: Text('item.expandedValue'),
-              subtitle:
-                  const Text('To delete this panel, tap the trash can icon'),
-              trailing: const Icon(Icons.delete),
-              onTap: () {
-                // setState(() {
-                //   _data.removeWhere((Item currentItem) => item == currentItem);
-                // });
-              }),
-          isExpanded: _data[2].isExpanded,
-        ),
-        ExpansionPanel(
-          headerBuilder: (BuildContext context, bool isExpanded) {
-            return ListTile(
-              title: Text(stageNames[3]),
-            );
-          },
-          body: ListTile(
-              title: Text('item.expandedValue'),
-              subtitle:
-                  const Text('To delete this panel, tap the trash can icon'),
-              trailing: const Icon(Icons.delete),
-              onTap: () {
-                // setState(() {
-                //   _data.removeWhere((Item currentItem) => item == currentItem);
-                // });
-              }),
-          isExpanded: _data[3].isExpanded,
-        ),
-        ExpansionPanel(
-          headerBuilder: (BuildContext context, bool isExpanded) {
-            return ListTile(
-              title: Text(stageNames[4]),
-            );
-          },
-          body: ListTile(
-              title: Text('item.expandedValue'),
-              subtitle:
-                  const Text('To delete this panel, tap the trash can icon'),
-              trailing: const Icon(Icons.delete),
-              onTap: () {
-                // setState(() {
-                //   _data.removeWhere((Item currentItem) => item == currentItem);
-                // });
-              }),
-          isExpanded: _data[4].isExpanded,
-        ),
-        ExpansionPanel(
-          headerBuilder: (BuildContext context, bool isExpanded) {
-            return ListTile(
-              title: Text(stageNames[5]),
-            );
-          },
-          body: ListTile(
-              title: Text('item.expandedValue'),
-              subtitle:
-                  const Text('To delete this panel, tap the trash can icon'),
-              trailing: const Icon(Icons.delete),
-              onTap: () {
-                // setState(() {
-                //   _data.removeWhere((Item currentItem) => item == currentItem);
-                // });
-              }),
-          isExpanded: _data[5].isExpanded,
-        ),
-        ExpansionPanel(
-          headerBuilder: (BuildContext context, bool isExpanded) {
-            return ListTile(
-              title: Text(stageNames[6]),
-            );
-          },
-          body: ListTile(
-              title: Text('item.expandedValue'),
-              subtitle:
-                  const Text('To delete this panel, tap the trash can icon'),
-              trailing: const Icon(Icons.delete),
-              onTap: () {
-                // setState(() {
-                //   _data.removeWhere((Item currentItem) => item == currentItem);
-                // });
-              }),
-          isExpanded: _data[6].isExpanded,
-        ),
-        ExpansionPanel(
-          headerBuilder: (BuildContext context, bool isExpanded) {
-            return ListTile(
-              title: Text(stageNames[7]),
-            );
-          },
-          body: ListTile(
-              title: Text('item.expandedValue'),
-              subtitle:
-                  const Text('To delete this panel, tap the trash can icon'),
-              trailing: const Icon(Icons.delete),
-              onTap: () {
-                // setState(() {
-                //   _data.removeWhere((Item currentItem) => item == currentItem);
-                // });
-              }),
-          isExpanded: _data[7].isExpanded,
-        ),
-        ExpansionPanel(
-          headerBuilder: (BuildContext context, bool isExpanded) {
-            return ListTile(
-              title: Text(stageNames[8]),
-            );
-          },
-          body: ListTile(
-              title: Text('item.expandedValue'),
-              subtitle:
-                  const Text('To delete this panel, tap the trash can icon'),
-              trailing: const Icon(Icons.delete),
-              onTap: () {
-                // setState(() {
-                //   _data.removeWhere((Item currentItem) => item == currentItem);
-                // });
-              }),
-          isExpanded: _data[8].isExpanded,
-        ),
-      ],
+        growable: false,
+      ),
     );
   }
-}
-
-class Item {
-  Item({
-    required this.expandedValue,
-    required this.headerValue,
-    this.isExpanded = false,
-  });
-
-  String expandedValue;
-  String headerValue;
-  bool isExpanded;
-}
-
-List<Item> generateItems(List<String> stageNames) {
-  return List<Item>.generate(stageNames.length, (int index) {
-    return Item(
-      headerValue: stageNames[index],
-      expandedValue: 'This is item ${stageNames[index]}',
-    );
-  });
 }

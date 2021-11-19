@@ -8,7 +8,6 @@ import '../modules/staff/staff_view.dart';
 import '../modules/task/task_view.dart';
 import '../modules/stages/stages_view.dart';
 
-
 part 'app_routes.dart';
 
 class AppPages {

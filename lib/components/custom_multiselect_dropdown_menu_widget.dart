@@ -33,6 +33,7 @@ class CustomMultiselectDropdownMenu extends StatelessWidget {
           mode: Mode.MENU,
           showSelectedItems: false,
           items: items.map((e) => e.toString()).toList(),
+          maxHeight: items.length * 50,
           showClearButton: true,
           onChanged: onChanged,
           popupSelectionWidget: (

@@ -97,6 +97,10 @@ class StagesBinding extends Bindings {
       () => TaskController(),
     );
 
+    Get.lazyPut<StaffController>(
+      () => StaffController(),
+    );
+
     Get.lazyPut<StagesController>(
       () => StagesController(),
     );

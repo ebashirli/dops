@@ -28,9 +28,10 @@ class CustomDropdownMenu extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 8.0),
             child: DropdownSearch<String>(
               selectedItem: selectedItem,
-              maxHeight: items.length * 50,
+              maxHeight: items.length < 10 ? items.length * 50 : 250,
               mode: Mode.MENU,
               items: items.map((e) => e.toString()).toList(),
+              
               dropdownSearchDecoration: InputDecoration(
                 contentPadding: EdgeInsets.only(left: 10),
                 labelText: labelText,

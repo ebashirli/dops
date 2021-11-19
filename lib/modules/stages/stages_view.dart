@@ -16,17 +16,20 @@ class _StagesViewState extends State<StagesView> {
       appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(200, 20, 200, 20),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                child: controller.buildEdit(),
+        child: Column(
+          children: [
+            controller.buildEditForm(),
+            SizedBox(height: 10),
+            Expanded(
+              child: ListView(
+                children: [
+                  Obx(() {
+                    return controller.buildPanel();
+                  }),
+                ],
               ),
-              Container(
-                child: controller.buildPanel(),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

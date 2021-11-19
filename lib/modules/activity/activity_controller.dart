@@ -310,8 +310,6 @@ class ActivityController extends GetxController {
             break;
         }
       });
-      print(activity.activityId);
-      print(map['activityId']);
       return map;
     }).toList();
   }

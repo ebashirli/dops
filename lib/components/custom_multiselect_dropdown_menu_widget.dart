@@ -7,6 +7,7 @@ class CustomMultiselectDropdownMenu extends StatelessWidget {
   final void Function(List<String>) onChanged;
   final String labelText;
   final List<String> selectedItems;
+  final double? width;
 
   CustomMultiselectDropdownMenu({
     Key? key,
@@ -14,6 +15,7 @@ class CustomMultiselectDropdownMenu extends StatelessWidget {
     required this.items,
     required this.labelText,
     required this.selectedItems,
+    this.width,
   }) : super(key: key);
 
   @override

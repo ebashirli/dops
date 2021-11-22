@@ -1,13 +1,12 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 
-// ignore: must_be_immutable
 class CustomDropdownMenu extends StatelessWidget {
-  late String labelText;
+  final List<dynamic> items;
   final dynamic Function(String?)? onChanged;
+  final String labelText;
   final String? selectedItem;
   final double? width;
-  final List<dynamic> items;
 
   CustomDropdownMenu({
     Key? key,
@@ -27,6 +26,7 @@ class CustomDropdownMenu extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: 8.0),
             child: DropdownSearch<String>(
+              
               selectedItem: selectedItem,
               maxHeight: items.length < 10 ? items.length * 50 : 250,
               mode: Mode.MENU,

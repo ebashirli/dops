@@ -14,3 +14,28 @@ List<String> get listNames => [
       'Functional Areas',
       'Areas',
     ];
+
+Map<String, List<String>> stageInputFieldListsMap = {
+  '3D Admin': ['Phase', 'Initial weight'],
+  'Designing': [
+    'Designers',
+    'Planned Weight',
+    'Planned GAS qty',
+    'Planned SFD qty',
+    'Planned DTL qty',
+  ],
+  'Draftering': ['Files', 'Actual GAS qty', 'Actual SFD qty', 'Actual DTL qty'],
+  'Checking': ['Files'],
+  'Back Drafting': ['Files'],
+  'Back Checking': ['Comment'],
+  'Reviewer': ['Comment'],
+  'Filing': [
+    'Actual Weight',
+    'Actual GAS qty',
+    'Actual SFD qty',
+    'Actual DTL qty',
+    'Files',
+  ],
+  'Nesting Box': ['Nesting Files']
+  
+};

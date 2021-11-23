@@ -56,4 +56,6 @@ class TaskRepository {
   addModel(TaskModel data) async {
     await _api.addDocument(data.toMap());
   }
+
+  
 }

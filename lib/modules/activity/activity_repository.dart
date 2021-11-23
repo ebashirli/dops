@@ -32,6 +32,8 @@ class ActivityRepository {
             );
           },
         );
+        returnValue.sort((a, b) => (a.finishDate)!.compareTo(b.finishDate!));
+        returnValue.sort((a, b) => (a.startDate)!.compareTo(b.startDate!));
         return returnValue;
       },
     );

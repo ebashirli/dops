@@ -9,7 +9,7 @@ import '../../components/custom_date_time_form_field_widget.dart';
 import '../../components/custom_dropdown_menu_widget.dart';
 import '../../components/custom_full_screen_dialog_widget.dart';
 import '../../components/custom_snackbar_widget.dart';
-import '../../components/custom_string_text_field_widget.dart';
+import '../../components/custom_text_form_field_widget.dart';
 import '../../constants/style.dart';
 import 'staff_model.dart';
 import 'staff_repository.dart';
@@ -201,23 +201,23 @@ class StaffController extends GetxController {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(height: 10),
-                          CustomStringTextField(
+                          CustomTextFormField(
                             controller: badgeNoController,
                             labelText: 'Badge No',
                           ),
-                          CustomStringTextField(
+                          CustomTextFormField(
                             controller: nameController,
                             labelText: 'Name',
                           ),
-                          CustomStringTextField(
+                          CustomTextFormField(
                             controller: surnameController,
                             labelText: 'Surname',
                           ),
-                          CustomStringTextField(
+                          CustomTextFormField(
                             controller: patronymicController,
                             labelText: 'Patronymic',
                           ),
-                          CustomStringTextField(
+                          CustomTextFormField(
                             controller: initialController,
                             labelText: 'Initial',
                           ),
@@ -228,7 +228,7 @@ class StaffController extends GetxController {
                           ),
                           CustomDropdownMenu(
                             labelText: 'Company',
-                            selectedItem: companyText,
+                            selectedItems: [companyText],
                             onChanged: (value) {
                               companyText = value ?? '';
                             },
@@ -237,7 +237,7 @@ class StaffController extends GetxController {
                           ),
                           CustomDropdownMenu(
                             labelText: 'System Designation',
-                            selectedItem: systemDesignationText,
+                            selectedItems: [systemDesignationText],
                             onChanged: (value) {
                               systemDesignationText = value ?? '';
                             },
@@ -246,7 +246,7 @@ class StaffController extends GetxController {
                           ),
                           CustomDropdownMenu(
                             labelText: 'Job Title',
-                            selectedItem: jobTitleText,
+                            selectedItems: [jobTitleText],
                             onChanged: (value) {
                               jobTitleText = value ?? '';
                             },
@@ -258,7 +258,7 @@ class StaffController extends GetxController {
                             initialValue: startDate,
                             onDateSelected: (date) => startDate = date,
                           ),
-                          CustomStringTextField(
+                          CustomTextFormField(
                             controller: emailController,
                             labelText: 'E-mail',
                             validator: (value) =>
@@ -266,13 +266,13 @@ class StaffController extends GetxController {
                                     ? null
                                     : "Please enter a valid email",
                           ),
-                          CustomStringTextField(
+                          CustomTextFormField(
                             controller: homeAddressController,
                             labelText: 'Home Address',
                           ),
                           CustomDropdownMenu(
                             labelText: 'Current place',
-                            selectedItem: currentPlaceText,
+                            selectedItems: [currentPlaceText],
                             onChanged: (value) {
                               currentPlaceText = value ?? '';
                             },
@@ -284,21 +284,21 @@ class StaffController extends GetxController {
                             initialValue: contractFinishDate,
                             onDateSelected: (date) => contractFinishDate = date,
                           ),
-                          CustomStringTextField(
+                          CustomTextFormField(
                             controller: contactController,
                             labelText: 'Contact',
                             validator: validateMobile,
                           ),
-                          CustomStringTextField(
+                          CustomTextFormField(
                             controller: emergencyContactController,
                             labelText: 'Emergency Contact',
                             validator: validateMobile,
                           ),
-                          CustomStringTextField(
+                          CustomTextFormField(
                             controller: emergencyContactNameController,
                             labelText: 'Emergency Contact Name',
                           ),
-                          CustomStringTextField(
+                          CustomTextFormField(
                             controller: noteController,
                             labelText: 'Note',
                           ),

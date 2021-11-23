@@ -2,15 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
 import 'package:dops/routes/app_pages.dart';
+import 'package:dops/components/custom_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../components/custom_date_time_form_field_widget.dart';
-import '../../components/custom_dropdown_menu_widget.dart';
-import '../../components/custom_full_screen_dialog_widget.dart';
-import '../../components/custom_number_text_field_widget.dart';
-import '../../components/custom_string_text_field_widget.dart';
-import '../../components/custom_snackbar_widget.dart';
 import '../../constants/style.dart';
 import '../../constants/table_details.dart';
 import 'activity_model.dart';
@@ -96,7 +91,7 @@ class ActivityController extends GetxController {
     budgetedLaborUnitsController.clear();
     startTime = null;
     finishTime = null;
-    moduleNameText = null;
+    moduleNameText = '';
   }
 
   void fillEditingControllers(String id) async {
@@ -162,11 +157,11 @@ class ActivityController extends GetxController {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomStringTextField(
+                    CustomTextFormField(
                       controller: activityIdController,
                       labelText: tableColNames['activity']![1],
                     ),
-                    CustomStringTextField(
+                    CustomTextFormField(
                       controller: activityNameController,
                       labelText: tableColNames['activity']![2],
                     ),
@@ -175,14 +170,16 @@ class ActivityController extends GetxController {
                       onChanged: (value) {
                         moduleNameText = value ?? '';
                       },
-                      selectedItem: moduleNameText,
+                      selectedItems: [moduleNameText!],
                       items: dropdownSourcesController.document.value.modules!,
                     ),
-                    CustomNumberTextField(
+                    CustomTextFormField(
+                      isNumber: true,
                       controller: coefficientController,
                       labelText: tableColNames['activity']![5],
                     ),
-                    CustomNumberTextField(
+                    CustomTextFormField(
+                      isNumber: true,
                       controller: budgetedLaborUnitsController,
                       labelText: tableColNames['activity']![7],
                     ),
@@ -268,9 +265,15 @@ class ActivityController extends GetxController {
           case 'id':
             map[mapPropName] = Text(activity.id!);
             break;
-          case 'currentPriority':
+          case 'priority':
+            // _documents.sort((a, b) => (a.finishDate)!.compareTo(b.finishDate!));
+            // _documents.sort((a, b) => (a.startDate)!.compareTo(b.startDate!));
             map[mapPropName] =
-                Text('${activity.priority / activity.coefficient}');
+                Text((_documents.indexOf(activity) + 1).toString());
+            break;
+          case 'currentPriority':
+            map[mapPropName] = Text(
+                '${(_documents.indexOf(activity) + 1) * activity.coefficient}');
             break;
           case 'assignedTasks':
             final List<List<String>> assignedTasks = [];

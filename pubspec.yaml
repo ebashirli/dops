@@ -24,6 +24,7 @@ dependencies:
   multi_select_flutter: ^4.0.0
   email_validator: ^2.0.1
   file_picker: ^4.2.4
+  universal_html: ^2.0.8
 
   
   flutter: 

@@ -2,8 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/constants/table_details.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/routes/app_pages.dart';
-import '../../components/custom_multiselect_dropdown_menu_widget.dart';
-import '../../components/custom_string_text_field_widget.dart';
+import '../../components/custom_text_form_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -184,7 +183,7 @@ class TaskController extends GetxController {
                           SizedBox(height: 10),
                           CustomDropdownMenu(
                             labelText: 'Activity code',
-                            selectedItem: activityCodeText,
+                            selectedItems: [activityCodeText],
                             onChanged: (value) {
                               activityCodeText = value ?? '';
                             },
@@ -193,28 +192,28 @@ class TaskController extends GetxController {
                           ),
                           CustomDropdownMenu(
                             labelText: 'Project',
-                            selectedItem: projectText,
+                            selectedItems: [projectText],
                             onChanged: (value) {
                               projectText = value ?? '';
                             },
                             items: dropdownSourcesController
                                 .document.value.projects!,
                           ),
-                          CustomStringTextField(
+                          CustomTextFormField(
                             controller: drawingNumberController,
                             labelText: 'Drawing Number',
                           ),
-                          CustomStringTextField(
+                          CustomTextFormField(
                             controller: coverSheetRevisionController,
                             labelText: 'Cover Sheet Revision',
                           ),
-                          CustomStringTextField(
+                          CustomTextFormField(
                             controller: drawingTitleController,
                             labelText: 'Drawing Title',
                           ),
                           CustomDropdownMenu(
                             labelText: 'Module name',
-                            selectedItem: moduleNameText,
+                            selectedItems: [moduleNameText],
                             onChanged: (value) {
                               moduleNameText = value ?? '';
                             },
@@ -223,14 +222,15 @@ class TaskController extends GetxController {
                           ),
                           CustomDropdownMenu(
                             labelText: 'Level',
-                            selectedItem: levelText,
+                            selectedItems: [levelText],
                             onChanged: (value) {
                               levelText = value ?? '';
                             },
                             items: dropdownSourcesController
                                 .document.value.levels!,
                           ),
-                          CustomMultiselectDropdownMenu(
+                          CustomDropdownMenu(
+                            isMultiSelectable: true,
                             labelText: 'Area',
                             items:
                                 dropdownSourcesController.document.value.areas!,
@@ -239,7 +239,7 @@ class TaskController extends GetxController {
                           ),
                           CustomDropdownMenu(
                             labelText: 'Functional Area',
-                            selectedItem: functionalAreaText,
+                            selectedItems: [functionalAreaText],
                             onChanged: (value) {
                               functionalAreaText = value ?? '';
                             },
@@ -248,21 +248,22 @@ class TaskController extends GetxController {
                           ),
                           CustomDropdownMenu(
                             labelText: 'Structure Type',
-                            selectedItem: structureTypeText,
+                            selectedItems: [structureTypeText],
                             onChanged: (value) {
                               structureTypeText = value ?? '';
                             },
                             items: dropdownSourcesController
                                 .document.value.structureTypes!,
                           ),
-                          CustomMultiselectDropdownMenu(
+                          CustomDropdownMenu(
+                            isMultiSelectable: true,
                             labelText: 'Design Drawings',
                             items: referenceDocumentController
                                 .getFieldValues('documentNumber'),
                             onChanged: (values) => designDrawingsList = values,
                             selectedItems: designDrawingsList,
                           ),
-                          CustomStringTextField(
+                          CustomTextFormField(
                             controller: noteController,
                             labelText: 'Note',
                           ),

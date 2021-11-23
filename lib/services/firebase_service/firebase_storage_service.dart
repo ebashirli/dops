@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 class FirebaseStorageService extends GetxService implements StorageService {
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+
   final String path;
   late final CollectionReference ref;
   FirebaseStorageService(this.path) {
@@ -37,4 +38,5 @@ class FirebaseStorageService extends GetxService implements StorageService {
   Future<void> updateDocument(Map<String, dynamic> data, String id) {
     return ref.doc(id).update(data);
   }
+
 }

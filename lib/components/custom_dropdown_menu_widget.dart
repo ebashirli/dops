@@ -3,18 +3,20 @@ import 'package:flutter/material.dart';
 
 class CustomDropdownMenu extends StatelessWidget {
   final List<dynamic> items;
-  final dynamic Function(String?)? onChanged;
+  final void Function(dynamic) onChanged;
   final String labelText;
-  final String? selectedItem;
+  final List<String> selectedItems;
   final double? width;
+  final bool isMultiSelectable;
 
   CustomDropdownMenu({
     Key? key,
     required this.labelText,
     required this.onChanged,
-    this.selectedItem,
+    required this.selectedItems,
     this.width,
     required this.items,
+    this.isMultiSelectable = false,
   }) : super(key: key);
 
   @override
@@ -25,22 +27,54 @@ class CustomDropdownMenu extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(bottom: 8.0),
-            child: DropdownSearch<String>(
-              
-              selectedItem: selectedItem,
-              maxHeight: items.length < 10 ? items.length * 50 : 250,
-              mode: Mode.MENU,
-              items: items.map((e) => e.toString()).toList(),
-              
-              dropdownSearchDecoration: InputDecoration(
-                contentPadding: EdgeInsets.only(left: 10),
-                labelText: labelText,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              onChanged: onChanged,
-            ),
+            child: isMultiSelectable
+                ? DropdownSearch<String>.multiSelection(
+                    selectedItems: selectedItems,
+                    maxHeight: items.length < 3
+                        ? 150
+                        : items.length < 10
+                            ? items.length * 50
+                            : 250,
+                    dropdownSearchDecoration: InputDecoration(
+                      labelText: labelText,
+                      contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    mode: Mode.MENU,
+                    showSelectedItems: false,
+                    items: items.map((e) => e.toString()).toList(),
+                    showClearButton: true,
+                    onChanged: onChanged,
+                    popupSelectionWidget: (
+                      cnt,
+                      String item,
+                      bool isSelected,
+                    ) {
+                      return isSelected
+                          ? Icon(
+                              Icons.check_circle,
+                              color: Colors.green[500],
+                            )
+                          : Container();
+                    },
+                    clearButtonSplashRadius: 20,
+                  )
+                : DropdownSearch<String>(
+                    selectedItem: selectedItems[0],
+                    maxHeight: items.length < 10 ? items.length * 50 : 250,
+                    mode: Mode.MENU,
+                    items: items.map((e) => e.toString()).toList(),
+                    dropdownSearchDecoration: InputDecoration(
+                      labelText: labelText,
+                      contentPadding: EdgeInsets.only(left: 10),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onChanged: onChanged,
+                  ),
           ),
           SizedBox(height: 10),
         ],

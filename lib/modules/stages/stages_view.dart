@@ -22,6 +22,7 @@ class _StagesViewState extends State<StagesView> {
             SizedBox(height: 10),
             Expanded(
               child: ListView(
+                controller: ScrollController(),
                 children: [
                   Obx(() {
                     return controller.buildPanel();

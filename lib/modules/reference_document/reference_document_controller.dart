@@ -10,7 +10,7 @@ import '../../components/custom_date_time_form_field_widget.dart';
 import '../../components/custom_dropdown_menu_widget.dart';
 import '../../components/custom_full_screen_dialog_widget.dart';
 import '../../components/custom_snackbar_widget.dart';
-import '../../components/custom_string_text_field_widget.dart';
+import '../../components/custom_text_form_field_widget.dart';
 import '../../constants/style.dart';
 import 'reference_document_model.dart';
 import 'reference_document_repository.dart';
@@ -159,7 +159,7 @@ class ReferenceDocumentController extends GetxController {
                   children: [
                     CustomDropdownMenu(
                       labelText: 'Project',
-                      selectedItem: projectText,
+                      selectedItems: [projectText],
                       onChanged: (value) {
                         projectText = value ?? '';
                       },
@@ -167,7 +167,7 @@ class ReferenceDocumentController extends GetxController {
                     ),
                     CustomDropdownMenu(
                       labelText: 'Module name',
-                      selectedItem: moduleNameText,
+                      selectedItems: [moduleNameText],
                       onChanged: (value) {
                         moduleNameText = value ?? '';
                       },
@@ -175,26 +175,26 @@ class ReferenceDocumentController extends GetxController {
                     ),
                     CustomDropdownMenu(
                       labelText: 'Reference Type',
-                      selectedItem: referenceTypeText,
+                      selectedItems: [referenceTypeText],
                       onChanged: (value) {
                         referenceTypeText = value ?? '';
                       },
                       items: dropdownSourcesController
                           .document.value.referenceTypes!,
                     ),
-                    CustomStringTextField(
+                    CustomTextFormField(
                       controller: documentNumberController,
                       labelText: 'Document number',
                     ),
-                    CustomStringTextField(
+                    CustomTextFormField(
                       controller: revisionCodeController,
                       labelText: 'Revision code',
                     ),
-                    CustomStringTextField(
+                    CustomTextFormField(
                       controller: titleController,
                       labelText: 'Title',
                     ),
-                    CustomStringTextField(
+                    CustomTextFormField(
                       controller: transmittalNumberController,
                       labelText: 'Transmittal number',
                     ),

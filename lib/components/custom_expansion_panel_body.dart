@@ -1,4 +1,4 @@
-import 'package:dops/components/custom_string_text_field_widget.dart';
+import 'package:dops/components/custom_text_form_field_widget.dart';
 import 'package:flutter/material.dart';
 
 class CustomExpansionPanelBody extends StatelessWidget {
@@ -22,7 +22,7 @@ class CustomExpansionPanelBody extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CustomStringTextField(
+                  CustomTextFormField(
                     labelText: '',
                   ),
                   Padding(
@@ -40,7 +40,7 @@ class CustomExpansionPanelBody extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CustomStringTextField(
+                CustomTextFormField(
                   labelText: '',
                 ),
                 Padding(

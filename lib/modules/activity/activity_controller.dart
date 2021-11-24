@@ -94,8 +94,9 @@ class ActivityController extends GetxController {
     moduleNameText = '';
   }
 
-  void fillEditingControllers(String id) async {
-    final ActivityModel model = await _repository.getModelById(id);
+  void fillEditingControllers(String id) {
+    final ActivityModel model =
+        documents.where((document) => document.id == id).toList()[0];
 
     activityIdController.text = model.activityId ?? '';
     activityNameController.text = model.activityName ?? '';
@@ -266,10 +267,8 @@ class ActivityController extends GetxController {
             map[mapPropName] = Text(activity.id!);
             break;
           case 'priority':
-            // _documents.sort((a, b) => (a.finishDate)!.compareTo(b.finishDate!));
-            // _documents.sort((a, b) => (a.startDate)!.compareTo(b.startDate!));
             map[mapPropName] =
-                Text((_documents.indexOf(activity) + 1).toString());
+                Text((documents.indexOf(activity) + 1).toString());
             break;
           case 'currentPriority':
             map[mapPropName] = Text(
@@ -293,9 +292,9 @@ class ActivityController extends GetxController {
                                 (taskDrawingNumberAndId) => TextButton(
                                   onPressed: () {
                                     Get.back();
-                                    taskController.openedTaskId.value =
-                                        taskDrawingNumberAndId[1];
-                                    Get.toNamed(Routes.STAGES);
+                                    Get.toNamed(Routes.STAGES, parameters: {
+                                      'id': taskDrawingNumberAndId[1],
+                                    });
                                   },
                                   child: Text(taskDrawingNumberAndId[0]),
                                 ),

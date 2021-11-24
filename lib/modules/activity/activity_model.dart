@@ -3,7 +3,6 @@ class ActivityModel {
   String? activityId;
   String? activityName;
   String? moduleName;
-  int priority;
   int coefficient;
   double? currentPriority;
   double? budgetedLaborUnits;
@@ -17,7 +16,6 @@ class ActivityModel {
     this.activityId,
     this.activityName,
     this.moduleName,
-    this.priority = 0,
     this.coefficient = 1,
     this.currentPriority,
     this.budgetedLaborUnits,
@@ -32,7 +30,6 @@ class ActivityModel {
       'activityId': activityId,
       'activityName': activityName,
       'moduleName': moduleName,
-      'priority': priority,
       'coefficient': coefficient,
       'budgetedLaborUnits': budgetedLaborUnits,
       'startDate': startDate,
@@ -51,7 +48,6 @@ class ActivityModel {
       activityId: map['activityId'],
       activityName: map['activityName'],
       moduleName: map['moduleName'],
-      priority: map['priority'],
       coefficient: map['coefficient'],
       budgetedLaborUnits: map['budgetedLaborUnits'],
       startDate: map['startDate'] != null ? map['startDate'].toDate() : null,

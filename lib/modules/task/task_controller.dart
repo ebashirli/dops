@@ -37,8 +37,6 @@ class TaskController extends GetxController {
       functionalAreaText,
       structureTypeText;
 
-  RxString openedTaskId = ''.obs;
-
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
 
@@ -347,6 +345,15 @@ class TaskController extends GetxController {
               case 'id':
                 map[mapPropName] = Text(task.id!);
                 break;
+              case 'priority':
+                map[mapPropName] = Text((activityController.documents.indexOf(
+                            activityController.documents
+                                .where((document) =>
+                                    document.activityId == task.activityCode)
+                                .toList()[0]) +
+                        1)
+                    .toString());
+                break;
               case 'area':
               case 'functionalArea':
               case 'note':
@@ -356,13 +363,11 @@ class TaskController extends GetxController {
               case 'taskCreateDate':
                 map[mapPropName] = Text(task.taskCreateDate.toString());
                 break;
-
               case 'drawingNumber':
                 map[mapPropName] = TextButton(
                   child: Text('${task.drawingNumber}'),
                   onPressed: () {
-                    openedTaskId.value = task.id!;
-                    Get.toNamed(Routes.STAGES);
+                    Get.toNamed(Routes.STAGES, parameters: {'id': task.id!});
                   },
                 );
                 break;

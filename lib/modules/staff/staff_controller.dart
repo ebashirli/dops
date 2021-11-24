@@ -122,8 +122,9 @@ class StaffController extends GetxController {
     companyText = '';
   }
 
-  void fillEditingControllers(String id) async {
-    final StaffModel model = await _repository.getModelById(id);
+  void fillEditingControllers(String id) {
+    final StaffModel model =
+        documents.where((document) => document.id == id).toList()[0];
 
     badgeNoController.text = model.badgeNo;
     nameController.text = model.name;

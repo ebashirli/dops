@@ -102,7 +102,11 @@ class StagesController extends GetxController {
     super.onReady();
   }
 
-  void fillEditingControllers(TaskModel model) {
+  void fillEditingControllers(String id) {
+    
+    final TaskModel model =
+        taskController.documents.where((document) => document.id == id).toList()[0];
+
     drawingNumberController.text = model.drawingNumber;
     coverSheetRevisionController.text = model.coverSheetRevision;
     drawingTitleController.text = model.drawingTitle;
@@ -138,9 +142,7 @@ class StagesController extends GetxController {
   }
 
   Widget buildEditForm() {
-    fillEditingControllers(taskController.documents
-        .where((document) => document.id == taskController.openedTaskId.value)
-        .toList()[0]);
+    fillEditingControllers(Get.parameters['id']!);
 
     return Form(
       key: taskFormKey,
@@ -362,7 +364,7 @@ class StagesController extends GetxController {
                       );
                       updateDocument(
                         model: model,
-                        id: taskController.openedTaskId.value,
+                        id: Get.parameters['id']!,
                       );
                     },
                     child: Text('Update'),
@@ -524,9 +526,7 @@ class StagesController extends GetxController {
                                     onPressed: () {
                                       if (formKeysList[index][1]
                                           .currentState!
-                                          .validate()) {
-                                        print('helllllllooooooooooooo $index');
-                                      }
+                                          .validate()) {}
                                     },
                                     child: Container(
                                       height: 46,

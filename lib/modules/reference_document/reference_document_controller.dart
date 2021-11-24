@@ -93,8 +93,9 @@ class ReferenceDocumentController extends GetxController {
     referenceTypeText = '';
   }
 
-  void fillEditingControllers(String id) async {
-    final ReferenceDocumentModel model = await _repository.getModelById(id);
+  void fillEditingControllers(String id) {
+    final ReferenceDocumentModel model =
+        documents.where((document) => document.id == id).toList()[0];
 
     documentNumberController.text = model.documentNumber;
     revisionCodeController.text = model.revisionCode;
@@ -348,9 +349,9 @@ class ReferenceDocumentController extends GetxController {
                                 (taskDrawingNumberAndId) => TextButton(
                                   onPressed: () {
                                     Get.back();
-                                    taskController.openedTaskId.value =
-                                        taskDrawingNumberAndId[1];
-                                    Get.toNamed(Routes.STAGES);
+                                    Get.toNamed(Routes.STAGES, parameters: {
+                                      'id': taskDrawingNumberAndId[1]
+                                    });
                                   },
                                   child: Text(taskDrawingNumberAndId[0]),
                                 ),

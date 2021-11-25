@@ -376,34 +376,24 @@ class StaffController extends GetxController {
     );
   }
 
-  List<Map<String, Widget>> get getDataForTableView {
+  List<Map<String, dynamic>> get getDataForTableView {
     List<String> mapPropNames = mapPropNamesGetter('staff');
 
     return documents.map((staffMember) {
-      Map<String, Widget> map = {};
+      Map<String, dynamic> map = {};
       mapPropNames.forEach((mapPropName) {
         switch (mapPropName) {
           case 'id':
-            map[mapPropName] = Text(staffMember.id!);
+            map[mapPropName] = staffMember.id!;
             break;
           case 'isHidden':
             break;
           case 'fullName':
-            map[mapPropName] = Text(
-              '${staffMember.name} ${staffMember.surname} ${staffMember.patronymic}',
-            );
-            break;
-          case 'dateOfBirth':
-          case 'startDate':
-          case 'contractFinishDate':
-            map[mapPropName] = Text(
-              '${staffMember.toMap()[mapPropName].toString().substring(0, 10)}',
-            );
+            map[mapPropName] =
+                '${staffMember.name} ${staffMember.surname} ${staffMember.patronymic}';
             break;
           default:
-            map[mapPropName] = Text(
-              '${staffMember.toMap()[mapPropName]}',
-            );
+            map[mapPropName] = staffMember.toMap()[mapPropName];
             break;
         }
       });

@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/constants/table_details.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
-import 'package:dops/routes/app_pages.dart';
 import '../../components/custom_text_form_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -332,27 +331,25 @@ class TaskController extends GetxController {
     );
   }
 
-  List<Map<String, Widget>> get getDataForTableView {
+  List<Map<String, dynamic>> get getDataForTableView {
     List<String> mapPropNames = mapPropNamesGetter('task');
 
     return documents.map(
       (task) {
-        Map<String, Widget> map = {};
+        Map<String, dynamic> map = {};
 
         mapPropNames.forEach(
           (mapPropName) {
             switch (mapPropName) {
               case 'id':
-                map[mapPropName] = Text(task.id!);
+                map[mapPropName] = task.id!;
                 break;
               case 'priority':
-                map[mapPropName] = Text((activityController.documents.indexOf(
-                            activityController.documents
-                                .where((document) =>
-                                    document.activityId == task.activityCode)
-                                .toList()[0]) +
-                        1)
-                    .toString());
+                map[mapPropName] = activityController.documents
+                        .indexOf(activityController.documents.where((document) {
+                      return document.activityId == task.activityCode;
+                    }).toList()[0]) +
+                    1;
                 break;
               case 'area':
               case 'functionalArea':
@@ -361,18 +358,13 @@ class TaskController extends GetxController {
               case 'isHidden':
                 break;
               case 'taskCreateDate':
-                map[mapPropName] = Text(task.taskCreateDate.toString());
+                map[mapPropName] = task.taskCreateDate;
                 break;
               case 'drawingNumber':
-                map[mapPropName] = TextButton(
-                  child: Text('${task.drawingNumber}'),
-                  onPressed: () {
-                    Get.toNamed(Routes.STAGES, parameters: {'id': task.id!});
-                  },
-                );
+                map[mapPropName] = [task.drawingNumber, task.id];
                 break;
               default:
-                map[mapPropName] = Text('${task.toMap()[mapPropName] ?? ""}');
+                map[mapPropName] = task.toMap()[mapPropName];
                 break;
             }
           },

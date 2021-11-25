@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/constants/table_details.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
-import 'package:dops/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -314,21 +313,21 @@ class ReferenceDocumentController extends GetxController {
     actionRequiredOrNext.value = value!;
   }
 
-  List<Map<String, Widget>> get getDataForTableView {
+  List<Map<String, dynamic>> get getDataForTableView {
     List<String> mapPropNames = mapPropNamesGetter('reference document');
 
     return documents.map((referenceDocument) {
-      Map<String, Widget> map = {};
+      Map<String, dynamic> map = {};
 
       mapPropNames.forEach((mapPropName) {
         switch (mapPropName) {
           case 'id':
-            map[mapPropName] = Text(referenceDocument.id!);
+            map[mapPropName] = referenceDocument.id!;
             break;
           case 'actionRequiredOrNext':
             map[mapPropName] = !referenceDocument.actionRequiredOrNext
-                ? Text('Action required')
-                : Text('Next');
+                ? 'Action required'
+                : 'Next';
             break;
           case 'assignedTasks':
             final List<List<String>> assignedTasks = [];
@@ -337,36 +336,10 @@ class ReferenceDocumentController extends GetxController {
                   .contains(referenceDocument.documentNumber))
                 assignedTasks.add([task.drawingNumber, task.id!]);
             });
-            map[mapPropName] = assignedTasks.length != 0
-                ? TextButton(
-                    child: Text('${assignedTasks.length}'),
-                    onPressed: () {
-                      Get.defaultDialog(
-                        title: 'Assigned tasks',
-                        content: Column(
-                          children: assignedTasks
-                              .map(
-                                (taskDrawingNumberAndId) => TextButton(
-                                  onPressed: () {
-                                    Get.back();
-                                    Get.toNamed(Routes.STAGES, parameters: {
-                                      'id': taskDrawingNumberAndId[1]
-                                    });
-                                  },
-                                  child: Text(taskDrawingNumberAndId[0]),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      );
-                    },
-                  )
-                : Text('0');
-
+            map[mapPropName] = assignedTasks;
             break;
           default:
-            map[mapPropName] =
-                Text('${referenceDocument.toMap()[mapPropName]}');
+            map[mapPropName] = referenceDocument.toMap()[mapPropName];
             break;
         }
       });

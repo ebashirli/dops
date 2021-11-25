@@ -14,15 +14,22 @@ class ActivityView extends StatelessWidget {
       () {
         return Stack(
           children: [
-            if (controller.getDataForTableView.isEmpty)
+            if (controller.documents.isEmpty)
               Container(
                 child: Center(
                   child: CircularProgressIndicator(),
                 ),
               ),
-            TableView(
-              controller: controller,
-              tableName: tableName,
+            Padding(
+              padding: EdgeInsets.only(left: 200, top: 20),
+              child: Container(
+                // decoration: BoxDecoration(
+                //     border: Border.all(width: 1.0, color: Colors.grey)),
+                child: TableView(
+                  controller: controller,
+                  tableName: tableName,
+                ),
+              ),
             )
           ],
         );

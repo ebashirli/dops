@@ -1,7 +1,7 @@
+import 'package:dops/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
-
 import '../constants/table_details.dart';
 
 class TableView extends StatelessWidget {
@@ -20,61 +20,35 @@ class TableView extends StatelessWidget {
       () {
         final DataSource dataSource =
             DataSource(data: controller.getDataForTableView);
+        final DataGridController _dataGridController = DataGridController();
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SfDataGrid(
-              isScrollbarAlwaysShown: false,
-              source: dataSource,
-              columns: getColumns(tableColNames[tableName]!),
-              gridLinesVisibility: GridLinesVisibility.both,
-              headerGridLinesVisibility: GridLinesVisibility.both,
-              columnWidthMode: ColumnWidthMode.fill,
-              allowSorting: true,
-              rowHeight: 70,
-              onCellTap: (details) {
-                if (details.rowColumnIndex.rowIndex == 0) {
-                  if (!controller.sortAscending.value) {
-                    dataSource.sortedColumns.add(
-                      SortColumnDetails(
-                        name: tableColNames[tableName]![
-                                details.rowColumnIndex.columnIndex]
-                            .toLowerCase(),
-                        sortDirection: DataGridSortDirection.ascending,
-                      ),
-                    );
-                    dataSource.sort();
-                    // DataGridSortDirection.ascending;
-                    controller.sortAscending.value = true;
-                  } else {
-                    dataSource.sortedColumns.add(
-                      SortColumnDetails(
-                        name: tableColNames[tableName]![
-                                details.rowColumnIndex.columnIndex]
-                            .toLowerCase(),
-                        sortDirection: DataGridSortDirection.descending,
-                      ),
-                    );
-                    dataSource.sort();
-                    // DataGridSortDirection.descending;
-                    controller.sortAscending.value = false;
-                  }
-                }
-              },
-              onCellDoubleTap: (details) {
-                String idCellValue = dataSource
-                    .rows[details.rowColumnIndex.rowIndex - 1]
-                    .getCells()[0]
-                    .value
-                    .toString();
-                idCellValue = idCellValue.substring(6, idCellValue.length - 2);
-
-                controller.buildAddEdit(id: idCellValue);
-              },
-            ),
-          ],
+        return Scaffold(
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              String rowId =
+                  _dataGridController.selectedRow!.getCells()[0].value;
+              controller.buildAddEdit(id: rowId);
+            },
+            child: const Icon(Icons.edit),
+            backgroundColor: Colors.green,
+          ),
+          body: SfDataGrid(
+            isScrollbarAlwaysShown: false,
+            source: dataSource,
+            columns: getColumns(tableColNames[tableName]!),
+            gridLinesVisibility: GridLinesVisibility.both,
+            headerGridLinesVisibility: GridLinesVisibility.both,
+            columnWidthMode: ColumnWidthMode.fill,
+            allowSorting: true,
+            rowHeight: 70,
+            controller: _dataGridController,
+            selectionMode: SelectionMode.single,
+            onCellTap: (details) {
+              if (_dataGridController.selectedIndex >= 0) {
+                _dataGridController.selectedIndex = -1;
+              }
+            },
+          ),
         );
       },
     );
@@ -100,7 +74,7 @@ class TableView extends StatelessWidget {
           case 'id':
             return GridColumn(
               columnName: colName,
-              width: 200,
+              width: 0,
               label: Text(
                 colName,
               ),
@@ -135,13 +109,13 @@ class TableView extends StatelessWidget {
 List<DataGridRow> _data = [];
 
 class DataSource extends DataGridSource {
-  DataSource({required List<Map<String, Widget>> data}) {
+  DataSource({required List<Map<String, dynamic>> data}) {
     _data = data.map<DataGridRow>(
       (map) {
         return DataGridRow(
           cells: map.entries.map(
             (entry) {
-              return DataGridCell<Widget>(
+              return DataGridCell<dynamic>(
                 columnName: entry.key,
                 value: entry.value,
               );
@@ -164,7 +138,37 @@ class DataSource extends DataGridSource {
             alignment: Alignment.center,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Container(child: cell.value),
+              child: (cell.columnName == 'assignedTasks' ||
+                          cell.columnName == 'drawingNumber') &&
+                      cell.value.length > 0
+                  ? cell.columnName == 'drawingNumber'
+                      ? TextButton(
+                          onPressed: () {
+                            Get.toNamed(Routes.STAGES,
+                                parameters: {'id': cell.value[0][1]});
+                          },
+                          child: Text(cell.value[0][0]),
+                        )
+                      : TextButton(
+                          onPressed: () {
+                            Get.defaultDialog(
+                                content: Column(
+                              children: cell.value
+                                  .map<Widget>(
+                                    (taskNoId) => TextButton(
+                                      onPressed: () {
+                                        Get.toNamed(Routes.STAGES,
+                                            parameters: {'id': taskNoId[1]});
+                                      },
+                                      child: Text(taskNoId[0]),
+                                    ),
+                                  )
+                                  .toList(),
+                            ));
+                          },
+                          child: Text(cell.value.length.toString()),
+                        )
+                  : Text(cell.value.toString()),
             ),
           );
         },

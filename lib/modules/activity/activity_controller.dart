@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
-import 'package:dops/routes/app_pages.dart';
 import 'package:dops/components/custom_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -256,23 +255,22 @@ class ActivityController extends GetxController {
     );
   }
 
-  List<Map<String, Widget>> get getDataForTableView {
+  List<Map<String, dynamic>> get getDataForTableView {
     List<String> mapPropNames = mapPropNamesGetter('activity');
 
     return documents.map((activity) {
-      Map<String, Widget> map = {};
+      Map<String, dynamic> map = {};
       mapPropNames.forEach((mapPropName) {
         switch (mapPropName) {
           case 'id':
-            map[mapPropName] = Text(activity.id!);
+            map[mapPropName] = activity.id!;
             break;
           case 'priority':
-            map[mapPropName] =
-                Text((documents.indexOf(activity) + 1).toString());
+            map[mapPropName] = documents.indexOf(activity) + 1;
             break;
           case 'currentPriority':
-            map[mapPropName] = Text(
-                '${(_documents.indexOf(activity) + 1) * activity.coefficient}');
+            map[mapPropName] =
+                (_documents.indexOf(activity) + 1) * activity.coefficient;
             break;
           case 'assignedTasks':
             final List<List<String>> assignedTasks = [];
@@ -280,35 +278,10 @@ class ActivityController extends GetxController {
               if (task.activityCode == activity.activityId)
                 assignedTasks.add([task.drawingNumber, task.id!]);
             });
-            map[mapPropName] = assignedTasks.length != 0
-                ? TextButton(
-                    child: Text('${assignedTasks.length}'),
-                    onPressed: () {
-                      Get.defaultDialog(
-                        title: 'Assigned tasks',
-                        content: Column(
-                          children: assignedTasks
-                              .map(
-                                (taskDrawingNumberAndId) => TextButton(
-                                  onPressed: () {
-                                    Get.back();
-                                    Get.toNamed(Routes.STAGES, parameters: {
-                                      'id': taskDrawingNumberAndId[1],
-                                    });
-                                  },
-                                  child: Text(taskDrawingNumberAndId[0]),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      );
-                    },
-                  )
-                : Text('0');
-
+            map[mapPropName] = assignedTasks;
             break;
           default:
-            map[mapPropName] = Text('${activity.toMap()[mapPropName]}');
+            map[mapPropName] = activity.toMap()[mapPropName];
             break;
         }
       });

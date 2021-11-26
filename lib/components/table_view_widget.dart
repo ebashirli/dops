@@ -140,12 +140,12 @@ class DataSource extends DataGridSource {
               padding: const EdgeInsets.all(8.0),
               child: (cell.columnName == 'assignedTasks' ||
                           cell.columnName == 'drawingNumber') &&
-                      cell.value.length > 0
+                      cell.value.length != 0
                   ? cell.columnName == 'drawingNumber'
                       ? TextButton(
                           onPressed: () {
                             Get.toNamed(Routes.STAGES,
-                                parameters: {'id': cell.value[0][1]});
+                                parameters: {'id': cell.value[1]});
                           },
                           child: Text(cell.value[0][0]),
                         )

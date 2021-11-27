@@ -14,9 +14,9 @@ import '../reference_document/reference_document_controller.dart';
 import 'drawing_model.dart';
 import 'drawing_repository.dart';
 
-class TaskController extends GetxController {
-  final GlobalKey<FormState> taskFormKeyOnStages = GlobalKey<FormState>();
-  final _repository = Get.find<TaskRepository>();
+class DrawingController extends GetxController {
+  final GlobalKey<FormState> drawingFormKeyOnStages = GlobalKey<FormState>();
+  final _repository = Get.find<DrawingRepository>();
   final activityController = Get.find<ActivityController>();
   final referenceDocumentController = Get.find<ReferenceDocumentController>();
   final dropdownSourcesController = Get.find<DropdownSourcesController>();
@@ -32,7 +32,6 @@ class TaskController extends GetxController {
   late int revisionNumber = 0;
 
   late String activityCodeText,
-      projectText,
       moduleNameText,
       levelText,
       functionalAreaText,
@@ -55,7 +54,7 @@ class TaskController extends GetxController {
     _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
 
-  addNewTask({required DrawingModel model}) async {
+  addNewDrawing({required DrawingModel model}) async {
     CustomFullScreenDialog.showDialog();
     model.drawingCreateDate = DateTime.now();
     await _repository.addModel(model);
@@ -63,13 +62,14 @@ class TaskController extends GetxController {
     Get.back();
   }
 
-  updateDrawing({required DrawingModel updatedModel, required String id}) async {
+  updateDrawing(
+      {required DrawingModel updatedModel, required String id}) async {
     // TODO: move following line to Add/update button if it is relevant
-    final isValid = taskFormKeyOnStages.currentState!.validate();
+    final isValid = drawingFormKeyOnStages.currentState!.validate();
     if (!isValid) {
       return;
     }
-    taskFormKeyOnStages.currentState!.save();
+    drawingFormKeyOnStages.currentState!.save();
     //update
     CustomFullScreenDialog.showDialog();
     updatedModel.drawingCreateDate = documents
@@ -81,7 +81,7 @@ class TaskController extends GetxController {
     Get.back();
   }
 
-  void deleteTask(String id) {
+  void deleteDrawing(String id) {
     _repository.removeModel(id);
   }
 
@@ -97,7 +97,6 @@ class TaskController extends GetxController {
     noteController.clear();
 
     activityCodeText = '';
-    projectText = '';
     moduleNameText = '';
     levelText = '';
     functionalAreaText = '';
@@ -111,21 +110,16 @@ class TaskController extends GetxController {
 
   void fillEditingControllers(DrawingModel model) {
     drawingNumberController.text = model.drawingNumber;
-    nextRevisionNumberController.text = model.coverSheetRevision;
     drawingTitleController.text = model.drawingTitle;
     noteController.text = model.note;
 
     activityCodeText = model.activityCode;
-    projectText = model.project;
     moduleNameText = model.module;
     levelText = model.level;
     functionalAreaText = model.functionalArea;
     structureTypeText = model.structureType;
 
-    designDrawingsList = model.designDrawings;
     areaList = model.area;
-
-    revisionNumber = model.revisionNumber!;
   }
 
   whenCompleted() {
@@ -174,7 +168,7 @@ class TaskController extends GetxController {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Form(
-            key: taskFormKeyOnStages,
+            key: drawingFormKeyOnStages,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Container(
               width: Get.width * .5,
@@ -196,17 +190,9 @@ class TaskController extends GetxController {
                                   onChanged: (value) {
                                     activityCodeText = value ?? '';
                                   },
-                                  items: activityController
-                                      .getFieldValues('activityId'),
-                                ),
-                                CustomDropdownMenu(
-                                  labelText: 'Project',
-                                  selectedItems: [projectText],
-                                  onChanged: (value) {
-                                    projectText = value ?? '';
-                                  },
-                                  items: dropdownSourcesController
-                                      .document.value.projects!,
+                                  items: activityController.documents
+                                      .map((document) => document.activityId)
+                                      .toList(),
                                 ),
                                 CustomTextFormField(
                                   controller: drawingNumberController,
@@ -289,8 +275,10 @@ class TaskController extends GetxController {
                                 CustomDropdownMenu(
                                   isMultiSelectable: true,
                                   labelText: 'Design Drawings',
-                                  items: referenceDocumentController
-                                      .getFieldValues('documentNumber'),
+                                  items: referenceDocumentController.documents
+                                      .map(
+                                          (document) => document.documentNumber)
+                                      .toList(),
                                   onChanged: (values) =>
                                       designDrawingsList = values,
                                   selectedItems: designDrawingsList,
@@ -308,7 +296,7 @@ class TaskController extends GetxController {
                         if (id != null)
                           ElevatedButton.icon(
                             onPressed: () {
-                              deleteTask(id);
+                              deleteDrawing(id);
                               Get.back();
                             },
                             icon: Icon(Icons.delete),
@@ -329,47 +317,24 @@ class TaskController extends GetxController {
                             DrawingModel revisedOrNewModel = DrawingModel(
                               activityCode: activityCodeText,
                               drawingNumber: drawingNumberController.text,
-                              designDrawings:
-                                  id == null ? [] : designDrawingsList,
                               drawingTitle: drawingTitleController.text,
-                              coverSheetRevision:
-                                  nextRevisionNumberController.text,
                               level: levelText,
                               module: moduleNameText,
                               structureType: structureTypeText,
                               note: noteController.text,
                               area: areaList,
-                              project: projectText,
                               functionalArea: functionalAreaText,
-                              revisionNumber: revisionNumber,
                             );
 
-                            if (newRev) {
-                              revisedOrNewModel.coverSheetRevision = id == null
-                                  ? 'C01'
-                                  : nextRevisionNumberController.text;
-                              revisedOrNewModel.designDrawings =
-                                  id == null ? [] : designDrawingsList;
-                              revisedOrNewModel.revisionNumber =
-                                  id == null ? 0 : revisionNumber + 1;
-                            }
                             id == null
-                                ? addNewTask(model: revisedOrNewModel)
-                                : newRev
-                                    ? addNewTask(
-                                        model: revisedOrNewModel,
-                                      )
-                                    : updateDrawing(
-                                        updatedModel: revisedOrNewModel,
-                                        id: id,
-                                      );
+                                ? addNewDrawing(model: revisedOrNewModel)
+                                : updateDrawing(
+                                    updatedModel: revisedOrNewModel,
+                                    id: id,
+                                  );
                           },
                           child: Text(
-                            id != null
-                                ? newRev
-                                    ? 'Add next revision'
-                                    : 'Update'
-                                : 'Add',
+                            id != null ? 'Update' : 'Add',
                           ),
                         ),
                       ],
@@ -385,42 +350,38 @@ class TaskController extends GetxController {
   }
 
   List<Map<String, dynamic>> get getDataForTableView {
-    List<String> mapPropNames = mapPropNamesGetter('task');
+    List<String> mapPropNames = mapPropNamesGetter('drawing');
 
     return documents.map(
-      (task) {
+      (drawing) {
         Map<String, dynamic> map = {};
 
         mapPropNames.forEach(
           (mapPropName) {
             switch (mapPropName) {
               case 'id':
-                map[mapPropName] = task.id!;
+                map[mapPropName] = drawing.id!;
                 break;
               case 'priority':
                 map[mapPropName] = activityController.documents
                         .indexOf(activityController.documents.where((document) {
-                      return document.activityId == task.activityCode;
+                      return document.activityId == drawing.activityCode;
                     }).toList()[0]) +
                     1;
                 break;
               case 'area':
               case 'functionalArea':
               case 'note':
-              case 'project':
               case 'isHidden':
                 break;
-              case 'taskCreateDate':
-                map[mapPropName] = task.drawingCreateDate;
+              case 'drawingCreateDate':
+                map[mapPropName] = drawing.drawingCreateDate;
                 break;
               case 'drawingNumber':
-                map[mapPropName] = '${task.drawingNumber}|${task.id}';
-                break;
-              case 'designDrawings':
-                map[mapPropName] = '${task.designDrawings.join(';')}';
+                map[mapPropName] = '${drawing.drawingNumber}|${drawing.id}';
                 break;
               default:
-                map[mapPropName] = task.toMap()[mapPropName];
+                map[mapPropName] = drawing.toMap()[mapPropName];
                 break;
             }
           },
@@ -428,9 +389,5 @@ class TaskController extends GetxController {
         return map;
       },
     ).toList();
-  }
-
-  List<dynamic> getFieldValues(String fieldName) {
-    return _documents.map((doc) => doc.toMap()[fieldName]).toList();
   }
 }

@@ -1,4 +1,5 @@
 import 'package:dops/components/table_view_widget.dart';
+import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 
 import '../activity/activity_controller.dart';
@@ -17,6 +18,7 @@ class HomeView extends GetView<HomeController> {
   final referenceDocumentController = Get.find<ReferenceDocumentController>();
   final staffController = Get.find<StaffController>();
   final taskController = Get.find<TaskController>();
+  final drawingController = Get.find<DrawingController>();
   final listController = Get.find<DropdownSourcesController>();
   late GetxController tableController;
   late String tableName;
@@ -40,13 +42,11 @@ class HomeView extends GetView<HomeController> {
         tableController = activityController;
         tableName = 'activity';
         break;
-      // return ActivityView();
 
       case HomeStates.ReferenceDocumentState:
         tableController = referenceDocumentController;
         tableName = 'reference document';
         break;
-      // return ReferenceDocumentView();
 
       case HomeStates.DropdownSourceListState:
         return DropdownSourcesView();
@@ -55,13 +55,11 @@ class HomeView extends GetView<HomeController> {
         tableController = staffController;
         tableName = 'staff';
         break;
-      // return StaffView();
 
       case HomeStates.TaskState:
         tableController = taskController;
         tableName = 'task';
         break;
-      // return TaskView();
     }
     return TableView(
       controller: tableController,
@@ -173,7 +171,7 @@ class HomeView extends GetView<HomeController> {
       case HomeStates.StaffState:
         return staffController.buildAddEdit();
       case HomeStates.TaskState:
-        return taskController.buildAddEdit();
+        return drawingController.buildAddEdit();
       case HomeStates.DropdownSourceListState:
         return listController.buildAddEdit();
     }

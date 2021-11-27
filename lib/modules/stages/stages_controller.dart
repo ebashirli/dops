@@ -178,8 +178,9 @@ class StagesController extends GetxController {
                           onChanged: (value) {
                             activityCodeText = value ?? '';
                           },
-                          items:
-                              activityController.getFieldValues('activityId'),
+                          items: activityController.documents
+                              .map((e) => e.activityId)
+                              .toList(),
                         ),
                         SizedBox(width: 10),
                         CustomTextFormField(
@@ -254,8 +255,9 @@ class StagesController extends GetxController {
                           child: CustomDropdownMenu(
                             isMultiSelectable: true,
                             labelText: 'Design Drawing',
-                            items: referenceDocumentController
-                                .getFieldValues('documentNumber'),
+                            items: referenceDocumentController.documents
+                                .map((e) => e.documentNumber)
+                                .toList(),
                             onChanged: (values) => designDrawingsList = values,
                             selectedItems: designDrawingsList,
                           ),

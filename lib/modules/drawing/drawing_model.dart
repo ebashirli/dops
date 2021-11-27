@@ -4,14 +4,10 @@ class DrawingModel {
   String drawingNumber;
   String drawingTitle;
   String module;
-  bool? issueType;
-  double? percentage;
-  bool? revisionStatus;
   String level;
-  String structureType;
   List<String> area;
-  int? changeNumber;
   String functionalArea;
+  String structureType;
   String note;
   DateTime? drawingCreateDate;
   bool isHidden;
@@ -20,17 +16,13 @@ class DrawingModel {
     this.id,
     required this.activityCode,
     required this.drawingNumber,
-    required this.area,
-    this.changeNumber,
     required this.drawingTitle,
-    required this.functionalArea,
-    this.issueType = false,
-    required this.level,
     required this.module,
-    required this.note,
-    this.percentage,
-    this.revisionStatus = true,
+    required this.level,
+    required this.area,
+    required this.functionalArea,
     required this.structureType,
+    required this.note,
     this.drawingCreateDate,
     this.isHidden = false,
   });
@@ -46,14 +38,8 @@ class DrawingModel {
       'functionalArea': functionalArea,
       'structureType': structureType,
       'note': note,
-      'isHidden': isHidden,
       'drawingCreateDate': drawingCreateDate,
-
-      // 'priority': priority,
-      // 'isRevised': isRevised,
-      // 'percentage': percentage,
-      // 'isRevisionStatusLatest': isRevisionStatusLatest,
-      // 'changeNumber': changeNumber,
+      'isHidden': isHidden,
     };
   }
 
@@ -73,15 +59,6 @@ class DrawingModel {
           ? map['drawingCreateDate'].toDate()
           : null,
       isHidden: map['isHidden'] != null ? map['isHidden'] : null,
-
-      // priority: map['priority'] != null ? map['priority'] : null,
-      // isRevised: map['isRevised'] != null ? map['isRevised'] : null,
-
-      // percentage: map['percentage'] != null ? map['percentage'] : null,
-      // isRevisionStatusLatest: map['isRevisionStatusLatest'] != null
-      //     ? map['isRevisionStatusLatest']
-      //     : null,
-      // changeNumber: map['changeNumber'] != null ? map['changeNumber'] : null,
     );
   }
 }

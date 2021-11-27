@@ -3,7 +3,7 @@ import 'drawing_model.dart';
 import '../../services/firebase_service/storage_service.dart';
 import 'package:get/get.dart';
 
-class TaskRepository {
+class DrawingRepository {
   
   final _api = Get.find<StorageService>(tag: 'drawings');
   late List<DrawingModel> drawings = [];

@@ -1,6 +1,7 @@
 import 'package:dops/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:recase/recase.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../constants/table_details.dart';
 
@@ -73,7 +74,7 @@ class TableView extends StatelessWidget {
         switch (colName) {
           case 'id':
             return GridColumn(
-              columnName: colName,
+              columnName: ReCase(colName).camelCase,
               width: 0,
               label: Text(
                 colName,
@@ -81,8 +82,7 @@ class TableView extends StatelessWidget {
             );
           default:
             return GridColumn(
-              columnWidthMode: ColumnWidthMode.auto,
-              columnName: colName.toLowerCase(),
+              columnName: ReCase(colName).camelCase,
               autoFitPadding: const EdgeInsets.all(8.0),
               label: Center(
                 child: Container(

@@ -1,3 +1,5 @@
+import 'package:dops/modules/drawing/drawing_controller.dart';
+
 import '../modules/activity/activity_controller.dart';
 import 'package:dops/modules/staff/staff_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
@@ -28,6 +30,9 @@ class HomeBinding extends Bindings {
     );
     Get.lazyPut<TaskController>(
       () => TaskController(),
+    );
+    Get.lazyPut<DrawingController>(
+      () => DrawingController(),
     );
     Get.lazyPut<DropdownSourcesController>(
       () => DropdownSourcesController(),

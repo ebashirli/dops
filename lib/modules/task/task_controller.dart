@@ -15,7 +15,7 @@ import 'task_model.dart';
 import 'task_repository.dart';
 
 class TaskController extends GetxController {
-  final GlobalKey<FormState> taskFormKeyOnStages = GlobalKey<FormState>();
+  final GlobalKey<FormState> taskFormKey = GlobalKey<FormState>();
   final _repository = Get.find<TaskRepository>();
   final activityController = Get.find<ActivityController>();
   final referenceDocumentController = Get.find<ReferenceDocumentController>();
@@ -64,11 +64,11 @@ class TaskController extends GetxController {
 
   updateDrawing({required TaskModel updatedModel, required String id}) async {
     // TODO: move following line to Add/update button if it is relevant
-    final isValid = taskFormKeyOnStages.currentState!.validate();
+    final isValid = taskFormKey.currentState!.validate();
     if (!isValid) {
       return;
     }
-    taskFormKeyOnStages.currentState!.save();
+    taskFormKey.currentState!.save();
     //update
     CustomFullScreenDialog.showDialog();
     updatedModel.taskCreateDate = documents
@@ -171,7 +171,7 @@ class TaskController extends GetxController {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Form(
-            key: taskFormKeyOnStages,
+            key: taskFormKey,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Container(
               width: Get.width * .5,

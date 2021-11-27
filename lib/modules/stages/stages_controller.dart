@@ -45,7 +45,7 @@ class StagesController extends GetxController {
 
   late List<List> filesList = List.generate(9, (index) => []);
 
-  final GlobalKey<FormState> taskFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> taskFormKeyOnStages = GlobalKey<FormState>();
 
   final _repository = Get.find<TaskRepository>();
   final activityController = Get.find<ActivityController>();
@@ -93,11 +93,11 @@ class StagesController extends GetxController {
   }
 
   updateDocument({required TaskModel model, required String id}) async {
-    final isValid = taskFormKey.currentState!.validate();
+    final isValid = taskFormKeyOnStages.currentState!.validate();
     if (!isValid) {
       return;
     }
-    taskFormKey.currentState!.save();
+    taskFormKeyOnStages.currentState!.save();
     CustomFullScreenDialog.showDialog();
     model.taskCreateDate = taskController.documents
         .where((document) => document.id == id)
@@ -155,7 +155,7 @@ class StagesController extends GetxController {
     fillEditingControllers(Get.parameters['id']!);
 
     return Form(
-      key: taskFormKey,
+      key: taskFormKeyOnStages,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Container(
         width: Get.width * .5,

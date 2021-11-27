@@ -28,7 +28,7 @@ class TableView extends StatelessWidget {
             .map((e) => e.getCells().map((el) => el.value).toList())
             .toList());
         final DataGridController _dataGridController = DataGridController();
-        
+
         void onEditPressed({bool? newRev = false}) {
           if (_dataGridController.selectedRow == null) {
             Get.snackbar(

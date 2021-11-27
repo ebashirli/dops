@@ -1,6 +1,5 @@
 import 'package:dops/constants/table_details.dart';
 import 'package:dops/modules/drawing/drawing_controller.dart';
-import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import '../../components/custom_text_form_field_widget.dart';
 import 'package:flutter/material.dart';
@@ -182,60 +181,82 @@ class TaskController extends GetxController {
   List<Map<String, dynamic>> get getDataForTableView {
     List<String> mapPropNames = mapPropNamesGetter('task');
 
-    return documents.map(
-      (task) {
-        Map<String, dynamic> map = {};
-        final DrawingModel drawing = drawingController.documents
-            .where((drawing) => drawing.drawingNumber == task.drawingNumber)
-            .toList()[0];
+    print(drawingController.documents.map((e) => e.toMap()));
 
-        mapPropNames.forEach(
-          (mapPropName) {
-            switch (mapPropName) {
-              case 'id':
-                map[mapPropName] = task.id!;
-                break;
-              case 'priority':
-                map[mapPropName] = activityController.documents.indexOf(
-                        activityController.documents
-                            .where((activity) =>
-                                activity.activityId == drawing.activityCode)
-                            .toList()[0]) +
-                    1;
-                break;
-              case 'taskCreateDate':
-                map[mapPropName] = task.taskCreateDate;
-                break;
-              case 'coverSheetRevision':
-                map[mapPropName] = task.nextRevisionNumber;
-                break;
-              case 'issueType':
-                map[mapPropName] = task.issueType;
-                break;
-              case 'revisionNumber':
-                map[mapPropName] = task.revisionCount;
-                break;
-              case 'percentage':
-                map[mapPropName] = task.percentage;
-                break;
-              case 'revisionStatus':
-                map[mapPropName] = task.revisionStatus;
-                break;
-              case 'changeNumber':
-                map[mapPropName] = task.changeNumber;
-                break;
-              case 'drawingNumber':
-                map[mapPropName] = '${task.drawingNumber}|${task.id}';
-                break;
-              case 'designDrawings':
-                map[mapPropName] = '${task.designDrawings.join(';')}';
-                break;
-              default:
-                map[mapPropName] = drawing.toMap()[mapPropName];
-                break;
-            }
-          },
-        );
+    return drawingController.documents.map(
+      (drawing) {
+        Map<String, dynamic> map = {};
+        TaskModel task = documents.where((task) {
+          return drawing.drawingNumber == task.drawingNumber;
+        }).toList()[0];
+
+        map = {
+          'id': task.id,
+          'priority': '',
+          'activityCode': '',
+          'drawingNumber': '',
+          'coverSheetRevision': '',
+          'drawingTitle': '',
+          'module': '',
+          'issueType': '',
+          'revisionNumber': '',
+          'percentage': '',
+          'revisionStatus': '',
+          'level': '',
+          'structureType': '',
+          'designDrawings': '',
+          'changeNumber': '',
+          'taskCreateDate': '',
+        };
+
+        // mapPropNames.forEach(
+        //   (mapPropName) {
+        //     switch (mapPropName) {
+        //       case 'id':
+        //         map[mapPropName] = task.id!;
+        //         break;
+        //       case 'priority':
+        //         map[mapPropName] = activityController.documents.indexOf(
+        //                 activityController.documents
+        //                     .where((activity) =>
+        //                         activity.activityId == drawing.activityCode)
+        //                     .toList()[0]) +
+        //             1;
+        //         break;
+        //       case 'taskCreateDate':
+        //         map[mapPropName] = task.taskCreateDate;
+        //         break;
+        //       case 'coverSheetRevision':
+        //         map[mapPropName] = task.nextRevisionNumber;
+        //         break;
+        //       case 'issueType':
+        //         map[mapPropName] = task.issueType;
+        //         break;
+        //       case 'revisionNumber':
+        //         map[mapPropName] = task.revisionCount;
+        //         break;
+        //       case 'percentage':
+        //         map[mapPropName] = task.percentage;
+        //         break;
+        //       case 'revisionStatus':
+        //         map[mapPropName] = task.revisionStatus;
+        //         break;
+        //       case 'changeNumber':
+        //         map[mapPropName] = task.changeNumber;
+        //         break;
+        //       case 'drawingNumber':
+        //         map[mapPropName] = '${task.drawingNumber}|${task.id}';
+        //         break;
+        //       case 'designDrawings':
+        //         map[mapPropName] = '${task.designDrawings.join(';')}';
+        //         break;
+        //       default:
+        //         map[mapPropName] = drawing.toMap()[mapPropName];
+        //         break;
+        //     }
+        //   },
+        // );
+        // return map;
         return map;
       },
     ).toList();

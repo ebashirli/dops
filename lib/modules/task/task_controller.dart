@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/constants/table_details.dart';
 import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
@@ -9,7 +8,6 @@ import 'package:get/get.dart';
 
 import '../../components/custom_dropdown_menu_widget.dart';
 import '../../components/custom_full_screen_dialog_widget.dart';
-import '../../components/custom_snackbar_widget.dart';
 import '../../constants/style.dart';
 import '../activity/activity_controller.dart';
 import '../reference_document/reference_document_controller.dart';
@@ -129,6 +127,10 @@ class TaskController extends GetxController {
                                     designDrawingsList = values,
                                 selectedItems: designDrawingsList,
                               ),
+                              CustomTextFormField(
+                                controller: noteController,
+                                labelText: 'Note',
+                              ),
                             ],
                           )
                         ],
@@ -139,28 +141,13 @@ class TaskController extends GetxController {
                   Container(
                     child: Row(
                       children: <Widget>[
-                        if (id != null)
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              deleteTask(id);
-                              Get.back();
-                            },
-                            icon: Icon(Icons.delete),
-                            label: const Text('Delete'),
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                Colors.red,
-                              ),
-                            ),
-                          ),
-                        const Spacer(),
                         ElevatedButton(
                             onPressed: () => Get.back(),
                             child: const Text('Cancel')),
                         SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: () {
-                            TaskModel revisedOrNewModel = TaskModel(
+                            TaskModel newTaskModel = TaskModel(
                               drawingNumber: drawingController.documents
                                   .where((drawing) => drawing.id == id)
                                   .toList()[0]
@@ -169,10 +156,14 @@ class TaskController extends GetxController {
                               nextRevisionNumber:
                                   nextRevisionNumberController.text,
                               note: noteController.text,
-                              revisionCount: revisionNumber + 1,
+                              revisionCount: documents
+                                      .where((task) => task.id == id)
+                                      .toList()[0]
+                                      .revisionCount! +
+                                  1,
                             );
 
-                            addNewTask(model: revisedOrNewModel);
+                            addNewTask(model: newTaskModel);
                           },
                           child: Text('Add next revision'),
                         ),

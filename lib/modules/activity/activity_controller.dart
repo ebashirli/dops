@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
 import 'package:dops/components/custom_widgets.dart';
+import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -14,6 +16,7 @@ class ActivityController extends GetxController {
   final GlobalKey<FormState> activityFormKey = GlobalKey<FormState>();
   final _repository = Get.find<ActivityRepository>();
   late final taskController = Get.find<TaskController>();
+  late final drawingController = Get.find<DrawingController>();
   late final dropdownSourcesController = Get.find<DropdownSourcesController>();
 
   late TextEditingController activityIdController,
@@ -273,10 +276,22 @@ class ActivityController extends GetxController {
             break;
           case 'assignedTasks':
             String assignedTasks = '';
-            taskController.documents.forEach((task) {
-              if (task.activityCode == activity.activityId)
-                assignedTasks += '|${task.drawingNumber};${task.id!}';
+            List<String> drawingNumbersWithActivity = drawingController
+                .documents
+                .where((drawing) => drawing.activityCode == activity.activityId)
+                .toList()
+                .map((drawing) => drawing.drawingNumber)
+                .toList();
+
+            List<TaskModel> tasksWithDrawings = taskController.documents
+                .where((task) =>
+                    drawingNumbersWithActivity.contains(task.drawingNumber))
+                .toList();
+
+            tasksWithDrawings.forEach((task) {
+              assignedTasks += '|${task.drawingNumber};${task.id!}';
             });
+
             map[mapPropName] = assignedTasks;
             break;
           default:
@@ -287,5 +302,4 @@ class ActivityController extends GetxController {
       return map;
     }).toList();
   }
-  
 }

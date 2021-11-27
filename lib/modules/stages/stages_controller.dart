@@ -119,19 +119,10 @@ class StagesController extends GetxController {
         .toList()[0];
 
     drawingNumberController.text = model.drawingNumber;
-    nextRevisionNumberController.text = model.coverSheetRevision;
-    drawingTitleController.text = model.drawingTitle;
+    nextRevisionNumberController.text = model.nextRevisionNumber;
     noteController.text = model.note;
-
-    activityCodeText = model.activityCode;
-    moduleNameText = model.module;
-    levelText = model.level;
-    functionalAreaText = model.functionalArea;
-    structureTypeText = model.structureType;
-    revisionNumber = model.revisionNumber!;
-
+    revisionNumber = model.revisionCount!;
     designDrawingsList = model.designDrawings;
-    areaList = model.area;
   }
 
   whenCompleted() {
@@ -361,18 +352,11 @@ class StagesController extends GetxController {
                   ElevatedButton(
                     onPressed: () {
                       TaskModel model = TaskModel(
-                        activityCode: activityCodeText,
                         drawingNumber: drawingNumberController.text,
                         designDrawings: designDrawingsList,
-                        drawingTitle: drawingTitleController.text,
-                        coverSheetRevision: nextRevisionNumberController.text,
-                        level: levelText,
-                        module: moduleNameText,
-                        structureType: structureTypeText,
+                        nextRevisionNumber: nextRevisionNumberController.text,
                         note: noteController.text,
-                        area: areaList,
-                        functionalArea: functionalAreaText,
-                        revisionNumber: revisionNumber,
+                        revisionCount: revisionNumber,
                       );
 
                       updateDocument(

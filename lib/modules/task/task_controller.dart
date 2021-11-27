@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/constants/table_details.dart';
 import 'package:dops/modules/drawing/drawing_controller.dart';
+import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import '../../components/custom_text_form_field_widget.dart';
 import 'package:flutter/material.dart';
@@ -16,31 +17,17 @@ import 'task_model.dart';
 import 'task_repository.dart';
 
 class TaskController extends GetxController {
-  final GlobalKey<FormState> taskFormKeyOnStages = GlobalKey<FormState>();
+  final GlobalKey<FormState> taskFormKey = GlobalKey<FormState>();
   final _repository = Get.find<TaskRepository>();
   final activityController = Get.find<ActivityController>();
   final drawingController = Get.find<DrawingController>();
   final referenceDocumentController = Get.find<ReferenceDocumentController>();
   final dropdownSourcesController = Get.find<DropdownSourcesController>();
 
-  late TextEditingController drawingNumberController,
-      nextRevisionNumberController,
-      drawingTitleController,
-      noteController;
+  late TextEditingController nextRevisionNumberController, noteController;
+  late List<String> designDrawingsList;
 
-  late List<String> areaList = [];
-  late List<String> designDrawingsList = [];
-
-  late int revisionNumber = 0;
-
-  late String activityCodeText,
-      moduleNameText,
-      levelText,
-      functionalAreaText,
-      structureTypeText;
-
-  RxBool sortAscending = false.obs;
-  RxInt sortColumnIndex = 0.obs;
+  late int revisionNumber;
 
   RxList<TaskModel> _documents = RxList<TaskModel>([]);
   List<TaskModel> get documents => _documents;
@@ -48,10 +35,10 @@ class TaskController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    drawingNumberController = TextEditingController();
     nextRevisionNumberController = TextEditingController();
-    drawingTitleController = TextEditingController();
     noteController = TextEditingController();
+    designDrawingsList = [];
+    revisionNumber = 0;
 
     _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
@@ -60,24 +47,6 @@ class TaskController extends GetxController {
     CustomFullScreenDialog.showDialog();
     model.taskCreateDate = DateTime.now();
     await _repository.addModel(model);
-    CustomFullScreenDialog.cancelDialog();
-    Get.back();
-  }
-
-  updateDrawing({required TaskModel updatedModel, required String id}) async {
-    // TODO: move following line to Add/update button if it is relevant
-    final isValid = taskFormKeyOnStages.currentState!.validate();
-    if (!isValid) {
-      return;
-    }
-    taskFormKeyOnStages.currentState!.save();
-    //update
-    CustomFullScreenDialog.showDialog();
-    updatedModel.taskCreateDate = documents
-        .where((document) => document.id == id)
-        .toList()[0]
-        .taskCreateDate;
-    await _repository.updateModel(updatedModel, id);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
@@ -92,76 +61,24 @@ class TaskController extends GetxController {
   }
 
   void clearEditingControllers() {
-    drawingNumberController.clear();
     nextRevisionNumberController.clear();
-    drawingTitleController.clear();
     noteController.clear();
-
-    activityCodeText = '';
-    moduleNameText = '';
-    levelText = '';
-    functionalAreaText = '';
-    structureTypeText = '';
-
-    designDrawingsList = [];
-    areaList = [];
-
     revisionNumber = 0;
-  }
-
-  void fillEditingControllers(TaskModel model) {
-    drawingNumberController.text = model.drawingNumber;
-    nextRevisionNumberController.text = model.coverSheetRevision;
-    drawingTitleController.text = model.drawingTitle;
-    noteController.text = model.note;
-
-    activityCodeText = model.activityCode;
-    moduleNameText = model.module;
-    levelText = model.level;
-    functionalAreaText = model.functionalArea;
-    structureTypeText = model.structureType;
-
-    designDrawingsList = model.designDrawings;
-    areaList = model.area;
-
-    revisionNumber = model.revisionNumber!;
-  }
-
-  whenCompleted() {
-    CustomFullScreenDialog.cancelDialog();
-    clearEditingControllers();
-    Get.back();
-  }
-
-  catchError(FirebaseException error) {
-    {
-      CustomFullScreenDialog.cancelDialog();
-      CustomSnackBar.showSnackBar(
-        context: Get.context,
-        title: "Error",
-        message: "${error.message.toString()}",
-        backgroundColor: Colors.red,
-      );
-    }
+    designDrawingsList = [];
   }
 
   buildAddEdit({String? id, bool newRev = false}) {
-    if (id != null && !newRev) {
-      fillEditingControllers(
-          documents.where((document) => document.id == id).toList()[0]);
-    } else {
+    if (newRev) {
       clearEditingControllers();
+    } else {
+      drawingController.buildAddEdit(id: id, newRev: newRev);
     }
 
     Get.defaultDialog(
       barrierDismissible: false,
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: id == null
-          ? 'Add new drawing'
-          : newRev
-              ? 'Add next revision'
-              : 'Update drawing',
+      title: 'Add next revision',
       content: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -173,7 +90,7 @@ class TaskController extends GetxController {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Form(
-            key: taskFormKeyOnStages,
+            key: taskFormKey,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Container(
               width: Get.width * .5,
@@ -185,111 +102,35 @@ class TaskController extends GetxController {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (!newRev)
-                            Column(
-                              children: <Widget>[
-                                SizedBox(height: 10),
-                                CustomDropdownMenu(
-                                  labelText: 'Activity code',
-                                  selectedItems: [activityCodeText],
-                                  onChanged: (value) {
-                                    activityCodeText = value ?? '';
-                                  },
-                                  items: activityController.documents
-                                      .map((document) => document.activityId)
-                                      .toList(),
+                          Column(
+                            children: <Widget>[
+                              Text(
+                                documents
+                                    .where((documents) => documents.id == id)
+                                    .toList()[0]
+                                    .drawingNumber,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                CustomTextFormField(
-                                  controller: drawingNumberController,
-                                  labelText: 'Drawing Number',
-                                ),
-                                CustomTextFormField(
-                                  controller: drawingTitleController,
-                                  labelText: 'Drawing Title',
-                                ),
-                                CustomDropdownMenu(
-                                  labelText: 'Module name',
-                                  selectedItems: [moduleNameText],
-                                  onChanged: (value) {
-                                    moduleNameText = value ?? '';
-                                  },
-                                  items: dropdownSourcesController
-                                      .document.value.modules!,
-                                ),
-                                CustomDropdownMenu(
-                                  labelText: 'Level',
-                                  selectedItems: [levelText],
-                                  onChanged: (value) {
-                                    levelText = value ?? '';
-                                  },
-                                  items: dropdownSourcesController
-                                      .document.value.levels!,
-                                ),
-                                CustomDropdownMenu(
-                                  isMultiSelectable: true,
-                                  labelText: 'Area',
-                                  items: dropdownSourcesController
-                                      .document.value.areas!,
-                                  onChanged: (values) => areaList = values,
-                                  selectedItems: areaList,
-                                ),
-                                CustomDropdownMenu(
-                                  labelText: 'Functional Area',
-                                  selectedItems: [functionalAreaText],
-                                  onChanged: (value) {
-                                    functionalAreaText = value ?? '';
-                                  },
-                                  items: dropdownSourcesController
-                                      .document.value.functionalAreas!,
-                                ),
-                                CustomDropdownMenu(
-                                  labelText: 'Structure Type',
-                                  selectedItems: [structureTypeText],
-                                  onChanged: (value) {
-                                    structureTypeText = value ?? '';
-                                  },
-                                  items: dropdownSourcesController
-                                      .document.value.structureTypes!,
-                                ),
-                                CustomTextFormField(
-                                  controller: noteController,
-                                  labelText: 'Note',
-                                ),
-                              ],
-                            ),
-                          if (newRev || id != null)
-                            Column(
-                              children: <Widget>[
-                                if (newRev)
-                                  Text(
-                                    documents
-                                        .where(
-                                            (documents) => documents.id == id)
-                                        .toList()[0]
-                                        .drawingNumber,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                SizedBox(height: 10),
-                                CustomTextFormField(
-                                  controller: nextRevisionNumberController,
-                                  labelText: 'Next Revision number',
-                                ),
-                                CustomDropdownMenu(
-                                  isMultiSelectable: true,
-                                  labelText: 'Design Drawings',
-                                  items: referenceDocumentController.documents
-                                      .map(
-                                          (document) => document.documentNumber)
-                                      .toList(),
-                                  onChanged: (values) =>
-                                      designDrawingsList = values,
-                                  selectedItems: designDrawingsList,
-                                ),
-                              ],
-                            )
+                              ),
+                              SizedBox(height: 10),
+                              CustomTextFormField(
+                                controller: nextRevisionNumberController,
+                                labelText: 'Next Revision number',
+                              ),
+                              CustomDropdownMenu(
+                                isMultiSelectable: true,
+                                labelText: 'Design Drawings',
+                                items: referenceDocumentController.documents
+                                    .map((document) => document.documentNumber)
+                                    .toList(),
+                                onChanged: (values) =>
+                                    designDrawingsList = values,
+                                selectedItems: designDrawingsList,
+                              ),
+                            ],
+                          )
                         ],
                       ),
                     ),
@@ -320,49 +161,20 @@ class TaskController extends GetxController {
                         ElevatedButton(
                           onPressed: () {
                             TaskModel revisedOrNewModel = TaskModel(
-                              activityCode: activityCodeText,
-                              drawingNumber: drawingNumberController.text,
-                              designDrawings:
-                                  id == null ? [] : designDrawingsList,
-                              drawingTitle: drawingTitleController.text,
-                              coverSheetRevision:
+                              drawingNumber: drawingController.documents
+                                  .where((drawing) => drawing.id == id)
+                                  .toList()[0]
+                                  .drawingNumber,
+                              designDrawings: designDrawingsList,
+                              nextRevisionNumber:
                                   nextRevisionNumberController.text,
-                              level: levelText,
-                              module: moduleNameText,
-                              structureType: structureTypeText,
                               note: noteController.text,
-                              area: areaList,
-                              functionalArea: functionalAreaText,
-                              revisionNumber: revisionNumber,
+                              revisionCount: revisionNumber + 1,
                             );
 
-                            if (newRev) {
-                              revisedOrNewModel.coverSheetRevision = id == null
-                                  ? 'C01'
-                                  : nextRevisionNumberController.text;
-                              revisedOrNewModel.designDrawings =
-                                  id == null ? [] : designDrawingsList;
-                              revisedOrNewModel.revisionNumber =
-                                  id == null ? 0 : revisionNumber + 1;
-                            }
-                            id == null
-                                ? addNewTask(model: revisedOrNewModel)
-                                : newRev
-                                    ? addNewTask(
-                                        model: revisedOrNewModel,
-                                      )
-                                    : updateDrawing(
-                                        updatedModel: revisedOrNewModel,
-                                        id: id,
-                                      );
+                            addNewTask(model: revisedOrNewModel);
                           },
-                          child: Text(
-                            id != null
-                                ? newRev
-                                    ? 'Add next revision'
-                                    : 'Update'
-                                : 'Add',
-                          ),
+                          child: Text('Add next revision'),
                         ),
                       ],
                     ),
@@ -382,6 +194,9 @@ class TaskController extends GetxController {
     return documents.map(
       (task) {
         Map<String, dynamic> map = {};
+        final DrawingModel drawing = drawingController.documents
+            .where((drawing) => drawing.drawingNumber == task.drawingNumber)
+            .toList()[0];
 
         mapPropNames.forEach(
           (mapPropName) {
@@ -390,19 +205,33 @@ class TaskController extends GetxController {
                 map[mapPropName] = task.id!;
                 break;
               case 'priority':
-                map[mapPropName] = activityController.documents
-                        .indexOf(activityController.documents.where((document) {
-                      return document.activityId == task.activityCode;
-                    }).toList()[0]) +
+                map[mapPropName] = activityController.documents.indexOf(
+                        activityController.documents
+                            .where((activity) =>
+                                activity.activityId == drawing.activityCode)
+                            .toList()[0]) +
                     1;
-                break;
-              case 'area':
-              case 'functionalArea':
-              case 'note':
-              case 'isHidden':
                 break;
               case 'taskCreateDate':
                 map[mapPropName] = task.taskCreateDate;
+                break;
+              case 'coverSheetRevision':
+                map[mapPropName] = task.nextRevisionNumber;
+                break;
+              case 'issueType':
+                map[mapPropName] = task.issueType;
+                break;
+              case 'revisionNumber':
+                map[mapPropName] = task.revisionCount;
+                break;
+              case 'percentage':
+                map[mapPropName] = task.percentage;
+                break;
+              case 'revisionStatus':
+                map[mapPropName] = task.revisionStatus;
+                break;
+              case 'changeNumber':
+                map[mapPropName] = task.changeNumber;
                 break;
               case 'drawingNumber':
                 map[mapPropName] = '${task.drawingNumber}|${task.id}';
@@ -411,7 +240,7 @@ class TaskController extends GetxController {
                 map[mapPropName] = '${task.designDrawings.join(';')}';
                 break;
               default:
-                map[mapPropName] = task.toMap()[mapPropName];
+                map[mapPropName] = drawing.toMap()[mapPropName];
                 break;
             }
           },

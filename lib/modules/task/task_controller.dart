@@ -32,7 +32,6 @@ class TaskController extends GetxController {
   late int revisionNumber = 0;
 
   late String activityCodeText,
-      projectText,
       moduleNameText,
       levelText,
       functionalAreaText,
@@ -97,7 +96,6 @@ class TaskController extends GetxController {
     noteController.clear();
 
     activityCodeText = '';
-    projectText = '';
     moduleNameText = '';
     levelText = '';
     functionalAreaText = '';
@@ -116,7 +114,6 @@ class TaskController extends GetxController {
     noteController.text = model.note;
 
     activityCodeText = model.activityCode;
-    projectText = model.project;
     moduleNameText = model.module;
     levelText = model.level;
     functionalAreaText = model.functionalArea;
@@ -198,15 +195,6 @@ class TaskController extends GetxController {
                                   },
                                   items: activityController
                                       .getFieldValues('activityId'),
-                                ),
-                                CustomDropdownMenu(
-                                  labelText: 'Project',
-                                  selectedItems: [projectText],
-                                  onChanged: (value) {
-                                    projectText = value ?? '';
-                                  },
-                                  items: dropdownSourcesController
-                                      .document.value.projects!,
                                 ),
                                 CustomTextFormField(
                                   controller: drawingNumberController,
@@ -339,7 +327,6 @@ class TaskController extends GetxController {
                               structureType: structureTypeText,
                               note: noteController.text,
                               area: areaList,
-                              project: projectText,
                               functionalArea: functionalAreaText,
                               revisionNumber: revisionNumber,
                             );
@@ -407,7 +394,6 @@ class TaskController extends GetxController {
               case 'area':
               case 'functionalArea':
               case 'note':
-              case 'project':
               case 'isHidden':
                 break;
               case 'taskCreateDate':

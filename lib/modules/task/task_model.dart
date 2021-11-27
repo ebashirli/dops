@@ -16,7 +16,6 @@ class TaskModel {
   List<String> designDrawings;
   String functionalArea;
   String note;
-  String project;
   DateTime? taskCreateDate;
   bool isHidden;
 
@@ -35,7 +34,6 @@ class TaskModel {
     required this.module,
     required this.note,
     this.percentage,
-    required this.project,
     this.revisionStatus = true,
     this.revisionNumber,
     required this.structureType,
@@ -46,7 +44,6 @@ class TaskModel {
   Map<String, dynamic> toMap() {
     return {
       'activityCode': activityCode,
-      'project': project,
       'drawingNumber': drawingNumber,
       'coverSheetRevision': coverSheetRevision,
       'drawingTitle': drawingTitle,
@@ -73,7 +70,6 @@ class TaskModel {
     return TaskModel(
       id: id ?? null,
       activityCode: map['activityCode'],
-      project: map['project'],
       drawingNumber: map['drawingNumber'],
       coverSheetRevision: map['coverSheetRevision'],
       drawingTitle: map['drawingTitle'],

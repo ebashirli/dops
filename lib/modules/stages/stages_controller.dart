@@ -124,7 +124,6 @@ class StagesController extends GetxController {
     noteController.text = model.note;
 
     activityCodeText = model.activityCode;
-    projectText = model.project;
     moduleNameText = model.module;
     levelText = model.level;
     functionalAreaText = model.functionalArea;
@@ -370,7 +369,6 @@ class StagesController extends GetxController {
                         structureType: structureTypeText,
                         note: noteController.text,
                         area: areaList,
-                        project: projectText,
                         functionalArea: functionalAreaText,
                         revisionNumber: revisionNumber,
                       );

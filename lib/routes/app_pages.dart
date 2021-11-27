@@ -5,7 +5,6 @@ import '../modules/activity/activity_view.dart';
 import '../modules/home/home_view.dart';
 import '../modules/reference_document/reference_document_view.dart';
 import '../modules/staff/staff_view.dart';
-import '../modules/task/task_view.dart';
 import '../modules/stages/stages_view.dart';
 
 part 'app_routes.dart';
@@ -41,11 +40,11 @@ class AppPages {
       page: () => StaffView(),
       binding: StaffBinding(),
     ),
-    GetPage(
-      name: _Paths.TASKS,
-      page: () => TaskView(),
-      binding: TaskBinding(),
-    ),
+    // GetPage(
+    //   name: _Paths.TASKS,
+    //   page: () => TaskView(),
+    //   binding: TaskBinding(),
+    // ),
     GetPage(
       name: _Paths.STAGES,
       page: () => StagesView(),

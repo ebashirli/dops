@@ -1,13 +1,10 @@
+import 'package:dops/components/table_view_widget.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 
 import '../activity/activity_controller.dart';
 import '../reference_document/reference_document_controller.dart';
 import '../staff/staff_controller.dart';
 import '../task/task_controller.dart';
-import '../activity/activity_view.dart';
-import '../reference_document/reference_document_view.dart';
-import '../staff/staff_view.dart';
-import '../task/task_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -21,6 +18,8 @@ class HomeView extends GetView<HomeController> {
   final staffController = Get.find<StaffController>();
   final taskController = Get.find<TaskController>();
   final listController = Get.find<DropdownSourcesController>();
+  late GetxController tableController;
+  late String tableName;
 
   @override
   Widget build(BuildContext context) {
@@ -38,20 +37,36 @@ class HomeView extends GetView<HomeController> {
   Widget _buildBody() {
     switch (controller.homeStates) {
       case HomeStates.ActivityState:
-        return ActivityView();
+        tableController = activityController;
+        tableName = 'activity';
+        break;
+      // return ActivityView();
 
       case HomeStates.ReferenceDocumentState:
-        return ReferenceDocumentView();
+        tableController = referenceDocumentController;
+        tableName = 'reference document';
+        break;
+      // return ReferenceDocumentView();
 
       case HomeStates.DropdownSourceListState:
         return DropdownSourcesView();
 
       case HomeStates.StaffState:
-        return StaffView();
+        tableController = staffController;
+        tableName = 'staff';
+        break;
+      // return StaffView();
 
       case HomeStates.TaskState:
-        return TaskView();
+        tableController = taskController;
+        tableName = 'task';
+        break;
+      // return TaskView();
     }
+    return TableView(
+      controller: tableController,
+      tableName: tableName,
+    );
   }
 
   AppBar _buildAppBar() {

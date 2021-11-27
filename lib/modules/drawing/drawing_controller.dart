@@ -11,8 +11,8 @@ import '../../components/custom_snackbar_widget.dart';
 import '../../constants/style.dart';
 import '../activity/activity_controller.dart';
 import '../reference_document/reference_document_controller.dart';
-import 'task_model.dart';
-import 'task_repository.dart';
+import 'drawing_model.dart';
+import 'drawing_repository.dart';
 
 class TaskController extends GetxController {
   final GlobalKey<FormState> taskFormKeyOnStages = GlobalKey<FormState>();
@@ -41,8 +41,8 @@ class TaskController extends GetxController {
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
 
-  RxList<TaskModel> _documents = RxList<TaskModel>([]);
-  List<TaskModel> get documents => _documents;
+  RxList<DrawingModel> _documents = RxList<DrawingModel>([]);
+  List<DrawingModel> get documents => _documents;
 
   @override
   void onInit() {
@@ -55,15 +55,15 @@ class TaskController extends GetxController {
     _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
 
-  addNewTask({required TaskModel model}) async {
+  addNewTask({required DrawingModel model}) async {
     CustomFullScreenDialog.showDialog();
-    model.taskCreateDate = DateTime.now();
+    model.drawingCreateDate = DateTime.now();
     await _repository.addModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
-  updateDrawing({required TaskModel updatedModel, required String id}) async {
+  updateDrawing({required DrawingModel updatedModel, required String id}) async {
     // TODO: move following line to Add/update button if it is relevant
     final isValid = taskFormKeyOnStages.currentState!.validate();
     if (!isValid) {
@@ -72,10 +72,10 @@ class TaskController extends GetxController {
     taskFormKeyOnStages.currentState!.save();
     //update
     CustomFullScreenDialog.showDialog();
-    updatedModel.taskCreateDate = documents
+    updatedModel.drawingCreateDate = documents
         .where((document) => document.id == id)
         .toList()[0]
-        .taskCreateDate;
+        .drawingCreateDate;
     await _repository.updateModel(updatedModel, id);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
@@ -109,7 +109,7 @@ class TaskController extends GetxController {
     revisionNumber = 0;
   }
 
-  void fillEditingControllers(TaskModel model) {
+  void fillEditingControllers(DrawingModel model) {
     drawingNumberController.text = model.drawingNumber;
     nextRevisionNumberController.text = model.coverSheetRevision;
     drawingTitleController.text = model.drawingTitle;
@@ -326,7 +326,7 @@ class TaskController extends GetxController {
                         SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: () {
-                            TaskModel revisedOrNewModel = TaskModel(
+                            DrawingModel revisedOrNewModel = DrawingModel(
                               activityCode: activityCodeText,
                               drawingNumber: drawingNumberController.text,
                               designDrawings:
@@ -411,7 +411,7 @@ class TaskController extends GetxController {
               case 'isHidden':
                 break;
               case 'taskCreateDate':
-                map[mapPropName] = task.taskCreateDate;
+                map[mapPropName] = task.drawingCreateDate;
                 break;
               case 'drawingNumber':
                 map[mapPropName] = '${task.drawingNumber}|${task.id}';

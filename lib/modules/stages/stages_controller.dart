@@ -55,13 +55,13 @@ class StagesController extends GetxController {
   final staffController = Get.find<StaffController>();
 
   late TextEditingController drawingNumberController,
-      coverSheetRevisionController,
+      nextRevisionNumberController,
       drawingTitleController,
       noteController;
 
-  late List<String> areaList = [];
-  late List<String> designDrawingsList = [];
-  late List<String> assigned3DAdmins = [];
+  late List<String> areaList, designDrawingsList, assigned3DAdmins;
+
+  late int revisionNumber;
 
   late String activityCodeText,
       projectText,
@@ -75,9 +75,13 @@ class StagesController extends GetxController {
     super.onInit();
 
     drawingNumberController = TextEditingController();
-    coverSheetRevisionController = TextEditingController();
+    nextRevisionNumberController = TextEditingController();
     drawingTitleController = TextEditingController();
     noteController = TextEditingController();
+
+    areaList = [];
+    designDrawingsList = [];
+    assigned3DAdmins = [];
 
     activityCodeText = '';
     projectText = '';
@@ -85,6 +89,7 @@ class StagesController extends GetxController {
     levelText = '';
     functionalAreaText = '';
     structureTypeText = '';
+    revisionNumber = 0;
   }
 
   updateDocument({required TaskModel model, required String id}) async {
@@ -94,7 +99,13 @@ class StagesController extends GetxController {
     }
     taskFormKey.currentState!.save();
     CustomFullScreenDialog.showDialog();
+    model.taskCreateDate = taskController.documents
+        .where((document) => document.id == id)
+        .toList()[0]
+        .taskCreateDate;
     await _repository.updateModel(model, id);
+    CustomFullScreenDialog.cancelDialog();
+    Get.back();
   }
 
   @override
@@ -103,12 +114,12 @@ class StagesController extends GetxController {
   }
 
   void fillEditingControllers(String id) {
-    
-    final TaskModel model =
-        taskController.documents.where((document) => document.id == id).toList()[0];
+    final TaskModel model = taskController.documents
+        .where((document) => document.id == id)
+        .toList()[0];
 
     drawingNumberController.text = model.drawingNumber;
-    coverSheetRevisionController.text = model.coverSheetRevision;
+    nextRevisionNumberController.text = model.coverSheetRevision;
     drawingTitleController.text = model.drawingTitle;
     noteController.text = model.note;
 
@@ -118,10 +129,10 @@ class StagesController extends GetxController {
     levelText = model.level;
     functionalAreaText = model.functionalArea;
     structureTypeText = model.structureType;
+    revisionNumber = model.revisionNumber!;
 
     designDrawingsList = model.designDrawings;
     areaList = model.area;
-    // assigned3DAdmins = model.assigned3DAdmins;
   }
 
   whenCompleted() {
@@ -214,7 +225,7 @@ class StagesController extends GetxController {
                         SizedBox(width: 10),
                         CustomTextFormField(
                           width: 150,
-                          controller: coverSheetRevisionController,
+                          controller: nextRevisionNumberController,
                           labelText: 'Cover Sheet Revision',
                         ),
                         SizedBox(width: 10),
@@ -353,7 +364,7 @@ class StagesController extends GetxController {
                         drawingNumber: drawingNumberController.text,
                         designDrawings: designDrawingsList,
                         drawingTitle: drawingTitleController.text,
-                        coverSheetRevision: coverSheetRevisionController.text,
+                        coverSheetRevision: nextRevisionNumberController.text,
                         level: levelText,
                         module: moduleNameText,
                         structureType: structureTypeText,
@@ -361,7 +372,9 @@ class StagesController extends GetxController {
                         area: areaList,
                         project: projectText,
                         functionalArea: functionalAreaText,
+                        revisionNumber: revisionNumber,
                       );
+
                       updateDocument(
                         model: model,
                         id: Get.parameters['id']!,

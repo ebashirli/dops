@@ -25,6 +25,7 @@ dependencies:
   email_validator: ^2.0.1
   file_picker: ^4.2.4
   universal_html: ^2.0.8
+  expendable_fab: ^0.0.3
 
   
   flutter: 

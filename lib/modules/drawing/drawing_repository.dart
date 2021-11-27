@@ -1,32 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'task_model.dart';
+import 'drawing_model.dart';
 import '../../services/firebase_service/storage_service.dart';
 import 'package:get/get.dart';
 
 class TaskRepository {
-  final _api = Get.find<StorageService>(tag: 'tasks');
-  late List<TaskModel> tasks = [];
+  
+  final _api = Get.find<StorageService>(tag: 'drawings');
+  late List<DrawingModel> drawings = [];
 
   Future fetchModels() async {
     QuerySnapshot result = await _api.getData();
-    tasks = result.docs
+    drawings = result.docs
         .map(
-          (snapshot) => TaskModel.fromMap(
+          (snapshot) => DrawingModel.fromMap(
             snapshot.data() as Map<String, dynamic>,
             snapshot.id,
           ),
         )
         .toList();
-    return tasks;
+    return drawings;
   }
 
-  Stream<List<TaskModel>> getAllDocumentsAsStream() {
+  Stream<List<DrawingModel>> getAllDocumentsAsStream() {
     return _api.getShowingDataAsStream().map((QuerySnapshot query) {
-      List<TaskModel> returnValue = [];
+      List<DrawingModel> returnValue = [];
       query.docs.forEach(
         (snapshot) {
           returnValue.add(
-            TaskModel.fromMap(
+            DrawingModel.fromMap(
               snapshot.data() as Map<String, dynamic>,
               snapshot.id,
             ),
@@ -37,15 +38,25 @@ class TaskRepository {
     });
   }
 
+  Future<DrawingModel> getModelById(String id) async {
+    var doc = await _api.getDocumentById(id);
+    return DrawingModel.fromMap(
+      doc.data(),
+      doc.id,
+    );
+  }
+
   removeModel(String id) async {
     await _api.updateDocument({'isHidden': true}, id);
   }
 
-  updateModel(TaskModel data, String id) async {
+  updateModel(DrawingModel data, String id) async {
     await _api.updateDocument(data.toMap(), id);
   }
 
-  addModel(TaskModel data) async {
+  addModel(DrawingModel data) async {
     await _api.addDocument(data.toMap());
   }
+
+  
 }

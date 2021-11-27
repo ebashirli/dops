@@ -124,7 +124,7 @@ class ActivityController extends GetxController {
     }
   }
 
-  buildAddEdit({String? id}) {
+  buildAddEdit({String? id, bool? newRev = false}) {
     if (id != null) {
       fillEditingControllers(id);
     } else {
@@ -257,7 +257,6 @@ class ActivityController extends GetxController {
 
   List<Map<String, dynamic>> get getDataForTableView {
     List<String> mapPropNames = mapPropNamesGetter('activity');
-
     return documents.map((activity) {
       Map<String, dynamic> map = {};
       mapPropNames.forEach((mapPropName) {
@@ -273,10 +272,10 @@ class ActivityController extends GetxController {
                 (_documents.indexOf(activity) + 1) * activity.coefficient;
             break;
           case 'assignedTasks':
-            final List<List<String>> assignedTasks = [];
+            String assignedTasks = '';
             taskController.documents.forEach((task) {
               if (task.activityCode == activity.activityId)
-                assignedTasks.add([task.drawingNumber, task.id!]);
+                assignedTasks += '|${task.drawingNumber};${task.id!}';
             });
             map[mapPropName] = assignedTasks;
             break;
@@ -288,7 +287,6 @@ class ActivityController extends GetxController {
       return map;
     }).toList();
   }
-
   List<String> getFieldValues(String fieldName) {
     return _documents.map((doc) => doc.toMap()[fieldName].toString()).toList();
   }

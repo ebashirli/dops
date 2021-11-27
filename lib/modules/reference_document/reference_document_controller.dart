@@ -125,7 +125,7 @@ class ReferenceDocumentController extends GetxController {
     }
   }
 
-  buildAddEdit({String? id}) {
+  buildAddEdit({String? id, bool? newRev = false}) {
     if (id != null) {
       fillEditingControllers(id);
     } else {
@@ -330,11 +330,11 @@ class ReferenceDocumentController extends GetxController {
                 : 'Next';
             break;
           case 'assignedTasks':
-            final List<List<String>> assignedTasks = [];
+            String assignedTasks = '';
             taskController.documents.forEach((task) {
               if (task.designDrawings
                   .contains(referenceDocument.documentNumber))
-                assignedTasks.add([task.drawingNumber, task.id!]);
+                assignedTasks += '|${task.drawingNumber};${task.id!}';
             });
             map[mapPropName] = assignedTasks;
             break;

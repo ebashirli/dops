@@ -120,7 +120,7 @@ class HomeView extends GetView<HomeController> {
           SizedBox(height: 10),
           TextButton.icon(
             icon: Icon(Icons.task),
-            label: const Text('Tasks'),
+            label: const Text('Drawings'),
             onPressed: () {
               controller.homeStates = HomeStates.TaskState;
               Get.back();
@@ -145,7 +145,7 @@ class HomeView extends GetView<HomeController> {
       case HomeStates.StaffState:
         return 'Staff';
       case HomeStates.TaskState:
-        return 'Tasks';
+        return 'Drawings';
     }
   }
 

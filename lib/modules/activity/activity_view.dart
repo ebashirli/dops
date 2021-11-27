@@ -20,15 +20,10 @@ class ActivityView extends StatelessWidget {
                   child: CircularProgressIndicator(),
                 ),
               ),
-            Padding(
-              padding: EdgeInsets.only(left: 200, top: 20),
-              child: Container(
-                // decoration: BoxDecoration(
-                //     border: Border.all(width: 1.0, color: Colors.grey)),
-                child: TableView(
-                  controller: controller,
-                  tableName: tableName,
-                ),
+            Container(
+              child: TableView(
+                controller: controller,
+                tableName: tableName,
               ),
             )
           ],

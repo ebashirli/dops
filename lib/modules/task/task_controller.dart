@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/constants/table_details.dart';
+import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import '../../components/custom_text_form_field_widget.dart';
 import 'package:flutter/material.dart';
@@ -15,9 +16,10 @@ import 'task_model.dart';
 import 'task_repository.dart';
 
 class TaskController extends GetxController {
-  final GlobalKey<FormState> taskFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> taskFormKeyOnStages = GlobalKey<FormState>();
   final _repository = Get.find<TaskRepository>();
   final activityController = Get.find<ActivityController>();
+  final drawingController = Get.find<DrawingController>();
   final referenceDocumentController = Get.find<ReferenceDocumentController>();
   final dropdownSourcesController = Get.find<DropdownSourcesController>();
 
@@ -64,11 +66,11 @@ class TaskController extends GetxController {
 
   updateDrawing({required TaskModel updatedModel, required String id}) async {
     // TODO: move following line to Add/update button if it is relevant
-    final isValid = taskFormKey.currentState!.validate();
+    final isValid = taskFormKeyOnStages.currentState!.validate();
     if (!isValid) {
       return;
     }
-    taskFormKey.currentState!.save();
+    taskFormKeyOnStages.currentState!.save();
     //update
     CustomFullScreenDialog.showDialog();
     updatedModel.taskCreateDate = documents
@@ -171,7 +173,7 @@ class TaskController extends GetxController {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Form(
-            key: taskFormKey,
+            key: taskFormKeyOnStages,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Container(
               width: Get.width * .5,
@@ -193,8 +195,9 @@ class TaskController extends GetxController {
                                   onChanged: (value) {
                                     activityCodeText = value ?? '';
                                   },
-                                  items: activityController
-                                      .getFieldValues('activityId'),
+                                  items: activityController.documents
+                                      .map((document) => document.activityId)
+                                      .toList(),
                                 ),
                                 CustomTextFormField(
                                   controller: drawingNumberController,
@@ -277,8 +280,10 @@ class TaskController extends GetxController {
                                 CustomDropdownMenu(
                                   isMultiSelectable: true,
                                   labelText: 'Design Drawings',
-                                  items: referenceDocumentController
-                                      .getFieldValues('documentNumber'),
+                                  items: referenceDocumentController.documents
+                                      .map(
+                                          (document) => document.documentNumber)
+                                      .toList(),
                                   onChanged: (values) =>
                                       designDrawingsList = values,
                                   selectedItems: designDrawingsList,
@@ -414,9 +419,5 @@ class TaskController extends GetxController {
         return map;
       },
     ).toList();
-  }
-
-  List<dynamic> getFieldValues(String fieldName) {
-    return _documents.map((doc) => doc.toMap()[fieldName]).toList();
   }
 }

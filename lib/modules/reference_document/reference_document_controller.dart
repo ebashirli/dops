@@ -347,7 +347,4 @@ class ReferenceDocumentController extends GetxController {
     }).toList();
   }
 
-  List<String> getFieldValues(String fieldName) {
-    return documents.map((doc) => doc.toMap()[fieldName].toString()).toList();
-  }
 }

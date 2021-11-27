@@ -287,7 +287,5 @@ class ActivityController extends GetxController {
       return map;
     }).toList();
   }
-  List<String> getFieldValues(String fieldName) {
-    return _documents.map((doc) => doc.toMap()[fieldName].toString()).toList();
-  }
+  
 }

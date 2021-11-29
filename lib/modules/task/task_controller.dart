@@ -186,7 +186,7 @@ class TaskController extends GetxController {
     return drawingController.documents.map(
       (drawing) {
         Map<String, dynamic> map = {};
-        TaskModel task = documents.where((task) {
+        TaskModel? task = documents.where((task) {
           return drawing.drawingNumber == task.drawingNumber;
         }).toList()[0];
 

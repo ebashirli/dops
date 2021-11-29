@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dops/services/firebase_service/firebase_storage_service.dart';
 import 'staff_model.dart';
-import '../../services/firebase_service/storage_service.dart';
 import 'package:get/get.dart';
 
 class StaffRepository {
@@ -55,5 +55,9 @@ class StaffRepository {
 
   addModel(StaffModel data) async {
     await _api.addDocument(data.toMap());
+  }
+
+  addModelWithId(StaffModel data, String docId) async {
+    await _api.addDocumentWithId(data.toMap(), docId);
   }
 }

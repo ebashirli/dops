@@ -1,4 +1,5 @@
 import 'package:dops/components/table_view_widget.dart';
+import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 
@@ -72,10 +73,16 @@ class HomeView extends GetView<HomeController> {
       title: Text(_buildTitleOfPage()),
       actions: [
         IconButton(
+          onPressed: () {
+            _buildAddDatabase();
+          },
+          icon: Icon(Icons.add),
+        ),
+        IconButton(
             onPressed: () {
-              _buildAddDatabase();
+              authController.signOut();
             },
-            icon: Icon(Icons.add))
+            icon: Icon(Icons.logout))
       ],
     );
   }

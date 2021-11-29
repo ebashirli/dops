@@ -49,6 +49,11 @@ class ActivityBinding extends Bindings {
   }
 }
 
+class LoginBinding extends Bindings {
+  @override
+  void dependencies() {}
+}
+
 class DropdownSourceListsBinding extends Bindings {
   @override
   void dependencies() {

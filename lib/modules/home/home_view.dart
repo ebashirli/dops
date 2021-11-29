@@ -103,14 +103,15 @@ class HomeView extends GetView<HomeController> {
               Get.back();
             },
           ),
-          TextButton.icon(
-            icon: Icon(Icons.golf_course),
-            label: const Text('Reference Documents'),
-            onPressed: () {
-              controller.homeStates = HomeStates.ReferenceDocumentState;
-              Get.back();
-            },
-          ),
+          if (authController.userRole == 'Coordinator')
+            TextButton.icon(
+              icon: Icon(Icons.golf_course),
+              label: const Text('Reference Documents'),
+              onPressed: () {
+                controller.homeStates = HomeStates.ReferenceDocumentState;
+                Get.back();
+              },
+            ),
           TextButton.icon(
             icon: Icon(Icons.local_activity),
             label: const Text('Lists'),

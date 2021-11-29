@@ -51,7 +51,11 @@ class ActivityBinding extends Bindings {
 
 class LoginBinding extends Bindings {
   @override
-  void dependencies() {}
+  void dependencies() {
+    Get.lazyPut<HomeController>(
+      () => HomeController(),
+    );
+  }
 }
 
 class DropdownSourceListsBinding extends Bindings {

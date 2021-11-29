@@ -1,7 +1,10 @@
 import 'package:dops/constants/constant.dart';
+import 'package:dops/enum.dart';
 import 'package:dops/modules/home/home_view.dart';
 import 'package:dops/modules/login/login_view.dart';
 import 'package:dops/modules/staff/staff_controller.dart';
+import 'package:dops/modules/staff/staff_model.dart';
+import 'package:dops/modules/staff/staff_repository.dart';
 import 'package:dops/routes/app_pages.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
@@ -9,7 +12,9 @@ import 'package:get/get_state_manager/get_state_manager.dart';
 
 class AuthController extends GetxController {
   static AuthController instance = Get.find();
+  final staffRepository = Get.find<StaffRepository>();
   late Rx<User?> firebaseUser;
+  late Rx<String?> userRole = 'User'.obs;
   @override
   onReady() {
     firebaseUser = Rx<User?>(auth.currentUser);
@@ -17,12 +22,15 @@ class AuthController extends GetxController {
     ever(firebaseUser, _setInitialScreen);
   }
 
-  _setInitialScreen(User? user) {
+  _setInitialScreen(User? user) async {
     if (user == null) {
       // if the user is not found then the user is navigated to the Register Screen
       Get.offAndToNamed(Routes.LOGIN);
     } else {
       // if the user exists and logged in the the user is navigated to the Home Screen
+      StaffModel userModel = await staffRepository.getModelById(user.uid);
+      userRole.value = userModel.systemDesignation;
+      print(userRole);
       Get.offAndToNamed(Routes.HOME, arguments: {'id': user.uid});
     }
   }

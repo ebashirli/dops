@@ -6,3 +6,4 @@ enum HomeStates {
   TaskState,
 }
 enum States { Loading, Completed, Error }
+enum UserRoles{User, Coordinator, Admin}

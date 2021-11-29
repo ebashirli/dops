@@ -14,7 +14,7 @@ class AuthController extends GetxController {
   static AuthController instance = Get.find();
   final staffRepository = Get.find<StaffRepository>();
   late Rx<User?> firebaseUser;
-  late Rx<String?> userRole = 'User'.obs;
+  late Rx<UserRoles?> userRole = UserRoles.User.obs;
   @override
   onReady() {
     firebaseUser = Rx<User?>(auth.currentUser);
@@ -29,7 +29,16 @@ class AuthController extends GetxController {
     } else {
       // if the user exists and logged in the the user is navigated to the Home Screen
       StaffModel userModel = await staffRepository.getModelById(user.uid);
-      userRole.value = userModel.systemDesignation;
+      switch (userModel.systemDesignation) {
+        case 'Coordinator':
+          userRole.value = UserRoles.Coordinator;
+          break;
+        case 'Admin':
+          userRole.value = UserRoles.Admin;
+          break;
+        default:
+          userRole.value = UserRoles.User;
+      }
       print(userRole);
       Get.offAndToNamed(Routes.HOME, arguments: {'id': user.uid});
     }

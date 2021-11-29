@@ -103,7 +103,7 @@ class HomeView extends GetView<HomeController> {
               Get.back();
             },
           ),
-          if (authController.userRole == 'Coordinator')
+          if (authController.userRole != 'User')
             TextButton.icon(
               icon: Icon(Icons.golf_course),
               label: const Text('Reference Documents'),
@@ -130,14 +130,15 @@ class HomeView extends GetView<HomeController> {
             },
           ),
           SizedBox(height: 10),
-          TextButton.icon(
-            icon: Icon(Icons.people),
-            label: const Text('Staff'),
-            onPressed: () {
-              controller.homeStates = HomeStates.StaffState;
-              Get.back();
-            },
-          ),
+          if (authController.userRole == 'Admin')
+            TextButton.icon(
+              icon: Icon(Icons.people),
+              label: const Text('Staff'),
+              onPressed: () {
+                controller.homeStates = HomeStates.StaffState;
+                Get.back();
+              },
+            ),
           SizedBox(height: 10),
           TextButton.icon(
             icon: Icon(Icons.task),

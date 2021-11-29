@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/controllers/auth_controller.dart';
 import 'package:dops/modules/drawing/drawing_repository.dart';
+import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
+import 'package:dops/modules/home/home_controller.dart';
 
 import 'modules/activity/activity_repository.dart';
 import 'modules/dropdown_source/dropdown_sources_repository.dart';
@@ -54,6 +56,8 @@ Future<void> initServices() async {
   await Get.putAsync<TaskRepository>(() async => await TaskRepository());
   await Get.putAsync<DrawingRepository>(() async => await DrawingRepository());
   await Get.putAsync<DropwdownSourcesRepository>(() async => await DropwdownSourcesRepository());
+  await Get.putAsync<HomeController>(() async => await HomeController());
+  await Get.putAsync<DropdownSourcesController>(() async => await DropdownSourcesController());
 }
 
 class MyApp extends StatelessWidget {
@@ -69,15 +73,9 @@ class MyApp extends StatelessWidget {
       title: "DOPS",
       initialRoute: AppPages.LOGIN,
       getPages: AppPages.routes,
-      unknownRoute: AppPages.UNKNOWN,
+      unknownRoute: AppPages.routes[2],
       themeMode: ThemeMode.light,
-      routingCallback: (routing) {
-        // if (authController.firebaseUser == null) {
-        //   if (routing!.current != Routes.LOGIN) {
-        //     Get.offAndToNamed(Routes.LOGIN);
-        //   }
-        // }
-      },
+      
       darkTheme: ThemeData.dark().copyWith(
         primaryColor: Color(0xff141A31),
         primaryColorDark: Color(0xff081029),

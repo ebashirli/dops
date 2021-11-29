@@ -13,9 +13,9 @@ import '../../modules/stages/stages_controller.dart';
 class HomeBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<HomeController>(
-      () => HomeController(),
-    );
+    // Get.lazyPut<HomeController>(
+    //   () => HomeController(),
+    // );
     Get.lazyPut<ActivityController>(
       () => ActivityController(),
     );
@@ -52,9 +52,7 @@ class ActivityBinding extends Bindings {
 class LoginBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<HomeController>(
-      () => HomeController(),
-    );
+   
   }
 }
 

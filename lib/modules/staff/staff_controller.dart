@@ -86,6 +86,7 @@ class StaffController extends GetxController {
     //update
     CustomFullScreenDialog.showDialog();
     await _repository.updateModel(model, id);
+    if (authController.firebaseUser != null) auth.currentUser!.reload();
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'storage_service.dart';
 import 'package:get/get.dart';
 
 class FirebaseStorageService extends GetxService implements StorageService {
@@ -39,4 +38,19 @@ class FirebaseStorageService extends GetxService implements StorageService {
     return ref.doc(id).update(data);
   }
 
+  @override
+  Future<void> addDocumentWithId(Map data, String docId) {
+    return ref.doc(docId).set(data);
+  }
+}
+
+abstract class StorageService {
+  Future<QuerySnapshot> getData();
+  Stream<QuerySnapshot> getShowingDataAsStream();
+  Stream<QuerySnapshot> getDataAsStream();
+  Future getDocumentById(String id);
+  Future<void> removeDocument(String id);
+  Future<void> addDocument(Map data);
+  Future<void> addDocumentWithId(Map data, String docId);
+  Future<void> updateDocument(Map<String, dynamic> data, String id);
 }

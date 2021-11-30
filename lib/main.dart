@@ -1,4 +1,6 @@
 import 'dart:ui';
+import 'package:dops/constants/constant.dart';
+import 'package:dops/controllers/auth_controller.dart';
 import 'package:dops/modules/drawing/drawing_repository.dart';
 
 import 'modules/activity/activity_repository.dart';
@@ -7,58 +9,51 @@ import 'modules/reference_document/reference_document_repository.dart';
 import 'modules/staff/staff_repository.dart';
 import 'modules/task/task_repository.dart';
 import 'services/firebase_service/firebase_storage_service.dart';
-import 'services/firebase_service/storage_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_strategy/url_strategy.dart';
 
 import 'routes/app_pages.dart';
 
 Future<void> main() async {
   await initServices();
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp().then((value) => Get.put(AuthController()));
+  setPathUrlStrategy();
 
   runApp(MyApp());
 }
 
 @override
 Future<void> initServices() async {
-  await Get.putAsync<StorageService>(
-      () async => await FirebaseStorageService('activities'),
+  await Get.putAsync<StorageService>(() async => await FirebaseStorageService('activities'),
       tag: 'activities');
 
   await Get.putAsync<StorageService>(
       () async => await FirebaseStorageService('reference_documents'),
       tag: 'reference_documents');
 
-  await Get.putAsync<StorageService>(
-      () async => await FirebaseStorageService('staff'),
+  await Get.putAsync<StorageService>(() async => await FirebaseStorageService('staff'),
       tag: 'staff');
 
-  await Get.putAsync<StorageService>(
-      () async => await FirebaseStorageService('tasks'),
+  await Get.putAsync<StorageService>(() async => await FirebaseStorageService('tasks'),
       tag: 'tasks');
 
-  await Get.putAsync<StorageService>(
-      () async => await FirebaseStorageService('drawings'),
+  await Get.putAsync<StorageService>(() async => await FirebaseStorageService('drawings'),
       tag: 'drawings');
 
-  await Get.putAsync<StorageService>(
-      () async => await FirebaseStorageService('lists'),
+  await Get.putAsync<StorageService>(() async => await FirebaseStorageService('lists'),
       tag: 'lists');
-  await Get.putAsync<ActivityRepository>(
-      () async => await ActivityRepository());
+  await Get.putAsync<ActivityRepository>(() async => await ActivityRepository());
 
-  await Get.putAsync<ReferenceDocumentRepository>(
-      () async => await ReferenceDocumentRepository());
+  await Get.putAsync<ReferenceDocumentRepository>(() async => await ReferenceDocumentRepository());
 
   await Get.putAsync<StaffRepository>(() async => await StaffRepository());
 
   await Get.putAsync<TaskRepository>(() async => await TaskRepository());
   await Get.putAsync<DrawingRepository>(() async => await DrawingRepository());
-  await Get.putAsync<DropwdownSourcesRepository>(
-      () async => await DropwdownSourcesRepository());
+  await Get.putAsync<DropwdownSourcesRepository>(() async => await DropwdownSourcesRepository());
 }
 
 class MyApp extends StatelessWidget {
@@ -72,9 +67,17 @@ class MyApp extends StatelessWidget {
       scrollBehavior: MyCustomScrollBehavior(),
       debugShowCheckedModeBanner: false,
       title: "DOPS",
-      initialRoute: AppPages.INITIAL,
+      initialRoute: AppPages.LOGIN,
       getPages: AppPages.routes,
+      unknownRoute: AppPages.UNKNOWN,
       themeMode: ThemeMode.light,
+      routingCallback: (routing) {
+        // if (authController.firebaseUser == null) {
+        //   if (routing!.current != Routes.LOGIN) {
+        //     Get.offAndToNamed(Routes.LOGIN);
+        //   }
+        // }
+      },
       darkTheme: ThemeData.dark().copyWith(
         primaryColor: Color(0xff141A31),
         primaryColorDark: Color(0xff081029),

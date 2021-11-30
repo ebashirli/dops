@@ -4,6 +4,8 @@ abstract class Routes {
   Routes._();
 
   static const HOME = _Paths.HOME;
+  static const UNKNOWN = _Paths.UNKNOWN;
+  static const LOGIN = _Paths.LOGIN;
   static const REFERENCE_DOCUMENT = _Paths.REFERENCE_DOCUMENT;
   static const ACTIVITY = _Paths.ACTIVITY;
   static const DROPDOWN_SOURCE_LISTS = _Paths.DROPDOWN_SOURCE_LISTS;
@@ -13,6 +15,8 @@ abstract class Routes {
 }
 
 abstract class _Paths {
+  static const UNKNOWN = '/unknown';
+  static const LOGIN = '/login';
   static const HOME = '/home';
   static const REFERENCE_DOCUMENT = '/reference_document';
   static const ACTIVITY = '/activity';

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dops/constants/table_details.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import '../../components/custom_text_form_field_widget.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +30,7 @@ class DrawingController extends GetxController {
 
   late int revisionNumber = 0;
 
-  late String activityCodeText,
+  late String activityCodeIdText,
       moduleNameText,
       levelText,
       functionalAreaText,
@@ -96,7 +95,7 @@ class DrawingController extends GetxController {
     drawingTitleController.clear();
     noteController.clear();
 
-    activityCodeText = '';
+    activityCodeIdText = '';
     moduleNameText = '';
     levelText = '';
     functionalAreaText = '';
@@ -113,7 +112,7 @@ class DrawingController extends GetxController {
     drawingTitleController.text = model.drawingTitle;
     noteController.text = model.note;
 
-    activityCodeText = model.activityCode;
+    activityCodeIdText = model.activityCodeId;
     moduleNameText = model.module;
     levelText = model.level;
     functionalAreaText = model.functionalArea;
@@ -186,9 +185,20 @@ class DrawingController extends GetxController {
                                 SizedBox(height: 10),
                                 CustomDropdownMenu(
                                   labelText: 'Activity code',
-                                  selectedItems: [activityCodeText],
+                                  selectedItems: [
+                                    activityController.documents
+                                        .where((activity) =>
+                                            activity.id == activityCodeIdText)
+                                        .toList()[0]
+                                        .activityId!,
+                                  ],
                                   onChanged: (value) {
-                                    activityCodeText = value ?? '';
+                                    activityCodeIdText = activityController
+                                        .documents
+                                        .where((activity) =>
+                                            activity.activityId == value)
+                                        .toList()[0]
+                                        .id!;
                                   },
                                   items: activityController.documents
                                       .map((document) => document.activityId)
@@ -315,7 +325,7 @@ class DrawingController extends GetxController {
                         ElevatedButton(
                           onPressed: () {
                             DrawingModel revisedOrNewModel = DrawingModel(
-                              activityCode: activityCodeText,
+                              activityCodeId: activityCodeIdText,
                               drawingNumber: drawingNumberController.text,
                               drawingTitle: drawingTitleController.text,
                               level: levelText,
@@ -347,47 +357,5 @@ class DrawingController extends GetxController {
         ),
       ),
     );
-  }
-
-  List<Map<String, dynamic>> get getDataForTableView {
-    List<String> mapPropNames = mapPropNamesGetter('drawing');
-
-    return documents.map(
-      (drawing) {
-        Map<String, dynamic> map = {};
-
-        mapPropNames.forEach(
-          (mapPropName) {
-            switch (mapPropName) {
-              case 'id':
-                map[mapPropName] = drawing.id!;
-                break;
-              case 'priority':
-                map[mapPropName] = activityController.documents
-                        .indexOf(activityController.documents.where((document) {
-                      return document.activityId == drawing.activityCode;
-                    }).toList()[0]) +
-                    1;
-                break;
-              case 'area':
-              case 'functionalArea':
-              case 'note':
-              case 'isHidden':
-                break;
-              case 'drawingCreateDate':
-                map[mapPropName] = drawing.drawingCreateDate;
-                break;
-              case 'drawingNumber':
-                map[mapPropName] = '${drawing.drawingNumber}|${drawing.id}';
-                break;
-              default:
-                map[mapPropName] = drawing.toMap()[mapPropName];
-                break;
-            }
-          },
-        );
-        return map;
-      },
-    ).toList();
   }
 }

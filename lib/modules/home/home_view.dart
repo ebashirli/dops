@@ -14,6 +14,7 @@ import 'home_controller.dart';
 import '../../enum.dart';
 import '../dropdown_source/dropdown_sources_view.dart';
 
+// ignore: must_be_immutable
 class HomeView extends GetView<HomeController> {
   final activityController = Get.find<ActivityController>();
   final referenceDocumentController = Get.find<ReferenceDocumentController>();

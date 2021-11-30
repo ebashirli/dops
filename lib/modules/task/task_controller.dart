@@ -1,5 +1,7 @@
-import 'package:dops/constants/table_details.dart';
+import 'dart:math';
+
 import 'package:dops/modules/drawing/drawing_controller.dart';
+import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import '../../components/custom_text_form_field_widget.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +20,7 @@ class TaskController extends GetxController {
   final _repository = Get.find<TaskRepository>();
   final activityController = Get.find<ActivityController>();
   final drawingController = Get.find<DrawingController>();
+
   final referenceDocumentController = Get.find<ReferenceDocumentController>();
   final dropdownSourcesController = Get.find<DropdownSourcesController>();
 
@@ -27,7 +30,7 @@ class TaskController extends GetxController {
   late int revisionNumber;
 
   RxList<TaskModel> _documents = RxList<TaskModel>([]);
-  List<TaskModel> get documents => _documents;
+  List<TaskModel?> get documents => _documents;
 
   @override
   void onInit() {
@@ -67,197 +70,200 @@ class TaskController extends GetxController {
   buildAddEdit({String? id, bool newRev = false}) {
     if (newRev) {
       clearEditingControllers();
-    } else {
-      drawingController.buildAddEdit(id: id, newRev: newRev);
-    }
 
-    Get.defaultDialog(
-      barrierDismissible: false,
-      radius: 12,
-      titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: 'Add next revision',
-      content: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(8),
-            topLeft: Radius.circular(8),
+      DrawingModel selectedDrawing = drawingController.documents
+          .where((drawing) => drawing.id == id)
+          .toList()[0];
+
+      TaskModel? selectedTask;
+      if (!documents.isEmpty) {
+        int maxRevisionCount = documents
+            .where((task) => task!.parentId == selectedDrawing.id)
+            .map((task) => task!.revisionCount)
+            .reduce(max);
+        selectedTask = documents
+            .where((task) =>
+                task!.revisionCount == maxRevisionCount &&
+                task.parentId == selectedDrawing.id)
+            .toList()[0]!;
+      }
+
+      Get.defaultDialog(
+        barrierDismissible: false,
+        radius: 12,
+        titlePadding: EdgeInsets.only(top: 20, bottom: 20),
+        title: 'Add next revision',
+        content: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(8),
+              topLeft: Radius.circular(8),
+            ),
+            color: light, //Color(0xff1E2746),
           ),
-          color: light, //Color(0xff1E2746),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: taskFormKey,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            child: Container(
-              width: Get.width * .5,
-              child: Column(
-                children: [
-                  Container(
-                    height: 540,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Column(
-                            children: <Widget>[
-                              Text(
-                                documents
-                                    .where((documents) => documents.id == id)
-                                    .toList()[0]
-                                    .drawingNumber,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: taskFormKey,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              child: Container(
+                width: Get.width * .5,
+                child: Column(
+                  children: [
+                    Container(
+                      height: 540,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Column(
+                              children: <Widget>[
+                                Text(
+                                  //  TODO: ask Ismayil
+                                  'Current Revision: ${selectedDrawing.drawingNumber}-${selectedTask != null ? selectedTask.revisionNumber : ''}',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              SizedBox(height: 10),
-                              CustomTextFormField(
-                                controller: nextRevisionNumberController,
-                                labelText: 'Next Revision number',
-                              ),
-                              CustomDropdownMenu(
-                                isMultiSelectable: true,
-                                labelText: 'Design Drawings',
-                                items: referenceDocumentController.documents
-                                    .map((document) => document.documentNumber)
-                                    .toList(),
-                                onChanged: (values) =>
-                                    designDrawingsList = values,
-                                selectedItems: designDrawingsList,
-                              ),
-                              CustomTextFormField(
-                                controller: noteController,
-                                labelText: 'Note',
-                              ),
-                            ],
-                          )
-                        ],
+                                SizedBox(height: 10),
+                                CustomTextFormField(
+                                  controller: nextRevisionNumberController,
+                                  labelText: 'Next Revision number',
+                                ),
+                                CustomDropdownMenu(
+                                  isMultiSelectable: true,
+                                  labelText: 'Design Drawings',
+                                  items: referenceDocumentController.documents
+                                      .map(
+                                          (document) => document.documentNumber)
+                                      .toList(),
+                                  onChanged: (values) =>
+                                      designDrawingsList = values,
+                                  selectedItems: designDrawingsList,
+                                ),
+                                CustomTextFormField(
+                                  controller: noteController,
+                                  labelText: 'Note',
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  Container(
-                    child: Row(
-                      children: <Widget>[
-                        ElevatedButton(
-                            onPressed: () => Get.back(),
-                            child: const Text('Cancel')),
-                        SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            TaskModel newTaskModel = TaskModel(
-                              drawingNumber: drawingController.documents
-                                  .where((drawing) => drawing.id == id)
-                                  .toList()[0]
-                                  .drawingNumber,
-                              designDrawings: designDrawingsList,
-                              nextRevisionNumber:
-                                  nextRevisionNumberController.text,
-                              note: noteController.text,
-                              revisionCount: documents
-                                      .where((task) => task.id == id)
-                                      .toList()[0]
-                                      .revisionCount! +
-                                  1,
-                            );
+                    SizedBox(height: 10),
+                    Container(
+                      child: Row(
+                        children: <Widget>[
+                          ElevatedButton(
+                              onPressed: () => Get.back(),
+                              child: const Text('Cancel')),
+                          SizedBox(width: 10),
+                          ElevatedButton(
+                            onPressed: () {
+                              TaskModel newTaskModel = TaskModel(
+                                parentId: id,
+                                designDrawings: designDrawingsList,
+                                revisionNumber:
+                                    nextRevisionNumberController.text,
+                                note: noteController.text,
+                                revisionCount: documents.length == 0
+                                    ? 1
+                                    : documents
+                                            .where((task) {
+                                              return task!.parentId == id;
+                                            })
+                                            .toList()
+                                            .length +
+                                        1,
+                              );
 
-                            addNewTask(model: newTaskModel);
-                          },
-                          child: Text('Add next revision'),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
+                              newTaskModel.changeNumber =
+                                  newTaskModel.revisionCount == 1
+                                      ? 0
+                                      : (documents.length -
+                                              drawingController
+                                                  .documents.length) +
+                                          1;
+
+                              addNewTask(model: newTaskModel);
+                            },
+                            child: Text('Add next revision'),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    } else {
+      drawingController.buildAddEdit(id: id, newRev: newRev);
+    }
   }
 
   List<Map<String, dynamic>> get getDataForTableView {
-    List<String> mapPropNames = mapPropNamesGetter('task');
-
-    print(drawingController.documents.map((e) => e.toMap()));
-
     return drawingController.documents.map(
       (drawing) {
-        Map<String, dynamic> map = {};
-        TaskModel? task = documents.where((task) {
-          return drawing.drawingNumber == task.drawingNumber;
-        }).toList()[0];
+        late TaskModel task;
+        if (!documents.isEmpty) {
+          int maxRevisionCount = !documents.isEmpty
+              ? documents
+                  .where((task) => task!.parentId == drawing.id)
+                  .map((task) => task!.revisionCount)
+                  .reduce(max)
+              : 0;
+          task = documents
+              .where((task) =>
+                  task!.revisionCount == maxRevisionCount &&
+                  task.parentId == drawing.id)
+              .toList()[0]!;
+        } else {
+          task = TaskModel(
+            parentId: '',
+            id: '',
+            revisionNumber: '',
+            designDrawings: [],
+            note: '',
+            changeNumber: 0,
+            percentage: 0,
+          );
+        }
 
-        map = {
+        return <String, dynamic>{
+          'parentId': drawing.id,
           'id': task.id,
-          'priority': '',
-          'activityCode': '',
-          'drawingNumber': '',
-          'coverSheetRevision': '',
-          'drawingTitle': '',
-          'module': '',
-          'issueType': '',
-          'revisionNumber': '',
-          'percentage': '',
-          'revisionStatus': '',
-          'level': '',
-          'structureType': '',
-          'designDrawings': '',
-          'changeNumber': '',
-          'taskCreateDate': '',
+          'priority': activityController.documents.indexOf(activityController
+                  .documents
+                  .where((activity) => activity.id == drawing.activityCodeId)
+                  .toList()[0]) +
+              1,
+          'activityCode': activityController.documents
+              .where((activity) => activity.id == drawing.activityCodeId)
+              .toList()[0]
+              .activityId,
+          'drawingNumber': '${drawing.drawingNumber}|${drawing.id}',
+          'revisionNumber': task.revisionNumber,
+          'drawingTitle': drawing.drawingTitle,
+          'module': drawing.module,
+          'issueType': task.revisionCount == 1
+              ? 'First issue'
+              : task.revisionCount == 0
+                  ? ''
+                  : 'Revision',
+          'revisionCount': task.revisionCount,
+          'percentage': task.percentage,
+          'revisionStatus': 'Current',
+          'level': drawing.level,
+          'structureType': drawing.structureType,
+          'designDrawings': '${task.designDrawings.join(';')}',
+          'changeNumber': task.changeNumber,
+          'taskCreateDate': task.taskCreateDate ?? '',
         };
-
-        // mapPropNames.forEach(
-        //   (mapPropName) {
-        //     switch (mapPropName) {
-        //       case 'id':
-        //         map[mapPropName] = task.id!;
-        //         break;
-        //       case 'priority':
-        //         map[mapPropName] = activityController.documents.indexOf(
-        //                 activityController.documents
-        //                     .where((activity) =>
-        //                         activity.activityId == drawing.activityCode)
-        //                     .toList()[0]) +
-        //             1;
-        //         break;
-        //       case 'taskCreateDate':
-        //         map[mapPropName] = task.taskCreateDate;
-        //         break;
-        //       case 'coverSheetRevision':
-        //         map[mapPropName] = task.nextRevisionNumber;
-        //         break;
-        //       case 'issueType':
-        //         map[mapPropName] = task.issueType;
-        //         break;
-        //       case 'revisionNumber':
-        //         map[mapPropName] = task.revisionCount;
-        //         break;
-        //       case 'percentage':
-        //         map[mapPropName] = task.percentage;
-        //         break;
-        //       case 'revisionStatus':
-        //         map[mapPropName] = task.revisionStatus;
-        //         break;
-        //       case 'changeNumber':
-        //         map[mapPropName] = task.changeNumber;
-        //         break;
-        //       case 'drawingNumber':
-        //         map[mapPropName] = '${task.drawingNumber}|${task.id}';
-        //         break;
-        //       case 'designDrawings':
-        //         map[mapPropName] = '${task.designDrawings.join(';')}';
-        //         break;
-        //       default:
-        //         map[mapPropName] = drawing.toMap()[mapPropName];
-        //         break;
-        //     }
-        //   },
-        // );
-        // return map;
-        return map;
       },
     ).toList();
   }

@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/constants/lists.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/modules/staff/staff_controller.dart';
@@ -100,8 +99,8 @@ class StagesController extends GetxController {
     taskFormKeyOnStages.currentState!.save();
     CustomFullScreenDialog.showDialog();
     model.taskCreateDate = taskController.documents
-        .where((document) => document.id == id)
-        .toList()[0]
+        .where((task) => task!.id == id)
+        .toList()[0]!
         .taskCreateDate;
     await _repository.updateModel(model, id);
     CustomFullScreenDialog.cancelDialog();
@@ -114,32 +113,12 @@ class StagesController extends GetxController {
   }
 
   void fillEditingControllers(String id) {
-    final TaskModel? model = taskController.documents
-        .where((document) => document.id == id)
-        .toList()[0];
-
-    drawingNumberController.text = model!.drawingNumber;
-    nextRevisionNumberController.text = model.nextRevisionNumber;
+    final TaskModel model =
+        taskController.documents.where((task) => task!.id == id).toList()[0]!;
+    nextRevisionNumberController.text = model.revisionNumber;
     noteController.text = model.note;
-    revisionNumber = model.revisionCount!;
+    revisionNumber = model.revisionCount;
     designDrawingsList = model.designDrawings;
-  }
-
-  whenCompleted() {
-    CustomFullScreenDialog.cancelDialog();
-    Get.back();
-  }
-
-  catchError(FirebaseException error) {
-    {
-      CustomFullScreenDialog.cancelDialog();
-      CustomSnackBar.showSnackBar(
-        context: Get.context,
-        title: "Error",
-        message: "${error.message.toString()}",
-        backgroundColor: Colors.red,
-      );
-    }
   }
 
   Widget buildEditForm() {
@@ -352,9 +331,8 @@ class StagesController extends GetxController {
                   ElevatedButton(
                     onPressed: () {
                       TaskModel model = TaskModel(
-                        drawingNumber: drawingNumberController.text,
                         designDrawings: designDrawingsList,
-                        nextRevisionNumber: nextRevisionNumberController.text,
+                        revisionNumber: nextRevisionNumberController.text,
                         note: noteController.text,
                         revisionCount: revisionNumber,
                       );

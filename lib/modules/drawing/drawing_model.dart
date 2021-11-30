@@ -1,6 +1,6 @@
 class DrawingModel {
   String? id;
-  String activityCode;
+  String activityCodeId;
   String drawingNumber;
   String drawingTitle;
   String module;
@@ -14,7 +14,7 @@ class DrawingModel {
 
   DrawingModel({
     this.id,
-    required this.activityCode,
+    required this.activityCodeId,
     required this.drawingNumber,
     required this.drawingTitle,
     required this.module,
@@ -29,7 +29,7 @@ class DrawingModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'activityCode': activityCode,
+      'activityCodeId': activityCodeId,
       'drawingNumber': drawingNumber,
       'drawingTitle': drawingTitle,
       'module': module,
@@ -46,7 +46,7 @@ class DrawingModel {
   factory DrawingModel.fromMap(Map<String, dynamic> map, String? id) {
     return DrawingModel(
       id: id ?? null,
-      activityCode: map['activityCode'],
+      activityCodeId: map['activityCodeId'],
       drawingNumber: map['drawingNumber'],
       drawingTitle: map['drawingTitle'],
       module: map['module'],

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/constants/table_details.dart';
+import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ class ReferenceDocumentController extends GetxController {
   final GlobalKey<FormState> referenceDocumentFormKey = GlobalKey<FormState>();
   final _repository = Get.find<ReferenceDocumentRepository>();
   late final taskController = Get.find<TaskController>();
+  late final drawingController = Get.find<DrawingController>();
   late final dropdownSourcesController = Get.find<DropdownSourcesController>();
 
   late TextEditingController documentNumberController,
@@ -332,9 +334,16 @@ class ReferenceDocumentController extends GetxController {
           case 'assignedTasks':
             String assignedTasks = '';
             taskController.documents.forEach((task) {
-              if (task.designDrawings
-                  .contains(referenceDocument.documentNumber))
-                assignedTasks += '|${task.drawingNumber};${task.id!}';
+              if (task != null) {
+                final String drawingNumber = drawingController.documents
+                    .where((drawing) => drawing.id == task.parentId)
+                    .toList()[0]
+                    .drawingNumber;
+
+                if (task.designDrawings
+                    .contains(referenceDocument.documentNumber))
+                  assignedTasks += '|${drawingNumber};${task.id!}';
+              }
             });
             map[mapPropName] = assignedTasks;
             break;
@@ -346,5 +355,4 @@ class ReferenceDocumentController extends GetxController {
       return map;
     }).toList();
   }
-
 }

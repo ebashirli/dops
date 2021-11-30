@@ -1,8 +1,5 @@
 import 'package:dops/constants/constant.dart';
 import 'package:dops/enum.dart';
-import 'package:dops/modules/home/home_view.dart';
-import 'package:dops/modules/login/login_view.dart';
-import 'package:dops/modules/staff/staff_controller.dart';
 import 'package:dops/modules/staff/staff_model.dart';
 import 'package:dops/modules/staff/staff_repository.dart';
 import 'package:dops/routes/app_pages.dart';
@@ -14,7 +11,7 @@ class AuthController extends GetxController {
   static AuthController instance = Get.find();
   final staffRepository = Get.find<StaffRepository>();
   late Rx<User?> firebaseUser;
-  late Rx<UserRoles?> userRole = UserRoles.User.obs;
+  late Rx<UserRole?> userRole = UserRole.User.obs;
   @override
   onReady() {
     firebaseUser = Rx<User?>(auth.currentUser);
@@ -31,16 +28,16 @@ class AuthController extends GetxController {
       StaffModel userModel = await staffRepository.getModelById(user.uid);
       switch (userModel.systemDesignation) {
         case 'Coordinator':
-          userRole.value = UserRoles.Coordinator;
+          userRole.value = UserRole.Coordinator;
           break;
         case 'Admin':
-          userRole.value = UserRoles.Admin;
+          userRole.value = UserRole.Admin;
           break;
         default:
-          userRole.value = UserRoles.User;
+          userRole.value = UserRole.User;
       }
       print(userRole);
-      Get.offAndToNamed(Routes.HOME, arguments: {'id': user.uid});
+      Get.offAndToNamed(Routes.HOME, parameters: {'id': user.uid});
     }
   }
 
@@ -50,7 +47,7 @@ class AuthController extends GetxController {
     } catch (firebaseAuthException) {}
   }
 
-  void login(String email, password) async {
+  Future<void> login(String email, password) async {
     try {
       await auth.signInWithEmailAndPassword(email: email, password: password);
     } catch (firebaseAuthException) {}

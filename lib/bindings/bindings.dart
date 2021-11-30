@@ -1,4 +1,5 @@
 import 'package:dops/modules/drawing/drawing_controller.dart';
+import 'package:dops/modules/login/login_controller.dart';
 
 import '../modules/activity/activity_controller.dart';
 import 'package:dops/modules/staff/staff_controller.dart';
@@ -13,9 +14,9 @@ import '../../modules/stages/stages_controller.dart';
 class HomeBinding extends Bindings {
   @override
   void dependencies() {
-    // Get.lazyPut<HomeController>(
-    //   () => HomeController(),
-    // );
+    Get.lazyPut<HomeController>(
+      () => HomeController(),
+    );
     Get.lazyPut<ActivityController>(
       () => ActivityController(),
     );
@@ -28,9 +29,7 @@ class HomeBinding extends Bindings {
     Get.lazyPut<TaskController>(
       () => TaskController(),
     );
-    Get.lazyPut<TaskController>(
-      () => TaskController(),
-    );
+
     Get.lazyPut<DrawingController>(
       () => DrawingController(),
     );
@@ -52,7 +51,7 @@ class ActivityBinding extends Bindings {
 class LoginBinding extends Bindings {
   @override
   void dependencies() {
-   
+    Get.lazyPut(() => LoginController());
   }
 }
 

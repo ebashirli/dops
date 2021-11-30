@@ -24,7 +24,7 @@ class DrawingController extends GetxController {
   late TextEditingController drawingNumberController,
       nextRevisionNumberController,
       drawingTitleController,
-      noteController;
+      drawingNoteController;
 
   late List<String> areaList = [];
   late List<String> designDrawingsList = [];

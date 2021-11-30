@@ -21,40 +21,33 @@ Future<void> main() async {
 
   runApp(MyApp());
 }
-
+ 
 @override
 Future<void> initServices() async {
   await Get.putAsync<StorageService>(
       () async => await FirebaseStorageService('activities'),
       tag: 'activities');
-
   await Get.putAsync<StorageService>(
       () async => await FirebaseStorageService('reference_documents'),
       tag: 'reference_documents');
-
   await Get.putAsync<StorageService>(
       () async => await FirebaseStorageService('staff'),
       tag: 'staff');
-
   await Get.putAsync<StorageService>(
       () async => await FirebaseStorageService('tasks'),
       tag: 'tasks');
-
   await Get.putAsync<StorageService>(
       () async => await FirebaseStorageService('drawings'),
       tag: 'drawings');
-
   await Get.putAsync<StorageService>(
       () async => await FirebaseStorageService('lists'),
       tag: 'lists');
+
   await Get.putAsync<ActivityRepository>(
       () async => await ActivityRepository());
-
   await Get.putAsync<ReferenceDocumentRepository>(
       () async => await ReferenceDocumentRepository());
-
   await Get.putAsync<StaffRepository>(() async => await StaffRepository());
-
   await Get.putAsync<TaskRepository>(() async => await TaskRepository());
   await Get.putAsync<DrawingRepository>(() async => await DrawingRepository());
   await Get.putAsync<DropwdownSourcesRepository>(

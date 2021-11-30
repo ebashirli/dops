@@ -140,9 +140,10 @@ class DrawingController extends GetxController {
   }
 
   buildAddEdit({String? id, bool newRev = false}) {
-    if (id != null && !newRev) {
+    if (id != null) {
       fillEditingControllers(
-          documents.where((document) => document.id == id).toList()[0]);
+        documents.where((document) => document.id == id).toList()[0],
+      );
     } else {
       clearEditingControllers();
     }
@@ -151,11 +152,7 @@ class DrawingController extends GetxController {
       barrierDismissible: false,
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: id == null
-          ? 'Add new drawing'
-          : newRev
-              ? 'Add next revision'
-              : 'Update drawing',
+      title: id == null ? 'Add new drawing' : 'Update drawing',
       content: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -179,104 +176,106 @@ class DrawingController extends GetxController {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (!newRev)
+                          Column(
+                            children: <Widget>[
+                              SizedBox(height: 10),
+                              CustomDropdownMenu(
+                                labelText: 'Activity code',
+                                selectedItems: [
+                                  id == null
+                                      ? activityCodeIdText
+                                      : activityController.documents
+                                          .where(
+                                            (activity) =>
+                                                activity.id ==
+                                                activityCodeIdText,
+                                          )
+                                          .toList()[0]
+                                          .activityId!,
+                                ],
+                                onChanged: (value) {
+                                  activityCodeIdText = activityController
+                                      .documents
+                                      .where((activity) =>
+                                          activity.activityId == value)
+                                      .toList()[0]
+                                      .id!;
+                                },
+                                items: activityController.documents
+                                    .map((document) => document.activityId)
+                                    .toList(),
+                              ),
+                              CustomTextFormField(
+                                controller: drawingNumberController,
+                                labelText: 'Drawing Number',
+                              ),
+                              CustomTextFormField(
+                                controller: drawingTitleController,
+                                labelText: 'Drawing Title',
+                              ),
+                              CustomDropdownMenu(
+                                labelText: 'Module name',
+                                selectedItems: [moduleNameText],
+                                onChanged: (value) {
+                                  moduleNameText = value ?? '';
+                                },
+                                items: dropdownSourcesController
+                                    .document.value.modules!,
+                              ),
+                              CustomDropdownMenu(
+                                labelText: 'Level',
+                                selectedItems: [levelText],
+                                onChanged: (value) {
+                                  levelText = value ?? '';
+                                },
+                                items: dropdownSourcesController
+                                    .document.value.levels!,
+                              ),
+                              CustomDropdownMenu(
+                                isMultiSelectable: true,
+                                labelText: 'Area',
+                                items: dropdownSourcesController
+                                    .document.value.areas!,
+                                onChanged: (values) => areaList = values,
+                                selectedItems: areaList,
+                              ),
+                              CustomDropdownMenu(
+                                labelText: 'Functional Area',
+                                selectedItems: [functionalAreaText],
+                                onChanged: (value) {
+                                  functionalAreaText = value ?? '';
+                                },
+                                items: dropdownSourcesController
+                                    .document.value.functionalAreas!,
+                              ),
+                              CustomDropdownMenu(
+                                labelText: 'Structure Type',
+                                selectedItems: [structureTypeText],
+                                onChanged: (value) {
+                                  structureTypeText = value ?? '';
+                                },
+                                items: dropdownSourcesController
+                                    .document.value.structureTypes!,
+                              ),
+                              CustomTextFormField(
+                                controller: noteController,
+                                labelText: 'Note',
+                              ),
+                            ],
+                          ),
+                          if (id != null)
                             Column(
                               children: <Widget>[
-                                SizedBox(height: 10),
-                                CustomDropdownMenu(
-                                  labelText: 'Activity code',
-                                  selectedItems: [
-                                    activityController.documents
-                                        .where((activity) =>
-                                            activity.id == activityCodeIdText)
-                                        .toList()[0]
-                                        .activityId!,
-                                  ],
-                                  onChanged: (value) {
-                                    activityCodeIdText = activityController
-                                        .documents
-                                        .where((activity) =>
-                                            activity.activityId == value)
-                                        .toList()[0]
-                                        .id!;
-                                  },
-                                  items: activityController.documents
-                                      .map((document) => document.activityId)
-                                      .toList(),
-                                ),
-                                CustomTextFormField(
-                                  controller: drawingNumberController,
-                                  labelText: 'Drawing Number',
-                                ),
-                                CustomTextFormField(
-                                  controller: drawingTitleController,
-                                  labelText: 'Drawing Title',
-                                ),
-                                CustomDropdownMenu(
-                                  labelText: 'Module name',
-                                  selectedItems: [moduleNameText],
-                                  onChanged: (value) {
-                                    moduleNameText = value ?? '';
-                                  },
-                                  items: dropdownSourcesController
-                                      .document.value.modules!,
-                                ),
-                                CustomDropdownMenu(
-                                  labelText: 'Level',
-                                  selectedItems: [levelText],
-                                  onChanged: (value) {
-                                    levelText = value ?? '';
-                                  },
-                                  items: dropdownSourcesController
-                                      .document.value.levels!,
-                                ),
-                                CustomDropdownMenu(
-                                  isMultiSelectable: true,
-                                  labelText: 'Area',
-                                  items: dropdownSourcesController
-                                      .document.value.areas!,
-                                  onChanged: (values) => areaList = values,
-                                  selectedItems: areaList,
-                                ),
-                                CustomDropdownMenu(
-                                  labelText: 'Functional Area',
-                                  selectedItems: [functionalAreaText],
-                                  onChanged: (value) {
-                                    functionalAreaText = value ?? '';
-                                  },
-                                  items: dropdownSourcesController
-                                      .document.value.functionalAreas!,
-                                ),
-                                CustomDropdownMenu(
-                                  labelText: 'Structure Type',
-                                  selectedItems: [structureTypeText],
-                                  onChanged: (value) {
-                                    structureTypeText = value ?? '';
-                                  },
-                                  items: dropdownSourcesController
-                                      .document.value.structureTypes!,
-                                ),
-                                CustomTextFormField(
-                                  controller: noteController,
-                                  labelText: 'Note',
-                                ),
-                              ],
-                            ),
-                          if (newRev || id != null)
-                            Column(
-                              children: <Widget>[
-                                if (newRev)
-                                  Text(
-                                    documents
-                                        .where(
-                                            (documents) => documents.id == id)
-                                        .toList()[0]
-                                        .drawingNumber,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                Text(
+                                  documents
+                                      .where((documents) => documents.id == id)
+                                      .toList()[0]
+                                      .drawingNumber,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
                                   ),
+                                ),
                                 SizedBox(height: 10),
                                 CustomTextFormField(
                                   controller: nextRevisionNumberController,

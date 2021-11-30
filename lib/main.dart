@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:dops/constants/constant.dart';
 import 'package:dops/controllers/auth_controller.dart';
 import 'package:dops/modules/drawing/drawing_repository.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
@@ -29,35 +28,44 @@ Future<void> main() async {
 
 @override
 Future<void> initServices() async {
-  await Get.putAsync<StorageService>(() async => await FirebaseStorageService('activities'),
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('activities'),
       tag: 'activities');
 
   await Get.putAsync<StorageService>(
       () async => await FirebaseStorageService('reference_documents'),
       tag: 'reference_documents');
 
-  await Get.putAsync<StorageService>(() async => await FirebaseStorageService('staff'),
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('staff'),
       tag: 'staff');
 
-  await Get.putAsync<StorageService>(() async => await FirebaseStorageService('tasks'),
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('tasks'),
       tag: 'tasks');
 
-  await Get.putAsync<StorageService>(() async => await FirebaseStorageService('drawings'),
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('drawings'),
       tag: 'drawings');
 
-  await Get.putAsync<StorageService>(() async => await FirebaseStorageService('lists'),
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('lists'),
       tag: 'lists');
-  await Get.putAsync<ActivityRepository>(() async => await ActivityRepository());
+  await Get.putAsync<ActivityRepository>(
+      () async => await ActivityRepository());
 
-  await Get.putAsync<ReferenceDocumentRepository>(() async => await ReferenceDocumentRepository());
+  await Get.putAsync<ReferenceDocumentRepository>(
+      () async => await ReferenceDocumentRepository());
 
   await Get.putAsync<StaffRepository>(() async => await StaffRepository());
 
   await Get.putAsync<TaskRepository>(() async => await TaskRepository());
   await Get.putAsync<DrawingRepository>(() async => await DrawingRepository());
-  await Get.putAsync<DropwdownSourcesRepository>(() async => await DropwdownSourcesRepository());
+  await Get.putAsync<DropwdownSourcesRepository>(
+      () async => await DropwdownSourcesRepository());
   await Get.putAsync<HomeController>(() async => await HomeController());
-  await Get.putAsync<DropdownSourcesController>(() async => await DropdownSourcesController());
+  await Get.putAsync<DropdownSourcesController>(
+      () async => await DropdownSourcesController());
 }
 
 class MyApp extends StatelessWidget {
@@ -75,7 +83,6 @@ class MyApp extends StatelessWidget {
       getPages: AppPages.routes,
       unknownRoute: AppPages.routes[2],
       themeMode: ThemeMode.light,
-      
       darkTheme: ThemeData.dark().copyWith(
         primaryColor: Color(0xff141A31),
         primaryColorDark: Color(0xff081029),

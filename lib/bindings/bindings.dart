@@ -33,6 +33,7 @@ class HomeBinding extends Bindings {
     Get.lazyPut<DrawingController>(
       () => DrawingController(),
     );
+
     Get.lazyPut<DropdownSourcesController>(
       () => DropdownSourcesController(),
     );
@@ -44,6 +45,10 @@ class ActivityBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<ActivityController>(
       () => ActivityController(),
+    );
+
+    Get.lazyPut<DrawingController>(
+      () => DrawingController(),
     );
   }
 }
@@ -69,6 +74,10 @@ class ReferenceDocumentBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<ReferenceDocumentController>(
       () => ReferenceDocumentController(),
+    );
+
+    Get.lazyPut<DrawingController>(
+      () => DrawingController(),
     );
   }
 }

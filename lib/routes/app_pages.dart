@@ -1,6 +1,3 @@
-import 'dart:math';
-
-import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/login/login_view.dart';
 import 'package:get/get.dart';
 import '../bindings/bindings.dart';

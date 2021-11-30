@@ -68,9 +68,9 @@ class TaskController extends GetxController {
   }
 
   buildAddEdit({String? id, bool newRev = false}) {
+    
     if (newRev) {
       clearEditingControllers();
-
       DrawingModel selectedDrawing = drawingController.documents
           .where((drawing) => drawing.id == id)
           .toList()[0];

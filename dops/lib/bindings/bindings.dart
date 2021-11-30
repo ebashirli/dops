@@ -1,5 +1,4 @@
 import 'package:dops/modules/drawing/drawing_controller.dart';
-
 import '../modules/activity/activity_controller.dart';
 import 'package:dops/modules/staff/staff_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
@@ -36,51 +35,6 @@ class HomeBinding extends Bindings {
     );
     Get.lazyPut<DropdownSourcesController>(
       () => DropdownSourcesController(),
-    );
-  }
-}
-
-class ActivityBinding extends Bindings {
-  @override
-  void dependencies() {
-    Get.lazyPut<ActivityController>(
-      () => ActivityController(),
-    );
-  }
-}
-
-class DropdownSourceListsBinding extends Bindings {
-  @override
-  void dependencies() {
-    Get.lazyPut<DropdownSourcesController>(
-      () => DropdownSourcesController(),
-    );
-  }
-}
-
-class ReferenceDocumentBinding extends Bindings {
-  @override
-  void dependencies() {
-    Get.lazyPut<ReferenceDocumentController>(
-      () => ReferenceDocumentController(),
-    );
-  }
-}
-
-class StaffBinding extends Bindings {
-  @override
-  void dependencies() {
-    Get.lazyPut<StaffController>(
-      () => StaffController(),
-    );
-  }
-}
-
-class TaskBinding extends Bindings {
-  @override
-  void dependencies() {
-    Get.lazyPut<TaskController>(
-      () => TaskController(),
     );
   }
 }

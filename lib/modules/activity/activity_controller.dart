@@ -259,47 +259,46 @@ class ActivityController extends GetxController {
   }
 
   List<Map<String, dynamic>> get getDataForTableView {
-    List<String> mapPropNames = mapPropNamesGetter('activity');
     return documents.map((activity) {
-      Map<String, dynamic> map = {};
-      mapPropNames.forEach((mapPropName) {
-        switch (mapPropName) {
-          case 'id':
-            map[mapPropName] = activity.id!;
-            break;
-          case 'priority':
-            map[mapPropName] = documents.indexOf(activity) + 1;
-            break;
-          case 'currentPriority':
-            map[mapPropName] =
-                (_documents.indexOf(activity) + 1) * activity.coefficient;
-            break;
-          case 'assignedTasks':
-            String assignedTasks = '';
-            List<String> drawingNumbersWithActivity = drawingController
-                .documents
-                .where((drawing) => drawing.activityCode == activity.activityId)
-                .toList()
-                .map((drawing) => drawing.drawingNumber)
-                .toList();
+      String assignedTasks = '';
 
-            List<TaskModel> tasksWithDrawings = taskController.documents
-                .where((task) =>
-                    drawingNumbersWithActivity.contains(task.drawingNumber))
-                .toList();
+      List<String?> drawingIdsWithtThisActivity = drawingController.documents
+          .where((drawing) => drawing.activityCodeId == activity.id)
+          .toList()
+          .map((drawing) => drawing.id)
+          .toList();
 
-            tasksWithDrawings.forEach((task) {
-              assignedTasks += '|${task.drawingNumber};${task.id!}';
-            });
+      List<TaskModel?> tasksWithDrawings = taskController.documents
+          .where((task) => task != null
+              ? drawingIdsWithtThisActivity.contains(task.parentId)
+              : false)
+          .toList();
 
-            map[mapPropName] = assignedTasks;
-            break;
-          default:
-            map[mapPropName] = activity.toMap()[mapPropName];
-            break;
+      tasksWithDrawings.forEach((task) {
+        if (task != null) {
+          final String drawingNumber = drawingController.documents
+              .where((drawing) => drawing.id == task.parentId)
+              .toList()[0]
+              .drawingNumber;
+          assignedTasks += '|${drawingNumber};${task.id!}';
         }
       });
-      return map;
+
+      return <String, dynamic>{
+        'id': activity.id,
+        'activityId': activity.activityId,
+        'activityName': activity.activityName,
+        'moduleName': activity.moduleName,
+        'priority': documents.indexOf(activity) + 1,
+        'coefficient': activity.coefficient,
+        'currentPriority':
+            (documents.indexOf(activity) + 1) * activity.coefficient,
+        'budgetedLaborUnits': activity.budgetedLaborUnits,
+        'startDate': activity.startDate,
+        'finishDate': activity.finishDate,
+        'cumulative': activity.cumulative,
+        'assignedTasks': assignedTasks,
+      };
     }).toList();
   }
 }

@@ -51,6 +51,7 @@ Future<void> initServices() async {
   await Get.putAsync<StorageService>(
       () async => await FirebaseStorageService('lists'),
       tag: 'lists');
+
   await Get.putAsync<ActivityRepository>(
       () async => await ActivityRepository());
 
@@ -60,10 +61,14 @@ Future<void> initServices() async {
   await Get.putAsync<StaffRepository>(() async => await StaffRepository());
 
   await Get.putAsync<TaskRepository>(() async => await TaskRepository());
+
   await Get.putAsync<DrawingRepository>(() async => await DrawingRepository());
+
   await Get.putAsync<DropwdownSourcesRepository>(
       () async => await DropwdownSourcesRepository());
+
   await Get.putAsync<HomeController>(() async => await HomeController());
+
   await Get.putAsync<DropdownSourcesController>(
       () async => await DropdownSourcesController());
 }

@@ -171,7 +171,7 @@ class StaffController extends GetxController {
     }
   }
 
-  buildAddEdit({String? id, bool? newRev = false}) {
+  buildAddEdit({String? id}) {
     if (id != null) {
       fillEditingControllers(id);
     } else {

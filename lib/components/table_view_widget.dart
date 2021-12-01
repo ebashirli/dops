@@ -35,8 +35,16 @@ class TableView extends StatelessWidget {
               backgroundColor: Colors.green[50],
             );
           } else {
-            String rowId = _dataGridController.selectedRow!.getCells()[0].value;
-            controller.buildAddEdit(id: rowId, newRev: newRev);
+            String? id = _dataGridController.selectedRow!.getCells()[0].value;
+            if (tableName != 'task') {
+              controller.buildAddEdit(id: id);
+            } else {
+              String parentId =
+                  _dataGridController.selectedRow!.getCells()[1].value;
+
+              controller.buildAddEdit(
+                  id: id, parentId: parentId, newRev: newRev);
+            }
           }
         }
 
@@ -72,12 +80,8 @@ class TableView extends StatelessWidget {
               allowSorting: true,
               rowHeight: 70,
               controller: _dataGridController,
-              selectionMode: SelectionMode.single,
-              onCellTap: (_) {
-                if (_dataGridController.selectedIndex >= 0) {
-                  _dataGridController.selectedIndex = -1;
-                }
-              },
+              selectionMode: SelectionMode.singleDeselect,
+              navigationMode: GridNavigationMode.row,
               onCellDoubleTap: (_) {
                 if (tableName == 'task') {
                   String rowId =

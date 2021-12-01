@@ -10,7 +10,8 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static final UNKNOWN = GetPage(name: Routes.HOME, page: () => UnknownRoutePage());
+  static final UNKNOWN =
+      GetPage(name: Routes.HOME, page: () => UnknownRoutePage());
   static const INITIAL = Routes.HOME;
   static const LOGIN = Routes.LOGIN;
 
@@ -18,7 +19,7 @@ class AppPages {
     GetPage(
       name: _Paths.HOME,
       page: () => HomeView(),
-      binding: HomeBinding(),
+      // binding: HomeBinding(),
     ),
     GetPage(
       name: _Paths.LOGIN,
@@ -28,7 +29,7 @@ class AppPages {
     GetPage(
       name: _Paths.STAGES,
       page: () => StagesView(),
-      binding: StagesBinding(),
+      binding: HomeBinding(),
     ),
   ];
 }

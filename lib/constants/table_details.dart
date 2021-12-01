@@ -51,8 +51,8 @@ Map<String, List<String>> tableColNames = {
     'Note'
   ],
   'task': [
-    'parentid',
     'id',
+    'parentid',
     'Priority',
     'Activity Code',
     'Drawing Number',

@@ -9,17 +9,20 @@ class CustomDateTimeFormField extends StatelessWidget {
     this.initialValue,
     this.onDateSelected,
   }) : super(key: key);
+
   final String labelText;
   final DateTime? initialValue;
   final dynamic Function(DateTime value)? onDateSelected;
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Container(
-          width: 150,
+          width: 200,
           child: DateTimeFormField(
             initialValue: initialValue,
+            initialEntryMode: DatePickerEntryMode.input,
             mode: DateTimeFieldPickerMode.date,
             decoration: InputDecoration(
               hintStyle: TextStyle(color: Colors.black45),

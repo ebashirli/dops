@@ -36,14 +36,14 @@ class AuthController extends GetxController {
         default:
           userRole.value = UserRole.User;
       }
-      print(userRole);
       Get.offAndToNamed(Routes.HOME, parameters: {'id': user.uid});
     }
   }
 
   Future<UserCredential?> register(String email, password) async {
     try {
-      return await auth.createUserWithEmailAndPassword(email: email, password: password);
+      return await auth.createUserWithEmailAndPassword(
+          email: email, password: password);
     } catch (firebaseAuthException) {}
   }
 

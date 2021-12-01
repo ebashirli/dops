@@ -1,12 +1,17 @@
 import 'dart:ui';
 import 'package:dops/controllers/auth_controller.dart';
+import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/drawing/drawing_repository.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/modules/home/home_controller.dart';
+import 'package:dops/modules/task/task_controller.dart';
 
+import 'modules/activity/activity_controller.dart';
 import 'modules/activity/activity_repository.dart';
 import 'modules/dropdown_source/dropdown_sources_repository.dart';
+import 'modules/reference_document/reference_document_controller.dart';
 import 'modules/reference_document/reference_document_repository.dart';
+import 'modules/staff/staff_controller.dart';
 import 'modules/staff/staff_repository.dart';
 import 'modules/task/task_repository.dart';
 import 'services/firebase_service/firebase_storage_service.dart';
@@ -19,8 +24,11 @@ import 'routes/app_pages.dart';
 
 Future<void> main() async {
   await initServices();
+
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp().then((value) => Get.put(AuthController()));
+
   setPathUrlStrategy();
 
   runApp(MyApp());
@@ -71,6 +79,18 @@ Future<void> initServices() async {
 
   await Get.putAsync<DropdownSourcesController>(
       () async => await DropdownSourcesController());
+
+  await Get.putAsync<ActivityController>(
+      () async => await ActivityController());
+
+  await Get.putAsync<ReferenceDocumentController>(
+      () async => await ReferenceDocumentController());
+
+  await Get.putAsync<StaffController>(() async => await StaffController());
+
+  await Get.putAsync<DrawingController>(() async => await DrawingController());
+
+  await Get.putAsync<TaskController>(() async => await TaskController());
 }
 
 class MyApp extends StatelessWidget {

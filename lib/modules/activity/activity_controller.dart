@@ -127,7 +127,7 @@ class ActivityController extends GetxController {
     }
   }
 
-  buildAddEdit({String? id, bool? newRev = false}) {
+  buildAddEdit({String? id}) {
     if (id != null) {
       fillEditingControllers(id);
     } else {
@@ -156,52 +156,82 @@ class ActivityController extends GetxController {
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: SingleChildScrollView(
               child: Container(
-                width: Get.width * 0.5,
+                width: Get.width * 0.3,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    CustomTextFormField(
-                      controller: activityIdController,
-                      labelText: tableColNames['activity']![1],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        CustomTextFormField(
+                          width: 200,
+                          controller: activityIdController,
+                          labelText: tableColNames['activity']![1],
+                        ),
+                        CustomTextFormField(
+                          width: 200,
+                          controller: activityNameController,
+                          labelText: tableColNames['activity']![2],
+                        ),
+                      ],
                     ),
-                    CustomTextFormField(
-                      controller: activityNameController,
-                      labelText: tableColNames['activity']![2],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        CustomDropdownMenu(
+                          width: 200,
+                          labelText: 'Module name',
+                          onChanged: (value) {
+                            moduleNameText = value ?? '';
+                          },
+                          selectedItems: [moduleNameText!],
+                          items:
+                              dropdownSourcesController.document.value.modules!,
+                        ),
+                        Container(
+                          width: 200,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              CustomTextFormField(
+                                width: 80,
+                                isNumber: true,
+                                controller: coefficientController,
+                                labelText: tableColNames['activity']![5],
+                              ),
+                              CustomTextFormField(
+                                width: 100,
+                                isNumber: true,
+                                controller: budgetedLaborUnitsController,
+                                labelText: tableColNames['activity']![7],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    CustomDropdownMenu(
-                      labelText: 'Module name',
-                      onChanged: (value) {
-                        moduleNameText = value ?? '';
-                      },
-                      selectedItems: [moduleNameText!],
-                      items: dropdownSourcesController.document.value.modules!,
-                    ),
-                    CustomTextFormField(
-                      isNumber: true,
-                      controller: coefficientController,
-                      labelText: tableColNames['activity']![5],
-                    ),
-                    CustomTextFormField(
-                      isNumber: true,
-                      controller: budgetedLaborUnitsController,
-                      labelText: tableColNames['activity']![7],
-                    ),
-                    CustomDateTimeFormField(
-                      initialValue: startTime,
-                      labelText: tableColNames['activity']![8],
-                      onDateSelected: (DateTime value) {
-                        startTime = value;
-                      },
-                    ),
-                    CustomDateTimeFormField(
-                      initialValue: finishTime,
-                      labelText: tableColNames['activity']![9],
-                      onDateSelected: (DateTime value) {
-                        finishTime = value;
-                      },
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        CustomDateTimeFormField(
+                          initialValue: startTime,
+                          labelText: tableColNames['activity']![8],
+                          onDateSelected: (DateTime value) {
+                            startTime = value;
+                          },
+                        ),
+                        CustomDateTimeFormField(
+                          initialValue: finishTime,
+                          labelText: tableColNames['activity']![9],
+                          onDateSelected: (DateTime value) {
+                            finishTime = value;
+                          },
+                        ),
+                      ],
                     ),
                     Container(
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           if (id != null)
                             ElevatedButton.icon(
@@ -216,11 +246,9 @@ class ActivityController extends GetxController {
                                       MaterialStateProperty.all<Color>(
                                           Colors.red)),
                             ),
-                          const Spacer(),
                           ElevatedButton(
                               onPressed: () => Get.back(),
                               child: const Text('Cancel')),
-                          SizedBox(width: 10),
                           ElevatedButton(
                             onPressed: () {
                               ActivityModel model = ActivityModel(

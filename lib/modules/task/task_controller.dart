@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
@@ -62,31 +60,29 @@ class TaskController extends GetxController {
 
   void clearEditingControllers() {
     nextRevisionNumberController.clear();
-    noteController.clear();
-    revisionNumber = 0;
     designDrawingsList = [];
+    noteController.clear();
   }
 
-  buildAddEdit({String? id, bool newRev = false}) {
-    
-    if (newRev) {
+  buildAddEdit({String? id, String? parentId, bool newRev = false}) {
+    if (!newRev) {
+      List<TaskModel?> tasks =
+          documents.where((task) => task!.id == id).toList();
+
+      drawingController.buildAddEdit(
+        id: parentId,
+        taskModel: id != null ? tasks[0] : null,
+      );
+    } else {
       clearEditingControllers();
+
       DrawingModel selectedDrawing = drawingController.documents
-          .where((drawing) => drawing.id == id)
+          .where((drawing) => drawing.id == parentId)
           .toList()[0];
 
-      TaskModel? selectedTask;
-      if (!documents.isEmpty) {
-        int maxRevisionCount = documents
-            .where((task) => task!.parentId == selectedDrawing.id)
-            .map((task) => task!.revisionCount)
-            .reduce(max);
-        selectedTask = documents
-            .where((task) =>
-                task!.revisionCount == maxRevisionCount &&
-                task.parentId == selectedDrawing.id)
-            .toList()[0]!;
-      }
+      final TaskModel? selectedTask = (!documents.isEmpty && id != null)
+          ? documents.where((task) => task!.id == id).toList()[0]
+          : null;
 
       Get.defaultDialog(
         barrierDismissible: false,
@@ -157,13 +153,14 @@ class TaskController extends GetxController {
                       child: Row(
                         children: <Widget>[
                           ElevatedButton(
-                              onPressed: () => Get.back(),
-                              child: const Text('Cancel')),
+                            onPressed: () => Get.back(),
+                            child: const Text('Cancel'),
+                          ),
                           SizedBox(width: 10),
                           ElevatedButton(
                             onPressed: () {
                               TaskModel newTaskModel = TaskModel(
-                                parentId: id,
+                                parentId: parentId,
                                 designDrawings: designDrawingsList,
                                 revisionNumber:
                                     nextRevisionNumberController.text,
@@ -172,13 +169,12 @@ class TaskController extends GetxController {
                                     ? 1
                                     : documents
                                             .where((task) {
-                                              return task!.parentId == id;
+                                              return task!.parentId == parentId;
                                             })
                                             .toList()
                                             .length +
                                         1,
                               );
-
                               newTaskModel.changeNumber =
                                   newTaskModel.revisionCount == 1
                                       ? 0
@@ -186,7 +182,6 @@ class TaskController extends GetxController {
                                               drawingController
                                                   .documents.length) +
                                           1;
-
                               addNewTask(model: newTaskModel);
                             },
                             child: Text('Add next revision'),
@@ -201,42 +196,34 @@ class TaskController extends GetxController {
           ),
         ),
       );
-    } else {
-      drawingController.buildAddEdit(id: id, newRev: newRev);
     }
   }
 
   List<Map<String, dynamic>> get getDataForTableView {
     return drawingController.documents.map(
       (drawing) {
-        late TaskModel task;
+        TaskModel task = TaskModel(
+          id: null,
+          revisionNumber: '',
+          revisionCount: 0,
+          designDrawings: [],
+          note: '',
+        );
         if (!documents.isEmpty) {
-          int maxRevisionCount = !documents.isEmpty
-              ? documents
-                  .where((task) => task!.parentId == drawing.id)
-                  .map((task) => task!.revisionCount)
-                  .reduce(max)
-              : 0;
-          task = documents
-              .where((task) =>
-                  task!.revisionCount == maxRevisionCount &&
-                  task.parentId == drawing.id)
-              .toList()[0]!;
-        } else {
-          task = TaskModel(
-            parentId: '',
-            id: '',
-            revisionNumber: '',
-            designDrawings: [],
-            note: '',
-            changeNumber: 0,
-            percentage: 0,
-          );
+          List<TaskModel?> drawingTasks =
+              documents.where((task) => task!.parentId == drawing.id).toList();
+
+          if (!drawingTasks.isEmpty) {
+            drawingTasks
+                .sort((a, b) => b!.revisionCount.compareTo(a!.revisionCount));
+
+            task = drawingTasks[0]!;
+          }
         }
 
-        return <String, dynamic>{
+        Map<String, dynamic> map = {
+          'id': task.id ?? null,
           'parentId': drawing.id,
-          'id': task.id,
           'priority': activityController.documents.indexOf(activityController
                   .documents
                   .where((activity) => activity.id == drawing.activityCodeId)
@@ -264,6 +251,7 @@ class TaskController extends GetxController {
           'changeNumber': task.changeNumber,
           'taskCreateDate': task.taskCreateDate ?? '',
         };
+        return map;
       },
     ).toList();
   }

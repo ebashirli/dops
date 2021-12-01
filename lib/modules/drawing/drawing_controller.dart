@@ -1,12 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
+import 'package:dops/modules/task/task_model.dart';
 import '../../components/custom_text_form_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../components/custom_dropdown_menu_widget.dart';
 import '../../components/custom_full_screen_dialog_widget.dart';
-import '../../components/custom_snackbar_widget.dart';
 import '../../constants/style.dart';
 import '../activity/activity_controller.dart';
 import '../reference_document/reference_document_controller.dart';
@@ -23,7 +22,8 @@ class DrawingController extends GetxController {
   late TextEditingController drawingNumberController,
       nextRevisionNumberController,
       drawingTitleController,
-      noteController;
+      drawingNoteController,
+      taskNoteController;
 
   late List<String> areaList = [];
   late List<String> designDrawingsList = [];
@@ -48,7 +48,8 @@ class DrawingController extends GetxController {
     drawingNumberController = TextEditingController();
     nextRevisionNumberController = TextEditingController();
     drawingTitleController = TextEditingController();
-    noteController = TextEditingController();
+    drawingNoteController = TextEditingController();
+    taskNoteController = TextEditingController();
 
     _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
@@ -93,7 +94,7 @@ class DrawingController extends GetxController {
     drawingNumberController.clear();
     nextRevisionNumberController.clear();
     drawingTitleController.clear();
-    noteController.clear();
+    drawingNoteController.clear();
 
     activityCodeIdText = '';
     moduleNameText = '';
@@ -101,49 +102,36 @@ class DrawingController extends GetxController {
     functionalAreaText = '';
     structureTypeText = '';
 
-    designDrawingsList = [];
     areaList = [];
-
-    revisionNumber = 0;
   }
 
-  void fillEditingControllers(DrawingModel model) {
-    drawingNumberController.text = model.drawingNumber;
-    drawingTitleController.text = model.drawingTitle;
-    noteController.text = model.note;
+  void fillEditingControllers(
+      {required DrawingModel drawingModel, TaskModel? taskModel}) {
+    drawingNumberController.text = drawingModel.drawingNumber;
+    drawingTitleController.text = drawingModel.drawingTitle;
+    drawingNoteController.text = drawingModel.note;
 
-    activityCodeIdText = model.activityCodeId;
-    moduleNameText = model.module;
-    levelText = model.level;
-    functionalAreaText = model.functionalArea;
-    structureTypeText = model.structureType;
+    activityCodeIdText = drawingModel.activityCodeId;
+    moduleNameText = drawingModel.module;
+    levelText = drawingModel.level;
+    functionalAreaText = drawingModel.functionalArea;
+    structureTypeText = drawingModel.structureType;
 
-    areaList = model.area;
-  }
+    areaList = drawingModel.area;
 
-  whenCompleted() {
-    CustomFullScreenDialog.cancelDialog();
-    clearEditingControllers();
-    Get.back();
-  }
-
-  catchError(FirebaseException error) {
-    {
-      CustomFullScreenDialog.cancelDialog();
-      CustomSnackBar.showSnackBar(
-        context: Get.context,
-        title: "Error",
-        message: "${error.message.toString()}",
-        backgroundColor: Colors.red,
-      );
+    if (taskModel != null) {
+      nextRevisionNumberController.text = taskModel.revisionNumber;
+      taskNoteController.text = taskModel.note;
+      designDrawingsList = taskModel.designDrawings;
     }
   }
 
-  buildAddEdit({String? id, bool newRev = false}) {
+  buildAddEdit({String? id, TaskModel? taskModel}) {
     if (id != null) {
-      fillEditingControllers(
-        documents.where((document) => document.id == id).toList()[0],
-      );
+      List<DrawingModel?> drawings =
+          documents.where((drawings) => drawings.id == id).toList();
+
+      fillEditingControllers(drawingModel: drawings[0]!, taskModel: taskModel);
     } else {
       clearEditingControllers();
     }
@@ -258,12 +246,12 @@ class DrawingController extends GetxController {
                                     .document.value.structureTypes!,
                               ),
                               CustomTextFormField(
-                                controller: noteController,
+                                controller: drawingNoteController,
                                 labelText: 'Note',
                               ),
                             ],
                           ),
-                          if (id != null)
+                          if (taskModel != null)
                             Column(
                               children: <Widget>[
                                 Text(
@@ -330,17 +318,20 @@ class DrawingController extends GetxController {
                               level: levelText,
                               module: moduleNameText,
                               structureType: structureTypeText,
-                              note: noteController.text,
+                              note: drawingNoteController.text,
                               area: areaList,
                               functionalArea: functionalAreaText,
                             );
 
-                            id == null
-                                ? addNewDrawing(model: revisedOrNewModel)
-                                : updateDrawing(
-                                    updatedModel: revisedOrNewModel,
-                                    id: id,
-                                  );
+                            if (id == null) {
+                              addNewDrawing(model: revisedOrNewModel);
+                            } else {
+                              updateDrawing(
+                                updatedModel: revisedOrNewModel,
+                                id: id,
+                              );
+                              // TODO: update last revision details from here?
+                            }
                           },
                           child: Text(
                             id != null ? 'Update' : 'Add',

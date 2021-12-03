@@ -4,7 +4,6 @@ import 'drawing_model.dart';
 import 'package:get/get.dart';
 
 class DrawingRepository {
-  
   final _api = Get.find<StorageService>(tag: 'drawings');
   late List<DrawingModel> drawings = [];
 
@@ -57,6 +56,4 @@ class DrawingRepository {
   addModel(DrawingModel data) async {
     await _api.addDocument(data.toMap());
   }
-
-  
 }

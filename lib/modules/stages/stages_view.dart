@@ -1,4 +1,4 @@
-import 'package:dops/modules/stages/stages_controller.dart';
+import 'package:dops/constants/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -8,8 +8,6 @@ class StagesView extends StatefulWidget {
 }
 
 class _StagesViewState extends State<StagesView> {
-  final controller = Get.find<StagesController>();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,14 +16,14 @@ class _StagesViewState extends State<StagesView> {
         padding: const EdgeInsets.fromLTRB(200, 20, 200, 20),
         child: Column(
           children: [
-            controller.buildEditForm(),
+            stagesController.buildEditForm(),
             SizedBox(height: 10),
             Expanded(
               child: ListView(
                 controller: ScrollController(),
                 children: [
                   Obx(() {
-                    return controller.buildPanel();
+                    return stagesController.buildPanel();
                   }),
                 ],
               ),

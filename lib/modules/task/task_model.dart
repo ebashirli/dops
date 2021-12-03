@@ -33,10 +33,10 @@ class TaskModel {
       'revisionNumber': revisionNumber,
       'designDrawings': designDrawings,
       'note': note,
-      'isHidden': isHidden,
-      'taskCreateDate': taskCreateDate,
       'revisionCount': revisionCount,
       'changeNumber': changeNumber,
+      'taskCreateDate': taskCreateDate,
+      'isHidden': isHidden,
     };
   }
 

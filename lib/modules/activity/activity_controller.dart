@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dops/modules/drawing/drawing_controller.dart';
-import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
-import 'package:dops/modules/task/task_controller.dart';
 import 'package:dops/components/custom_widgets.dart';
+import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,9 +14,8 @@ import 'activity_repository.dart';
 class ActivityController extends GetxController {
   final GlobalKey<FormState> activityFormKey = GlobalKey<FormState>();
   final _repository = Get.find<ActivityRepository>();
-  late final taskController = Get.find<TaskController>();
-  late final drawingController = Get.find<DrawingController>();
-  late final dropdownSourcesController = Get.find<DropdownSourcesController>();
+
+  static ActivityController instance = Get.find();
 
   late TextEditingController activityIdController,
       activityNameController,

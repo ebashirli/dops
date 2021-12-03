@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 class DropdownSourcesController extends GetxController {
   DropwdownSourcesRepository _repository =
       Get.find<DropwdownSourcesRepository>();
+  static DropdownSourcesController instance = Get.find();
   late Rx<DropdownSourcesModel> document;
   Rx<States> state = States.Loading.obs;
   RxString choosenList = 'Companies'.obs;

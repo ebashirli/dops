@@ -45,6 +45,10 @@ class TaskRepository {
     await _api.updateDocument(data.toMap(), id);
   }
 
+  updateFields(Map<String, dynamic> map, String id) async {
+    await _api.updateDocument(map, id);
+  }
+
   addModel(TaskModel data) async {
     await _api.addDocument(data.toMap());
   }

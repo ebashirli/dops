@@ -1,14 +1,10 @@
-import 'package:dops/components/custom_list_items_widget.dart';
+import 'package:dops/components/custom_widgets.dart';
+import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'dropdown_sources_controller.dart';
-
-// ignore: must_be_immutable
 class DropdownSourcesView extends StatelessWidget {
-  final controller = Get.find<DropdownSourcesController>();
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -22,13 +18,13 @@ class DropdownSourcesView extends StatelessWidget {
           separatorBuilder: (context, index) => SizedBox(width: 12),
           itemBuilder: (context, index) {
             return Obx(() {
-              if (controller.document.value
+              if (dropdownSourcesController.document.value
                       .toMap()
                       .entries
                       .map((e) => e.value)
                       .toList()[index] !=
                   null) {
-                List list = controller.document.value
+                List list = dropdownSourcesController.document.value
                         .toMap()
                         .entries
                         .map((e) => e.value)

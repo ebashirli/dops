@@ -1,8 +1,6 @@
-import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
+import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_model.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:recase/recase.dart';
 
 class CustomListItems extends StatelessWidget {
@@ -14,7 +12,7 @@ class CustomListItems extends StatelessWidget {
     this.lst,
     this.lstName,
   }) : super(key: key);
-  final listController = Get.find<DropdownSourcesController>();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -85,12 +83,21 @@ class CustomListItems extends StatelessWidget {
                                     height: 20,
                                     child: GestureDetector(
                                       onTap: () {
-                                        listController.map = listController.document.value.toMap();
-                                        listController.map[ReCase(lstName!).camelCase] =
-                                            listController.map[ReCase(lstName!).camelCase]..remove(lst![index]);
-                                        listController.updateModel(DropdownSourcesModel.fromMap(listController.map));
+                                        dropdownSourcesController.map =
+                                            dropdownSourcesController
+                                                .document.value
+                                                .toMap();
+                                        dropdownSourcesController.map[
+                                                ReCase(lstName!).camelCase] =
+                                            dropdownSourcesController
+                                                .map[ReCase(lstName!).camelCase]
+                                              ..remove(lst![index]);
+                                        dropdownSourcesController.updateModel(
+                                            DropdownSourcesModel.fromMap(
+                                                dropdownSourcesController.map));
                                       },
-                                      child: Icon(Icons.close, size: 16, color: Colors.red),
+                                      child: Icon(Icons.close,
+                                          size: 16, color: Colors.red),
                                     ))
                               ],
                             ),

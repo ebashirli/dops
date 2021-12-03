@@ -1,17 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dops/constants/table_details.dart';
-import 'package:dops/modules/drawing/drawing_controller.dart';
-import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
-import 'package:dops/modules/task/task_controller.dart';
+import 'package:dops/components/custom_widgets.dart';
+import 'package:dops/constants/constant.dart';
+import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-import '../../components/custom_date_time_form_field_widget.dart';
-import '../../components/custom_dropdown_menu_widget.dart';
-import '../../components/custom_full_screen_dialog_widget.dart';
-import '../../components/custom_snackbar_widget.dart';
-import '../../components/custom_text_form_field_widget.dart';
 import '../../constants/style.dart';
 import 'reference_document_model.dart';
 import 'reference_document_repository.dart';
@@ -19,12 +13,9 @@ import 'reference_document_repository.dart';
 class ReferenceDocumentController extends GetxController {
   final GlobalKey<FormState> referenceDocumentFormKey = GlobalKey<FormState>();
   final _repository = Get.find<ReferenceDocumentRepository>();
-  late final taskController = Get.find<TaskController>();
-  late final drawingController = Get.find<DrawingController>();
-  late final dropdownSourcesController = Get.find<DropdownSourcesController>();
+  static ReferenceDocumentController instance = Get.find();
 
   late TextEditingController documentNumberController,
-      revisionCodeController,
       titleController,
       transmittalNumberController,
       receiveDateController;
@@ -45,7 +36,6 @@ class ReferenceDocumentController extends GetxController {
   void onInit() {
     super.onInit();
     documentNumberController = TextEditingController();
-    revisionCodeController = TextEditingController();
     titleController = TextEditingController();
     transmittalNumberController = TextEditingController();
     receiveDateController = TextEditingController();
@@ -86,7 +76,6 @@ class ReferenceDocumentController extends GetxController {
 
   void clearEditingControllers() {
     documentNumberController.clear();
-    revisionCodeController.clear();
     titleController.clear();
     transmittalNumberController.clear();
     receiveDateController.clear();
@@ -100,7 +89,6 @@ class ReferenceDocumentController extends GetxController {
         documents.where((document) => document.id == id).toList()[0];
 
     documentNumberController.text = model.documentNumber;
-    revisionCodeController.text = model.revisionCode;
     titleController.text = model.title;
     transmittalNumberController.text = model.transmittalNumber;
     actionRequiredOrNext.value = model.actionRequiredOrNext;
@@ -191,10 +179,6 @@ class ReferenceDocumentController extends GetxController {
                       labelText: 'Document number',
                     ),
                     CustomTextFormField(
-                      controller: revisionCodeController,
-                      labelText: 'Revision code',
-                    ),
-                    CustomTextFormField(
                       controller: titleController,
                       labelText: 'Title',
                     ),
@@ -283,7 +267,6 @@ class ReferenceDocumentController extends GetxController {
                                 referenceType: referenceTypeText,
                                 moduleName: moduleNameText,
                                 documentNumber: documentNumberController.text,
-                                revisionCode: revisionCodeController.text,
                                 title: titleController.text,
                                 transmittalNumber:
                                     transmittalNumberController.text,
@@ -319,42 +302,36 @@ class ReferenceDocumentController extends GetxController {
   }
 
   List<Map<String, dynamic>> get getDataForTableView {
-    List<String> mapPropNames = mapPropNamesGetter('reference document');
+    return documents.map((refDoc) {
+      String assignedTasks = '';
 
-    return documents.map((referenceDocument) {
-      Map<String, dynamic> map = {};
+      if (!taskController.documents.isEmpty) {
+        taskController.documents.forEach((task) {
+          List<DrawingModel> drawing = drawingController.documents
+              .where((drawing) => drawing.id == task!.parentId)
+              .toList();
+          if (!drawing.isEmpty) {
+            final String drawingNumber = drawing[0].drawingNumber;
 
-      mapPropNames.forEach((mapPropName) {
-        switch (mapPropName) {
-          case 'id':
-            map[mapPropName] = referenceDocument.id!;
-            break;
-          case 'actionRequiredOrNext':
-            map[mapPropName] = !referenceDocument.actionRequiredOrNext
-                ? 'Action required'
-                : 'Next';
-            break;
-          case 'assignedTasks':
-            String assignedTasks = '';
-            taskController.documents.forEach((task) {
-              if (task != null) {
-                final String drawingNumber = drawingController.documents
-                    .where((drawing) => drawing.id == task.parentId)
-                    .toList()[0]
-                    .drawingNumber;
+            if (task!.designDrawings.contains(refDoc.documentNumber))
+              assignedTasks += '|${drawingNumber};${task.id}';
+          }
+        });
+      }
 
-                if (task.designDrawings
-                    .contains(referenceDocument.documentNumber))
-                  assignedTasks += '|${drawingNumber};${task.id!}';
-              }
-            });
-            map[mapPropName] = assignedTasks;
-            break;
-          default:
-            map[mapPropName] = referenceDocument.toMap()[mapPropName];
-            break;
-        }
-      });
+      Map<String, dynamic> map = {
+        'id': refDoc.id,
+        'project': !refDoc.actionRequiredOrNext ? 'Action required' : 'Next',
+        'referenceType': refDoc.referenceType,
+        'moduleName': refDoc.moduleName,
+        'documentNumber': refDoc.documentNumber,
+        'title': refDoc.title,
+        'transmittalNumber': refDoc.transmittalNumber,
+        'receivedDate': refDoc.receivedDate,
+        'actionRequiredOrNext': refDoc.actionRequiredOrNext,
+        'assignedTasks': assignedTasks,
+      };
+
       return map;
     }).toList();
   }

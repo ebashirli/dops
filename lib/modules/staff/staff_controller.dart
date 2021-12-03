@@ -1,18 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/table_details.dart';
-import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-import '../../components/custom_date_time_form_field_widget.dart';
-import '../../components/custom_dropdown_menu_widget.dart';
-import '../../components/custom_full_screen_dialog_widget.dart';
-import '../../components/custom_snackbar_widget.dart';
-import '../../components/custom_text_form_field_widget.dart';
 import '../../constants/style.dart';
 import 'staff_model.dart';
 import 'staff_repository.dart';
@@ -20,7 +15,7 @@ import 'staff_repository.dart';
 class StaffController extends GetxController {
   final GlobalKey<FormState> staffFormKey = GlobalKey<FormState>();
   final _repository = Get.find<StaffRepository>();
-  late final dropdownSourcesController = Get.find<DropdownSourcesController>();
+  static StaffController instance = Get.find();
 
   late TextEditingController badgeNoController,
       nameController,

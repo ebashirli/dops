@@ -18,7 +18,6 @@ class CustomDateTimeFormField extends StatelessWidget {
         SizedBox(
           width: 200,
           child: TextFormField(
-            onChanged: (value) => print(controller.text),
             validator: (value) {
               if (value!.isEmpty) {
                 return null;

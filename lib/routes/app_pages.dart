@@ -22,7 +22,6 @@ class AppPages {
       name: _Paths.HOME,
       page: () => HomeView(),
       middlewares:[AuthMiddlware()],
-
       binding: HomeBinding(),
     ),
     GetPage(

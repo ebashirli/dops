@@ -15,6 +15,18 @@ List<String> get listNames => [
       'Areas',
     ];
 
+List<String> stageNames = [
+  '3D Admin',
+  'Designing',
+  'Draftering',
+  'Checking',
+  'Back Drafting',
+  'Back Checking',
+  'Reviewer',
+  'Filing ',
+  'Nesting Box',
+];
+
 List<Map<String, dynamic>> stageDetailsList = [
   {
     'name': '3D Admin',

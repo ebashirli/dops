@@ -39,7 +39,6 @@ class AuthController extends GetxController {
         default:
           userRole.value = UserRole.User;
       }
-      print(userRole);
       Get.offAndToNamed(Routes.HOME);
     }
   }

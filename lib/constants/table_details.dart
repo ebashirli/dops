@@ -7,7 +7,6 @@ Map<String, List<String>> tableColNames = {
     'Reference Type',
     'Module Name',
     'Document number',
-    'Revision code',
     'Title',
     'Transmittal number',
     'Received date',

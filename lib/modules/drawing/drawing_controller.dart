@@ -1,23 +1,17 @@
-import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
+import 'package:dops/components/custom_widgets.dart';
+import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/task/task_model.dart';
-import '../../components/custom_text_form_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../components/custom_dropdown_menu_widget.dart';
-import '../../components/custom_full_screen_dialog_widget.dart';
 import '../../constants/style.dart';
-import '../activity/activity_controller.dart';
-import '../reference_document/reference_document_controller.dart';
 import 'drawing_model.dart';
 import 'drawing_repository.dart';
 
 class DrawingController extends GetxController {
-  final GlobalKey<FormState> drawingFormKeyOnStages = GlobalKey<FormState>();
+  final GlobalKey<FormState> drawingFormKey = GlobalKey<FormState>();
   final _repository = Get.find<DrawingRepository>();
-  final activityController = Get.find<ActivityController>();
-  final referenceDocumentController = Get.find<ReferenceDocumentController>();
-  final dropdownSourcesController = Get.find<DropdownSourcesController>();
+  static DrawingController instance = Get.find();
 
   late TextEditingController drawingNumberController,
       nextRevisionNumberController,
@@ -25,19 +19,14 @@ class DrawingController extends GetxController {
       drawingNoteController,
       taskNoteController;
 
-  late List<String> areaList = [];
-  late List<String> designDrawingsList = [];
-
-  late int revisionNumber = 0;
+  late List<String> areaList;
+  late List<String> designDrawingsList;
 
   late String activityCodeIdText,
       moduleNameText,
       levelText,
       functionalAreaText,
       structureTypeText;
-
-  RxBool sortAscending = false.obs;
-  RxInt sortColumnIndex = 0.obs;
 
   RxList<DrawingModel> _documents = RxList<DrawingModel>([]);
   List<DrawingModel> get documents => _documents;
@@ -50,6 +39,14 @@ class DrawingController extends GetxController {
     drawingTitleController = TextEditingController();
     drawingNoteController = TextEditingController();
     taskNoteController = TextEditingController();
+
+    areaList = [];
+    designDrawingsList = [];
+    activityCodeIdText = '';
+    moduleNameText = '';
+    levelText = '';
+    functionalAreaText = '';
+    structureTypeText = '';
 
     _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
@@ -65,11 +62,11 @@ class DrawingController extends GetxController {
   updateDrawing(
       {required DrawingModel updatedModel, required String id}) async {
     // TODO: move following line to Add/update button if it is relevant
-    final isValid = drawingFormKeyOnStages.currentState!.validate();
+    final isValid = drawingFormKey.currentState!.validate();
     if (!isValid) {
       return;
     }
-    drawingFormKeyOnStages.currentState!.save();
+    drawingFormKey.currentState!.save();
     //update
     CustomFullScreenDialog.showDialog();
     updatedModel.drawingCreateDate = documents
@@ -82,6 +79,17 @@ class DrawingController extends GetxController {
   }
 
   void deleteDrawing(String id) {
+    if (!taskController.documents.isEmpty) {
+      final List<TaskModel?> tasks = taskController.documents
+          .where((task) => task!.parentId == id)
+          .toList();
+      if (!tasks.isEmpty) {
+        tasks.forEach((task) {
+          taskController.deleteTask(task!.id!);
+        });
+      }
+    }
+
     _repository.removeModel(id);
   }
 
@@ -126,12 +134,27 @@ class DrawingController extends GetxController {
     }
   }
 
-  buildAddEdit({String? id, TaskModel? taskModel}) {
-    if (id != null) {
-      List<DrawingModel?> drawings =
-          documents.where((drawings) => drawings.id == id).toList();
+  buildAddEdit({String? drawingId, String? taskId}) {
+    late final DrawingModel? drawingModel;
+    late final TaskModel? taskModel;
 
-      fillEditingControllers(drawingModel: drawings[0]!, taskModel: taskModel);
+    String drawingWithRevNum = '';
+
+    if (drawingId != null) {
+      drawingModel =
+          documents.where((drawings) => drawings.id == drawingId).toList()[0];
+
+      if (taskId != null) {
+        taskModel = taskController.documents
+            .where((task) => task!.id == taskId)
+            .toList()[0];
+        drawingWithRevNum =
+            '${drawingModel.drawingNumber}-${taskModel!.revisionNumber}';
+      }
+
+      fillEditingControllers(
+          drawingModel: drawingModel,
+          taskModel: taskId != null ? taskModel : null);
     } else {
       clearEditingControllers();
     }
@@ -140,7 +163,7 @@ class DrawingController extends GetxController {
       barrierDismissible: false,
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: id == null ? 'Add new drawing' : 'Update drawing',
+      title: drawingId == null ? 'Add new drawing' : 'Update drawing',
       content: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -152,7 +175,7 @@ class DrawingController extends GetxController {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Form(
-            key: drawingFormKeyOnStages,
+            key: drawingFormKey,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Container(
               width: Get.width * .5,
@@ -171,7 +194,7 @@ class DrawingController extends GetxController {
                                 showSearchBox: true,
                                 labelText: 'Activity code',
                                 selectedItems: [
-                                  id == null
+                                  drawingId == null
                                       ? activityCodeIdText
                                       : activityController.documents
                                           .where(
@@ -256,14 +279,11 @@ class DrawingController extends GetxController {
                               ),
                             ],
                           ),
-                          if (taskModel != null)
+                          if (taskId != null)
                             Column(
                               children: <Widget>[
                                 Text(
-                                  documents
-                                      .where((documents) => documents.id == id)
-                                      .toList()[0]
-                                      .drawingNumber,
+                                  drawingWithRevNum,
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -285,6 +305,10 @@ class DrawingController extends GetxController {
                                       designDrawingsList = values,
                                   selectedItems: designDrawingsList,
                                 ),
+                                CustomTextFormField(
+                                  controller: taskNoteController,
+                                  labelText: 'Note',
+                                ),
                               ],
                             )
                         ],
@@ -295,10 +319,10 @@ class DrawingController extends GetxController {
                   Container(
                     child: Row(
                       children: <Widget>[
-                        if (id != null)
+                        if (drawingId != null)
                           ElevatedButton.icon(
                             onPressed: () {
-                              deleteDrawing(id);
+                              deleteDrawing(drawingId);
                               Get.back();
                             },
                             icon: Icon(Icons.delete),
@@ -316,7 +340,7 @@ class DrawingController extends GetxController {
                         SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: () {
-                            DrawingModel revisedOrNewModel = DrawingModel(
+                            DrawingModel revisedOrNewDrawing = DrawingModel(
                               activityCodeId: activityCodeIdText,
                               drawingNumber: drawingNumberController.text,
                               drawingTitle: drawingTitleController.text,
@@ -328,18 +352,31 @@ class DrawingController extends GetxController {
                               functionalArea: functionalAreaText,
                             );
 
-                            if (id == null) {
-                              addNewDrawing(model: revisedOrNewModel);
+                            if (drawingId == null) {
+                              addNewDrawing(model: revisedOrNewDrawing);
                             } else {
                               updateDrawing(
-                                updatedModel: revisedOrNewModel,
-                                id: id,
+                                updatedModel: revisedOrNewDrawing,
+                                id: drawingId,
                               );
+                              if (taskId != null) {
+                                Map<String, dynamic> revisedTaskFields = {
+                                  'designDrawings': designDrawingsList,
+                                  'revisionNumber':
+                                      nextRevisionNumberController.text,
+                                  'note': taskNoteController.text,
+                                };
+
+                                taskController.updateTaskFields(
+                                  map: revisedTaskFields,
+                                  id: taskId,
+                                );
+                              }
                               // TODO: update last revision details from here?
                             }
                           },
                           child: Text(
-                            id != null ? 'Update' : 'Add',
+                            drawingId != null ? 'Update' : 'Add',
                           ),
                         ),
                       ],

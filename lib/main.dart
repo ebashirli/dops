@@ -88,9 +88,9 @@ Future<void> initServices() async {
 
   await Get.putAsync<StaffController>(() async => await StaffController());
 
-  await Get.putAsync<DrawingController>(() async => await DrawingController());
-
   await Get.putAsync<TaskController>(() async => await TaskController());
+
+  await Get.putAsync<DrawingController>(() async => await DrawingController());
 }
 
 class MyApp extends StatelessWidget {

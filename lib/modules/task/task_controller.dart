@@ -1,31 +1,20 @@
-import 'package:dops/modules/drawing/drawing_controller.dart';
+import 'package:dops/components/custom_widgets.dart';
+import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
-import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
-import '../../components/custom_text_form_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../components/custom_dropdown_menu_widget.dart';
-import '../../components/custom_full_screen_dialog_widget.dart';
 import '../../constants/style.dart';
-import '../activity/activity_controller.dart';
-import '../reference_document/reference_document_controller.dart';
 import 'task_model.dart';
 import 'task_repository.dart';
 
 class TaskController extends GetxController {
   final GlobalKey<FormState> taskFormKey = GlobalKey<FormState>();
   final _repository = Get.find<TaskRepository>();
-  final activityController = Get.find<ActivityController>();
-  final drawingController = Get.find<DrawingController>();
+  static TaskController instance = Get.find();
 
-  final referenceDocumentController = Get.find<ReferenceDocumentController>();
-  final dropdownSourcesController = Get.find<DropdownSourcesController>();
-
-  late TextEditingController nextRevisionNumberController, noteController;
+  late TextEditingController nextRevisionNumberController, taskNoteController;
   late List<String> designDrawingsList;
-
-  late int revisionNumber;
 
   RxList<TaskModel> _documents = RxList<TaskModel>([]);
   List<TaskModel?> get documents => _documents;
@@ -34,9 +23,8 @@ class TaskController extends GetxController {
   void onInit() {
     super.onInit();
     nextRevisionNumberController = TextEditingController();
-    noteController = TextEditingController();
+    taskNoteController = TextEditingController();
     designDrawingsList = [];
-    revisionNumber = 0;
 
     _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
@@ -45,6 +33,23 @@ class TaskController extends GetxController {
     CustomFullScreenDialog.showDialog();
     model.taskCreateDate = DateTime.now();
     await _repository.addModel(model);
+    CustomFullScreenDialog.cancelDialog();
+    Get.back();
+  }
+
+  updateTaskFields({
+    required Map<String, dynamic> map,
+    required String id,
+  }) async {
+    final isValid = drawingController.drawingFormKey.currentState!.validate();
+
+    if (!isValid) {
+      return;
+    }
+
+    drawingController.drawingFormKey.currentState!.save();
+    CustomFullScreenDialog.showDialog();
+    await _repository.updateFields(map, id);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
@@ -61,17 +66,14 @@ class TaskController extends GetxController {
   void clearEditingControllers() {
     nextRevisionNumberController.clear();
     designDrawingsList = [];
-    noteController.clear();
+    taskNoteController.clear();
   }
 
   buildAddEdit({String? id, String? parentId, bool newRev = false}) {
     if (!newRev) {
-      List<TaskModel?> tasks =
-          documents.where((task) => task!.id == id).toList();
-
       drawingController.buildAddEdit(
-        id: parentId,
-        taskModel: id != null ? tasks[0] : null,
+        drawingId: parentId,
+        taskId: id,
       );
     } else {
       clearEditingControllers();
@@ -140,7 +142,7 @@ class TaskController extends GetxController {
                                   selectedItems: designDrawingsList,
                                 ),
                                 CustomTextFormField(
-                                  controller: noteController,
+                                  controller: taskNoteController,
                                   labelText: 'Note',
                                 ),
                               ],
@@ -165,7 +167,7 @@ class TaskController extends GetxController {
                                 designDrawings: designDrawingsList,
                                 revisionNumber:
                                     nextRevisionNumberController.text,
-                                note: noteController.text,
+                                note: taskNoteController.text,
                                 revisionCount: documents.length == 0
                                     ? 1
                                     : documents
@@ -234,7 +236,7 @@ class TaskController extends GetxController {
               .where((activity) => activity.id == drawing.activityCodeId)
               .toList()[0]
               .activityId,
-          'drawingNumber': '${drawing.drawingNumber}|${drawing.id}',
+          'drawingNumber': '${drawing.drawingNumber}|${task.id}',
           'revisionNumber': task.revisionNumber,
           'drawingTitle': drawing.drawingTitle,
           'module': drawing.module,

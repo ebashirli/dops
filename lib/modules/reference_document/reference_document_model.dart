@@ -4,7 +4,6 @@ class ReferenceDocumentModel {
   String referenceType;
   String moduleName;
   String documentNumber;
-  String revisionCode;
   String title;
   String transmittalNumber;
   bool actionRequiredOrNext;
@@ -18,7 +17,6 @@ class ReferenceDocumentModel {
     required this.referenceType,
     required this.moduleName,
     required this.documentNumber,
-    required this.revisionCode,
     required this.title,
     required this.transmittalNumber,
     required this.receivedDate,
@@ -33,7 +31,6 @@ class ReferenceDocumentModel {
       'referenceType': referenceType,
       'moduleName': moduleName,
       'documentNumber': documentNumber,
-      'revisionCode': revisionCode,
       'title': title,
       'transmittalNumber': transmittalNumber,
       'receivedDate': receivedDate,
@@ -53,7 +50,6 @@ class ReferenceDocumentModel {
       referenceType: map['referenceType'],
       moduleName: map['moduleName'],
       documentNumber: map['documentNumber'],
-      revisionCode: map['revisionCode'],
       title: map['title'],
       transmittalNumber: map['transmittalNumber'],
       receivedDate:

@@ -84,11 +84,10 @@ class TableView extends StatelessWidget {
               navigationMode: GridNavigationMode.row,
               onCellDoubleTap: (_) {
                 if (tableName == 'task') {
-                  String rowId =
+                  String? rowId =
                       _dataGridController.selectedRow!.getCells()[0].value;
-                  Get.toNamed(Routes.STAGES, parameters: {
-                    'id': rowId,
-                  });
+                  if (rowId != null)
+                    Get.toNamed(Routes.STAGES, parameters: {'id': rowId});
                 }
               },
             ),
@@ -179,7 +178,9 @@ class DataSource extends DataGridSource {
       cells: row.getCells().map<Widget>(
         (cell) {
           void onPressed(id) {
-            Get.toNamed(Routes.STAGES, parameters: {'id': id});
+            if (id != 'null') {
+              Get.toNamed(Routes.STAGES, parameters: {'id': id});
+            }
           }
 
           return Container(

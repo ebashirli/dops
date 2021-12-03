@@ -79,7 +79,7 @@ class StagesController extends GetxController {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Form(
-        key: taskController.taskFormKey,
+        key: drawingController.drawingFormKey,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Container(
           width: Get.width * .5,
@@ -298,144 +298,158 @@ class StagesController extends GetxController {
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Column(
-                        children: [
-                          Form(
-                            key: formKeysList[index][0],
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                CustomDropdownMenu(
-                                  width: 350,
-                                  isMultiSelectable: true,
-                                  labelText: stageDetailsList[index]
-                                      ['staff job'],
-                                  items: staffController.documents
-                                      .map((e) => e.name)
-                                      .toList(),
-                                  onChanged: (values) {
-                                    selectedItemsList[index] = values;
-                                  },
-                                  selectedItems: selectedItemsList[index],
-                                ),
-                                SizedBox(width: 10),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    if (formKeysList[index][0]
-                                        .currentState!
-                                        .validate()) {}
-                                  },
-                                  child: Container(
-                                    height: 46,
-                                    child: Center(child: const Text('Assign')),
-                                  ),
-                                ),
-                              ],
+                  Form(
+                    key: formKeysList[index][0],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomDropdownMenu(
+                              showSearchBox: true,
+                              width: 350,
+                              isMultiSelectable: true,
+                              labelText: stageDetailsList[index]['staff job'],
+                              items: staffController.documents
+                                  .map((e) => e.name)
+                                  .toList(),
+                              onChanged: (values) {
+                                selectedItemsList[index] = values;
+                              },
+                              selectedItems: selectedItemsList[index],
+                            ),
+                            SizedBox(width: 10),
+                            ElevatedButton(
+                              onPressed: () {
+                                if (formKeysList[index][0]
+                                    .currentState!
+                                    .validate()) {}
+                              },
+                              child: Container(
+                                height: 48,
+                                child: Center(child: const Text('Assign')),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (stageDetailsList[index]['get files'] != null)
+                          ElevatedButton(
+                            onPressed: () {},
+                            child: Container(
+                              height: 48,
+                              width: 100,
+                              child: Center(
+                                child:
+                                    Text(stageDetailsList[index]['get files']),
+                              ),
                             ),
                           ),
-                        ],
-                      ),
-                      if (index != 8)
-                        Form(
-                          key: formKeysList[index][1],
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              // fields
+                      ],
+                    ),
+                  ),
+                  Divider(),
+                  Form(
+                    key: formKeysList[index][1],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            if (stageDetailsList[index]['number fields']
+                                    .length >
+                                0) // number fields
                               Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                                  if (stageDetailsList[index]['isThereFiles'] !=
-                                      null) // files button
-                                    Column(
-                                      children: [
-                                        ElevatedButton(
-                                          onPressed: () async {
-                                            FilePickerResult? result =
-                                                await FilePicker.platform
-                                                    .pickFiles(
-                                              allowMultiple: true,
-                                            );
-                                            if (result != null) {
-                                              filesList[index] = result.files
-                                                  .map((file) => file.name)
-                                                  .toList();
-                                            }
-                                          },
-                                          child: Container(
-                                            height: 48,
-                                            width: 150,
-                                            child: Center(
-                                              child: Text('Browse files'),
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(height: 10),
-                                      ],
+                                  Text(
+                                    stageDetailsList[index]['number fields']
+                                        ['suffix'],
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                  if (stageDetailsList[index]['number fields']
-                                          .length >
-                                      0) // number fields
-                                    ...List.generate(
-                                      stageDetailsList[index]['number fields']
-                                          .length,
-                                      (indexF) => CustomTextFormField(
-                                        isNumber: true,
-                                        controller:
-                                            controllersListForNumberFields[
-                                                index][indexF],
-                                        labelText: stageDetailsList[index]
-                                            ['number fields'][indexF],
-                                        width: 180,
-                                      ),
-                                    ),
-                                  SizedBox(width: 10),
-                                  if (stageDetailsList[index]['string fields']
-                                          .length >
-                                      0) // string fields
-                                    ...List.generate(
-                                      stageDetailsList[index]['string fields']
-                                          .length,
-                                      (indexF) => CustomTextFormField(
-                                        controller:
-                                            controllersListForStringFields[
-                                                index][indexF],
-                                        labelText: stageDetailsList[index]
-                                            ['string fields'][indexF],
-                                        width: 180,
-                                      ),
-                                    ),
-                                  SizedBox(width: 10),
-                                ],
-                              ),
-                              SizedBox(width: 10),
-                              // submit button
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      if (formKeysList[index][1]
-                                          .currentState!
-                                          .validate()) {}
-                                    },
-                                    child: Container(
-                                      height: 46,
-                                      child:
-                                          Center(child: const Text('Submit')),
+                                  ),
+                                  SizedBox(height: 10),
+                                  ...List.generate(
+                                    stageDetailsList[index]['number fields']
+                                        .length,
+                                    (indexF) => CustomTextFormField(
+                                      isNumber: true,
+                                      controller:
+                                          controllersListForNumberFields[index]
+                                              [indexF],
+                                      labelText: stageDetailsList[index]
+                                          ['number fields']['name'][indexF],
+                                      width: 80,
                                     ),
                                   ),
                                   SizedBox(height: 10),
                                 ],
                               ),
-                            ],
-                          ),
+                            if (stageDetailsList[index]['isThereFiles'] !=
+                                null) // files button
+                              ElevatedButton(
+                                onPressed: () async {
+                                  FilePickerResult? result =
+                                      await FilePicker.platform.pickFiles(
+                                    allowMultiple: true,
+                                  );
+                                  if (result != null) {
+                                    filesList[index] = result.files
+                                        .map((file) => file.name)
+                                        .toList();
+                                  }
+                                },
+                                child: Container(
+                                  height: 48,
+                                  width: 80,
+                                  child: Center(
+                                    child: Text('Browse files'),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
-                    ],
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            SizedBox(width: 10),
+                            if (stageDetailsList[index]['string fields']
+                                    .length >
+                                0) // string fields
+                              ...List.generate(
+                                stageDetailsList[index]['string fields'].length,
+                                (indexF) => CustomTextFormField(
+                                  controller:
+                                      controllersListForStringFields[index]
+                                          [indexF],
+                                  labelText: stageDetailsList[index]
+                                      ['string fields'][indexF],
+                                  width: 500,
+                                  maxLines: 3,
+                                ),
+                              ),
+                            SizedBox(width: 10),
+                            ElevatedButton(
+                              onPressed: () {
+                                if (formKeysList[index][1]
+                                    .currentState!
+                                    .validate()) {}
+                              },
+                              child: Container(
+                                height: 46,
+                                child: Center(child: const Text('Finish Task')),
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ]),
               ),

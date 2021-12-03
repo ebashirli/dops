@@ -11,6 +11,7 @@ class CustomTextFormField extends StatelessWidget {
   final TextInputType? keyboardType;
   final Icon? icon;
   final bool isNumber;
+  final int? maxLines;
 
   const CustomTextFormField({
     Key? key,
@@ -22,6 +23,7 @@ class CustomTextFormField extends StatelessWidget {
     this.readOnly = false,
     this.keyboardType,
     this.icon,
+    this.maxLines,
     this.isNumber = false,
   }) : super(key: key);
 
@@ -55,6 +57,7 @@ class CustomTextFormField extends StatelessWidget {
                     keyboardType: TextInputType.multiline,
                     initialValue: initialValue,
                     readOnly: readOnly,
+                    maxLines: maxLines,
                     decoration: InputDecoration(
                       contentPadding: EdgeInsets.all(10),
                       labelText: labelText,

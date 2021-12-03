@@ -31,36 +31,46 @@ List<Map<String, dynamic>> stageDetailsList = [
   {
     'name': '3D Admin',
     'staff job': '3d Admin',
-    'number fields': [
-      'Phase',
-      'Initial weight',
-    ],
+    'number fields': {
+      'suffix': 'Initial quantity',
+      'name': [
+        'Phase',
+        'Weight',
+      ],
+    },
     'string fields': ['Note'],
   },
   {
     'name': 'Designing',
     'staff job': 'Designers',
-    'number fields': [
-      'Planned Weight',
-      'Planned GAS qty',
-      'Planned SFD qty',
-      'Planned DTL qty',
-    ],
+    'number fields': {
+      'suffix': 'Planned quantity',
+      'name': [
+        'Weight',
+        'GAS',
+        'SFD',
+        'DTL',
+      ],
+    },
     'string fields': ['Note'],
   },
   {
     'name': 'Draftering',
     'staff job': 'Drafters',
     'isThereFiles': true,
-    'number fields': [
-      'Actual GAS qty',
-      'Actual SFD qty',
-      'Actual DTL qty',
-    ],
+    'number fields': {
+      'suffix': 'Actual quantity',
+      'name': [
+        'GAS',
+        'SFD',
+        'DTL',
+      ],
+    },
     'string fields': ['Note'],
   },
   {
     'name': 'Checking',
+    'get files': 'Get whitecopies',
     'staff job': 'Checkers',
     'isThereFiles': true,
     'number fields': [],
@@ -68,6 +78,7 @@ List<Map<String, dynamic>> stageDetailsList = [
   },
   {
     'name': 'Back Drafting',
+    'get files': 'Get checkprints',
     'staff job': 'Back Drafters',
     'isThereFiles': true,
     'number fields': [],
@@ -75,6 +86,7 @@ List<Map<String, dynamic>> stageDetailsList = [
   },
   {
     'name': 'Back Checking',
+    'get files': 'Get checkprints',
     'staff job': 'Back Checkers',
     'isThereFiles': true,
     'number fields': [],
@@ -82,6 +94,7 @@ List<Map<String, dynamic>> stageDetailsList = [
   },
   {
     'name': 'Reviewing',
+    'get files': 'Get checkprints',
     'staff job': 'Reviewers',
     'isThereFiles': true,
     'number fields': [],
@@ -90,19 +103,23 @@ List<Map<String, dynamic>> stageDetailsList = [
   {
     'name': 'Filing',
     'staff job': 'Filers',
-    'number fields': [
-      'Actual Weight',
-      'Actual GAS qty',
-      'Actual SFD qty',
-      'Actual DTL qty',
-    ],
+    'number fields': {
+      'suffix': 'Actual quantity',
+      'name': [
+        'Weight',
+        'GAS',
+        'SFD',
+        'DTL',
+      ],
+    },
     'isThereFiles': true,
     'string fields': ['Note'],
   },
   {
     'name': 'Nesting Box',
+    'get files': 'Original Files',
     'staff job': 'Nesting Draftsmen',
     'number fields': [],
-    'string fields': [],
+    'string fields': ['Note'],
   },
 ];

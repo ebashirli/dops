@@ -1,41 +1,71 @@
-import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
-// ignore: must_be_immutable
 class CustomDateTimeFormField extends StatelessWidget {
   CustomDateTimeFormField({
     Key? key,
     required this.labelText,
+    required this.controller,
     this.initialValue,
-    this.onDateSelected,
   }) : super(key: key);
-
   final String labelText;
-  final DateTime? initialValue;
-  final dynamic Function(DateTime value)? onDateSelected;
-
+  final String? initialValue;
+  final TextEditingController controller;
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
+        SizedBox(
           width: 200,
-          child: DateTimeFormField(
-            initialValue: initialValue,
-            initialEntryMode: DatePickerEntryMode.input,
-            mode: DateTimeFieldPickerMode.date,
+          child: TextFormField(
+            onChanged: (value) => print(controller.text),
+            validator: (value) {
+              if (value!.isEmpty) {
+                return null;
+              }
+              final components = value.split("/");
+              if (components.length == 3) {
+                final day = int.tryParse(components[0]);
+                final month = int.tryParse(components[1]);
+                final year = int.tryParse(components[2]);
+                if (day != null && month != null && year != null) {
+                  final date = DateTime(year, month, day);
+                  if (date.year == year &&
+                      date.month == month &&
+                      date.day == day) {
+                    return null;
+                  }
+                }
+              }
+              return "Wrong date";
+            },
+            controller: controller,
+            inputFormatters: [MaskTextInputFormatter(mask: "##/##/####")],
+            autocorrect: false,
+            keyboardType: TextInputType.phone,
+            autovalidateMode: AutovalidateMode.always,
             decoration: InputDecoration(
-              hintStyle: TextStyle(color: Colors.black45),
-              errorStyle: TextStyle(color: Colors.redAccent),
-              border: OutlineInputBorder(),
-              suffixIcon: Icon(Icons.event_note),
+              hintText: 'dd/mm/yyyy',
+              hintStyle: const TextStyle(color: Colors.black45),
+              errorStyle: const TextStyle(color: Colors.redAccent),
+              border: const OutlineInputBorder(),
+              suffixIcon: IconButton(
+                onPressed: () async {
+                  final DateTime? _selectedDate = await showDatePicker(
+                    context: context,
+                    initialDatePickerMode: DatePickerMode.day,
+                    initialDate: DateTime.now(),
+                    initialEntryMode: DatePickerEntryMode.calendar,
+                    firstDate: DateTime(2010),
+                    lastDate: DateTime(2030),
+                  );
+                  controller.text =
+                      '${_selectedDate!.day}/${_selectedDate.month}/${_selectedDate.year}';
+                },
+                icon: const Icon(Icons.event_note),
+              ),
               labelText: labelText,
             ),
-            // firstDate: DateTime.now().add(const Duration(days: 10)),
-            // initialDate: DateTime.now().add(const Duration(days: 10)),
-            // autovalidateMode: AutovalidateMode.always,
-            // validator: (DateTime? e) => (e?.day ?? 0) == 1 ? 'Please not the first day' : null,
-            onDateSelected: onDateSelected,
           ),
         ),
         SizedBox(height: 10),

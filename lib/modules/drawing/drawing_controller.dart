@@ -168,6 +168,7 @@ class DrawingController extends GetxController {
                             children: <Widget>[
                               SizedBox(height: 10),
                               CustomDropdownMenu(
+                                showSearchBox: true,
                                 labelText: 'Activity code',
                                 selectedItems: [
                                   id == null
@@ -211,6 +212,7 @@ class DrawingController extends GetxController {
                                     .document.value.modules!,
                               ),
                               CustomDropdownMenu(
+                                showSearchBox: true,
                                 labelText: 'Level',
                                 selectedItems: [levelText],
                                 onChanged: (value) {
@@ -220,6 +222,7 @@ class DrawingController extends GetxController {
                                     .document.value.levels!,
                               ),
                               CustomDropdownMenu(
+                                showSearchBox: true,
                                 isMultiSelectable: true,
                                 labelText: 'Area',
                                 items: dropdownSourcesController
@@ -228,6 +231,7 @@ class DrawingController extends GetxController {
                                 selectedItems: areaList,
                               ),
                               CustomDropdownMenu(
+                                showSearchBox: true,
                                 labelText: 'Functional Area',
                                 selectedItems: [functionalAreaText],
                                 onChanged: (value) {
@@ -237,6 +241,7 @@ class DrawingController extends GetxController {
                                     .document.value.functionalAreas!,
                               ),
                               CustomDropdownMenu(
+                                showSearchBox: true,
                                 labelText: 'Structure Type',
                                 selectedItems: [structureTypeText],
                                 onChanged: (value) {

@@ -128,6 +128,7 @@ class TaskController extends GetxController {
                                   labelText: 'Next Revision number',
                                 ),
                                 CustomDropdownMenu(
+                                  showSearchBox: true,
                                   isMultiSelectable: true,
                                   labelText: 'Design Drawings',
                                   items: referenceDocumentController.documents

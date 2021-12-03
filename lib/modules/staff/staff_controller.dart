@@ -6,6 +6,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../../components/custom_date_time_form_field_widget.dart';
 import '../../components/custom_dropdown_menu_widget.dart';
@@ -31,8 +32,11 @@ class StaffController extends GetxController {
       contactController,
       emergencyContactController,
       emergencyContactNameController,
-      noteController;
-  late DateTime dateOfBirth, startDate, contractFinishDate;
+      noteController,
+      dateOfBirthController,
+      startDateConroller,
+      contractFinishDateController;
+
   late String currentPlaceText,
       systemDesignationText,
       jobTitleText,
@@ -52,15 +56,15 @@ class StaffController extends GetxController {
     surnameController = TextEditingController();
     patronymicController = TextEditingController();
     initialController = TextEditingController();
-    dateOfBirth = DateTime.now();
+    dateOfBirthController = TextEditingController();
     companyText = '';
     systemDesignationText = '';
     jobTitleText = '';
     emailController = TextEditingController();
     homeAddressController = TextEditingController();
     currentPlaceText = '';
-    contractFinishDate = DateTime.now();
-    startDate = DateTime.now();
+    contractFinishDateController = TextEditingController();
+    startDateConroller = TextEditingController();
     contactController = TextEditingController();
     emergencyContactController = TextEditingController();
     emergencyContactNameController = TextEditingController();
@@ -90,6 +94,7 @@ class StaffController extends GetxController {
     //update
     CustomFullScreenDialog.showDialog();
     await _repository.updateModel(model, id);
+    // ignore: unnecessary_null_comparison
     if (authController.firebaseUser != null) auth.currentUser!.reload();
     CustomFullScreenDialog.cancelDialog();
     Get.back();
@@ -117,9 +122,9 @@ class StaffController extends GetxController {
     emergencyContactNameController.clear();
     noteController.clear();
 
-    dateOfBirth = DateTime.now();
-    startDate = DateTime.now();
-    contractFinishDate = DateTime.now();
+    dateOfBirthController.clear();
+    startDateConroller.clear();
+    contractFinishDateController.clear();
 
     currentPlaceText = '';
     systemDesignationText = '';
@@ -143,9 +148,12 @@ class StaffController extends GetxController {
     emergencyContactNameController.text = model.emergencyContactName;
     noteController.text = model.note;
 
-    dateOfBirth = model.dateOfBirth;
-    startDate = model.startDate;
-    contractFinishDate = model.contractFinishDate;
+    dateOfBirthController.text =
+        '${model.dateOfBirth.day}/${model.dateOfBirth.month}/${model.dateOfBirth.year}';
+    startDateConroller.text =
+        '${model.startDate.day}/${model.startDate.month}/${model.startDate.year}';
+    contractFinishDateController.text =
+        '${model.contractFinishDate.day}/${model.contractFinishDate.month}/${model.contractFinishDate.year}';
 
     currentPlaceText = model.currentPlace;
     systemDesignationText = model.systemDesignation;
@@ -229,8 +237,8 @@ class StaffController extends GetxController {
                           ),
                           CustomDateTimeFormField(
                             labelText: 'Date of Birth',
-                            initialValue: dateOfBirth,
-                            onDateSelected: (date) => dateOfBirth = date,
+                            initialValue: dateOfBirthController.text,
+                            controller: dateOfBirthController,
                           ),
                           CustomDropdownMenu(
                             labelText: 'Company',
@@ -261,8 +269,8 @@ class StaffController extends GetxController {
                           ),
                           CustomDateTimeFormField(
                             labelText: 'Start Date',
-                            initialValue: startDate,
-                            onDateSelected: (date) => startDate = date,
+                            initialValue: startDateConroller.text,
+                            controller: startDateConroller,
                           ),
                           CustomTextFormField(
                             controller: emailController,
@@ -287,8 +295,8 @@ class StaffController extends GetxController {
                           ),
                           CustomDateTimeFormField(
                             labelText: 'Contract Finish Date',
-                            initialValue: contractFinishDate,
-                            onDateSelected: (date) => contractFinishDate = date,
+                            initialValue: contractFinishDateController.text,
+                            controller: contractFinishDateController,
                           ),
                           CustomTextFormField(
                             controller: contactController,
@@ -347,11 +355,14 @@ class StaffController extends GetxController {
                               jobTitle: jobTitleText,
                               email: emailController.text,
                               company: companyText,
-                              dateOfBirth: dateOfBirth,
+                              dateOfBirth: DateFormat("dd/MM/yyyy")
+                                  .parse(dateOfBirthController.text),
                               homeAddress: homeAddressController.text,
-                              startDate: startDate,
+                              startDate: DateFormat("dd/MM/yyyy")
+                                  .parse(startDateConroller.text),
                               currentPlace: currentPlaceText,
-                              contractFinishDate: contractFinishDate,
+                              contractFinishDate: DateFormat("dd/MM/yyyy")
+                                  .parse(contractFinishDateController.text),
                               contact: contactController.text,
                               emergencyContact: emergencyContactController.text,
                               emergencyContactName:

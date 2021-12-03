@@ -6,6 +6,7 @@ import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../../constants/style.dart';
 import '../../constants/table_details.dart';
@@ -22,8 +23,9 @@ class ActivityController extends GetxController {
   late TextEditingController activityIdController,
       activityNameController,
       coefficientController,
-      budgetedLaborUnitsController;
-  DateTime? startTime, finishTime;
+      budgetedLaborUnitsController,
+      startDateController,
+      finishDateController;
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
   String? moduleNameText = '';
@@ -38,8 +40,8 @@ class ActivityController extends GetxController {
     activityNameController = TextEditingController();
     coefficientController = TextEditingController();
     budgetedLaborUnitsController = TextEditingController();
-    startTime = DateTime.now();
-    finishTime = DateTime.now();
+    startDateController = TextEditingController();
+    finishDateController = TextEditingController();
     _documents.bindStream(_repository.getAllActivitiesAsStream());
   }
 
@@ -91,8 +93,8 @@ class ActivityController extends GetxController {
     activityNameController.clear();
     coefficientController.text = '1';
     budgetedLaborUnitsController.clear();
-    startTime = null;
-    finishTime = null;
+    startDateController.clear();
+    finishDateController.clear();
     moduleNameText = '';
   }
 
@@ -104,8 +106,10 @@ class ActivityController extends GetxController {
     activityNameController.text = model.activityName ?? '';
     coefficientController.text = model.coefficient.toString();
     budgetedLaborUnitsController.text = model.budgetedLaborUnits.toString();
-    startTime = model.startDate;
-    finishTime = model.finishDate;
+    startDateController.text =
+        '${model.startDate!.day}/${model.startDate!.month}/${model.startDate!.year}';
+    finishDateController.text =
+        '${model.finishDate!.day}/${model.finishDate!.month}/${model.finishDate!.year}';
     moduleNameText = model.moduleName;
   }
 
@@ -214,18 +218,14 @@ class ActivityController extends GetxController {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         CustomDateTimeFormField(
-                          initialValue: startTime,
+                          initialValue: startDateController.text,
                           labelText: tableColNames['activity']![8],
-                          onDateSelected: (DateTime value) {
-                            startTime = value;
-                          },
+                          controller: startDateController,
                         ),
                         CustomDateTimeFormField(
-                          initialValue: finishTime,
+                          initialValue: finishDateController.text,
                           labelText: tableColNames['activity']![9],
-                          onDateSelected: (DateTime value) {
-                            finishTime = value;
-                          },
+                          controller: finishDateController,
                         ),
                       ],
                     ),
@@ -259,8 +259,10 @@ class ActivityController extends GetxController {
                                     int.parse(coefficientController.text),
                                 budgetedLaborUnits: double.parse(
                                     budgetedLaborUnitsController.text),
-                                startDate: startTime,
-                                finishDate: finishTime,
+                                startDate: DateFormat('dd/MM/yyyy')
+                                    .parse(startDateController.text),
+                                finishDate: DateFormat('dd/MM/yyyy')
+                                    .parse(finishDateController.text),
                               );
                               id == null
                                   ? saveDocument(model: model)

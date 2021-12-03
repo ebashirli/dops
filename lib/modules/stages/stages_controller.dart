@@ -115,6 +115,7 @@ class StagesController extends GetxController {
   void fillEditingControllers(String id) {
     final TaskModel model =
         taskController.documents.where((task) => task!.id == id).toList()[0]!;
+
     nextRevisionNumberController.text = model.revisionNumber;
     noteController.text = model.note;
     revisionNumber = model.revisionCount;

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/login/login_view.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +12,8 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static final UNKNOWN = GetPage(name: Routes.HOME, page: () => UnknownRoutePage());
+  static final UNKNOWN =
+      GetPage(name: Routes.HOME, page: () => UnknownRoutePage());
   static const INITIAL = Routes.HOME;
   static const LOGIN = Routes.LOGIN;
 
@@ -35,7 +34,7 @@ class AppPages {
       name: _Paths.STAGES,
       page: () => StagesView(),
       middlewares:[AuthMiddlware()],
-      binding: StagesBinding(),
+      binding: HomeBinding(),
     ),
   ];
 }

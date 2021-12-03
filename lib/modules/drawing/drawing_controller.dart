@@ -1,12 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
+import 'package:dops/modules/task/task_model.dart';
 import '../../components/custom_text_form_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../components/custom_dropdown_menu_widget.dart';
 import '../../components/custom_full_screen_dialog_widget.dart';
-import '../../components/custom_snackbar_widget.dart';
 import '../../constants/style.dart';
 import '../activity/activity_controller.dart';
 import '../reference_document/reference_document_controller.dart';
@@ -23,7 +22,8 @@ class DrawingController extends GetxController {
   late TextEditingController drawingNumberController,
       nextRevisionNumberController,
       drawingTitleController,
-      noteController;
+      drawingNoteController,
+      taskNoteController;
 
   late List<String> areaList = [];
   late List<String> designDrawingsList = [];
@@ -48,7 +48,8 @@ class DrawingController extends GetxController {
     drawingNumberController = TextEditingController();
     nextRevisionNumberController = TextEditingController();
     drawingTitleController = TextEditingController();
-    noteController = TextEditingController();
+    drawingNoteController = TextEditingController();
+    taskNoteController = TextEditingController();
 
     _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
@@ -93,7 +94,7 @@ class DrawingController extends GetxController {
     drawingNumberController.clear();
     nextRevisionNumberController.clear();
     drawingTitleController.clear();
-    noteController.clear();
+    drawingNoteController.clear();
 
     activityCodeIdText = '';
     moduleNameText = '';
@@ -101,48 +102,36 @@ class DrawingController extends GetxController {
     functionalAreaText = '';
     structureTypeText = '';
 
-    designDrawingsList = [];
     areaList = [];
-
-    revisionNumber = 0;
   }
 
-  void fillEditingControllers(DrawingModel model) {
-    drawingNumberController.text = model.drawingNumber;
-    drawingTitleController.text = model.drawingTitle;
-    noteController.text = model.note;
+  void fillEditingControllers(
+      {required DrawingModel drawingModel, TaskModel? taskModel}) {
+    drawingNumberController.text = drawingModel.drawingNumber;
+    drawingTitleController.text = drawingModel.drawingTitle;
+    drawingNoteController.text = drawingModel.note;
 
-    activityCodeIdText = model.activityCodeId;
-    moduleNameText = model.module;
-    levelText = model.level;
-    functionalAreaText = model.functionalArea;
-    structureTypeText = model.structureType;
+    activityCodeIdText = drawingModel.activityCodeId;
+    moduleNameText = drawingModel.module;
+    levelText = drawingModel.level;
+    functionalAreaText = drawingModel.functionalArea;
+    structureTypeText = drawingModel.structureType;
 
-    areaList = model.area;
-  }
+    areaList = drawingModel.area;
 
-  whenCompleted() {
-    CustomFullScreenDialog.cancelDialog();
-    clearEditingControllers();
-    Get.back();
-  }
-
-  catchError(FirebaseException error) {
-    {
-      CustomFullScreenDialog.cancelDialog();
-      CustomSnackBar.showSnackBar(
-        context: Get.context,
-        title: "Error",
-        message: "${error.message.toString()}",
-        backgroundColor: Colors.red,
-      );
+    if (taskModel != null) {
+      nextRevisionNumberController.text = taskModel.revisionNumber;
+      taskNoteController.text = taskModel.note;
+      designDrawingsList = taskModel.designDrawings;
     }
   }
 
-  buildAddEdit({String? id, bool newRev = false}) {
-    if (id != null && !newRev) {
-      fillEditingControllers(
-          documents.where((document) => document.id == id).toList()[0]);
+  buildAddEdit({String? id, TaskModel? taskModel}) {
+    if (id != null) {
+      List<DrawingModel?> drawings =
+          documents.where((drawings) => drawings.id == id).toList();
+
+      fillEditingControllers(drawingModel: drawings[0]!, taskModel: taskModel);
     } else {
       clearEditingControllers();
     }
@@ -151,11 +140,7 @@ class DrawingController extends GetxController {
       barrierDismissible: false,
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: id == null
-          ? 'Add new drawing'
-          : newRev
-              ? 'Add next revision'
-              : 'Update drawing',
+      title: id == null ? 'Add new drawing' : 'Update drawing',
       content: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(
@@ -179,104 +164,111 @@ class DrawingController extends GetxController {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (!newRev)
+                          Column(
+                            children: <Widget>[
+                              SizedBox(height: 10),
+                              CustomDropdownMenu(
+                                showSearchBox: true,
+                                labelText: 'Activity code',
+                                selectedItems: [
+                                  id == null
+                                      ? activityCodeIdText
+                                      : activityController.documents
+                                          .where(
+                                            (activity) =>
+                                                activity.id ==
+                                                activityCodeIdText,
+                                          )
+                                          .toList()[0]
+                                          .activityId!,
+                                ],
+                                onChanged: (value) {
+                                  activityCodeIdText = activityController
+                                      .documents
+                                      .where((activity) =>
+                                          activity.activityId == value)
+                                      .toList()[0]
+                                      .id!;
+                                },
+                                items: activityController.documents
+                                    .map((document) => document.activityId)
+                                    .toList(),
+                              ),
+                              CustomTextFormField(
+                                controller: drawingNumberController,
+                                labelText: 'Drawing Number',
+                              ),
+                              CustomTextFormField(
+                                controller: drawingTitleController,
+                                labelText: 'Drawing Title',
+                              ),
+                              CustomDropdownMenu(
+                                labelText: 'Module name',
+                                selectedItems: [moduleNameText],
+                                onChanged: (value) {
+                                  moduleNameText = value ?? '';
+                                },
+                                items: dropdownSourcesController
+                                    .document.value.modules!,
+                              ),
+                              CustomDropdownMenu(
+                                showSearchBox: true,
+                                labelText: 'Level',
+                                selectedItems: [levelText],
+                                onChanged: (value) {
+                                  levelText = value ?? '';
+                                },
+                                items: dropdownSourcesController
+                                    .document.value.levels!,
+                              ),
+                              CustomDropdownMenu(
+                                showSearchBox: true,
+                                isMultiSelectable: true,
+                                labelText: 'Area',
+                                items: dropdownSourcesController
+                                    .document.value.areas!,
+                                onChanged: (values) => areaList = values,
+                                selectedItems: areaList,
+                              ),
+                              CustomDropdownMenu(
+                                showSearchBox: true,
+                                labelText: 'Functional Area',
+                                selectedItems: [functionalAreaText],
+                                onChanged: (value) {
+                                  functionalAreaText = value ?? '';
+                                },
+                                items: dropdownSourcesController
+                                    .document.value.functionalAreas!,
+                              ),
+                              CustomDropdownMenu(
+                                showSearchBox: true,
+                                labelText: 'Structure Type',
+                                selectedItems: [structureTypeText],
+                                onChanged: (value) {
+                                  structureTypeText = value ?? '';
+                                },
+                                items: dropdownSourcesController
+                                    .document.value.structureTypes!,
+                              ),
+                              CustomTextFormField(
+                                controller: drawingNoteController,
+                                labelText: 'Note',
+                              ),
+                            ],
+                          ),
+                          if (taskModel != null)
                             Column(
                               children: <Widget>[
-                                SizedBox(height: 10),
-                                CustomDropdownMenu(
-                                  labelText: 'Activity code',
-                                  selectedItems: [
-                                    activityController.documents
-                                        .where((activity) =>
-                                            activity.id == activityCodeIdText)
-                                        .toList()[0]
-                                        .activityId!,
-                                  ],
-                                  onChanged: (value) {
-                                    activityCodeIdText = activityController
-                                        .documents
-                                        .where((activity) =>
-                                            activity.activityId == value)
-                                        .toList()[0]
-                                        .id!;
-                                  },
-                                  items: activityController.documents
-                                      .map((document) => document.activityId)
-                                      .toList(),
-                                ),
-                                CustomTextFormField(
-                                  controller: drawingNumberController,
-                                  labelText: 'Drawing Number',
-                                ),
-                                CustomTextFormField(
-                                  controller: drawingTitleController,
-                                  labelText: 'Drawing Title',
-                                ),
-                                CustomDropdownMenu(
-                                  labelText: 'Module name',
-                                  selectedItems: [moduleNameText],
-                                  onChanged: (value) {
-                                    moduleNameText = value ?? '';
-                                  },
-                                  items: dropdownSourcesController
-                                      .document.value.modules!,
-                                ),
-                                CustomDropdownMenu(
-                                  labelText: 'Level',
-                                  selectedItems: [levelText],
-                                  onChanged: (value) {
-                                    levelText = value ?? '';
-                                  },
-                                  items: dropdownSourcesController
-                                      .document.value.levels!,
-                                ),
-                                CustomDropdownMenu(
-                                  isMultiSelectable: true,
-                                  labelText: 'Area',
-                                  items: dropdownSourcesController
-                                      .document.value.areas!,
-                                  onChanged: (values) => areaList = values,
-                                  selectedItems: areaList,
-                                ),
-                                CustomDropdownMenu(
-                                  labelText: 'Functional Area',
-                                  selectedItems: [functionalAreaText],
-                                  onChanged: (value) {
-                                    functionalAreaText = value ?? '';
-                                  },
-                                  items: dropdownSourcesController
-                                      .document.value.functionalAreas!,
-                                ),
-                                CustomDropdownMenu(
-                                  labelText: 'Structure Type',
-                                  selectedItems: [structureTypeText],
-                                  onChanged: (value) {
-                                    structureTypeText = value ?? '';
-                                  },
-                                  items: dropdownSourcesController
-                                      .document.value.structureTypes!,
-                                ),
-                                CustomTextFormField(
-                                  controller: noteController,
-                                  labelText: 'Note',
-                                ),
-                              ],
-                            ),
-                          if (newRev || id != null)
-                            Column(
-                              children: <Widget>[
-                                if (newRev)
-                                  Text(
-                                    documents
-                                        .where(
-                                            (documents) => documents.id == id)
-                                        .toList()[0]
-                                        .drawingNumber,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                Text(
+                                  documents
+                                      .where((documents) => documents.id == id)
+                                      .toList()[0]
+                                      .drawingNumber,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
                                   ),
+                                ),
                                 SizedBox(height: 10),
                                 CustomTextFormField(
                                   controller: nextRevisionNumberController,
@@ -331,17 +323,20 @@ class DrawingController extends GetxController {
                               level: levelText,
                               module: moduleNameText,
                               structureType: structureTypeText,
-                              note: noteController.text,
+                              note: drawingNoteController.text,
                               area: areaList,
                               functionalArea: functionalAreaText,
                             );
 
-                            id == null
-                                ? addNewDrawing(model: revisedOrNewModel)
-                                : updateDrawing(
-                                    updatedModel: revisedOrNewModel,
-                                    id: id,
-                                  );
+                            if (id == null) {
+                              addNewDrawing(model: revisedOrNewModel);
+                            } else {
+                              updateDrawing(
+                                updatedModel: revisedOrNewModel,
+                                id: id,
+                              );
+                              // TODO: update last revision details from here?
+                            }
                           },
                           child: Text(
                             id != null ? 'Update' : 'Add',

@@ -5,6 +5,7 @@ import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../../components/custom_date_time_form_field_widget.dart';
 import '../../components/custom_dropdown_menu_widget.dart';
@@ -25,8 +26,8 @@ class ReferenceDocumentController extends GetxController {
   late TextEditingController documentNumberController,
       revisionCodeController,
       titleController,
-      transmittalNumberController;
-  late DateTime receiveDate;
+      transmittalNumberController,
+      receiveDateController;
   String projectText = '';
   String referenceTypeText = '';
   String moduleNameText = '';
@@ -47,7 +48,7 @@ class ReferenceDocumentController extends GetxController {
     revisionCodeController = TextEditingController();
     titleController = TextEditingController();
     transmittalNumberController = TextEditingController();
-    receiveDate = DateTime.now();
+    receiveDateController = TextEditingController();
 
     _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
@@ -88,7 +89,7 @@ class ReferenceDocumentController extends GetxController {
     revisionCodeController.clear();
     titleController.clear();
     transmittalNumberController.clear();
-    receiveDate = DateTime.now();
+    receiveDateController.clear();
     projectText = '';
     moduleNameText = '';
     referenceTypeText = '';
@@ -103,7 +104,8 @@ class ReferenceDocumentController extends GetxController {
     titleController.text = model.title;
     transmittalNumberController.text = model.transmittalNumber;
     actionRequiredOrNext.value = model.actionRequiredOrNext;
-    receiveDate = model.receivedDate;
+    receiveDateController.text =
+        '${model.receivedDate.day}/${model.receivedDate.month}/${model.receivedDate.year}';
     projectText = model.project;
     moduleNameText = model.moduleName;
     referenceTypeText = model.referenceType;
@@ -127,7 +129,7 @@ class ReferenceDocumentController extends GetxController {
     }
   }
 
-  buildAddEdit({String? id, bool? newRev = false}) {
+  buildAddEdit({String? id}) {
     if (id != null) {
       fillEditingControllers(id);
     } else {
@@ -209,8 +211,8 @@ class ReferenceDocumentController extends GetxController {
                             width: 400,
                             child: CustomDateTimeFormField(
                               labelText: 'Received date',
-                              initialValue: receiveDate,
-                              onDateSelected: (date) => receiveDate = date,
+                              initialValue: receiveDateController.text,
+                              controller: receiveDateController,
                             ),
                           ),
                           SizedBox(
@@ -285,7 +287,8 @@ class ReferenceDocumentController extends GetxController {
                                 title: titleController.text,
                                 transmittalNumber:
                                     transmittalNumberController.text,
-                                receivedDate: receiveDate,
+                                receivedDate: DateFormat('dd/MM/yyyy')
+                                    .parse(receiveDateController.text),
                                 actionRequiredOrNext:
                                     actionRequiredOrNext.value,
                                 assignedTasksCount: 0,

@@ -54,6 +54,7 @@ class DropdownSourcesController extends GetxController {
           child: Column(
             children: <Widget>[
               DropdownSearch<String>(
+                showSearchBox: true,
                 mode: Mode.MENU,
                 items: listNames,
                 onChanged: (value) => choosenList.value = value!,

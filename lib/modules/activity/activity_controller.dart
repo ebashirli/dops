@@ -6,6 +6,7 @@ import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../../constants/style.dart';
 import '../../constants/table_details.dart';
@@ -22,8 +23,9 @@ class ActivityController extends GetxController {
   late TextEditingController activityIdController,
       activityNameController,
       coefficientController,
-      budgetedLaborUnitsController;
-  DateTime? startTime, finishTime;
+      budgetedLaborUnitsController,
+      startDateController,
+      finishDateController;
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
   String? moduleNameText = '';
@@ -38,8 +40,8 @@ class ActivityController extends GetxController {
     activityNameController = TextEditingController();
     coefficientController = TextEditingController();
     budgetedLaborUnitsController = TextEditingController();
-    startTime = DateTime.now();
-    finishTime = DateTime.now();
+    startDateController = TextEditingController();
+    finishDateController = TextEditingController();
     _documents.bindStream(_repository.getAllActivitiesAsStream());
   }
 
@@ -91,8 +93,8 @@ class ActivityController extends GetxController {
     activityNameController.clear();
     coefficientController.text = '1';
     budgetedLaborUnitsController.clear();
-    startTime = null;
-    finishTime = null;
+    startDateController.clear();
+    finishDateController.clear();
     moduleNameText = '';
   }
 
@@ -104,8 +106,10 @@ class ActivityController extends GetxController {
     activityNameController.text = model.activityName ?? '';
     coefficientController.text = model.coefficient.toString();
     budgetedLaborUnitsController.text = model.budgetedLaborUnits.toString();
-    startTime = model.startDate;
-    finishTime = model.finishDate;
+    startDateController.text =
+        '${model.startDate!.day}/${model.startDate!.month}/${model.startDate!.year}';
+    finishDateController.text =
+        '${model.finishDate!.day}/${model.finishDate!.month}/${model.finishDate!.year}';
     moduleNameText = model.moduleName;
   }
 
@@ -127,7 +131,7 @@ class ActivityController extends GetxController {
     }
   }
 
-  buildAddEdit({String? id, bool? newRev = false}) {
+  buildAddEdit({String? id}) {
     if (id != null) {
       fillEditingControllers(id);
     } else {
@@ -156,52 +160,78 @@ class ActivityController extends GetxController {
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: SingleChildScrollView(
               child: Container(
-                width: Get.width * 0.5,
+                width: Get.width * 0.3,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    CustomTextFormField(
-                      controller: activityIdController,
-                      labelText: tableColNames['activity']![1],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        CustomTextFormField(
+                          width: 200,
+                          controller: activityIdController,
+                          labelText: tableColNames['activity']![1],
+                        ),
+                        CustomTextFormField(
+                          width: 200,
+                          controller: activityNameController,
+                          labelText: tableColNames['activity']![2],
+                        ),
+                      ],
                     ),
-                    CustomTextFormField(
-                      controller: activityNameController,
-                      labelText: tableColNames['activity']![2],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        CustomDropdownMenu(
+                          width: 200,
+                          labelText: 'Module name',
+                          onChanged: (value) {
+                            moduleNameText = value ?? '';
+                          },
+                          selectedItems: [moduleNameText!],
+                          items:
+                              dropdownSourcesController.document.value.modules!,
+                        ),
+                        Container(
+                          width: 200,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              CustomTextFormField(
+                                width: 80,
+                                isNumber: true,
+                                controller: coefficientController,
+                                labelText: tableColNames['activity']![5],
+                              ),
+                              CustomTextFormField(
+                                width: 100,
+                                isNumber: true,
+                                controller: budgetedLaborUnitsController,
+                                labelText: tableColNames['activity']![7],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    CustomDropdownMenu(
-                      labelText: 'Module name',
-                      onChanged: (value) {
-                        moduleNameText = value ?? '';
-                      },
-                      selectedItems: [moduleNameText!],
-                      items: dropdownSourcesController.document.value.modules!,
-                    ),
-                    CustomTextFormField(
-                      isNumber: true,
-                      controller: coefficientController,
-                      labelText: tableColNames['activity']![5],
-                    ),
-                    CustomTextFormField(
-                      isNumber: true,
-                      controller: budgetedLaborUnitsController,
-                      labelText: tableColNames['activity']![7],
-                    ),
-                    CustomDateTimeFormField(
-                      initialValue: startTime,
-                      labelText: tableColNames['activity']![8],
-                      onDateSelected: (DateTime value) {
-                        startTime = value;
-                      },
-                    ),
-                    CustomDateTimeFormField(
-                      initialValue: finishTime,
-                      labelText: tableColNames['activity']![9],
-                      onDateSelected: (DateTime value) {
-                        finishTime = value;
-                      },
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        CustomDateTimeFormField(
+                          initialValue: startDateController.text,
+                          labelText: tableColNames['activity']![8],
+                          controller: startDateController,
+                        ),
+                        CustomDateTimeFormField(
+                          initialValue: finishDateController.text,
+                          labelText: tableColNames['activity']![9],
+                          controller: finishDateController,
+                        ),
+                      ],
                     ),
                     Container(
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           if (id != null)
                             ElevatedButton.icon(
@@ -216,11 +246,9 @@ class ActivityController extends GetxController {
                                       MaterialStateProperty.all<Color>(
                                           Colors.red)),
                             ),
-                          const Spacer(),
                           ElevatedButton(
                               onPressed: () => Get.back(),
                               child: const Text('Cancel')),
-                          SizedBox(width: 10),
                           ElevatedButton(
                             onPressed: () {
                               ActivityModel model = ActivityModel(
@@ -231,8 +259,10 @@ class ActivityController extends GetxController {
                                     int.parse(coefficientController.text),
                                 budgetedLaborUnits: double.parse(
                                     budgetedLaborUnitsController.text),
-                                startDate: startTime,
-                                finishDate: finishTime,
+                                startDate: DateFormat('dd/MM/yyyy')
+                                    .parse(startDateController.text),
+                                finishDate: DateFormat('dd/MM/yyyy')
+                                    .parse(finishDateController.text),
                               );
                               id == null
                                   ? saveDocument(model: model)

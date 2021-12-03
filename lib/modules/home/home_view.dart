@@ -80,10 +80,11 @@ class HomeView extends GetView<HomeController> {
           icon: Icon(Icons.add),
         ),
         IconButton(
-            onPressed: () {
-              authController.signOut();
-            },
-            icon: Icon(Icons.logout))
+          onPressed: () {
+            authController.signOut();
+          },
+          icon: Icon(Icons.logout),
+        ),
       ],
     );
   }

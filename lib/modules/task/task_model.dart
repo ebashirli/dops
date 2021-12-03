@@ -3,7 +3,7 @@ class TaskModel {
   String? parentId;
   String revisionNumber;
   bool? issueType;
-  int revisionCount;
+  int revisionCount = 0;
   double? percentage;
   bool? revisionStatus;
   int? changeNumber;

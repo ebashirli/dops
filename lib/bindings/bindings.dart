@@ -33,17 +33,13 @@ class HomeBinding extends Bindings {
     Get.lazyPut<DrawingController>(
       () => DrawingController(),
     );
+
     Get.lazyPut<DropdownSourcesController>(
       () => DropdownSourcesController(),
     );
-  }
-}
 
-class ActivityBinding extends Bindings {
-  @override
-  void dependencies() {
-    Get.lazyPut<ActivityController>(
-      () => ActivityController(),
+    Get.lazyPut<StagesController>(
+      () => StagesController(),
     );
   }
 }
@@ -52,68 +48,5 @@ class LoginBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut(() => LoginController());
-  }
-}
-
-class DropdownSourceListsBinding extends Bindings {
-  @override
-  void dependencies() {
-    Get.lazyPut<DropdownSourcesController>(
-      () => DropdownSourcesController(),
-    );
-  }
-}
-
-class ReferenceDocumentBinding extends Bindings {
-  @override
-  void dependencies() {
-    Get.lazyPut<ReferenceDocumentController>(
-      () => ReferenceDocumentController(),
-    );
-  }
-}
-
-class StaffBinding extends Bindings {
-  @override
-  void dependencies() {
-    Get.lazyPut<StaffController>(
-      () => StaffController(),
-    );
-  }
-}
-
-class TaskBinding extends Bindings {
-  @override
-  void dependencies() {
-    Get.lazyPut<TaskController>(
-      () => TaskController(),
-    );
-  }
-}
-
-class StagesBinding extends Bindings {
-  @override
-  void dependencies() {
-    Get.lazyPut<ActivityController>(
-      () => ActivityController(),
-    );
-    Get.lazyPut<ReferenceDocumentController>(
-      () => ReferenceDocumentController(),
-    );
-    Get.lazyPut<DropdownSourcesController>(
-      () => DropdownSourcesController(),
-    );
-
-    Get.lazyPut<TaskController>(
-      () => TaskController(),
-    );
-
-    Get.lazyPut<StaffController>(
-      () => StaffController(),
-    );
-
-    Get.lazyPut<StagesController>(
-      () => StagesController(),
-    );
   }
 }

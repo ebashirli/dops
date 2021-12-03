@@ -6,6 +6,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../../components/custom_date_time_form_field_widget.dart';
 import '../../components/custom_dropdown_menu_widget.dart';
@@ -31,9 +32,15 @@ class StaffController extends GetxController {
       contactController,
       emergencyContactController,
       emergencyContactNameController,
-      noteController;
-  late DateTime dateOfBirth, startDate, contractFinishDate;
-  late String currentPlaceText, systemDesignationText, jobTitleText, companyText;
+      noteController,
+      dateOfBirthController,
+      startDateConroller,
+      contractFinishDateController;
+
+  late String currentPlaceText,
+      systemDesignationText,
+      jobTitleText,
+      companyText;
 
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
@@ -49,15 +56,15 @@ class StaffController extends GetxController {
     surnameController = TextEditingController();
     patronymicController = TextEditingController();
     initialController = TextEditingController();
-    dateOfBirth = DateTime.now();
+    dateOfBirthController = TextEditingController();
     companyText = '';
     systemDesignationText = '';
     jobTitleText = '';
     emailController = TextEditingController();
     homeAddressController = TextEditingController();
     currentPlaceText = '';
-    contractFinishDate = DateTime.now();
-    startDate = DateTime.now();
+    contractFinishDateController = TextEditingController();
+    startDateConroller = TextEditingController();
     contactController = TextEditingController();
     emergencyContactController = TextEditingController();
     emergencyContactNameController = TextEditingController();
@@ -68,7 +75,8 @@ class StaffController extends GetxController {
 
   saveDocument({required StaffModel model}) async {
     CustomFullScreenDialog.showDialog();
-    UserCredential? userCredential = await authController.register(model.email, "123456");
+    UserCredential? userCredential =
+        await authController.register(model.email, "123456");
     await _repository.addModelWithId(model, userCredential!.user!.uid);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
@@ -86,6 +94,7 @@ class StaffController extends GetxController {
     //update
     CustomFullScreenDialog.showDialog();
     await _repository.updateModel(model, id);
+    // ignore: unnecessary_null_comparison
     if (authController.firebaseUser != null) auth.currentUser!.reload();
     CustomFullScreenDialog.cancelDialog();
     Get.back();
@@ -113,9 +122,9 @@ class StaffController extends GetxController {
     emergencyContactNameController.clear();
     noteController.clear();
 
-    dateOfBirth = DateTime.now();
-    startDate = DateTime.now();
-    contractFinishDate = DateTime.now();
+    dateOfBirthController.clear();
+    startDateConroller.clear();
+    contractFinishDateController.clear();
 
     currentPlaceText = '';
     systemDesignationText = '';
@@ -124,7 +133,8 @@ class StaffController extends GetxController {
   }
 
   void fillEditingControllers(String id) {
-    final StaffModel model = documents.where((document) => document.id == id).toList()[0];
+    final StaffModel model =
+        documents.where((document) => document.id == id).toList()[0];
 
     badgeNoController.text = model.badgeNo;
     nameController.text = model.name;
@@ -138,9 +148,12 @@ class StaffController extends GetxController {
     emergencyContactNameController.text = model.emergencyContactName;
     noteController.text = model.note;
 
-    dateOfBirth = model.dateOfBirth;
-    startDate = model.startDate;
-    contractFinishDate = model.contractFinishDate;
+    dateOfBirthController.text =
+        '${model.dateOfBirth.day}/${model.dateOfBirth.month}/${model.dateOfBirth.year}';
+    startDateConroller.text =
+        '${model.startDate.day}/${model.startDate.month}/${model.startDate.year}';
+    contractFinishDateController.text =
+        '${model.contractFinishDate.day}/${model.contractFinishDate.month}/${model.contractFinishDate.year}';
 
     currentPlaceText = model.currentPlace;
     systemDesignationText = model.systemDesignation;
@@ -166,7 +179,7 @@ class StaffController extends GetxController {
     }
   }
 
-  buildAddEdit({String? id, bool? newRev = false}) {
+  buildAddEdit({String? id}) {
     if (id != null) {
       fillEditingControllers(id);
     } else {
@@ -224,8 +237,8 @@ class StaffController extends GetxController {
                           ),
                           CustomDateTimeFormField(
                             labelText: 'Date of Birth',
-                            initialValue: dateOfBirth,
-                            onDateSelected: (date) => dateOfBirth = date,
+                            initialValue: dateOfBirthController.text,
+                            controller: dateOfBirthController,
                           ),
                           CustomDropdownMenu(
                             labelText: 'Company',
@@ -233,7 +246,8 @@ class StaffController extends GetxController {
                             onChanged: (value) {
                               companyText = value ?? '';
                             },
-                            items: dropdownSourcesController.document.value.companies!,
+                            items: dropdownSourcesController
+                                .document.value.companies!,
                           ),
                           CustomDropdownMenu(
                             labelText: 'System Designation',
@@ -241,7 +255,8 @@ class StaffController extends GetxController {
                             onChanged: (value) {
                               systemDesignationText = value ?? '';
                             },
-                            items: dropdownSourcesController.document.value.systemDesignations!,
+                            items: dropdownSourcesController
+                                .document.value.systemDesignations!,
                           ),
                           CustomDropdownMenu(
                             labelText: 'Job Title',
@@ -249,19 +264,21 @@ class StaffController extends GetxController {
                             onChanged: (value) {
                               jobTitleText = value ?? '';
                             },
-                            items: dropdownSourcesController.document.value.jobTitles!,
+                            items: dropdownSourcesController
+                                .document.value.jobTitles!,
                           ),
                           CustomDateTimeFormField(
                             labelText: 'Start Date',
-                            initialValue: startDate,
-                            onDateSelected: (date) => startDate = date,
+                            initialValue: startDateConroller.text,
+                            controller: startDateConroller,
                           ),
                           CustomTextFormField(
                             controller: emailController,
                             labelText: 'E-mail',
-                            validator: (value) => EmailValidator.validate(value!)
-                                ? null
-                                : "Please enter a valid email",
+                            validator: (value) =>
+                                EmailValidator.validate(value!)
+                                    ? null
+                                    : "Please enter a valid email",
                           ),
                           CustomTextFormField(
                             controller: homeAddressController,
@@ -273,12 +290,13 @@ class StaffController extends GetxController {
                             onChanged: (value) {
                               currentPlaceText = value ?? '';
                             },
-                            items: dropdownSourcesController.document.value.employeePlaces!,
+                            items: dropdownSourcesController
+                                .document.value.employeePlaces!,
                           ),
                           CustomDateTimeFormField(
                             labelText: 'Contract Finish Date',
-                            initialValue: contractFinishDate,
-                            onDateSelected: (date) => contractFinishDate = date,
+                            initialValue: contractFinishDateController.text,
+                            controller: contractFinishDateController,
                           ),
                           CustomTextFormField(
                             controller: contactController,
@@ -321,7 +339,9 @@ class StaffController extends GetxController {
                             ),
                           ),
                         const Spacer(),
-                        ElevatedButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+                        ElevatedButton(
+                            onPressed: () => Get.back(),
+                            child: const Text('Cancel')),
                         SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: () {
@@ -335,14 +355,18 @@ class StaffController extends GetxController {
                               jobTitle: jobTitleText,
                               email: emailController.text,
                               company: companyText,
-                              dateOfBirth: dateOfBirth,
+                              dateOfBirth: DateFormat("dd/MM/yyyy")
+                                  .parse(dateOfBirthController.text),
                               homeAddress: homeAddressController.text,
-                              startDate: startDate,
+                              startDate: DateFormat("dd/MM/yyyy")
+                                  .parse(startDateConroller.text),
                               currentPlace: currentPlaceText,
-                              contractFinishDate: contractFinishDate,
+                              contractFinishDate: DateFormat("dd/MM/yyyy")
+                                  .parse(contractFinishDateController.text),
                               contact: contactController.text,
                               emergencyContact: emergencyContactController.text,
-                              emergencyContactName: emergencyContactNameController.text,
+                              emergencyContactName:
+                                  emergencyContactNameController.text,
                               note: noteController.text,
                             );
                             id == null

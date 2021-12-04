@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:dops/controllers/auth_controller.dart';
+import 'package:dops/modules/auth/auth_controller.dart';
 import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/drawing/drawing_repository.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
@@ -33,6 +33,50 @@ Future<void> main() async {
 
   runApp(MyApp());
 }
+
+class MyApp extends StatelessWidget {
+  const MyApp({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      scrollBehavior: MyCustomScrollBehavior(),
+      debugShowCheckedModeBanner: false,
+      title: "DOPS",
+      initialRoute: AppPages.SPLASH,
+      getPages: AppPages.routes,
+      unknownRoute: AppPages.routes[3],
+      themeMode: ThemeMode.light,
+      darkTheme: ThemeData.dark().copyWith(
+        primaryColor: Color(0xff141A31),
+        primaryColorDark: Color(0xff081029),
+        scaffoldBackgroundColor: Color(0xff141A31),
+        textSelectionTheme: TextSelectionThemeData(cursorColor: Colors.yellow),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ButtonStyle(
+            shape: MaterialStateProperty.all(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            backgroundColor: MaterialStateProperty.all(Colors.yellowAccent),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+      };
+}
+
 
 @override
 Future<void> initServices() async {
@@ -91,47 +135,4 @@ Future<void> initServices() async {
   await Get.putAsync<TaskController>(() async => await TaskController());
 
   await Get.putAsync<DrawingController>(() async => await DrawingController());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
-      scrollBehavior: MyCustomScrollBehavior(),
-      debugShowCheckedModeBanner: false,
-      title: "DOPS",
-      initialRoute: AppPages.LOGIN,
-      getPages: AppPages.routes,
-      unknownRoute: AppPages.routes[2],
-      themeMode: ThemeMode.light,
-      darkTheme: ThemeData.dark().copyWith(
-        primaryColor: Color(0xff141A31),
-        primaryColorDark: Color(0xff081029),
-        scaffoldBackgroundColor: Color(0xff141A31),
-        textSelectionTheme: TextSelectionThemeData(cursorColor: Colors.yellow),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ButtonStyle(
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-            backgroundColor: MaterialStateProperty.all(Colors.yellowAccent),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class MyCustomScrollBehavior extends MaterialScrollBehavior {
-  @override
-  Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-      };
 }

@@ -4,6 +4,7 @@ import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/drawing/drawing_repository.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/modules/home/home_controller.dart';
+import 'package:dops/modules/stages/stages_repository.dart';
 import 'package:dops/modules/task/task_controller.dart';
 
 import 'modules/activity/activity_controller.dart';
@@ -104,6 +105,10 @@ Future<void> initServices() async {
       () async => await FirebaseStorageService('lists'),
       tag: 'lists');
 
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('stages'),
+      tag: 'stages');
+
   await Get.putAsync<ActivityRepository>(
       () async => await ActivityRepository());
 
@@ -113,6 +118,8 @@ Future<void> initServices() async {
   await Get.putAsync<StaffRepository>(() async => await StaffRepository());
 
   await Get.putAsync<TaskRepository>(() async => await TaskRepository());
+
+  await Get.putAsync<StageRepository>(() async => await StageRepository());
 
   await Get.putAsync<DrawingRepository>(() async => await DrawingRepository());
 

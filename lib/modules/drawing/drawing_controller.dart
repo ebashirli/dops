@@ -52,6 +52,10 @@ class DrawingController extends GetxController {
   }
 
   addNewDrawing({required DrawingModel model}) async {
+    final isValid = drawingFormKey.currentState!.validate();
+    if (!isValid) {
+      return;
+    }
     CustomFullScreenDialog.showDialog();
     model.drawingCreateDate = DateTime.now();
     await _repository.addModel(model);

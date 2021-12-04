@@ -3,7 +3,6 @@ import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import '../../constants/style.dart';
 import 'task_model.dart';
 import 'task_repository.dart';

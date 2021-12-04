@@ -1,6 +1,8 @@
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
+import 'package:dops/modules/stages/stages_model.dart';
+import 'package:dops/modules/stages/stages_repository.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -8,6 +10,7 @@ import 'package:file_picker/file_picker.dart';
 import '../../components/custom_widgets.dart';
 
 class StagesController extends GetxController {
+  final _repository = Get.find<StageRepository>();
   static StagesController instance = Get.find();
 
   final RxList<bool> isExpandedList =
@@ -29,17 +32,11 @@ class StagesController extends GetxController {
     growable: false,
   );
 
-  final List controllersListForNumberFields = stageDetailsList
-      .map((stage) => List.generate(
-          stage['number fields'].length, (index) => TextEditingController()))
-      .toList();
+  late final List<List<TextEditingController>> controllersListForNumberFields;
 
-  final List controllersListForStringFields = stageDetailsList
-      .map((stage) => List.generate(
-          stage['string fields'].length, (index) => TextEditingController()))
-      .toList();
+  late final List<List<TextEditingController>> controllersListForStringFields;
 
-  late List<List> filesList = List.generate(9, (index) => []);
+  late List<List<String>> filesList;
 
   @override
   void onInit() {
@@ -57,6 +54,26 @@ class StagesController extends GetxController {
       ..levelText = ''
       ..functionalAreaText = ''
       ..structureTypeText = '';
+
+    controllersListForNumberFields = stageDetailsList
+        .map((stage) => List.generate(
+            stage['number fields'].length, (index) => TextEditingController()))
+        .toList();
+
+    controllersListForStringFields = stageDetailsList
+        .map((stage) => List.generate(
+            stage['string fields'].length, (index) => TextEditingController()))
+        .toList();
+
+    filesList = List.generate(9, (index) => <String>[]);
+  }
+
+  addNew({required StageModel model}) async {
+    
+    CustomFullScreenDialog.showDialog();
+    model.assignedDate = DateTime.now();
+    await _repository.add(model);
+    CustomFullScreenDialog.cancelDialog();
   }
 
   @override
@@ -309,22 +326,40 @@ class StagesController extends GetxController {
                             CustomDropdownMenu(
                               showSearchBox: true,
                               width: 350,
-                              isMultiSelectable: true,
+                              isMultiSelectable:
+                                  [0, 6, 7, 8].contains(index) ? false : true,
                               labelText: stageDetailsList[index]['staff job'],
                               items: staffController.documents
                                   .map((e) => e.name)
                                   .toList(),
                               onChanged: (values) {
-                                selectedItemsList[index] = values;
+                                selectedItemsList[index] =
+                                    [0, 6, 7, 8].contains(index)
+                                        ? [values]
+                                        : values;
                               },
-                              selectedItems: selectedItemsList[index],
+                              selectedItems: [0, 6, 7, 8].contains(index)
+                                  ? [
+                                      !selectedItemsList[index].isEmpty
+                                          ? selectedItemsList[index][0]
+                                          : ''
+                                    ]
+                                  : selectedItemsList[index],
                             ),
                             SizedBox(width: 10),
                             ElevatedButton(
                               onPressed: () {
-                                if (formKeysList[index][0]
-                                    .currentState!
-                                    .validate()) {}
+                                StageModel model = StageModel(
+                                  taskId: Get.parameters['id']!,
+                                  attemptNumber: 1,
+                                  stageIndex: index,
+                                  assignedDate: DateTime.now(),
+                                  staff: selectedItemsList[index],
+                                  totalValues: 10,
+                                  fileNames: filesList[index],
+                                );
+
+                                addNew(model: model);
                               },
                               child: Container(
                                 height: 48,

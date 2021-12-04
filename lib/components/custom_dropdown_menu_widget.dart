@@ -34,7 +34,7 @@ class CustomDropdownMenu extends StatelessWidget {
                     selectedItems: selectedItems,
                     showSearchBox: showSearchBox,
                     maxHeight: items.length < 3
-                        ? 150
+                        ? 250
                         : items.length < 10
                             ? items.length * 50
                             : 250,
@@ -69,7 +69,7 @@ class CustomDropdownMenu extends StatelessWidget {
                 : DropdownSearch<String>(
                     selectedItem: selectedItems[0],
                     showSearchBox: showSearchBox,
-                    maxHeight: items.length < 10 ? items.length * 50 : 250,
+                    maxHeight: items.length < 10 ? items.length * 100 : 250,
                     mode: Mode.MENU,
                     items: items
                         .map((e) => e is List ? e[1].toString() : e.toString())

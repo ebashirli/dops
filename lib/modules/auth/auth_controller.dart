@@ -17,13 +17,14 @@ class AuthController extends GetxService {
   onReady() {
     firebaseUser = Rx<User?>(auth.currentUser);
     firebaseUser.bindStream(auth.userChanges());
+    
     ever(firebaseUser, _setInitialScreen);
   }
 
   _setInitialScreen(User? user) async {
     if (user == null) {
       isLoggedIn.value = false;
-      // Get.offAndToNamed(Routes.SPLASH);
+      // Get.offAndToNamed(Routes.LOGIN);
     } else {
       // if the user exists and logged in the the user is navigated to the Home Screen
       StaffModel userModel = await staffRepository.getModelById(user.uid);
@@ -38,7 +39,7 @@ class AuthController extends GetxService {
           userRole.value = UserRole.User;
       }
       isLoggedIn.value = true;
-      Get.offAndToNamed(Routes.HOME);
+      // Get.offAndToNamed(Routes.HOME);
     }
   }
 

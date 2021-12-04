@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/login/login_view.dart';
 import 'package:dops/modules/splash/splash_screen.dart';
@@ -21,7 +23,7 @@ class AppPages {
     GetPage(
       name: _Paths.HOME,
       page: () => HomeView(),
-      middlewares:[AuthMiddlware()],
+      // middlewares: [AuthMiddlware()],
       binding: HomeBinding(),
     ),
     GetPage(
@@ -32,18 +34,23 @@ class AppPages {
     GetPage(
       name: _Paths.STAGES,
       page: () => StagesView(),
-      middlewares: [AuthMiddlware()],
+      // middlewares: [AuthMiddlware()],
       binding: HomeBinding(),
     ),
     GetPage(
       name: _Paths.SPLASH,
       page: () => SplashScreen(),
-      // middlewares: [AuthMiddlware()],
+      middlewares: [AuthMiddlware()],
       // binding: HomeBinding(),
     ),
   ];
 }
 
 class AuthMiddlware extends GetMiddleware {
-  RouteSettings? redirect(String? route) => !authController.isLoggedIn.value ? RouteSettings(name: Routes.SPLASH) : null;
+  RouteSettings? redirect(String? route) {
+    Timer(Duration(seconds: 2), () {
+       authController.isLoggedIn.value ? RouteSettings(name: Routes.HOME) : RouteSettings(name: Routes.LOGIN);
+    });
+    
+  }
 }

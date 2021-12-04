@@ -1,5 +1,5 @@
-import 'package:dops/controllers/auth_controller.dart';
 import 'package:dops/modules/activity/activity_controller.dart';
+import 'package:dops/modules/auth/auth_controller.dart';
 import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/modules/reference_document/reference_document_controller.dart';

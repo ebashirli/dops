@@ -16,10 +16,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-
     Timer(Duration(seconds: 2), () {
-      print('splasaha geldim');
-      if (!authController.isLoggedIn.value) Get.offAndToNamed(Routes.LOGIN);
+      // auth.currentUser!.reload();
     });
   }
 

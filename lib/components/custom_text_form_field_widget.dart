@@ -12,7 +12,9 @@ class CustomTextFormField extends StatelessWidget {
   final Icon? icon;
   final bool isNumber;
   final int? maxLines;
-
+  final FocusNode? focusNode;
+  final  Function(String?)? onSubmitted;
+  final TextInputAction? textInputAction;
   const CustomTextFormField({
     Key? key,
     this.controller,
@@ -25,6 +27,9 @@ class CustomTextFormField extends StatelessWidget {
     this.icon,
     this.maxLines,
     this.isNumber = false,
+    this.focusNode,
+    this.onSubmitted,
+    this.textInputAction,
   }) : super(key: key);
 
   @override
@@ -37,7 +42,10 @@ class CustomTextFormField extends StatelessWidget {
           Container(
             child: isNumber
                 ? TextFormField(
+                    autovalidateMode: AutovalidateMode.always,
+                    focusNode: focusNode,
                     controller: controller,
+                    textInputAction: textInputAction,
                     keyboardType: TextInputType.number,
                     inputFormatters: <TextInputFormatter>[
                       FilteringTextInputFormatter.allow(
@@ -54,6 +62,10 @@ class CustomTextFormField extends StatelessWidget {
                     ),
                   )
                 : TextFormField(
+                    autovalidateMode: AutovalidateMode.always,
+                    // onFieldSubmitted: onSubmitted,
+                    onSaved: onSubmitted,
+                    focusNode: focusNode,
                     keyboardType: TextInputType.multiline,
                     initialValue: initialValue,
                     readOnly: readOnly,

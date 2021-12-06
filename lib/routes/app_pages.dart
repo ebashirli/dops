@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/login/login_view.dart';
-import 'package:dops/modules/splash/splash_screen.dart';
+import 'package:dops/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../bindings/bindings.dart';
@@ -20,17 +20,18 @@ class AppPages {
   static const LOGIN = Routes.LOGIN;
   static const SPLASH = Routes.SPLASH;
   static final routes = [
-    GetPage(
-      name: _Paths.HOME,
-      page: () => HomeView(),
-      // middlewares: [AuthMiddlware()],
-      binding: HomeBinding(),
-    ),
-    GetPage(
-      name: _Paths.LOGIN,
-      page: () => LoginView(),
-      binding: LoginBinding(),
-    ),
+    // GetPage(
+    //   name: _Paths.HOME,
+    //   page: () => HomeView(),
+    //   middlewares: [AuthMiddlware()],
+    //   binding: HomeBinding(),
+    // ),
+    // GetPage(
+    //   name: _Paths.LOGIN,
+    //   page: () => LoginView(),
+    //   middlewares: [AuthMiddlware()],
+    //   binding: LoginBinding(),
+    // ),
     GetPage(
       name: _Paths.STAGES,
       page: () => StagesView(),
@@ -40,17 +41,12 @@ class AppPages {
     GetPage(
       name: _Paths.SPLASH,
       page: () => SplashScreen(),
-      middlewares: [AuthMiddlware()],
+      // middlewares: [AuthMiddlware()],
       // binding: HomeBinding(),
     ),
   ];
 }
 
 class AuthMiddlware extends GetMiddleware {
-  RouteSettings? redirect(String? route) {
-    Timer(Duration(seconds: 2), () {
-       authController.isLoggedIn.value ? RouteSettings(name: Routes.HOME) : RouteSettings(name: Routes.LOGIN);
-    });
-    
-  }
+  RouteSettings? redirect(String? route) => RouteSettings(name: Routes.SPLASH);
 }

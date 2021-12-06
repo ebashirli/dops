@@ -69,7 +69,7 @@ class HomeView extends GetView<HomeController> {
         ),
         IconButton(
           onPressed: () {
-            authController.signOut();
+            authManager.signOut();
           },
           icon: Icon(Icons.logout),
         ),
@@ -94,7 +94,7 @@ class HomeView extends GetView<HomeController> {
             },
           ),
           SizedBox(height: 10),
-          if (authController.userRole != UserRole.User)
+          if (authManager.userModel.value!.systemDesignation != UserRole.User)
             TextButton.icon(
               icon: Icon(Icons.golf_course),
               label: const Text('Reference Documents'),
@@ -122,7 +122,7 @@ class HomeView extends GetView<HomeController> {
             },
           ),
           SizedBox(height: 10),
-          if (authController.userRole == UserRole.Admin)
+          if (authManager.userModel.value!.systemDesignation == UserRole.Admin)
             TextButton.icon(
               icon: Icon(Icons.people),
               label: const Text('Staff'),

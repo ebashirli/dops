@@ -1,14 +1,14 @@
 import 'package:dops/components/custom_widgets.dart';
-import 'package:dops/constants/constant.dart';
-import 'package:dops/modules/login/login_controller.dart';
+import 'package:dops/core/auth_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-class LoginView extends GetView<LoginController> {
+class LoginView extends GetView<AuthManager> {
   LoginView({Key? key}) : super(key: key);
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final controller = Get.find<LoginController>();
+  final focusNode = FocusNode();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,19 +33,34 @@ class LoginView extends GetView<LoginController> {
                           SizedBox(
                             height: 30,
                           ),
-                          CustomTextFormField(labelText: 'Email:', controller: emailController),
                           CustomTextFormField(
+                              labelText: 'Email:',
+                              controller: emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              // onSubmitted: (p0) => focusNode.requestFocus(),
+                              validator: (value) {
+                                if (value!.contains('\n')) {
+                                  focusNode.requestFocus();
+                                }
+                              }),
+                          CustomTextFormField(
+                            focusNode: focusNode,
                             labelText: 'Password',
                             controller: passwordController,
+                            textInputAction: TextInputAction.go,
+                            onSubmitted: (p0) => print('salam'),
+                            // validator: (value) {
+                            //   if (value!.contains('\n')) {
+                            //     print('alma');
+                            //   }
+                            // }
                           ),
                           Container(
                             height: 45,
                             width: Get.width * 0.1,
                             child: ElevatedButton(
                                 onPressed: () async {
-                                  controller.isLoading.value = true;
-                                  await authController.login(emailController.text, passwordController.text);
-                                  controller.isLoading.value = false;
+                                  await _login();
                                 },
                                 child: const Text('Sign in')),
                           )
@@ -59,5 +74,11 @@ class LoginView extends GetView<LoginController> {
             })),
       ),
     );
+  }
+
+  Future<void> _login() async {
+    controller.isLoading.value = true;
+    await controller.login(emailController.text, passwordController.text);
+    controller.isLoading.value = false;
   }
 }

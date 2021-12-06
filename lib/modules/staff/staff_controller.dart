@@ -71,7 +71,7 @@ class StaffController extends GetxController {
   saveDocument({required StaffModel model}) async {
     CustomFullScreenDialog.showDialog();
     UserCredential? userCredential =
-        await authController.register(model.email, "123456");
+        await authManager.register(model.email, "123456");
     await _repository.addModelWithId(model, userCredential!.user!.uid);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
@@ -90,7 +90,6 @@ class StaffController extends GetxController {
     CustomFullScreenDialog.showDialog();
     await _repository.updateModel(model, id);
     // ignore: unnecessary_null_comparison
-    if (authController.firebaseUser != null) auth.currentUser!.reload();
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }

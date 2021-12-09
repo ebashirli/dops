@@ -1,7 +1,6 @@
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/home/home_view.dart';
 import 'package:dops/modules/login/login_view.dart';
-import 'package:dops/modules/staff/staff_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

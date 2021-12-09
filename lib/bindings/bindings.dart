@@ -1,12 +1,12 @@
 import 'package:dops/modules/drawing/drawing_controller.dart';
-import 'package:dops/core/auth_manager.dart';
+import 'package:dops/modules/list/lists_controller.dart';
+import 'package:dops/modules/values/values_controller.dart';
 
 import '../modules/activity/activity_controller.dart';
 import 'package:dops/modules/staff/staff_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
 import 'package:get/get.dart';
 
-import '../../modules/dropdown_source/dropdown_sources_controller.dart';
 import '../../modules/reference_document/reference_document_controller.dart';
 import '../../modules/home/home_controller.dart';
 import '../../modules/stages/stages_controller.dart';
@@ -34,12 +34,16 @@ class HomeBinding extends Bindings {
       () => DrawingController(),
     );
 
-    Get.lazyPut<DropdownSourcesController>(
-      () => DropdownSourcesController(),
+    Get.lazyPut<ListsController>(
+      () => ListsController(),
     );
 
-    Get.lazyPut<StagesController>(
-      () => StagesController(),
+    Get.lazyPut<StageController>(
+      () => StageController(),
+    );
+
+    Get.lazyPut<ValueController>(
+      () => ValueController(),
     );
   }
 }

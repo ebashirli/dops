@@ -1,17 +1,23 @@
+import 'dart:math';
+
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
+import 'package:dops/modules/staff/staff_model.dart';
 import 'package:dops/modules/stages/stages_model.dart';
 import 'package:dops/modules/stages/stages_repository.dart';
 import 'package:dops/modules/task/task_model.dart';
+import 'package:dops/modules/values/values_model.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:intl/intl.dart';
 import '../../components/custom_widgets.dart';
 
-class StagesController extends GetxController {
+class StageController extends GetxController {
   final _repository = Get.find<StageRepository>();
-  static StagesController instance = Get.find();
+  static StageController instance = Get.find();
 
   final RxList<bool> isExpandedList =
       List<bool>.generate(9, (int index) => false, growable: false).obs;
@@ -26,17 +32,61 @@ class StagesController extends GetxController {
     growable: false,
   );
 
-  final List<List<String>> selectedItemsList = List<List<String>>.generate(
-    9,
-    (int index) => [],
-    growable: false,
-  );
+  late final List<List<String>> selectedEmployeeIdsList;
+
+  late final List<DateTime?> firstAssignDateTimeList;
 
   late final List<List<TextEditingController>> controllersListForNumberFields;
 
-  late final List<List<TextEditingController>> controllersListForStringFields;
+  late final List<TextEditingController> controllersListForNote;
+
+  final List<List<List<String?>>> stageNotesList = [
+    [
+      ['a', 'b'],
+      ['a', 'b']
+    ],
+    [
+      ['a', 'b'],
+      ['a', 'b']
+    ],
+    [
+      ['a', 'b'],
+      ['a', 'b']
+    ],
+    [
+      ['a', 'b'],
+      ['a', 'b']
+    ],
+    [
+      ['a', 'b'],
+      ['a', 'b']
+    ],
+    [
+      ['a', 'b'],
+      ['a', 'b']
+    ],
+    [
+      ['a', 'b'],
+      ['a', 'b']
+    ],
+    [
+      ['a', 'b'],
+      ['a', 'b']
+    ],
+    [
+      ['a', 'b'],
+      ['a', 'b']
+    ],
+  ];
 
   late List<List<String>> filesList;
+
+  late List<String> commentStatus;
+
+  final Rx<bool> isChecked = false.obs;
+
+  RxList<StageModel> _documents = RxList<StageModel>([]);
+  List<StageModel> get documents => _documents;
 
   @override
   void onInit() {
@@ -55,25 +105,41 @@ class StagesController extends GetxController {
       ..functionalAreaText = ''
       ..structureTypeText = '';
 
+    selectedEmployeeIdsList = List<List<String>>.generate(
+      9,
+      (int index) => <String>[],
+      growable: false,
+    );
+
+    firstAssignDateTimeList = List<DateTime?>.generate(
+      9,
+      (int index) => null,
+      growable: false,
+    );
+
     controllersListForNumberFields = stageDetailsList
-        .map((stage) => List.generate(
-            stage['number fields'].length, (index) => TextEditingController()))
+        .map((stage) => List.generate(stage['number fields']['name'].length,
+            (index) => TextEditingController()))
         .toList();
 
-    controllersListForStringFields = stageDetailsList
-        .map((stage) => List.generate(
-            stage['string fields'].length, (index) => TextEditingController()))
-        .toList();
+    controllersListForNote =
+        List.generate(9, (index) => TextEditingController());
+
+    // stageNotesList = List.generate(9, (index) => <List<String?>>[<String?>[]]);
 
     filesList = List.generate(9, (index) => <String>[]);
+
+    commentStatus = ['', ''];
+    _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
 
-  addNew({required StageModel model}) async {
-    
+  Future<String> addNew({required StageModel model}) async {
     CustomFullScreenDialog.showDialog();
-    model.assignedDate = DateTime.now();
-    await _repository.add(model);
+
+    model.creationDateTime = DateTime.now();
+    await _repository.add(model).then((value) => model.id = value);
     CustomFullScreenDialog.cancelDialog();
+    return model.id!;
   }
 
   @override
@@ -85,6 +151,7 @@ class StagesController extends GetxController {
     TaskModel taskModel = taskController.documents
         .where((task) => task!.id == Get.parameters['id'])
         .toList()[0]!;
+
     DrawingModel drawingModel = drawingController.documents
         .where((drawing) => drawing.id == taskModel.parentId)
         .toList()[0];
@@ -93,6 +160,7 @@ class StagesController extends GetxController {
       drawingModel: drawingModel,
       taskModel: taskModel,
     );
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Form(
@@ -290,7 +358,59 @@ class StagesController extends GetxController {
     );
   }
 
-  Widget buildPanel() {
+  void fillEditingControllers({required List<StageModel> stageModels}) {
+    int maxInd = stageModels.map((e) => e.index).toList().reduce(max);
+
+    for (int ind = 0; ind <= maxInd; ind++) {
+      StageModel stageModel =
+          stageModels.lastWhere((stage) => stage.index == ind);
+
+      List<ValueModel> valueModels =
+          valueController.documents.where((valueModel) {
+        return valueModel.stageId == stageModel.id;
+      }).toList();
+
+      selectedEmployeeIdsList[ind] =
+          valueModels.map((valueModel) => valueModel.employeeId).toList();
+
+      firstAssignDateTimeList[ind] = stageModel.creationDateTime;
+
+      for (int indF = 0;
+          indF < stageDetailsList[ind]['number fields']['name'].length;
+          indF++) {
+        final int? fieldValueSum = valueModels
+            .map((valueModel) => valueModel.toMap()[stageDetailsList[ind]
+                    ['number fields']['name'][indF]
+                .toLowerCase()])
+            .toList()
+            .reduce((a, b) => (a ?? 0) + (b ?? 0));
+
+        controllersListForNumberFields[ind][indF].text =
+            '${fieldValueSum ?? ""}';
+      }
+
+      stageNotesList[ind] = valueModels
+          .map((valueModel) => [valueModel.employeeId, valueModel.note])
+          .toList();
+
+      controllersListForNote[ind].text = valueModels
+          .map((valueModel) =>
+              valueModel.note != null ? '${valueModel.note}' : '')
+          .toList()
+          .reduce((a, b) => a + '\n' + b);
+    }
+  }
+
+  buildPanel() {
+    List<StageModel> stagesOfTask = documents
+        .where((stage) => stage.taskId == Get.parameters['id'])
+        .toList();
+    stagesOfTask
+        .sort((a, b) => a.creationDateTime.compareTo(b.creationDateTime));
+
+    if (!stagesOfTask.isEmpty)
+      fillEditingControllers(stageModels: stagesOfTask);
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 200),
       child: ExpansionPanelList(
@@ -308,13 +428,10 @@ class StagesController extends GetxController {
                 ),
               );
             },
-            body: Container(
-              decoration: BoxDecoration(
-                color: Colors.amber[50],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(children: [
+            body: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children: [
                   Form(
                     key: formKeysList[index][0],
                     child: Column(
@@ -323,48 +440,107 @@ class StagesController extends GetxController {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CustomDropdownMenu(
-                              showSearchBox: true,
+                            Container(
                               width: 350,
-                              isMultiSelectable:
-                                  [0, 6, 7, 8].contains(index) ? false : true,
-                              labelText: stageDetailsList[index]['staff job'],
-                              items: staffController.documents
-                                  .map((e) => e.name)
-                                  .toList(),
-                              onChanged: (values) {
-                                selectedItemsList[index] =
-                                    [0, 6, 7, 8].contains(index)
-                                        ? [values]
-                                        : values;
-                              },
-                              selectedItems: [0, 6, 7, 8].contains(index)
-                                  ? [
-                                      !selectedItemsList[index].isEmpty
-                                          ? selectedItemsList[index][0]
-                                          : ''
-                                    ]
-                                  : selectedItemsList[index],
+                              child: [0, 6, 7, 8].contains(index)
+                                  ? DropdownSearch<StaffModel>(
+                                      selectedItem: !selectedEmployeeIdsList[
+                                                  index]
+                                              .isEmpty
+                                          ? staffController.documents
+                                              .firstWhere((staffModel) {
+                                              return staffModel.id ==
+                                                  selectedEmployeeIdsList[index]
+                                                      [0];
+                                            })
+                                          : null,
+                                      items: staffController.documents,
+                                      itemAsString: (StaffModel? item) =>
+                                          '${item!.name} ${item.surname}',
+                                      maxHeight: 300,
+                                      mode: Mode.MENU,
+                                      dropdownSearchDecoration: InputDecoration(
+                                        labelText: stageDetailsList[index]
+                                            ['staff job'],
+                                        contentPadding:
+                                            EdgeInsets.fromLTRB(12, 12, 0, 0),
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      showSearchBox: true,
+                                      onChanged: (employee) {
+                                        selectedEmployeeIdsList[index] = [
+                                          employee!.id!
+                                        ];
+                                      },
+                                    )
+                                  : DropdownSearch<StaffModel>.multiSelection(
+                                      selectedItems: staffController.documents
+                                          .where((element) =>
+                                              selectedEmployeeIdsList[index]
+                                                  .contains(element.id))
+                                          .toList(),
+                                      items: staffController.documents,
+                                      itemAsString: (StaffModel? employee) =>
+                                          '${employee!.name} ${employee.surname}',
+                                      maxHeight: 300,
+                                      mode: Mode.MENU,
+                                      dropdownSearchDecoration: InputDecoration(
+                                        labelText: stageDetailsList[index]
+                                            ['staff job'],
+                                        contentPadding:
+                                            EdgeInsets.fromLTRB(12, 12, 0, 0),
+                                        border: OutlineInputBorder(),
+                                      ),
+                                      showSearchBox: true,
+                                      onChanged: (employees) {
+                                        selectedEmployeeIdsList[index] =
+                                            employees
+                                                .map((employee) => employee.id!)
+                                                .toList();
+                                      },
+                                    ),
                             ),
                             SizedBox(width: 10),
                             ElevatedButton(
-                              onPressed: () {
-                                StageModel model = StageModel(
+                              onPressed: () async {
+                                StageModel stage = StageModel(
                                   taskId: Get.parameters['id']!,
-                                  attemptNumber: 1,
-                                  stageIndex: index,
-                                  assignedDate: DateTime.now(),
-                                  staff: selectedItemsList[index],
-                                  totalValues: 10,
-                                  fileNames: filesList[index],
+                                  index: index,
+                                  checkerCommentCounter: 0,
+                                  creationDateTime: DateTime.now(),
+                                  reviewerCommentCounter: 0,
                                 );
+                                print('1 ==========>' +
+                                    selectedEmployeeIdsList[index].toString());
 
-                                addNew(model: model);
+                                await addNew(model: stage).then((stageId) {
+                                  print(stageId);
+                                  print('2 ==========>' +
+                                      selectedEmployeeIdsList[index]
+                                          .toString());
+
+                                  selectedEmployeeIdsList[index]
+                                      .forEach((employeeId) async {
+                                    ValueModel value = await ValueModel(
+                                      stageId: stageId,
+                                      employeeId: employeeId,
+                                      assignedBy: auth.currentUser!.uid,
+                                      assignedDateTime: DateTime.now(),
+                                    );
+                                    valueController.addNew(model: value);
+                                  });
+                                });
                               },
                               child: Container(
                                 height: 48,
                                 child: Center(child: const Text('Assign')),
                               ),
+                            ),
+                            SizedBox(width: 100),
+                            Text(
+                              firstAssignDateTimeList[index] != null
+                                  ? 'Start date and time: ${DateFormat("dd-MM-yyyy HH:mm").format(firstAssignDateTimeList[index]!)}'
+                                  : '',
                             ),
                           ],
                         ),
@@ -387,106 +563,317 @@ class StagesController extends GetxController {
                   Form(
                     key: formKeysList[index][1],
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            if (stageDetailsList[index]['number fields']
-                                    .length >
-                                0) // number fields
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text(
-                                    stageDetailsList[index]['number fields']
-                                        ['suffix'],
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
+                        Flexible(
+                          flex: index == 7 ? 6 : 2,
+                          child: Column(
+                            children: <Widget>[
+                              // number fields
+                              if (!stageDetailsList[index]['number fields']
+                                      ['name']
+                                  .isEmpty)
+                                Column(
+                                  crossAxisAlignment: [2, 3, 4].contains(index)
+                                      ? CrossAxisAlignment.center
+                                      : CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      stageDetailsList[index]['number fields']
+                                          ['suffix'],
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    if ([2, 3, 4].contains(index))
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text('Attached'),
+                                          Text('Submitted total'),
+                                        ],
+                                      ),
+                                    SizedBox(height: 10),
+                                    ...List.generate(
+                                      stageDetailsList[index]['number fields']
+                                              ['name']
+                                          .length,
+                                      (indexF) {
+                                        return Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            CustomTextFormField(
+                                              isNumber: true,
+                                              controller:
+                                                  controllersListForNumberFields[
+                                                      index][indexF],
+                                              labelText: stageDetailsList[index]
+                                                      ['number fields']['name']
+                                                  [indexF],
+                                              width: 80,
+                                            ),
+                                            if ([2, 3, 4].contains(index))
+                                              Text('535'),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                    SizedBox(height: 10),
+                                  ],
+                                ),
+                              if (stageDetailsList[index]['isThereFiles'] !=
+                                  null) // files button
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        FilePickerResult? result =
+                                            await FilePicker.platform.pickFiles(
+                                          allowMultiple: true,
+                                        );
+                                        if (result != null) {
+                                          filesList[index] = result.files
+                                              .map((file) => file.name)
+                                              .toList();
+                                        }
+                                      },
+                                      child: Container(
+                                        height: 48,
+                                        width: 80,
+                                        child: Center(
+                                          child: Text('Browse files'),
+                                        ),
+                                      ),
+                                    ),
+                                    if ([2, 3, 4].contains(index))
+                                      TextButton(
+                                        onPressed: () {},
+                                        style: TextButton.styleFrom(
+                                          minimumSize: Size.zero,
+                                          padding: EdgeInsets.zero,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
+                                        ),
+                                        child: Text('20'),
+                                      ),
+                                  ],
+                                ),
+                              if (stageDetailsList[index]['files'] != null)
+                                DataTable(
+                                  columns: <DataColumn>[
+                                    ...stageDetailsList[index]['files']
+                                            ['columns']
+                                        .map(
+                                          (col) => DataColumn(
+                                            label: Text(
+                                              col,
+                                              style: TextStyle(
+                                                fontStyle: FontStyle.italic,
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                        .toList()
+                                  ],
+                                  rows: <DataRow>[
+                                    ...stageDetailsList[index]['files']
+                                            ['rowsIds']
+                                        .map(
+                                      (ri) {
+                                        return DataRow(
+                                          cells: <DataCell>[
+                                            DataCell(
+                                              Container(
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                width: 250,
+                                                child: Text(ri),
+                                              ),
+                                            ),
+                                            DataCell(
+                                              ElevatedButton(
+                                                onPressed: () async {
+                                                  FilePickerResult? result =
+                                                      await FilePicker.platform
+                                                          .pickFiles(
+                                                    allowMultiple: true,
+                                                  );
+                                                  if (result != null) {
+                                                    filesList[index] = result
+                                                        .files
+                                                        .map(
+                                                            (file) => file.name)
+                                                        .toList();
+                                                  }
+                                                },
+                                                child: Container(
+                                                  height: 30,
+                                                  width: 50,
+                                                  child: Center(
+                                                    child: Text('Files'),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            DataCell(TextButton(
+                                              onPressed: () {},
+                                              child: Text(
+                                                '${Random().nextInt(60)}',
+                                                style: TextStyle(
+                                                    decoration: TextDecoration
+                                                        .underline,
+                                                    color: Colors.blue),
+                                              ),
+                                            )),
+                                          ],
+                                        );
+                                      },
+                                    ).toList(),
+                                  ],
+                                )
+                            ],
+                          ),
+                        ),
+                        Spacer(flex: 3),
+                        Flexible(
+                          flex: 5,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              if (index == 7)
+                                Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Checkbox(
+                                          checkColor: Colors.white,
+                                          value: isChecked.value,
+                                          onChanged: (bool? value) {
+                                            isChecked.value = value!;
+                                          },
+                                        ),
+                                        Text(
+                                            '''By clicking this checkbox I confirm that all files
+ are attached correctly and below appropriate task'''),
+                                      ],
+                                    ),
+                                    SizedBox(height: 10),
+                                  ],
+                                ),
+                              if (stageNotesList[index].isNotEmpty)
+                                Container(
+                                  width: double.infinity,
+                                  height: 3 * 50,
+                                  child: ListView.builder(
+                                    itemCount: stageNotesList[index].length,
+                                    itemBuilder: (context, ind) {
+                                      return ListTile(
+                                        leading: Text(stageNotesList[index][ind]
+                                                [0] ??
+                                            ''),
+                                        trailing: Text(
+                                          stageNotesList[index][ind][1] ?? '',
+                                          style: TextStyle(
+                                              color: Colors.green,
+                                              fontSize: 15),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              CustomTextFormField(
+                                controller: controllersListForNote[index],
+                                labelText: stageDetailsList[index]
+                                    ['string fields'][0],
+                                width: double.infinity,
+                                maxLines: 2,
+                              ),
+                              SizedBox(width: 10),
+                              Row(
+                                mainAxisAlignment: [5, 6].contains(index)
+                                    ? MainAxisAlignment.spaceBetween
+                                    : MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  if ([5, 6].contains(index))
+                                    CustomDropdownMenu(
+                                        width: 200,
+                                        labelText: 'Comment',
+                                        onChanged: (value) =>
+                                            commentStatus[index - 5] = value,
+                                        selectedItems: [
+                                          commentStatus[index - 5]
+                                        ],
+                                        items: [
+                                          'With Comment',
+                                          'No Comment'
+                                        ]),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      StageModel stageModel = stagesOfTask.last;
+
+                                      ValueModel valueModel = valueController
+                                          .documents
+                                          .firstWhere((valueModel) =>
+                                              valueModel.stageId ==
+                                                  stageModel.id &&
+                                              valueModel.employeeId ==
+                                                  auth.currentUser!.uid);
+
+                                      Map<String, dynamic> map = {};
+
+                                      for (int indF = 0;
+                                          indF <
+                                              stageDetailsList[index]
+                                                      ['number fields']['name']
+                                                  .length;
+                                          indF++) {
+                                        map[
+                                            stageDetailsList[index]
+                                                        ['number fields']
+                                                    ['name'][indF]
+                                                .toLowerCase()] = int.parse(
+                                            controllersListForNumberFields[
+                                                    index][indF]
+                                                .text);
+                                      }
+
+                                      map['note'] =
+                                          controllersListForNote[index].text;
+
+                                      map['endDateTime'] = DateTime.now();
+
+                                      valueController.addValues(
+                                        map: map,
+                                        id: valueModel.id!,
+                                      );
+                                    },
+                                    child: Container(
+                                      height: 46,
+                                      child:
+                                          Center(child: const Text('Submit')),
                                     ),
                                   ),
-                                  SizedBox(height: 10),
-                                  ...List.generate(
-                                    stageDetailsList[index]['number fields']
-                                        .length,
-                                    (indexF) => CustomTextFormField(
-                                      isNumber: true,
-                                      controller:
-                                          controllersListForNumberFields[index]
-                                              [indexF],
-                                      labelText: stageDetailsList[index]
-                                          ['number fields']['name'][indexF],
-                                      width: 80,
-                                    ),
-                                  ),
-                                  SizedBox(height: 10),
                                 ],
                               ),
-                            if (stageDetailsList[index]['isThereFiles'] !=
-                                null) // files button
-                              ElevatedButton(
-                                onPressed: () async {
-                                  FilePickerResult? result =
-                                      await FilePicker.platform.pickFiles(
-                                    allowMultiple: true,
-                                  );
-                                  if (result != null) {
-                                    filesList[index] = result.files
-                                        .map((file) => file.name)
-                                        .toList();
-                                  }
-                                },
-                                child: Container(
-                                  height: 48,
-                                  width: 80,
-                                  child: Center(
-                                    child: Text('Browse files'),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            SizedBox(width: 10),
-                            if (stageDetailsList[index]['string fields']
-                                    .length >
-                                0) // string fields
-                              ...List.generate(
-                                stageDetailsList[index]['string fields'].length,
-                                (indexF) => CustomTextFormField(
-                                  controller:
-                                      controllersListForStringFields[index]
-                                          [indexF],
-                                  labelText: stageDetailsList[index]
-                                      ['string fields'][indexF],
-                                  width: 500,
-                                  maxLines: 3,
-                                ),
-                              ),
-                            SizedBox(width: 10),
-                            ElevatedButton(
-                              onPressed: () {
-                                if (formKeysList[index][1]
-                                    .currentState!
-                                    .validate()) {}
-                              },
-                              child: Container(
-                                height: 46,
-                                child: Center(child: const Text('Finish Task')),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ]),
+                ],
               ),
             ),
             isExpanded: isExpandedList[index],

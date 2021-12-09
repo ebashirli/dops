@@ -1,32 +1,32 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dops/modules/stages/stages_model.dart';
+import 'package:dops/modules/values/values_model.dart';
 import 'package:dops/services/firebase_service/firebase_storage_service.dart';
 import 'package:get/get.dart';
 
-class StageRepository {
-  final _api = Get.find<StorageService>(tag: 'stages');
-  late List<StageModel> stages = [];
+class ValuesRepository {
+  final _api = Get.find<StorageService>(tag: 'values');
+  late List<ValueModel> values = [];
 
   Future fetchModels() async {
     QuerySnapshot result = await _api.getData();
-    stages = result.docs
+    values = result.docs
         .map(
-          (snapshot) => StageModel.fromMap(
+          (snapshot) => ValueModel.fromMap(
             snapshot.data() as Map<String, dynamic>,
             snapshot.id,
           ),
         )
         .toList();
-    return stages;
+    return values;
   }
 
-  Stream<List<StageModel>> getAllDocumentsAsStream() {
+  Stream<List<ValueModel>> getAllDocumentsAsStream() {
     return _api.getShowingDataAsStream().map((QuerySnapshot query) {
-      List<StageModel> returnValue = [];
+      List<ValueModel> returnValue = [];
       query.docs.forEach(
         (snapshot) {
           returnValue.add(
-            StageModel.fromMap(
+            ValueModel.fromMap(
               snapshot.data() as Map<String, dynamic>,
               snapshot.id,
             ),
@@ -41,7 +41,7 @@ class StageRepository {
     await _api.updateDocument({'isHidden': true}, id);
   }
 
-  updateModel(StageModel data, String id) async {
+  updateModel(ValueModel data, String id) async {
     await _api.updateDocument(data.toMap(), id);
   }
 
@@ -49,11 +49,7 @@ class StageRepository {
     await _api.updateDocument(map, id);
   }
 
-  Future<String> add(StageModel data) async {
-    return await _api.addDocument(data.toMap()).then((value) => value.id);
-  }
-
-  addWithId(StageModel data, String id) async {
-    await _api.addDocumentWithId(data.toMap(), id);
+  add(ValueModel data) async {
+    await _api.addDocument(data.toMap());
   }
 }

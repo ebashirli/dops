@@ -4,7 +4,7 @@ import 'package:dops/constants/lists.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class DropdownSourcesView extends StatelessWidget {
+class ListsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(

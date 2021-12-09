@@ -1,12 +1,12 @@
 import 'package:dops/components/table_view_widget.dart';
 import 'package:dops/constants/constant.dart';
+import 'package:dops/modules/list/lists_view.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'home_controller.dart';
 import '../../enum.dart';
-import '../dropdown_source/dropdown_sources_view.dart';
 
 // ignore: must_be_immutable
 class HomeView extends GetView<HomeController> {
@@ -37,7 +37,7 @@ class HomeView extends GetView<HomeController> {
         break;
 
       case HomeStates.DropdownSourceListState:
-        return DropdownSourcesView();
+        return ListsView();
 
       case HomeStates.StaffState:
         tableController = staffController;

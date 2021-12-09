@@ -1,4 +1,4 @@
-class DropdownSourcesModel {
+class ListsModel {
   String id;
   List<dynamic>? companies;
   List<dynamic>? employeePlaces;
@@ -12,7 +12,7 @@ class DropdownSourcesModel {
   List<dynamic>? systemDesignations;
   List<dynamic>? functionalAreas;
   List<dynamic>? areas;
-  DropdownSourcesModel({
+  ListsModel({
     this.id = 'list',
     this.companies,
     this.employeePlaces,
@@ -45,8 +45,8 @@ class DropdownSourcesModel {
     };
   }
 
-  factory DropdownSourcesModel.fromMap(Map<String, dynamic> map) {
-    return DropdownSourcesModel(
+  factory ListsModel.fromMap(Map<String, dynamic> map) {
+    return ListsModel(
       id: 'list',
       companies: map['companies'],
       employeePlaces: map['employeePlaces'],

@@ -53,8 +53,11 @@ class TaskController extends GetxController {
     Get.back();
   }
 
-  void deleteTask(String id) {
-    _repository.removeModel(id);
+  void deleteTask(String id) async {
+    CustomFullScreenDialog.showDialog();
+    await _repository.removeModel(id);
+    CustomFullScreenDialog.cancelDialog();
+    Get.back();
   }
 
   @override
@@ -211,6 +214,7 @@ class TaskController extends GetxController {
           designDrawings: [],
           note: '',
         );
+
         if (!documents.isEmpty) {
           List<TaskModel?> drawingTasks =
               documents.where((task) => task!.parentId == drawing.id).toList();

@@ -3,15 +3,15 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:recase/recase.dart';
 import '../../enum.dart';
-import 'dropdown_sources_model.dart';
-import 'dropdown_sources_repository.dart';
+import 'lists_model.dart';
+import 'lists_repository.dart';
 import 'package:get/get.dart';
 
-class DropdownSourcesController extends GetxController {
-  DropwdownSourcesRepository _repository =
-      Get.find<DropwdownSourcesRepository>();
-  static DropdownSourcesController instance = Get.find();
-  late Rx<DropdownSourcesModel> document;
+class ListsController extends GetxController {
+  ListsRepository _repository =
+      Get.find<ListsRepository>();
+  static ListsController instance = Get.find();
+  late Rx<ListsModel> document;
   Rx<States> state = States.Loading.obs;
   RxString choosenList = 'Companies'.obs;
   final textController = TextEditingController();
@@ -21,12 +21,12 @@ class DropdownSourcesController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    document = DropdownSourcesModel().obs;
+    document = ListsModel().obs;
     map = document.value.toMap();
     document.bindStream(_repository.getModelAsStream());
   }
 
-  Future<void> updateModel(DropdownSourcesModel model) async {
+  Future<void> updateModel(ListsModel model) async {
     await _repository.updateDropdownSourcesModel(model);
   }
 
@@ -106,7 +106,7 @@ class DropdownSourcesController extends GetxController {
                       onPressed: newAddedList.isNotEmpty
                           ? () async {
                               // if (textController.text.trim().isNotEmpty && choosenList.isNotEmpty)
-                              updateModel(DropdownSourcesModel.fromMap(map));
+                              updateModel(ListsModel.fromMap(map));
                               newAddedList.value = [];
                               Get.back();
                             }

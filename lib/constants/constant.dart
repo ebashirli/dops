@@ -1,11 +1,12 @@
+import 'package:dops/core/auth_manager.dart';
 import 'package:dops/modules/activity/activity_controller.dart';
 import 'package:dops/modules/drawing/drawing_controller.dart';
-import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
-import 'package:dops/core/auth_manager.dart';
+import 'package:dops/modules/list/lists_controller.dart';
 import 'package:dops/modules/reference_document/reference_document_controller.dart';
 import 'package:dops/modules/staff/staff_controller.dart';
 import 'package:dops/modules/stages/stages_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
+import 'package:dops/modules/values/values_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 AuthManager authManager = AuthManager.instance;
@@ -14,8 +15,9 @@ ReferenceDocumentController referenceDocumentController =
 ActivityController activityController = ActivityController.instance;
 DrawingController drawingController = DrawingController.instance;
 TaskController taskController = TaskController.instance;
-DropdownSourcesController dropdownSourcesController =
-    DropdownSourcesController.instance;
+ListsController dropdownSourcesController =
+    ListsController.instance;
 StaffController staffController = StaffController.instance;
-StagesController stagesController = StagesController.instance;
+StageController stageController = StageController.instance;
+ValueController valueController = ValueController.instance;
 FirebaseAuth auth = FirebaseAuth.instance;

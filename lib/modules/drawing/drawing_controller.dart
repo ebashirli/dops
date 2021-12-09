@@ -56,6 +56,7 @@ class DrawingController extends GetxController {
     if (!isValid) {
       return;
     }
+    
     CustomFullScreenDialog.showDialog();
     model.drawingCreateDate = DateTime.now();
     await _repository.addModel(model);

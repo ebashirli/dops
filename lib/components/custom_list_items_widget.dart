@@ -1,5 +1,5 @@
 import 'package:dops/constants/constant.dart';
-import 'package:dops/modules/dropdown_source/dropdown_sources_model.dart';
+import 'package:dops/modules/list/lists_model.dart';
 import 'package:flutter/material.dart';
 import 'package:recase/recase.dart';
 
@@ -93,7 +93,7 @@ class CustomListItems extends StatelessWidget {
                                                 .map[ReCase(lstName!).camelCase]
                                               ..remove(lst![index]);
                                         dropdownSourcesController.updateModel(
-                                            DropdownSourcesModel.fromMap(
+                                            ListsModel.fromMap(
                                                 dropdownSourcesController.map));
                                       },
                                       child: Icon(Icons.close,

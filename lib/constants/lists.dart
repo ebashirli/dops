@@ -16,9 +16,9 @@ List<String> get listNames => [
     ];
 
 List<String> stageNames = [
-  '3D Admin',
+  'Importing',
   'Designing',
-  'Draftering',
+  'Drafting',
   'Checking',
   'Back Drafting',
   'Back Checking',
@@ -29,19 +29,19 @@ List<String> stageNames = [
 
 List<Map<String, dynamic>> stageDetailsList = [
   {
-    'name': '3D Admin',
-    'staff job': '3d Admin',
+    'name': 'Importing',
+    'staff job': 'Importer',
     'number fields': {
       'suffix': 'Initial quantity',
       'name': [
-        'Phase',
         'Weight',
+        'Phase',
       ],
     },
     'string fields': ['Note'],
   },
   {
-    'name': 'Designing',
+    'name': 'Modelling',
     'staff job': 'Designers',
     'number fields': {
       'suffix': 'Planned quantity',
@@ -55,12 +55,13 @@ List<Map<String, dynamic>> stageDetailsList = [
     'string fields': ['Note'],
   },
   {
-    'name': 'Draftering',
+    'name': 'Drafting',
     'staff job': 'Drafters',
     'isThereFiles': true,
     'number fields': {
       'suffix': 'Actual quantity',
       'name': [
+        'Weight',
         'GAS',
         'SFD',
         'DTL',
@@ -72,41 +73,9 @@ List<Map<String, dynamic>> stageDetailsList = [
     'name': 'Checking',
     'get files': 'Get whitecopies',
     'staff job': 'Checkers',
-    'isThereFiles': true,
-    'number fields': [],
-    'string fields': ['Note'],
-  },
-  {
-    'name': 'Back Drafting',
-    'get files': 'Get checkprints',
-    'staff job': 'Back Drafters',
-    'isThereFiles': true,
-    'number fields': [],
-    'string fields': ['Note'],
-  },
-  {
-    'name': 'Back Checking',
-    'get files': 'Get checkprints',
-    'staff job': 'Back Checkers',
-    'isThereFiles': true,
-    'number fields': [],
-    'string fields': ['Note'],
-  },
-  {
-    'name': 'Reviewing',
-    'get files': 'Get checkprints',
-    'staff job': 'Reviewers',
-    'isThereFiles': true,
-    'number fields': [],
-    'string fields': ['Note'],
-  },
-  {
-    'name': 'Filing',
-    'staff job': 'Filers',
     'number fields': {
-      'suffix': 'Actual quantity',
+      'suffix': 'Attached',
       'name': [
-        'Weight',
         'GAS',
         'SFD',
         'DTL',
@@ -116,10 +85,73 @@ List<Map<String, dynamic>> stageDetailsList = [
     'string fields': ['Note'],
   },
   {
+    'name': 'Back Drafting',
+    'get files': 'Get checkprints',
+    'staff job': 'Back Drafters',
+    'number fields': {
+      'suffix': '',
+      'name': [],
+    },
+    'isThereFiles': true,
+    'string fields': ['Note'],
+  },
+  {
+    'name': 'Back Checking',
+    'get files': 'Get checkprints',
+    'staff job': 'Back Checkers',
+    'number fields': {
+      'suffix': '',
+      'name': [],
+    },
+    'isThereFiles': true,
+    'string fields': ['Note'],
+  },
+  {
+    'name': 'Reviewing',
+    'get files': 'Get checkprints',
+    'staff job': 'Reviewer',
+    'number fields': {
+      'suffix': '',
+      'name': [],
+    },
+    'isThereFiles': true,
+    'string fields': ['Note'],
+  },
+  {
+    'name': 'Filing',
+    'staff job': 'Filing resp. person',
+    'number fields': {
+      'suffix': '',
+      'name': [],
+    },
+    'files': {
+      'columns': ['File', 'Mark', 'Quantity'],
+      'rowsIds': [
+        'General Arrangement Drawing - .dwg',
+        'General Arrangement Drawing - .pdf',
+        'Assembly Drawings - .dwg',
+        'Assembly Drawings - .pdf',
+        'Single Part Drawings - .dwg',
+        'Single Part Drawings - .pdf',
+        'Weld Report - .csv',
+        'MTO Report - .csv',
+        'Drawing List - .csv',
+        'Weld Index - .pdf',
+        '3D file export - .dwg',
+        '3D file export - .ifc',
+      ]
+    },
+    'isThereFiles': true,
+    'string fields': ['Note'],
+  },
+  {
     'name': 'Nesting Box',
     'get files': 'Original Files',
-    'staff job': 'Nesting Draftsmen',
-    'number fields': [],
+    'staff job': 'Nesting Draftsman',
+    'number fields': {
+      'suffix': '',
+      'name': ['Lot number'],
+    },
     'string fields': ['Note'],
   },
 ];

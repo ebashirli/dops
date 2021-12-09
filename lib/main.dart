@@ -1,15 +1,15 @@
 import 'dart:ui';
 import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/drawing/drawing_repository.dart';
-import 'package:dops/modules/dropdown_source/dropdown_sources_controller.dart';
 import 'package:dops/modules/home/home_controller.dart';
-import 'package:dops/core/auth_manager.dart';
+import 'package:dops/modules/list/lists_controller.dart';
+import 'package:dops/modules/list/lists_repository.dart';
 import 'package:dops/modules/stages/stages_repository.dart';
 import 'package:dops/modules/task/task_controller.dart';
 
+import 'core/auth_manager.dart';
 import 'modules/activity/activity_controller.dart';
 import 'modules/activity/activity_repository.dart';
-import 'modules/dropdown_source/dropdown_sources_repository.dart';
 import 'modules/reference_document/reference_document_controller.dart';
 import 'modules/reference_document/reference_document_repository.dart';
 import 'modules/staff/staff_controller.dart';
@@ -106,11 +106,11 @@ Future<void> initServices() async {
 
   await Get.putAsync<DrawingRepository>(() async => await DrawingRepository());
 
-  await Get.putAsync<DropwdownSourcesRepository>(() async => await DropwdownSourcesRepository());
+  await Get.putAsync<ListsRepository>(() async => await ListsRepository());
 
   await Get.putAsync<HomeController>(() async => await HomeController());
 
-  await Get.putAsync<DropdownSourcesController>(() async => await DropdownSourcesController());
+  await Get.putAsync<ListsController>(() async => await ListsController());
 
   await Get.putAsync<ActivityController>(() async => await ActivityController());
 

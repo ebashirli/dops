@@ -11,10 +11,12 @@ class CustomTextFormField extends StatelessWidget {
   final TextInputType? keyboardType;
   final Icon? icon;
   final bool isNumber;
+  final bool obscureText;
   final int? maxLines;
   final FocusNode? focusNode;
-  final  Function(String?)? onSubmitted;
+  final Function(String?)? onSubmitted;
   final TextInputAction? textInputAction;
+  final Iterable<String>? autofillHints;
   const CustomTextFormField({
     Key? key,
     this.controller,
@@ -30,6 +32,7 @@ class CustomTextFormField extends StatelessWidget {
     this.focusNode,
     this.onSubmitted,
     this.textInputAction,
+    this.obscureText = false, this.autofillHints,
   }) : super(key: key);
 
   @override
@@ -42,11 +45,15 @@ class CustomTextFormField extends StatelessWidget {
           Container(
             child: isNumber
                 ? TextFormField(
+                    obscureText: obscureText,
+                    autofillHints: autofillHints,
                     autovalidateMode: AutovalidateMode.always,
                     focusNode: focusNode,
                     controller: controller,
+                    
                     textInputAction: textInputAction,
                     keyboardType: TextInputType.number,
+                    onFieldSubmitted: onSubmitted,
                     inputFormatters: <TextInputFormatter>[
                       FilteringTextInputFormatter.allow(
                         RegExp(r'[0-9]'),
@@ -62,9 +69,11 @@ class CustomTextFormField extends StatelessWidget {
                     ),
                   )
                 : TextFormField(
+                    autofillHints: autofillHints,
+                    obscureText: obscureText,
                     autovalidateMode: AutovalidateMode.always,
-                    // onFieldSubmitted: onSubmitted,
-                    onSaved: onSubmitted,
+                    onFieldSubmitted: onSubmitted,
+                    // onSaved: onSubmitted,
                     focusNode: focusNode,
                     keyboardType: TextInputType.multiline,
                     initialValue: initialValue,

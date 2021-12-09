@@ -1,32 +1,43 @@
-import 'dart:async';
-
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/home/home_view.dart';
 import 'package:dops/modules/login/login_view.dart';
-import 'package:dops/routes/app_pages.dart';
+import 'package:dops/modules/staff/staff_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
-
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: auth.userChanges(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+      builder: (context, AsyncSnapshot<User?> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting && !authManager.isLoading.value) {
           return _waiting();
         } else {
           if (snapshot.hasError) {
             return errorView(snapshot);
           } else if (snapshot.data != null) {
-            return HomeView();
+            return FutureBuilder(
+              future: authManager.initializeStaffModel(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return HomeView();
+                } else if (snapshot.hasError) {
+                  return errorView(snapshot);
+                }
+                return _waiting();
+              },
+            );
           }
         }
         return LoginView();

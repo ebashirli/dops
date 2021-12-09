@@ -15,15 +15,13 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () {
-        return Scaffold(
-          drawer: _buildDrawer(),
-          appBar: _buildAppBar(),
-          body: _buildBody(),
-        );
-      },
-    );
+    return Obx(() {
+      return Scaffold(
+        drawer: _buildDrawer(),
+        appBar: _buildAppBar(),
+        body: _buildBody(),
+      );
+    });
   }
 
   Widget _buildBody() {
@@ -94,15 +92,15 @@ class HomeView extends GetView<HomeController> {
             },
           ),
           SizedBox(height: 10),
-          if (authManager.userModel.value!.systemDesignation != UserRole.User)
-            TextButton.icon(
-              icon: Icon(Icons.golf_course),
-              label: const Text('Reference Documents'),
-              onPressed: () {
-                controller.homeStates = HomeStates.ReferenceDocumentState;
-                Get.back();
-              },
-            ),
+          // if (authManager.staffModel!.value.systemDesignation != UserRole.User)
+          TextButton.icon(
+            icon: Icon(Icons.golf_course),
+            label: const Text('Reference Documents'),
+            onPressed: () {
+              controller.homeStates = HomeStates.ReferenceDocumentState;
+              Get.back();
+            },
+          ),
           SizedBox(height: 10),
           TextButton.icon(
             icon: Icon(Icons.local_activity),
@@ -122,15 +120,15 @@ class HomeView extends GetView<HomeController> {
             },
           ),
           SizedBox(height: 10),
-          if (authManager.userModel.value!.systemDesignation == UserRole.Admin)
-            TextButton.icon(
-              icon: Icon(Icons.people),
-              label: const Text('Staff'),
-              onPressed: () {
-                controller.homeStates = HomeStates.StaffState;
-                Get.back();
-              },
-            ),
+          // if (authManager.staffModel!.value.systemDesignation == UserRole.Admin)
+          TextButton.icon(
+            icon: Icon(Icons.people),
+            label: const Text('Staff'),
+            onPressed: () {
+              controller.homeStates = HomeStates.StaffState;
+              Get.back();
+            },
+          ),
           SizedBox(height: 10),
           TextButton.icon(
             icon: Icon(Icons.task),

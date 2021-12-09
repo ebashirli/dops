@@ -4,8 +4,11 @@ import 'package:dops/modules/drawing/drawing_repository.dart';
 import 'package:dops/modules/home/home_controller.dart';
 import 'package:dops/modules/list/lists_controller.dart';
 import 'package:dops/modules/list/lists_repository.dart';
-import 'package:dops/modules/stages/stages_repository.dart';
+import 'package:dops/modules/stages/stage_controller.dart';
+import 'package:dops/modules/stages/stage_repository.dart';
 import 'package:dops/modules/task/task_controller.dart';
+import 'package:dops/modules/values/value_controller.dart';
+import 'package:dops/modules/values/values_repository.dart';
 
 import 'core/auth_manager.dart';
 import 'modules/activity/activity_controller.dart';
@@ -79,24 +82,45 @@ class MyCustomScrollBehavior extends MaterialScrollBehavior {
 
 @override
 Future<void> initServices() async {
-  await Get.putAsync<StorageService>(() async => await FirebaseStorageService('activities'), tag: 'activities');
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('activities'),
+      tag: 'activities');
 
-  await Get.putAsync<StorageService>(() async => await FirebaseStorageService('reference_documents'),
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('reference_documents'),
       tag: 'reference_documents');
 
-  await Get.putAsync<StorageService>(() async => await FirebaseStorageService('staff'), tag: 'staff');
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('staff'),
+      tag: 'staff');
 
-  await Get.putAsync<StorageService>(() async => await FirebaseStorageService('tasks'), tag: 'tasks');
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('tasks'),
+      tag: 'tasks');
 
-  await Get.putAsync<StorageService>(() async => await FirebaseStorageService('drawings'), tag: 'drawings');
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('drawings'),
+      tag: 'drawings');
 
-  await Get.putAsync<StorageService>(() async => await FirebaseStorageService('lists'), tag: 'lists');
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('lists'),
+      tag: 'lists');
 
-  await Get.putAsync<StorageService>(() async => await FirebaseStorageService('stages'), tag: 'stages');
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('stages'),
+      tag: 'stages');
 
-  await Get.putAsync<ActivityRepository>(() async => await ActivityRepository());
+  await Get.putAsync<StorageService>(
+      () async => await FirebaseStorageService('values'),
+      tag: 'values');
 
-  await Get.putAsync<ReferenceDocumentRepository>(() async => await ReferenceDocumentRepository());
+  // Get.putAsync repositories
+
+  await Get.putAsync<ActivityRepository>(
+      () async => await ActivityRepository());
+
+  await Get.putAsync<ReferenceDocumentRepository>(
+      () async => await ReferenceDocumentRepository());
 
   await Get.putAsync<StaffRepository>(() async => await StaffRepository());
 
@@ -108,17 +132,27 @@ Future<void> initServices() async {
 
   await Get.putAsync<ListsRepository>(() async => await ListsRepository());
 
+  await Get.putAsync<ValueRepository>(() async => await ValueRepository());
+
+  // Get.putAsync controllers
+
   await Get.putAsync<HomeController>(() async => await HomeController());
 
   await Get.putAsync<ListsController>(() async => await ListsController());
 
-  await Get.putAsync<ActivityController>(() async => await ActivityController());
+  await Get.putAsync<ActivityController>(
+      () async => await ActivityController());
 
-  await Get.putAsync<ReferenceDocumentController>(() async => await ReferenceDocumentController());
+  await Get.putAsync<ReferenceDocumentController>(
+      () async => await ReferenceDocumentController());
 
   await Get.putAsync<StaffController>(() async => await StaffController());
 
   await Get.putAsync<TaskController>(() async => await TaskController());
 
   await Get.putAsync<DrawingController>(() async => await DrawingController());
+
+  await Get.putAsync<StageController>(() async => await StageController());
+
+  await Get.putAsync<ValueController>(() async => await ValueController());
 }

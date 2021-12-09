@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dops/modules/values/values_model.dart';
+import 'package:dops/modules/values/value_model.dart';
 import 'package:dops/services/firebase_service/firebase_storage_service.dart';
 import 'package:get/get.dart';
 
-class ValuesRepository {
+class ValueRepository {
   final _api = Get.find<StorageService>(tag: 'values');
   late List<ValueModel> values = [];
 

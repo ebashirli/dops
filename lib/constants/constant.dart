@@ -4,9 +4,9 @@ import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/list/lists_controller.dart';
 import 'package:dops/modules/reference_document/reference_document_controller.dart';
 import 'package:dops/modules/staff/staff_controller.dart';
-import 'package:dops/modules/stages/stages_controller.dart';
+import 'package:dops/modules/stages/stage_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
-import 'package:dops/modules/values/values_controller.dart';
+import 'package:dops/modules/values/value_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 AuthManager authManager = AuthManager.instance;

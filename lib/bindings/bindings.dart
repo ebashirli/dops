@@ -1,6 +1,6 @@
 import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/list/lists_controller.dart';
-import 'package:dops/modules/values/values_controller.dart';
+import 'package:dops/modules/values/value_controller.dart';
 
 import '../modules/activity/activity_controller.dart';
 import 'package:dops/modules/staff/staff_controller.dart';
@@ -9,7 +9,7 @@ import 'package:get/get.dart';
 
 import '../../modules/reference_document/reference_document_controller.dart';
 import '../../modules/home/home_controller.dart';
-import '../../modules/stages/stages_controller.dart';
+import '../modules/stages/stage_controller.dart';
 
 class HomeBinding extends Bindings {
   @override

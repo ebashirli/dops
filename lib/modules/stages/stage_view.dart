@@ -3,12 +3,7 @@ import 'package:expendable_fab/expendable_fab.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class StagesView extends StatefulWidget {
-  @override
-  State<StagesView> createState() => _StagesViewState();
-}
-
-class _StagesViewState extends State<StagesView> {
+class StageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

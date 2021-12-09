@@ -2,7 +2,7 @@ import 'package:dops/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../bindings/bindings.dart';
-import '../modules/stages/stages_view.dart';
+import '../modules/stages/stage_view.dart';
 import '../unknown_route_page.dart';
 
 part 'app_routes.dart';
@@ -29,7 +29,7 @@ class AppPages {
     // ),
     GetPage(
       name: _Paths.STAGES,
-      page: () => StagesView(),
+      page: () => StageView(),
       // middlewares: [AuthMiddlware()],
       binding: HomeBinding(),
     ),

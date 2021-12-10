@@ -28,22 +28,32 @@ class StageView extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(200, 20, 200, 20),
-        child: Column(
-          children: [
-            stageController.buildEditForm(),
-            SizedBox(height: 10),
-            Expanded(
-              child: ListView(
-                controller: ScrollController(),
-                children: [
-                  Obx(() {
-                    return stageController.buildPanel();
-                  }),
-                ],
-              ),
-            ),
-          ],
-        ),
+        child: StreamBuilder<Object>(
+            stream: taskController.documents.stream,
+            builder: (context, snapshot) {
+              if (snapshot.hasData || taskController.documents.isNotEmpty) {
+                return Column(
+                  children: [
+                    stageController.buildEditForm(),
+                    SizedBox(height: 10),
+                    Expanded(
+                      child: ListView(
+                        controller: ScrollController(),
+                        children: [
+                          Obx(() {
+                            return stageController.buildPanel();
+                          }),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              } else {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            }),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
+import 'package:dops/modules/stages/stage_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../constants/style.dart';
@@ -16,7 +17,7 @@ class TaskController extends GetxController {
   late List<String> designDrawingsList;
 
   RxList<TaskModel> _documents = RxList<TaskModel>([]);
-  List<TaskModel?> get documents => _documents;
+  RxList<TaskModel?> get documents => _documents;
 
   @override
   void onInit() {
@@ -28,12 +29,13 @@ class TaskController extends GetxController {
     _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
 
-  addNewTask({required TaskModel model}) async {
+  Future<String> addNew({required TaskModel model}) async {
     CustomFullScreenDialog.showDialog();
     model.taskCreateDate = DateTime.now();
-    await _repository.addModel(model);
+    await _repository.add(model).then((value) => model.id = value);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
+    return model.id!;
   }
 
   updateTaskFields({
@@ -84,7 +86,7 @@ class TaskController extends GetxController {
           .where((drawing) => drawing.id == parentId)
           .toList()[0];
 
-      final TaskModel? selectedTask = (!documents.isEmpty && id != null)
+      final TaskModel? selectedTask = (documents.isNotEmpty && id != null)
           ? documents.where((task) => task!.id == id).toList()[0]
           : null;
 
@@ -120,7 +122,7 @@ class TaskController extends GetxController {
                               children: <Widget>[
                                 Text(
                                   //  TODO: ask Ismayil
-                                  'Current Revision: ${selectedDrawing.drawingNumber}-${selectedTask != null ? selectedTask.revisionNumber : ''}',
+                                  'Current Revision: ${selectedDrawing.drawingNumber}${selectedTask != null ? '-' + selectedTask.revisionNumber : ''}',
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -187,7 +189,11 @@ class TaskController extends GetxController {
                                               drawingController
                                                   .documents.length) +
                                           1;
-                              addNewTask(model: newTaskModel);
+                              addNew(model: newTaskModel).then((taskId) {
+                                StageModel stage = StageModel(taskId: taskId);
+
+                                stageController.addNew(model: stage);
+                              });
                             },
                             child: Text('Add next revision'),
                           ),
@@ -215,11 +221,11 @@ class TaskController extends GetxController {
           note: '',
         );
 
-        if (!documents.isEmpty) {
+        if (documents.isNotEmpty) {
           List<TaskModel?> drawingTasks =
               documents.where((task) => task!.parentId == drawing.id).toList();
 
-          if (!drawingTasks.isEmpty) {
+          if (drawingTasks.isNotEmpty) {
             drawingTasks
                 .sort((a, b) => b!.revisionCount.compareTo(a!.revisionCount));
 

@@ -8,8 +8,7 @@ import 'lists_repository.dart';
 import 'package:get/get.dart';
 
 class ListsController extends GetxController {
-  ListsRepository _repository =
-      Get.find<ListsRepository>();
+  ListsRepository _repository = Get.find<ListsRepository>();
   static ListsController instance = Get.find();
   late Rx<ListsModel> document;
   Rx<States> state = States.Loading.obs;
@@ -86,7 +85,10 @@ class ListsController extends GetxController {
                       .asMap()
                       .entries
                       .map(
-                        (element) => chipContainer(element.value, element.key),
+                        (element) => chipContainer(
+                          element.value,
+                          element.key,
+                        ),
                       )
                       .toList(),
                 );
@@ -162,4 +164,5 @@ class ListsController extends GetxController {
       ),
     );
   }
+
 }

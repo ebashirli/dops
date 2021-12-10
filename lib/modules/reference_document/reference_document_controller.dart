@@ -305,12 +305,12 @@ class ReferenceDocumentController extends GetxController {
     return documents.map((refDoc) {
       String assignedTasks = '';
 
-      if (!taskController.documents.isEmpty) {
+      if (taskController.documents.isNotEmpty) {
         taskController.documents.forEach((task) {
           List<DrawingModel> drawing = drawingController.documents
               .where((drawing) => drawing.id == task!.parentId)
               .toList();
-          if (!drawing.isEmpty) {
+          if (drawing.isNotEmpty) {
             final String drawingNumber = drawing[0].drawingNumber;
 
             if (task!.designDrawings.contains(refDoc.documentNumber))

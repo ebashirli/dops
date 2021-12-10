@@ -49,7 +49,7 @@ class TaskRepository {
     await _api.updateDocument(map, id);
   }
 
-  addModel(TaskModel data) async {
-    await _api.addDocument(data.toMap());
+  Future<String> add(TaskModel data) async {
+    return await _api.addDocument(data.toMap()).then((value) => value.id);
   }
 }

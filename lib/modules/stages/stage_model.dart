@@ -5,16 +5,16 @@ class StageModel {
   int checkerCommentCounter;
   int reviewerCommentCounter;
   bool isHidden;
-  DateTime creationDateTime;
+  DateTime? creationDateTime = DateTime.now();
 
   StageModel({
     this.id,
     required this.taskId,
-    required this.index,
-    required this.checkerCommentCounter,
-    required this.reviewerCommentCounter,
+    this.index = 0,
+    this.checkerCommentCounter = 0,
+    this.reviewerCommentCounter = 0,
     this.isHidden = false,
-    required this.creationDateTime,
+    this.creationDateTime,
   });
 
   Map<String, dynamic> toMap() {

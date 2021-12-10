@@ -10,7 +10,8 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static final UNKNOWN = GetPage(name: Routes.HOME, page: () => UnknownRoutePage());
+  static final UNKNOWN =
+      GetPage(name: Routes.HOME, page: () => UnknownRoutePage());
   static const INITIAL = Routes.HOME;
   static const LOGIN = Routes.LOGIN;
   static const SPLASH = Routes.SPLASH;

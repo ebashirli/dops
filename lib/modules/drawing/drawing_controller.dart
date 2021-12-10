@@ -56,7 +56,7 @@ class DrawingController extends GetxController {
     if (!isValid) {
       return;
     }
-    
+
     CustomFullScreenDialog.showDialog();
     model.drawingCreateDate = DateTime.now();
     await _repository.addModel(model);
@@ -84,11 +84,11 @@ class DrawingController extends GetxController {
   }
 
   void deleteDrawing(String id) {
-    if (!taskController.documents.isEmpty) {
+    if (taskController.documents.isNotEmpty) {
       final List<TaskModel?> tasks = taskController.documents
           .where((task) => task!.parentId == id)
           .toList();
-      if (!tasks.isEmpty) {
+      if (tasks.isNotEmpty) {
         tasks.forEach((task) {
           taskController.deleteTask(task!.id!);
         });

@@ -376,9 +376,27 @@ class StageController extends GetxController {
     taskStages
         .sort((a, b) => a.creationDateTime!.compareTo(b.creationDateTime!));
 
+    final RxInt maxIndex = taskStages.map((e) => e.index).reduce(max).obs;
+
     final StageModel lastTaskStage = taskStages.last;
 
-    // filling(taskStages: taskStages, maxIndex: maxIndex.value);
+    List<ValueModel> lastTaskStageValues = valueController.documents
+        .where((valueModel) => valueModel.stageId == lastTaskStage.id)
+        .toList();
+
+    bool isAssign = lastTaskStageValues.isEmpty;
+
+    bool isCoordinator = staffController.documents
+            .singleWhere((staff) => staff.id == auth.currentUser!.uid)
+            .systemDesignation ==
+        'Coordinator';
+
+    bool isAssignedUser = lastTaskStageValues
+        .map((e) => e.employeeId)
+        .contains(auth.currentUser!.uid);
+    ;
+
+    filling(taskStages: taskStages, maxIndex: maxIndex.value);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 200),
@@ -416,6 +434,7 @@ class StageController extends GetxController {
                                     width: 350,
                                     child: [0, 6, 7, 8].contains(index)
                                         ? DropdownSearch<StaffModel>(
+                                            enabled: isCoordinator,
                                             selectedItem: selectedEmployeeIdsList[
                                                         index]
                                                     .isNotEmpty
@@ -448,6 +467,7 @@ class StageController extends GetxController {
                                           )
                                         : DropdownSearch<
                                             StaffModel>.multiSelection(
+                                            enabled: isCoordinator,
                                             selectedItems: staffController
                                                 .documents
                                                 .where((element) =>
@@ -485,15 +505,21 @@ class StageController extends GetxController {
                               ),
                               SizedBox(width: 10),
                               ElevatedButton(
-                                onPressed: index != lastTaskStage.index
+                                onPressed: (index != lastTaskStage.index ||
+                                        !isCoordinator)
                                     ? null
-                                    : () => _onAssignPressed(
-                                        index, lastTaskStage.id),
+                                    : () => _onAssignOrUpdatePressed(
+                                        index,
+                                        lastTaskStage.id!,
+                                        isAssign,
+                                        lastTaskStageValues
+                                            .map((valueModel) => valueModel.id)
+                                            .toSet()),
                                 child: Container(
                                   height: 48,
                                   child: Center(
                                     child: Text(
-                                      (false) ? 'Update' : 'Assign',
+                                      (isAssign) ? 'Assign' : 'Update',
                                     ),
                                   ),
                                 ),
@@ -541,21 +567,24 @@ class StageController extends GetxController {
                                             ? CrossAxisAlignment.center
                                             : CrossAxisAlignment.start,
                                     children: <Widget>[
-                                      Text(
-                                        stageDetailsList[index]['number fields']
-                                            ['suffix'],
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
+                                      Center(
+                                        child: Text(
+                                          'Submitted ' +
+                                              stageDetailsList[index]
+                                                  ['number fields']['suffix'],
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                       SizedBox(height: 10),
-                                      if ([2, 3, 4].contains(index))
+                                      if (index < 5)
                                         Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: <Widget>[
-                                            Text('Attached'),
-                                            Text('Submitted total'),
+                                            Text('By me'),
+                                            Text('Total'),
                                           ],
                                         ),
                                       SizedBox(height: 10),
@@ -786,10 +815,12 @@ class StageController extends GetxController {
                                             'No Comment'
                                           ]),
                                     ElevatedButton(
-                                      onPressed: index != lastTaskStage.index
-                                          ? null
-                                          : () => _onSubmitPressed(
-                                              index, lastTaskStage),
+                                      onPressed:
+                                          (index != lastTaskStage.index ||
+                                                  !isAssignedUser)
+                                              ? null
+                                              : () => _onSubmitPressed(
+                                                  index, lastTaskStage),
                                       child: Container(
                                         height: 46,
                                         child:
@@ -815,17 +846,35 @@ class StageController extends GetxController {
     );
   }
 
-  void _onAssignPressed(index, stageId) async {
+  void _onAssignOrUpdatePressed(
+      int index, String stageId, bool isAssign, Set employeeIdsSet) async {
     final List<String> selectedEmployeeIds = selectedEmployeeIdsList[index];
-    selectedEmployeeIds.forEach((employeeId) async {
-      ValueModel value = await ValueModel(
-        stageId: stageId,
-        employeeId: employeeId,
-        assignedBy: auth.currentUser!.uid,
-        assignedDateTime: DateTime.now(),
-      );
-      valueController.addNew(model: value);
-    });
+    ValueModel value = await ValueModel(
+      stageId: stageId,
+      employeeId: '',
+      assignedBy: auth.currentUser!.uid,
+      assignedDateTime: DateTime.now(),
+    );
+    if (isAssign) {
+      selectedEmployeeIds.forEach((employeeId) async {
+        value.employeeId = employeeId;
+      });
+    } else {
+      selectedEmployeeIds
+          .toSet()
+          .difference(employeeIdsSet)
+          .forEach((employeeId) async => value.employeeId = employeeId);
+      employeeIdsSet
+          .difference(selectedEmployeeIds.toSet())
+          .forEach((employeeId) async {
+        final String valueId = valueController.documents
+            .singleWhere((valueModel) => (valueModel.stageId == stageId &&
+                valueModel.employeeId == employeeId))
+            .id!;
+        valueController.addValues(map: {'isHidden': true}, id: valueId);
+      });
+    }
+    valueController.addNew(model: value);
   }
 
   void _onSubmitPressed(index, lastTaskStage) {

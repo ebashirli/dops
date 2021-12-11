@@ -13,14 +13,17 @@ class AuthManager extends GetxService with CacheManager {
   UserCredential? userCredential;
   Future<UserCredential?> register(String email, password) async {
     try {
-      return await auth.createUserWithEmailAndPassword(email: email, password: password);
+      return await auth.createUserWithEmailAndPassword(
+          email: email, password: password);
     } catch (firebaseAuthException) {}
   }
 
   Future<void> login(String email, password) async {
     isLoading.value = true;
     try {
-      if (staffController.documents.where((element) => element.email == email).isNotEmpty)
+      if (staffController.documents
+          .where((element) => element.email == email)
+          .isNotEmpty)
         await auth.signInWithEmailAndPassword(email: email, password: password);
       initializeStaffModel();
     } catch (firebaseAuthException) {}
@@ -28,7 +31,8 @@ class AuthManager extends GetxService with CacheManager {
   }
 
   Future<void> initializeStaffModel() async {
-    staffModel.value = staffController.documents.singleWhere((element) => element.id == auth.currentUser!.uid);
+    staffModel.value = staffController.documents
+        .singleWhere((element) => element.id == auth.currentUser!.uid);
   }
 
   void signOut() async {

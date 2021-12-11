@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 class CustomTextFormField extends StatelessWidget {
   final TextEditingController? controller;
-  final String labelText;
+  final String? labelText;
   final double? width;
   final String? Function(String?)? validator;
   final String? initialValue;
@@ -20,7 +20,7 @@ class CustomTextFormField extends StatelessWidget {
   const CustomTextFormField({
     Key? key,
     this.controller,
-    required this.labelText,
+    this.labelText,
     this.width,
     this.validator,
     this.initialValue,
@@ -32,7 +32,8 @@ class CustomTextFormField extends StatelessWidget {
     this.focusNode,
     this.onSubmitted,
     this.textInputAction,
-    this.obscureText = false, this.autofillHints,
+    this.obscureText = false,
+    this.autofillHints,
   }) : super(key: key);
 
   @override
@@ -50,7 +51,6 @@ class CustomTextFormField extends StatelessWidget {
                     autovalidateMode: AutovalidateMode.always,
                     focusNode: focusNode,
                     controller: controller,
-                    
                     textInputAction: textInputAction,
                     keyboardType: TextInputType.number,
                     onFieldSubmitted: onSubmitted,

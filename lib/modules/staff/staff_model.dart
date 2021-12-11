@@ -84,11 +84,14 @@ class StaffModel {
       jobTitle: map['jobTitle'],
       email: map['email'],
       company: map['company'],
-      dateOfBirth: map['dateOfBirth'] != null ? map['dateOfBirth'].toDate() : null,
+      dateOfBirth:
+          map['dateOfBirth'] != null ? map['dateOfBirth'].toDate() : null,
       homeAddress: map['homeAddress'],
       startDate: map['startDate'] != null ? map['startDate'].toDate() : null,
       currentPlace: map['currentPlace'],
-      contractFinishDate: map['contractFinishDate'] != null ? map['contractFinishDate'].toDate() : null,
+      contractFinishDate: map['contractFinishDate'] != null
+          ? map['contractFinishDate'].toDate()
+          : null,
       contact: map['contact'],
       emergencyContact: map['emergencyContact'],
       emergencyContactName: map['emergencyContactName'],

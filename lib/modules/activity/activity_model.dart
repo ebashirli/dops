@@ -1,3 +1,5 @@
+import 'package:dops/models/deleted_model.dart';
+
 class ActivityModel {
   String? id;
   String? activityId;
@@ -11,6 +13,8 @@ class ActivityModel {
   double? cumulative;
   bool isHidden;
 
+  DeletedModel? deletedModel;
+
   ActivityModel({
     this.id,
     this.activityId,
@@ -23,6 +27,7 @@ class ActivityModel {
     this.finishDate,
     this.cumulative = 0,
     this.isHidden = false,
+    this.deletedModel,
   });
 
   Map<String, dynamic> toMap() {

@@ -20,7 +20,8 @@ class _SplashScreenState extends State<SplashScreen> {
     return StreamBuilder(
       stream: auth.userChanges(),
       builder: (context, AsyncSnapshot<User?> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting && !authManager.isLoading.value) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            !authManager.isLoading.value) {
           return _waiting();
         } else {
           if (snapshot.hasError) {

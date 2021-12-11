@@ -12,13 +12,15 @@ class LoginView extends GetView<AuthManager> with CacheManager {
   final focusNode = FocusNode();
   @override
   Widget build(BuildContext context) {
-    emailController.text = getEmail()??'';
-    passwordController.text = getPassword()??'';
+    emailController.text = getEmail() ?? '';
+    passwordController.text = getPassword() ?? '';
     return Scaffold(
       body: Center(
         child: Container(
             padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(8)),
             width: Get.width * 0.4,
             height: Get.height * .5,
             child: AutofillGroup(
@@ -29,7 +31,8 @@ class LoginView extends GetView<AuthManager> with CacheManager {
                     children: <Widget>[
                       const Text(
                         'Login Page',
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.w600),
                       ),
                       SizedBox(
                         height: 30,

@@ -32,7 +32,7 @@ List<Map<String, dynamic>> stageDetailsList = [
     'name': 'Importing',
     'staff job': 'Importer',
     'number fields': {
-      'suffix': 'Initial quantity',
+      'suffix': 'Initial Quantities',
       'name': [
         'Weight',
         'Phase',
@@ -44,7 +44,7 @@ List<Map<String, dynamic>> stageDetailsList = [
     'name': 'Modelling',
     'staff job': 'Designers',
     'number fields': {
-      'suffix': 'Planned quantity',
+      'suffix': 'Planned Quantities',
       'name': [
         'Weight',
         'GAS',
@@ -59,7 +59,7 @@ List<Map<String, dynamic>> stageDetailsList = [
     'staff job': 'Drafters',
     'isThereFiles': true,
     'number fields': {
-      'suffix': 'Actual quantity',
+      'suffix': 'Actual Quantities',
       'name': [
         'Weight',
         'GAS',
@@ -74,7 +74,7 @@ List<Map<String, dynamic>> stageDetailsList = [
     'get files': 'Get whitecopies',
     'staff job': 'Checkers',
     'number fields': {
-      'suffix': 'Attached',
+      'suffix': 'Attached Quantities',
       'name': [
         'GAS',
         'SFD',

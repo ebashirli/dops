@@ -65,6 +65,15 @@ class HomeView extends GetView<HomeController> {
           },
           icon: Icon(Icons.add),
         ),
+        Center(
+          child: staffController.documents.isNotEmpty
+              ? Text(
+                  staffController.documents
+                      .singleWhere((staff) => staff.id == auth.currentUser!.uid)
+                      .initial,
+                )
+              : CircularProgressIndicator(),
+        ),
         IconButton(
           onPressed: () {
             authManager.signOut();

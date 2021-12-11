@@ -46,6 +46,10 @@ class StageController extends GetxController {
 
   late List<String> commentStatus;
 
+  late Rx<String?> currentUserId = Rxn();
+
+  late bool isCoordinator;
+
   final Rx<bool> isChecked = false.obs;
 
   RxList<StageModel> _documents = RxList<StageModel>([]);
@@ -67,6 +71,13 @@ class StageController extends GetxController {
       ..levelText = ''
       ..functionalAreaText = ''
       ..structureTypeText = '';
+
+    currentUserId.value = auth.currentUser!.uid;
+
+    isCoordinator = staffController.documents
+            .singleWhere((staff) => staff.id == auth.currentUser!.uid)
+            .systemDesignation ==
+        'Coordinator';
 
     selectedEmployeeIdsList = List<List<String>>.generate(
       9,
@@ -278,43 +289,46 @@ class StageController extends GetxController {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
-                    ElevatedButton(
-                      onPressed: () {
-                        DrawingModel revisedOrNewModel = DrawingModel(
-                          activityCodeId: drawingController.activityCodeIdText,
-                          drawingNumber:
-                              drawingController.drawingNumberController.text,
-                          drawingTitle:
-                              drawingController.drawingTitleController.text,
-                          level: drawingController.levelText,
-                          module: drawingController.moduleNameText,
-                          structureType: drawingController.structureTypeText,
-                          note: drawingController.drawingNoteController.text,
-                          area: drawingController.areaList,
-                          functionalArea: drawingController.functionalAreaText,
-                        );
+                    if (isCoordinator)
+                      ElevatedButton(
+                        onPressed: () {
+                          DrawingModel revisedOrNewModel = DrawingModel(
+                            activityCodeId:
+                                drawingController.activityCodeIdText,
+                            drawingNumber:
+                                drawingController.drawingNumberController.text,
+                            drawingTitle:
+                                drawingController.drawingTitleController.text,
+                            level: drawingController.levelText,
+                            module: drawingController.moduleNameText,
+                            structureType: drawingController.structureTypeText,
+                            note: drawingController.drawingNoteController.text,
+                            area: drawingController.areaList,
+                            functionalArea:
+                                drawingController.functionalAreaText,
+                          );
 
-                        Map<String, dynamic> updatedTaskFields = {
-                          'revisionNumber': drawingController
-                              .nextRevisionNumberController.text,
-                          'designDrawings':
-                              drawingController.designDrawingsList,
-                          'note': drawingController.taskNoteController.text,
-                        };
+                          Map<String, dynamic> updatedTaskFields = {
+                            'revisionNumber': drawingController
+                                .nextRevisionNumberController.text,
+                            'designDrawings':
+                                drawingController.designDrawingsList,
+                            'note': drawingController.taskNoteController.text,
+                          };
 
-                        drawingController.updateDrawing(
-                          updatedModel: revisedOrNewModel,
-                          id: drawingModel.id!,
-                        );
+                          drawingController.updateDrawing(
+                            updatedModel: revisedOrNewModel,
+                            id: drawingModel.id!,
+                          );
 
-                        taskController.updateTaskFields(
-                          map: updatedTaskFields,
-                          id: taskModel.id!,
-                        );
-                        // TODO: Ask Ismail: update last revision details from here?
-                      },
-                      child: Text('Update'),
-                    ),
+                          taskController.updateTaskFields(
+                            map: updatedTaskFields,
+                            id: taskModel.id!,
+                          );
+                          // TODO: Ask Ismail: update last revision details from here?
+                        },
+                        child: Text('Update'),
+                      ),
                   ],
                 )
               ],
@@ -376,25 +390,8 @@ class StageController extends GetxController {
     taskStages
         .sort((a, b) => a.creationDateTime!.compareTo(b.creationDateTime!));
 
-    final RxInt maxIndex = taskStages.map((e) => e.index).reduce(max).obs;
-
-    final StageModel lastTaskStage = taskStages.last;
-
-    List<ValueModel> lastTaskStageValues = valueController.documents
-        .where((valueModel) => valueModel.stageId == lastTaskStage.id)
-        .toList();
-
-    bool isAssign = lastTaskStageValues.isEmpty;
-
-    bool isCoordinator = staffController.documents
-            .singleWhere((staff) => staff.id == auth.currentUser!.uid)
-            .systemDesignation ==
-        'Coordinator';
-
-    bool isAssignedUser = lastTaskStageValues
-        .map((e) => e.employeeId)
-        .contains(auth.currentUser!.uid);
-    ;
+    final RxInt maxIndex =
+        taskStages.map((stageModel) => stageModel.index).reduce(max).obs;
 
     filling(taskStages: taskStages, maxIndex: maxIndex.value);
 
@@ -405,8 +402,43 @@ class StageController extends GetxController {
           isExpandedList[index] = !isExpanded;
         },
         children: List.generate(
-          9,
+          maxIndex.value + 1,
           (index) {
+            List<StageModel?> stageStageModels = taskStages
+                .where((stageModel) => stageModel.index == index)
+                .toList();
+
+            // TODO: add isStageSkipped field to StageModel
+
+            final bool isStageSkipped = false;
+
+            bool coordinatorAssigns = valueController.documents.isEmpty
+                ? true
+                : valueController.documents
+                    .where((valueModel) =>
+                        valueModel.stageId == stageStageModels.last!.id)
+                    .isEmpty;
+
+            List<List<ValueModel>> stageValueModelsLists = stageStageModels
+                .map((stageModel) => valueController.documents
+                    .where((valueModel) => valueModel.stageId == stageModel!.id)
+                    .toList())
+                .toList();
+
+            bool isCurrentUserAssigned = coordinatorAssigns
+                ? false
+                : stageValueModelsLists.last
+                    .map((valueModel) => valueModel.employeeId)
+                    .contains(currentUserId);
+
+            bool isSubmitted = isCurrentUserAssigned
+                ? stageValueModelsLists.last
+                        .singleWhere(
+                            (valueModel) => valueModel.id == currentUserId)
+                        .endDateTime !=
+                    null
+                : false;
+
             return ExpansionPanel(
               canTapOnHeader: true,
               headerBuilder: (BuildContext context, bool isExpanded) {
@@ -504,26 +536,30 @@ class StageController extends GetxController {
                                 ],
                               ),
                               SizedBox(width: 10),
-                              ElevatedButton(
-                                onPressed: (index != lastTaskStage.index ||
-                                        !isCoordinator)
-                                    ? null
-                                    : () => _onAssignOrUpdatePressed(
-                                        index,
-                                        lastTaskStage.id!,
-                                        isAssign,
-                                        lastTaskStageValues
-                                            .map((valueModel) => valueModel.id)
-                                            .toSet()),
-                                child: Container(
-                                  height: 48,
-                                  child: Center(
-                                    child: Text(
-                                      (isAssign) ? 'Assign' : 'Update',
+                              if (isCoordinator)
+                                ElevatedButton(
+                                  onPressed: (index !=
+                                          stageStageModels.last!.index)
+                                      ? null
+                                      : () => _onAssignOrUpdatePressed(
+                                          index,
+                                          stageStageModels.last!.id!,
+                                          coordinatorAssigns,
+                                          stageValueModelsLists.last
+                                              .map(
+                                                  (valueModel) => valueModel.id)
+                                              .toSet()),
+                                  child: Container(
+                                    height: 48,
+                                    child: Center(
+                                      child: Text(
+                                        (coordinatorAssigns)
+                                            ? 'Assign'
+                                            : 'Update',
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
                               SizedBox(width: 100),
                               Text(
                                 firstAssignDateTimeList[index] != null
@@ -562,10 +598,9 @@ class StageController extends GetxController {
                                         ['name']
                                     .isNotEmpty)
                                   Column(
-                                    crossAxisAlignment:
-                                        [2, 3, 4].contains(index)
-                                            ? CrossAxisAlignment.center
-                                            : CrossAxisAlignment.start,
+                                    crossAxisAlignment: index < 5
+                                        ? CrossAxisAlignment.center
+                                        : CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Center(
                                         child: Text(
@@ -583,8 +618,10 @@ class StageController extends GetxController {
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: <Widget>[
-                                            Text('By me'),
-                                            Text('Total'),
+                                            Center(child: Text('Field')),
+                                            if (isCurrentUserAssigned)
+                                              Center(child: Text('By me')),
+                                            Center(child: Text('Total')),
                                           ],
                                         ),
                                       SizedBox(height: 10),
@@ -597,19 +634,18 @@ class StageController extends GetxController {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              CustomTextFormField(
-                                                isNumber: true,
-                                                controller:
-                                                    controllersListForNumberFields[
-                                                        index][indexF],
-                                                labelText:
-                                                    stageDetailsList[index]
-                                                            ['number fields']
-                                                        ['name'][indexF],
-                                                width: 80,
-                                              ),
-                                              if ([2, 3, 4].contains(index))
-                                                Text('535'),
+                                              Text(stageDetailsList[index]
+                                                      ['number fields']['name']
+                                                  [indexF]),
+                                              if (isCurrentUserAssigned)
+                                                CustomTextFormField(
+                                                  isNumber: true,
+                                                  controller:
+                                                      controllersListForNumberFields[
+                                                          index][indexF],
+                                                  width: 80,
+                                                ),
+                                              if (index < 5) Text('535'),
                                             ],
                                           );
                                         },
@@ -787,13 +823,14 @@ class StageController extends GetxController {
                                       },
                                     ),
                                   ),
-                                CustomTextFormField(
-                                  controller: controllersListForNote[index],
-                                  labelText: stageDetailsList[index]
-                                      ['string fields'][0],
-                                  width: double.infinity,
-                                  maxLines: 2,
-                                ),
+                                if (isCurrentUserAssigned)
+                                  CustomTextFormField(
+                                    controller: controllersListForNote[index],
+                                    labelText: stageDetailsList[index]
+                                        ['string fields'][0],
+                                    width: double.infinity,
+                                    maxLines: 2,
+                                  ),
                                 SizedBox(width: 10),
                                 Row(
                                   mainAxisAlignment: [5, 6].contains(index)
@@ -814,19 +851,22 @@ class StageController extends GetxController {
                                             'With Comment',
                                             'No Comment'
                                           ]),
-                                    ElevatedButton(
-                                      onPressed:
-                                          (index != lastTaskStage.index ||
-                                                  !isAssignedUser)
-                                              ? null
-                                              : () => _onSubmitPressed(
-                                                  index, lastTaskStage),
-                                      child: Container(
-                                        height: 46,
-                                        child:
-                                            Center(child: const Text('Submit')),
+                                    if (isCurrentUserAssigned && !isSubmitted)
+                                      ElevatedButton(
+                                        onPressed: (index ==
+                                                stageStageModels.last!.index)
+                                            ? () => _onSubmitPressed(
+                                                index, stageStageModels.last!)
+                                            : null,
+                                        child: Container(
+                                          height: 46,
+                                          child: Center(
+                                            child: const Text(
+                                              'Submit',
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
                                   ],
                                 ),
                               ],
@@ -852,7 +892,7 @@ class StageController extends GetxController {
     ValueModel value = await ValueModel(
       stageId: stageId,
       employeeId: '',
-      assignedBy: auth.currentUser!.uid,
+      assignedBy: currentUserId.value!,
       assignedDateTime: DateTime.now(),
     );
     if (isAssign) {
@@ -877,10 +917,10 @@ class StageController extends GetxController {
     valueController.addNew(model: value);
   }
 
-  void _onSubmitPressed(index, lastTaskStage) {
+  void _onSubmitPressed(index, StageModel lastTaskStage) {
     ValueModel valueModel = valueController.documents.firstWhere((valueModel) =>
         valueModel.stageId == lastTaskStage.id &&
-        valueModel.employeeId == auth.currentUser!.uid);
+        valueModel.employeeId == currentUserId);
 
     Map<String, dynamic> map = {};
 
@@ -891,14 +931,20 @@ class StageController extends GetxController {
               .toLowerCase()] =
           int.parse(controllersListForNumberFields[index][indF].text);
     }
-
     map['note'] = controllersListForNote[index].text;
-
     map['endDateTime'] = DateTime.now();
-
     valueController.addValues(
       map: map,
       id: valueModel.id!,
     );
+
+    // if(valueModel.employeeId != null)
+    // StageModel stage = StageModel(
+    //   taskId: taskId,
+    //   index: index + 1,
+    //   reviewerCommentCounter: isCommented ? lastTaskStage.reviewerCommentCounter + 1 : 0,
+    //   checkerCommentCounter: isCommented ? lastTaskStage.checkerCommentCounter + 1 : 0,
+    // );
+    // addNew(model: stage);
   }
 }

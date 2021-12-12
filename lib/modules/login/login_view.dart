@@ -2,7 +2,6 @@ import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/core/auth_manager.dart';
 import 'package:dops/core/cache_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 class LoginView extends GetView<AuthManager> with CacheManager {

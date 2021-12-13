@@ -32,11 +32,12 @@ class StageController extends GetxController {
     growable: false,
   );
 
-  late final List<List<String>> assignedEmployeeIdsList;
+  late final List<List<String>> assigningEmployeeIdsList;
 
   late final List<DateTime?> firstAssignDateTimeList;
 
-  late final List<Map<String, TextEditingController>> controllersListForNumberFields;
+  late final List<Map<String?, TextEditingController?>>
+      controllersListForNumberFields;
 
   // late final List<Map<String, int>> valueSumList;
 
@@ -55,6 +56,9 @@ class StageController extends GetxController {
   RxList<StageModel> _documents = RxList<StageModel>([]);
   List<StageModel> get documents => _documents;
 
+  List<String?> numberFieldNames(int index) =>
+      stageDetailsList[index]['number fields']['name'];
+
   @override
   void onInit() {
     super.onInit();
@@ -71,9 +75,8 @@ class StageController extends GetxController {
       ..levelText = ''
       ..functionalAreaText = ''
       ..structureTypeText = '';
-    
 
-    assignedEmployeeIdsList = List<List<String>>.generate(
+    assigningEmployeeIdsList = List<List<String>>.generate(
       9,
       (int index) => <String>[],
       growable: false,
@@ -85,31 +88,18 @@ class StageController extends GetxController {
       growable: false,
     );
 
-    controllersListForNumberFields = List.generate(
-      9, 
-      (index) {
-        Map<String, TextEditingController> map = {};
-        stageDetailsList[index]['number fields']['name'].forEach(
-          (String? fieldName){
-            if(fieldName!=null) map[fieldName]=TextEditingController();
-          });
-        return map;
-      });
+    controllersListForNumberFields =
+        List<Map<String?, TextEditingController?>>.generate(9, (index) {
+      Map<String?, TextEditingController?> map =
+          <String?, TextEditingController?>{};
 
-    stageDetailsList
-        .map((stage) => List.generate(stage['number fields']['name'].length,
-            (index) => TextEditingController()))
-        .toList();
-    
-    // valueSumList = List.generate(
-    //   9,
-    //   (index) {
-    //     Map<String, int> map = {};
-    //     stageDetailsList[index]['number fields']['name'].forEach((String? fieldName) {
-    //       if(fieldName != null) map[fieldName] = 0;
-    //     });
-    //     return map;
-    // });
+      if (numberFieldNames(index).isNotEmpty) {
+        numberFieldNames(index).forEach((String? fieldName) {
+          map[fieldName!.toLowerCase()] = TextEditingController();
+        });
+      }
+      return map;
+    });
 
     controllersListForNote =
         List.generate(9, (index) => TextEditingController());
@@ -153,7 +143,7 @@ class StageController extends GetxController {
         drawingModel: drawingModel,
         taskModel: taskModel,
       );
-      return Padding( 
+      return Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
           key: drawingController.drawingFormKey,
@@ -360,61 +350,17 @@ class StageController extends GetxController {
     }
   }
 
-  void filling(
-      {required List<StageModel> taskStages, required int maxIndex}) async {
-
-    for (int index = 0; index <= maxIndex; index++) {
-
-      StageModel taskStage =
-          taskStages.lastWhere((stage) => stage.index == index);
-
-
-      List<ValueModel> valueModels = await valueController.documents
-          .where((valueModel) => valueModel.stageId == taskStage.id)
-          .toList();
-
-      assignedEmployeeIdsList[index] =
-          valueModels.map((valueModel) => valueModel.employeeId).toList();
-
-      firstAssignDateTimeList[index] = taskStage.creationDateTime;
-
-      final numberFieldsLength =
-          stageDetailsList[index]['number fields']['name'].length;
-    
-      // for (int indF = 0; indF < numberFieldsLength; indF++) {
-      //   final int? fieldValueSum = valueModels
-      //       .map((valueModel) => valueModel.toMap()[stageDetailsList[index]
-      //               ['number fields']['name'][indF]
-      //           .toLowerCase()])
-      //       .toList()
-      //       .reduce((a, b) => (a ?? 0) + (b ?? 0));
-      //   controllersListForNumberFields[index][indF].text =
-      //       '${fieldValueSum ?? ""}';
-      // }
-
-      stageNotesList[index] = valueModels
-          .map((valueModel) => [valueModel.employeeId, valueModel.note])
-          .toList();
-
-      // controllersListForNote[index].text = valueModels
-      //     .map((valueModel) =>
-      //         valueModel.note != null ? '${valueModel.note}' : '')
-      //     .toList()
-      //     .reduce((a, b) => a + '\n' + b);
-    }
-  }
-
   buildPanel() {
     List<StageModel> taskStages = documents
         .where((stage) => stage.taskId == Get.parameters['id'])
         .toList();
 
-    taskStages
-        .sort((a, b) => a.creationDateTime!.compareTo(b.creationDateTime!));
+    taskStages.sort((a, b) => a.creationDateTime.compareTo(b.creationDateTime));
 
     final RxInt maxIndex =
         taskStages.map((stageModel) => stageModel.index).reduce(max).obs;
-    // filling(taskStages: taskStages, maxIndex: maxIndex.value);
+
+    isExpandedList[taskStages.last.index] = true;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 200),
@@ -425,54 +371,88 @@ class StageController extends GetxController {
         children: List.generate(
           maxIndex.value + 1,
           (index) {
-            List<StageModel?> stageStageModels = taskStages
+            List<StageModel> stageStageModels = taskStages
                 .where((stageModel) => stageModel.index == index)
                 .toList();
 
+            stageStageModels.sort(
+                (a, b) => a.creationDateTime.compareTo(b.creationDateTime));
+
             // TODO: add isStageSkipped field to StageModel
 
-            final bool isStageSkipped = false;
+            // final bool isStageSkipped = false;
 
+            bool coordinatorAssigns = true;
+            bool isCurrentUserAssigned = false;
+            bool isSubmitted = false;
+            int unsubmittedCount = 0;
 
-            bool coordinatorAssigns = valueController.documents.isEmpty
-                ? true
-                : valueController.documents
-                    .where((valueModel) =>
-                        valueModel.stageId == stageStageModels.last!.id)
-                    .isEmpty;
+            Map<String?, int?> totalValues = numberFieldNames(index).isNotEmpty
+                ? Map<String, int>.fromIterable(
+                    numberFieldNames(index),
+                    key: (element) => element.toLowerCase(),
+                    value: (element) => 0,
+                  )
+                : {};
 
-            List<List<ValueModel>> stageValueModelsLists = stageStageModels
-                .map((stageModel) => valueController.documents
-                    .where((valueModel) => valueModel.stageId == stageModel!.id)
-                    .toList())
-                .toList();
+            List<Map<String?, String?>?> notesList = [];
 
+            List<List<ValueModel?>?> stageValueModelsLists = [];
 
-            stageValueModelsLists[index].forEach((valueModel) { 
-              assignedEmployeeIdsList[index].add(staffController.documents.singleWhere((staffModel) => staffModel.id == valueModel.employeeId).id!);
-              
-              if(valueModel.employeeId == auth.currentUser!.uid) stageDetailsList[index]['number fields']['name'].forEach((String? fieldName){
-                if(fieldName!=null) controllersListForNumberFields[index][fieldName] = valueModel.toMap()[fieldName.toLowerCase()];
-              });
-              
-            });
+            if (valueController.documents.isNotEmpty &&
+                valueController.documents
+                    .where((vm) => vm!.isHidden == false)
+                    .isNotEmpty) {
+              stageValueModelsLists = stageStageModels
+                  .map((stageModel) => valueController.documents
+                      .where((valueModel) =>
+                          valueModel!.isHidden == false &&
+                          valueModel.stageId == stageModel.id!)
+                      .toList())
+                  .toList();
 
-            bool isCurrentUserAssigned = coordinatorAssigns
-                ? false
-                : stageValueModelsLists.last
-                    .map((valueModel) => valueModel.employeeId)
-                    .contains(auth.currentUser!.uid);
+              unsubmittedCount = stageValueModelsLists.last!.length;
 
-            bool isSubmitted = isCurrentUserAssigned
-                ? stageValueModelsLists.last
-                        .singleWhere(
-                            (valueModel) => valueModel.employeeId == auth.currentUser!.uid)
-                        .endDateTime !=
-                    null
-                : false;
-            
+              if (stageValueModelsLists.last!.isNotEmpty) {
+                coordinatorAssigns = false;
+
+                stageValueModelsLists.last!.forEach((valueModel) {
+                  assigningEmployeeIdsList[index].add(staffController.documents
+                      .singleWhere((staffModel) =>
+                          staffModel.id == valueModel!.employeeId)
+                      .id!);
+
+                  if (valueModel!.employeeId == auth.currentUser!.uid &&
+                      valueModel.isHidden != true) {
+                    isCurrentUserAssigned = true;
+                    if (valueModel.endDateTime != null) {
+                      isSubmitted = true;
+                    }
+                  }
+
+                  if (valueModel.endDateTime != null) {
+                    notesList.add({
+                      'employeeId': valueModel.employeeId,
+                      'note': valueModel.note
+                    });
+
+                    totalValues.forEach((key, value) {
+                      if (valueModel.employeeId == auth.currentUser!.uid) {
+                        controllersListForNumberFields[index][key] =
+                            valueModel.toMap()[key];
+                      }
+                      totalValues[key] =
+                          totalValues[key]! + (valueModel.toMap()[key]) as int;
+                    });
+                    unsubmittedCount--;
+                  }
+                });
+              }
+            }
+
             return ExpansionPanel(
               canTapOnHeader: true,
+              isExpanded: isExpandedList[index],
               headerBuilder: (BuildContext context, bool isExpanded) {
                 return ListTile(
                   title: Text(
@@ -499,13 +479,13 @@ class StageController extends GetxController {
                                     child: [0, 6, 7, 8].contains(index)
                                         ? DropdownSearch<StaffModel>(
                                             enabled: isCoordinator.value,
-                                            selectedItem: assignedEmployeeIdsList[
+                                            selectedItem: assigningEmployeeIdsList[
                                                         index]
                                                     .isNotEmpty
                                                 ? staffController.documents
                                                     .firstWhere((staffModel) =>
                                                         staffModel.id ==
-                                                        assignedEmployeeIdsList[
+                                                        assigningEmployeeIdsList[
                                                             index][0])
                                                 : null,
                                             items: staffController.documents,
@@ -524,9 +504,8 @@ class StageController extends GetxController {
                                             ),
                                             showSearchBox: true,
                                             onChanged: (employee) {
-                                              assignedEmployeeIdsList[index] = [
-                                                employee!.id!
-                                              ];
+                                              assigningEmployeeIdsList[index] =
+                                                  [employee!.id!];
                                             },
                                           )
                                         : DropdownSearch<
@@ -535,7 +514,7 @@ class StageController extends GetxController {
                                             selectedItems: staffController
                                                 .documents
                                                 .where((element) =>
-                                                    assignedEmployeeIdsList[
+                                                    assigningEmployeeIdsList[
                                                             index]
                                                         .contains(element.id))
                                                 .toList(),
@@ -556,7 +535,7 @@ class StageController extends GetxController {
                                             ),
                                             showSearchBox: true,
                                             onChanged: (employees) {
-                                              assignedEmployeeIdsList[index] =
+                                              assigningEmployeeIdsList[index] =
                                                   employees
                                                       .map((employee) =>
                                                           employee.id!)
@@ -570,17 +549,21 @@ class StageController extends GetxController {
                               SizedBox(width: 10),
                               if (isCoordinator.value)
                                 ElevatedButton(
-                                  onPressed: (index !=
-                                          stageStageModels.last!.index)
-                                      ? null
-                                      : () => _onAssignOrUpdatePressed(
-                                          index,
-                                          stageStageModels.last!.id!,
-                                          coordinatorAssigns,
-                                          stageValueModelsLists.last
-                                              .map(
-                                                  (valueModel) => valueModel.id)
-                                              .toSet()),
+                                  onPressed: () {
+                                    _onAssignOrUpdatePressed(
+                                      index: index,
+                                      lastStageId: stageStageModels.last.id!,
+                                      assigningEmployeeIds:
+                                          assigningEmployeeIdsList[index]
+                                              .toSet(),
+                                      assignedEmployeeIds: coordinatorAssigns
+                                          ? null
+                                          : stageValueModelsLists.last!
+                                              .map((valueModel) =>
+                                                  valueModel!.employeeId)
+                                              .toSet(),
+                                    );
+                                  },
                                   child: Container(
                                     height: 48,
                                     child: Center(
@@ -626,9 +609,7 @@ class StageController extends GetxController {
                             child: Column(
                               children: <Widget>[
                                 // number fields
-                                if (stageDetailsList[index]['number fields']
-                                        ['name']
-                                    .isNotEmpty)
+                                if (numberFieldNames(index).isNotEmpty)
                                   Column(
                                     crossAxisAlignment: index < 5
                                         ? CrossAxisAlignment.center
@@ -657,33 +638,33 @@ class StageController extends GetxController {
                                           ],
                                         ),
                                       SizedBox(height: 10),
-                                      ...List.generate(
-                                        stageDetailsList[index]['number fields']
-                                                ['name']
-                                            .length,
-                                        (indexF) {
-                                          return Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(stageDetailsList[index]
-                                                      ['number fields']['name']
-                                                  [indexF]),
-                                              if (isCurrentUserAssigned)
-                                                CustomTextFormField(
-                                                  isNumber: true,
-                                                  controller:
-                                                      controllersListForNumberFields[
-                                                          index][indexF],
-                                                  width: 80,
-                                                ),
-                                              if (index < 5) Text(
-                                                stageValueModelsLists[index].map((valueModel) => valueModel.toMap()[stageDetailsList[index]['number fields']['name'][indexF].toLowerCase()]).reduce((p, c) => p+c).toString()
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      ),
+                                      ...numberFieldNames(index)
+                                          .map((numFieldName) => Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(numFieldName!),
+                                                  if (isCurrentUserAssigned)
+                                                    CustomTextFormField(
+                                                      isNumber: true,
+                                                      controller:
+                                                          controllersListForNumberFields[
+                                                                  index]
+                                                              [numFieldName],
+                                                      width: 80,
+                                                    ),
+                                                  if (index < 5)
+                                                    Text(totalValues[
+                                                                numFieldName] !=
+                                                            null
+                                                        ? totalValues[
+                                                                numFieldName]
+                                                            .toString()
+                                                        : '0'),
+                                                ],
+                                              ))
+                                          .toList(),
                                       SizedBox(height: 10),
                                     ],
                                   ),
@@ -748,57 +729,57 @@ class StageController extends GetxController {
                                       ...stageDetailsList[index]['files']
                                               ['rowsIds']
                                           .map(
-                                        (ri) {
-                                          return DataRow(
-                                            cells: <DataCell>[
-                                              DataCell(
-                                                Container(
-                                                  alignment:
-                                                      Alignment.centerRight,
-                                                  width: 250,
-                                                  child: Text(ri),
+                                            (ri) => DataRow(
+                                              cells: <DataCell>[
+                                                DataCell(
+                                                  Container(
+                                                    alignment:
+                                                        Alignment.centerRight,
+                                                    width: 250,
+                                                    child: Text(ri),
+                                                  ),
                                                 ),
-                                              ),
-                                              DataCell(
-                                                ElevatedButton(
-                                                  onPressed: () async {
-                                                    FilePickerResult? result =
-                                                        await FilePicker
-                                                            .platform
-                                                            .pickFiles(
-                                                      allowMultiple: true,
-                                                    );
-                                                    if (result != null) {
-                                                      filesList[index] = result
-                                                          .files
-                                                          .map((file) =>
-                                                              file.name)
-                                                          .toList();
-                                                    }
-                                                  },
-                                                  child: Container(
-                                                    height: 30,
-                                                    width: 50,
-                                                    child: Center(
-                                                      child: Text('Files'),
+                                                DataCell(
+                                                  ElevatedButton(
+                                                    onPressed: () async {
+                                                      FilePickerResult? result =
+                                                          await FilePicker
+                                                              .platform
+                                                              .pickFiles(
+                                                        allowMultiple: true,
+                                                      );
+                                                      if (result != null) {
+                                                        filesList[index] =
+                                                            result.files
+                                                                .map((file) =>
+                                                                    file.name)
+                                                                .toList();
+                                                      }
+                                                    },
+                                                    child: Container(
+                                                      height: 30,
+                                                      width: 50,
+                                                      child: Center(
+                                                        child: Text('Files'),
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                              DataCell(TextButton(
-                                                onPressed: () {},
-                                                child: Text(
-                                                  '${Random().nextInt(60)}',
-                                                  style: TextStyle(
-                                                      decoration: TextDecoration
-                                                          .underline,
-                                                      color: Colors.blue),
-                                                ),
-                                              )),
-                                            ],
-                                          );
-                                        },
-                                      ).toList(),
+                                                DataCell(TextButton(
+                                                  onPressed: () {},
+                                                  child: Text(
+                                                    '${Random().nextInt(60)}',
+                                                    style: TextStyle(
+                                                        decoration:
+                                                            TextDecoration
+                                                                .underline,
+                                                        color: Colors.blue),
+                                                  ),
+                                                )),
+                                              ],
+                                            ),
+                                          )
+                                          .toList(),
                                     ],
                                   )
                               ],
@@ -812,6 +793,17 @@ class StageController extends GetxController {
                               mainAxisAlignment: MainAxisAlignment.end,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
+                                if (notesList.isNotEmpty)
+                                  Column(
+                                    children: notesList
+                                        .map((map) => Row(
+                                              children: <Widget>[
+                                                Text(map!['employeeId']!),
+                                                Text(map['note']!),
+                                              ],
+                                            ))
+                                        .toList(),
+                                  ),
                                 if (index == 7)
                                   Column(
                                     children: [
@@ -888,9 +880,25 @@ class StageController extends GetxController {
                                     if (isCurrentUserAssigned && !isSubmitted)
                                       ElevatedButton(
                                         onPressed: (index ==
-                                                stageStageModels.last!.index)
+                                                stageStageModels.last.index)
                                             ? () => _onSubmitPressed(
-                                                index, stageStageModels.last!)
+                                                  index: index,
+                                                  assignedValueModel:
+                                                      stageValueModelsLists
+                                                          .last!
+                                                          .singleWhere((valueModel) =>
+                                                              valueModel!
+                                                                  .employeeId ==
+                                                              auth.currentUser!
+                                                                  .uid)!,
+                                                  lastTaskStage:
+                                                      stageStageModels.last,
+                                                  isCommented: commentStatus[
+                                                          index - 5] ==
+                                                      'With Comment',
+                                                  isLastSubmit:
+                                                      unsubmittedCount == 1,
+                                                )
                                             : null,
                                         child: Container(
                                           height: 46,
@@ -912,7 +920,6 @@ class StageController extends GetxController {
                   ],
                 ),
               ),
-              isExpanded: isExpandedList[index],
             );
           },
         ),
@@ -920,65 +927,84 @@ class StageController extends GetxController {
     );
   }
 
-  void _onAssignOrUpdatePressed(
-      int index, String stageId, bool isAssign, Set employeeIdsSet) async {
-    final List<String> selectedEmployeeIds = assignedEmployeeIdsList[index];
-    ValueModel value = await ValueModel(
-      stageId: stageId,
+  void _onAssignOrUpdatePressed({
+    required int index,
+    required String lastStageId,
+    required Set assigningEmployeeIds,
+    Set? assignedEmployeeIds,
+  }) async {
+    ValueModel vm = await ValueModel(
+      stageId: lastStageId,
       employeeId: '',
       assignedBy: auth.currentUser!.uid,
       assignedDateTime: DateTime.now(),
     );
-    if (isAssign) {
-      selectedEmployeeIds.forEach((employeeId) async {
-        value.employeeId = employeeId;
+
+    print(assignedEmployeeIds.toString());
+
+    if (assignedEmployeeIds == null) {
+      // asigning
+      assigningEmployeeIds.forEach((employeeId) async {
+        vm.employeeId = employeeId;
+        valueController.addNew(model: vm);
       });
     } else {
-      selectedEmployeeIds
-          .toSet()
-          .difference(employeeIdsSet)
-          .forEach((employeeId) async => value.employeeId = employeeId);
-      employeeIdsSet
-          .difference(selectedEmployeeIds.toSet())
+      // updating
+      assigningEmployeeIds
+          .difference(assignedEmployeeIds)
+          .forEach((employeeId) async {
+        vm.employeeId = employeeId;
+        valueController.addNew(model: vm);
+      });
+      assignedEmployeeIds
+          .difference(assigningEmployeeIds)
           .forEach((employeeId) async {
         final String valueId = valueController.documents
-            .singleWhere((valueModel) => (valueModel.stageId == stageId &&
-                valueModel.employeeId == employeeId))
+            .singleWhere(
+              (valueModel) => (valueModel!.isHidden == false &&
+                  valueModel.stageId == lastStageId &&
+                  valueModel.employeeId == employeeId),
+            )!
             .id!;
         valueController.addValues(map: {'isHidden': true}, id: valueId);
       });
     }
-    valueController.addNew(model: value);
   }
 
-  void _onSubmitPressed(index, StageModel lastTaskStage) {
-    ValueModel valueModel = valueController.documents.firstWhere((valueModel) =>
-        valueModel.stageId == lastTaskStage.id &&
-        valueModel.employeeId == auth.currentUser!.uid);
-
+  void _onSubmitPressed({
+    required int index,
+    required ValueModel assignedValueModel,
+    required StageModel lastTaskStage,
+    required bool isLastSubmit,
+    bool isCommented = false,
+  }) {
     Map<String, dynamic> map = {};
 
-    // for (int indF = 0;
-    //     indF < stageDetailsList[index]['number fields']['name'].length;
-    //     indF++) {
-    //   map[stageDetailsList[index]['number fields']['name'][indF]
-    //           .toLowerCase()] =
-    //       int.parse(controllersListForNumberFields[index][indF].text);
-    // }
+    numberFieldNames(index).forEach((String? fieldName) {
+      map[fieldName!] = controllersListForNumberFields[index][fieldName]!.text;
+    });
+
     map['note'] = controllersListForNote[index].text;
     map['endDateTime'] = DateTime.now();
+
     valueController.addValues(
       map: map,
-      id: valueModel.id!,
+      id: assignedValueModel.id!,
     );
 
-    // if(valueModel.employeeId != null)
-    // StageModel stage = StageModel(
-    //   taskId: taskId,
-    //   index: index + 1,
-    //   reviewerCommentCounter: isCommented ? lastTaskStage.reviewerCommentCounter + 1 : 0,
-    //   checkerCommentCounter: isCommented ? lastTaskStage.checkerCommentCounter + 1 : 0,
-    // );
-    // addNew(model: stage);
+    if (isLastSubmit) {
+      StageModel stage = StageModel(
+        taskId: Get.parameters['id']!,
+        index: index + 1,
+        reviewerCommentCounter: (isCommented && index == 5)
+            ? lastTaskStage.reviewerCommentCounter + 1
+            : 0,
+        checkerCommentCounter: (isCommented && index == 6)
+            ? lastTaskStage.checkerCommentCounter + 1
+            : 0,
+        creationDateTime: DateTime.now(),
+      );
+      addNew(model: stage);
+    }
   }
 }

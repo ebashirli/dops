@@ -7,8 +7,8 @@ class ValueController extends GetxController {
   final _repository = Get.find<ValueRepository>();
   static ValueController instance = Get.find();
 
-  RxList<ValueModel> _documents = RxList<ValueModel>([]);
-  List<ValueModel> get documents => _documents;
+  RxList<ValueModel?> _documents = RxList<ValueModel?>([]);
+  List<ValueModel?> get documents => _documents;
 
   addNew({required ValueModel model}) async {
     CustomFullScreenDialog.showDialog();

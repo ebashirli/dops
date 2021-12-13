@@ -22,7 +22,8 @@ class AuthManager extends GetxService with CacheManager {
     isLoading.value = true;
     try {
       if (staffController.documents
-          .where((element) => element.email == email)
+          .where((staffModel) =>
+              staffModel.isHidden == false && staffModel.email == email)
           .isNotEmpty)
         await auth.signInWithEmailAndPassword(email: email, password: password);
       initializeStaffModel();
@@ -31,8 +32,8 @@ class AuthManager extends GetxService with CacheManager {
   }
 
   Future<void> initializeStaffModel() async {
-    staffModel.value = staffController.documents
-        .singleWhere((element) => element.id == auth.currentUser!.uid);
+    staffModel.value = staffController.documents.singleWhere((staffModel) =>
+        staffModel.isHidden == false && staffModel.id == auth.currentUser!.uid);
   }
 
   void signOut() async {

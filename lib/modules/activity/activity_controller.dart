@@ -290,7 +290,9 @@ class ActivityController extends GetxController {
       String assignedTasks = '';
 
       List<String?> drawingIdsWithtThisActivity = drawingController.documents
-          .where((drawing) => drawing.activityCodeId == activity.id)
+          .where((drawing) =>
+              drawing.isHidden == false &&
+              drawing.activityCodeId == activity.id)
           .toList()
           .map((drawing) => drawing.id)
           .toList();

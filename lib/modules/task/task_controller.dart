@@ -190,7 +190,10 @@ class TaskController extends GetxController {
                                                   .documents.length) +
                                           1;
                               addNew(model: newTaskModel).then((taskId) {
-                                StageModel stage = StageModel(taskId: taskId);
+                                StageModel stage = StageModel(
+                                  taskId: taskId,
+                                  creationDateTime: DateTime.now(),
+                                );
 
                                 stageController.addNew(model: stage);
                               });

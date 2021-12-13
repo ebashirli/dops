@@ -48,7 +48,7 @@ class StageView extends StatelessWidget {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(200, 20, 200, 20),
+        padding: const EdgeInsets.fromLTRB(100, 20, 100, 20),
         child: StreamBuilder<Object>(
             stream: taskController.documents.stream,
             builder: (context, snapshot) {
@@ -61,9 +61,7 @@ class StageView extends StatelessWidget {
                       child: ListView(
                         controller: ScrollController(),
                         children: [
-                          Obx(() {
-                            return stageController.buildPanel();
-                          }),
+                          Obx(() => stageController.buildPanel()),
                         ],
                       ),
                     ),

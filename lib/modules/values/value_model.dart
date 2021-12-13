@@ -1,7 +1,7 @@
 class ValueModel {
   String? id;
   String stageId;
-  String employeeId;
+  String? employeeId;
   String assignedBy;
   DateTime assignedDateTime;
   DateTime? startDateTime;

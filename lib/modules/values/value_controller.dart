@@ -18,7 +18,7 @@ class ValueController extends GetxController {
 
   addValues({required Map<String, dynamic> map, required String id}) async {
     CustomFullScreenDialog.showDialog();
-    await _repository.updateFields(map, id);
+    await _repository.addFields(map, id);
     CustomFullScreenDialog.cancelDialog();
   }
 

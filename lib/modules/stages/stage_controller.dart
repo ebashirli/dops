@@ -36,7 +36,7 @@ class StageController extends GetxController {
 
   late final List<DateTime?> firstAssignDateTimeList;
 
-  late final List<Map<String?, TextEditingController?>>
+  late final List<Map<String, TextEditingController>?>
       controllersListForNumberFields;
 
   // late final List<Map<String, int>> valueSumList;
@@ -89,9 +89,8 @@ class StageController extends GetxController {
     );
 
     controllersListForNumberFields =
-        List<Map<String?, TextEditingController?>>.generate(9, (index) {
-      Map<String?, TextEditingController?> map =
-          <String?, TextEditingController?>{};
+        List<Map<String, TextEditingController>?>.generate(9, (index) {
+      Map<String, TextEditingController> map = {};
 
       if (numberFieldNames(index).isNotEmpty) {
         numberFieldNames(index).forEach((String? fieldName) {
@@ -360,12 +359,11 @@ class StageController extends GetxController {
     final RxInt maxIndex =
         taskStages.map((stageModel) => stageModel.index).reduce(max).obs;
 
-    isExpandedList[taskStages.last.index] = true;
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 200),
       child: ExpansionPanelList(
         expansionCallback: (int index, bool isExpanded) {
+          if(index == taskStages.last.index ) 
           isExpandedList[index] = !isExpanded;
         },
         children: List.generate(
@@ -390,7 +388,7 @@ class StageController extends GetxController {
             Map<String?, int?> totalValues = numberFieldNames(index).isNotEmpty
                 ? Map<String, int>.fromIterable(
                     numberFieldNames(index),
-                    key: (element) => element.toLowerCase(),
+                    key: (fieldName) => fieldName.toLowerCase(),
                     value: (element) => 0,
                   )
                 : {};
@@ -438,12 +436,13 @@ class StageController extends GetxController {
 
                     totalValues.forEach((key, value) {
                       if (valueModel.employeeId == auth.currentUser!.uid) {
-                        controllersListForNumberFields[index][key] =
-                            valueModel.toMap()[key];
+                        controllersListForNumberFields[index]![key]!.text =
+                            valueModel.toMap()[key].toString();
                       }
                       totalValues[key] =
                           totalValues[key]! + (valueModel.toMap()[key]) as int;
                     });
+
                     unsubmittedCount--;
                   }
                 });
@@ -478,7 +477,8 @@ class StageController extends GetxController {
                                     width: 350,
                                     child: [0, 6, 7, 8].contains(index)
                                         ? DropdownSearch<StaffModel>(
-                                            enabled: isCoordinator.value,
+                                            enabled: isCoordinator.value &&
+                                                taskStages.last.index == index,
                                             selectedItem: assigningEmployeeIdsList[
                                                         index]
                                                     .isNotEmpty
@@ -510,7 +510,8 @@ class StageController extends GetxController {
                                           )
                                         : DropdownSearch<
                                             StaffModel>.multiSelection(
-                                            enabled: isCoordinator.value,
+                                            enabled: isCoordinator.value &&
+                                                taskStages.last.index == index,
                                             selectedItems: staffController
                                                 .documents
                                                 .where((element) =>
@@ -547,7 +548,8 @@ class StageController extends GetxController {
                                 ],
                               ),
                               SizedBox(width: 10),
-                              if (isCoordinator.value)
+                              if (isCoordinator.value &&
+                                  taskStages.last.index == index)
                                 ElevatedButton(
                                   onPressed: () {
                                     _onAssignOrUpdatePressed(
@@ -639,32 +641,33 @@ class StageController extends GetxController {
                                         ),
                                       SizedBox(height: 10),
                                       ...numberFieldNames(index)
-                                          .map((numFieldName) => Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Text(numFieldName!),
-                                                  if (isCurrentUserAssigned)
-                                                    CustomTextFormField(
-                                                      isNumber: true,
-                                                      controller:
-                                                          controllersListForNumberFields[
-                                                                  index]
-                                                              [numFieldName],
-                                                      width: 80,
-                                                    ),
-                                                  if (index < 5)
-                                                    Text(totalValues[
-                                                                numFieldName] !=
-                                                            null
-                                                        ? totalValues[
-                                                                numFieldName]
-                                                            .toString()
-                                                        : '0'),
-                                                ],
-                                              ))
-                                          .toList(),
+                                          .map((numFieldName) {
+                                        return Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(numFieldName!),
+                                            if (isCurrentUserAssigned)
+                                              CustomTextFormField(
+                                                isNumber: true,
+                                                controller:
+                                                    controllersListForNumberFields[
+                                                            index]![
+                                                        numFieldName
+                                                            .toLowerCase()],
+                                                width: 80,
+                                              ),
+                                            if (index < 5)
+                                              Text(totalValues[numFieldName
+                                                          .toLowerCase()] !=
+                                                      null
+                                                  ? totalValues[numFieldName
+                                                          .toLowerCase()]
+                                                      .toString()
+                                                  : '0'),
+                                          ],
+                                        );
+                                      }).toList(),
                                       SizedBox(height: 10),
                                     ],
                                   ),
@@ -795,14 +798,19 @@ class StageController extends GetxController {
                               children: [
                                 if (notesList.isNotEmpty)
                                   Column(
-                                    children: notesList
-                                        .map((map) => Row(
-                                              children: <Widget>[
-                                                Text(map!['employeeId']!),
-                                                Text(map['note']!),
-                                              ],
-                                            ))
-                                        .toList(),
+                                    children: notesList.map((map) {
+                                      String initial = staffController.documents
+                                          .singleWhere((staffModel) =>
+                                              map!['employeeId']! ==
+                                              staffModel.id!)
+                                          .initial;
+                                      return Row(
+                                        children: <Widget>[
+                                          Text(initial + ": "),
+                                          Text(map!['note']!),
+                                        ],
+                                      );
+                                    }).toList(),
                                   ),
                                 if (index == 7)
                                   Column(
@@ -828,28 +836,7 @@ class StageController extends GetxController {
                                       SizedBox(height: 10),
                                     ],
                                   ),
-                                if (stageNotesList[index].isNotEmpty)
-                                  Container(
-                                    width: double.infinity,
-                                    height: 3 * 50,
-                                    child: ListView.builder(
-                                      itemCount: stageNotesList[index].length,
-                                      itemBuilder: (context, ind) {
-                                        return ListTile(
-                                          leading: Text(stageNotesList[index]
-                                                  [ind][0] ??
-                                              ''),
-                                          trailing: Text(
-                                            stageNotesList[index][ind][1] ?? '',
-                                            style: TextStyle(
-                                                color: Colors.green,
-                                                fontSize: 15),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                if (isCurrentUserAssigned)
+                                if (isCurrentUserAssigned && !isSubmitted)
                                   CustomTextFormField(
                                     controller: controllersListForNote[index],
                                     labelText: stageDetailsList[index]
@@ -893,9 +880,12 @@ class StageController extends GetxController {
                                                                   .uid)!,
                                                   lastTaskStage:
                                                       stageStageModels.last,
-                                                  isCommented: commentStatus[
-                                                          index - 5] ==
-                                                      'With Comment',
+                                                  isCommented:
+                                                      [5, 6].contains(index)
+                                                          ? commentStatus[
+                                                                  index - 5] ==
+                                                              'With Comment'
+                                                          : false,
                                                   isLastSubmit:
                                                       unsubmittedCount == 1,
                                                 )
@@ -940,8 +930,6 @@ class StageController extends GetxController {
       assignedDateTime: DateTime.now(),
     );
 
-    print(assignedEmployeeIds.toString());
-
     if (assignedEmployeeIds == null) {
       // asigning
       assigningEmployeeIds.forEach((employeeId) async {
@@ -981,7 +969,11 @@ class StageController extends GetxController {
     Map<String, dynamic> map = {};
 
     numberFieldNames(index).forEach((String? fieldName) {
-      map[fieldName!] = controllersListForNumberFields[index][fieldName]!.text;
+      if (fieldName != null) {
+        map[fieldName.toLowerCase()] = int.parse(
+            controllersListForNumberFields[index]![fieldName.toLowerCase()]!
+                .text);
+      }
     });
 
     map['note'] = controllersListForNote[index].text;

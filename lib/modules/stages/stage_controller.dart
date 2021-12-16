@@ -363,8 +363,8 @@ class StageController extends GetxController {
       padding: const EdgeInsets.only(bottom: 200),
       child: ExpansionPanelList(
         expansionCallback: (int index, bool isExpanded) {
-          if(index == taskStages.last.index ) 
-          isExpandedList[index] = !isExpanded;
+          if (index == taskStages.last.index)
+            isExpandedList[index] = !isExpanded;
         },
         children: List.generate(
           maxIndex.value + 1,
@@ -851,9 +851,11 @@ class StageController extends GetxController {
                                       : MainAxisAlignment.end,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    if ([5, 6].contains(index))
+                                    if ([5, 6].contains(index) &&
+                                        isCurrentUserAssigned &&
+                                        !isSubmitted)
                                       CustomDropdownMenu(
-                                          width: 200,
+                                          width: 150,
                                           labelText: 'Comment',
                                           onChanged: (value) =>
                                               commentStatus[index - 5] = value,
@@ -866,9 +868,10 @@ class StageController extends GetxController {
                                           ]),
                                     if (isCurrentUserAssigned && !isSubmitted)
                                       ElevatedButton(
-                                        onPressed: (index ==
-                                                stageStageModels.last.index)
-                                            ? () => _onSubmitPressed(
+                                        onPressed: ([5, 6].contains(index) &&
+                                                commentStatus[index - 5] == "")
+                                            ? null
+                                            : () => _onSubmitPressed(
                                                   index: index,
                                                   assignedValueModel:
                                                       stageValueModelsLists
@@ -888,8 +891,7 @@ class StageController extends GetxController {
                                                           : false,
                                                   isLastSubmit:
                                                       unsubmittedCount == 1,
-                                                )
-                                            : null,
+                                                ),
                                         child: Container(
                                           height: 46,
                                           child: Center(

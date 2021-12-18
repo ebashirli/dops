@@ -1,4 +1,4 @@
-import 'package:dops/models/deleted_model.dart';
+import 'package:dops/models/change_info_model.dart';
 
 class ActivityModel {
   String? id;
@@ -13,7 +13,7 @@ class ActivityModel {
   double? cumulative;
   bool isHidden;
 
-  DeletedModel? deletedModel;
+  ChangeInfodModel? deletedModel;
 
   ActivityModel({
     this.id,

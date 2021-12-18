@@ -4,6 +4,8 @@ class ValueModel {
   String? employeeId;
   String assignedBy;
   DateTime assignedDateTime;
+  DateTime? unassignedBy;
+  DateTime? unassignedDateTime;
   DateTime? startDateTime;
   DateTime? endDateTime;
   int? phase;
@@ -22,6 +24,8 @@ class ValueModel {
     required this.employeeId,
     required this.assignedBy,
     required this.assignedDateTime,
+    this.unassignedBy,
+    this.unassignedDateTime,
     this.startDateTime,
     this.endDateTime,
     this.phase,

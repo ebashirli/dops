@@ -15,7 +15,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
 import '../../components/custom_widgets.dart';
 
-class StageController extends GetxController {
+class StageController extends GetxService {
   final _repository = Get.find<StageRepository>();
   static StageController instance = Get.find();
 
@@ -363,8 +363,8 @@ class StageController extends GetxController {
       padding: const EdgeInsets.only(bottom: 200),
       child: ExpansionPanelList(
         expansionCallback: (int index, bool isExpanded) {
-          if (index == taskStages.last.index)
-            isExpandedList[index] = !isExpanded;
+          // if (index == taskStages.last.index)
+          isExpandedList[index] = !isExpanded;
         },
         children: List.generate(
           maxIndex.value + 1,
@@ -601,314 +601,327 @@ class StageController extends GetxController {
                       ),
                     ),
                     Divider(),
-                    Form(
-                      key: formKeysList[index][1],
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                    if (!coordinatorAssigns)
+                      Column(
                         children: [
-                          Flexible(
-                            flex: index == 7 ? 6 : 2,
-                            child: Column(
-                              children: <Widget>[
-                                // number fields
-                                if (numberFieldNames(index).isNotEmpty)
-                                  Column(
-                                    crossAxisAlignment: index < 5
-                                        ? CrossAxisAlignment.center
-                                        : CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Center(
-                                        child: Text(
-                                          'Submitted ' +
-                                              stageDetailsList[index]
-                                                  ['number fields']['suffix'],
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(height: 10),
-                                      if (index < 5)
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: <Widget>[
-                                            Center(child: Text('Field')),
-                                            if (isCurrentUserAssigned)
-                                              Center(child: Text('By me')),
-                                            Center(child: Text('Total')),
-                                          ],
-                                        ),
-                                      SizedBox(height: 10),
-                                      ...numberFieldNames(index)
-                                          .map((numFieldName) {
-                                        return Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(numFieldName!),
-                                            if (isCurrentUserAssigned)
-                                              CustomTextFormField(
-                                                isNumber: true,
-                                                controller:
-                                                    controllersListForNumberFields[
-                                                            index]![
-                                                        numFieldName
-                                                            .toLowerCase()],
-                                                width: 80,
-                                              ),
-                                            if (index < 5)
-                                              Text(totalValues[numFieldName
-                                                          .toLowerCase()] !=
-                                                      null
-                                                  ? totalValues[numFieldName
-                                                          .toLowerCase()]
-                                                      .toString()
-                                                  : '0'),
-                                          ],
-                                        );
-                                      }).toList(),
-                                      SizedBox(height: 10),
-                                    ],
-                                  ),
-                                if (stageDetailsList[index]['isThereFiles'] !=
-                                    null) // files button
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      ElevatedButton(
-                                        onPressed: () async {
-                                          FilePickerResult? result =
-                                              await FilePicker.platform
-                                                  .pickFiles(
-                                            allowMultiple: true,
-                                          );
-                                          if (result != null) {
-                                            filesList[index] = result.files
-                                                .map((file) => file.name)
-                                                .toList();
-                                          }
-                                        },
-                                        child: Container(
-                                          height: 48,
-                                          width: 80,
-                                          child: Center(
-                                            child: Text('Browse files'),
-                                          ),
-                                        ),
-                                      ),
-                                      if ([2, 3, 4].contains(index))
-                                        TextButton(
-                                          onPressed: () {},
-                                          style: TextButton.styleFrom(
-                                            minimumSize: Size.zero,
-                                            padding: EdgeInsets.zero,
-                                            tapTargetSize: MaterialTapTargetSize
-                                                .shrinkWrap,
-                                          ),
-                                          child: Text('20'),
-                                        ),
-                                    ],
-                                  ),
-                                if (stageDetailsList[index]['files'] != null)
-                                  DataTable(
-                                    columns: <DataColumn>[
-                                      ...stageDetailsList[index]['files']
-                                              ['columns']
-                                          .map(
-                                            (col) => DataColumn(
-                                              label: Text(
-                                                col,
-                                                style: TextStyle(
-                                                  fontStyle: FontStyle.italic,
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                          .toList()
-                                    ],
-                                    rows: <DataRow>[
-                                      ...stageDetailsList[index]['files']
-                                              ['rowsIds']
-                                          .map(
-                                            (ri) => DataRow(
-                                              cells: <DataCell>[
-                                                DataCell(
-                                                  Container(
-                                                    alignment:
-                                                        Alignment.centerRight,
-                                                    width: 250,
-                                                    child: Text(ri),
-                                                  ),
-                                                ),
-                                                DataCell(
-                                                  ElevatedButton(
-                                                    onPressed: () async {
-                                                      FilePickerResult? result =
-                                                          await FilePicker
-                                                              .platform
-                                                              .pickFiles(
-                                                        allowMultiple: true,
-                                                      );
-                                                      if (result != null) {
-                                                        filesList[index] =
-                                                            result.files
-                                                                .map((file) =>
-                                                                    file.name)
-                                                                .toList();
-                                                      }
-                                                    },
-                                                    child: Container(
-                                                      height: 30,
-                                                      width: 50,
-                                                      child: Center(
-                                                        child: Text('Files'),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                DataCell(TextButton(
-                                                  onPressed: () {},
-                                                  child: Text(
-                                                    '${Random().nextInt(60)}',
-                                                    style: TextStyle(
-                                                        decoration:
-                                                            TextDecoration
-                                                                .underline,
-                                                        color: Colors.blue),
-                                                  ),
-                                                )),
-                                              ],
-                                            ),
-                                          )
-                                          .toList(),
-                                    ],
-                                  )
-                              ],
-                            ),
-                          ),
-                          Spacer(flex: 3),
-                          Flexible(
-                            flex: 5,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                if (notesList.isNotEmpty)
-                                  Column(
-                                    children: notesList.map((map) {
-                                      String initial = staffController.documents
-                                          .singleWhere((staffModel) =>
-                                              map!['employeeId']! ==
-                                              staffModel.id!)
-                                          .initial;
-                                      return Row(
-                                        children: <Widget>[
-                                          Text(initial + ": "),
-                                          Text(map!['note']!),
-                                        ],
-                                      );
-                                    }).toList(),
-                                  ),
-                                if (index == 7)
-                                  Column(
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Checkbox(
-                                            checkColor: Colors.white,
-                                            value: isChecked.value,
-                                            onChanged: (bool? value) {
-                                              isChecked.value = value!;
-                                            },
-                                          ),
-                                          Text(
-                                              '''By clicking this checkbox I confirm that all files
- are attached correctly and below appropriate task'''),
-                                        ],
-                                      ),
-                                      SizedBox(height: 10),
-                                    ],
-                                  ),
-                                if (isCurrentUserAssigned && !isSubmitted)
-                                  CustomTextFormField(
-                                    controller: controllersListForNote[index],
-                                    labelText: stageDetailsList[index]
-                                        ['string fields'][0],
-                                    width: double.infinity,
-                                    maxLines: 2,
-                                  ),
-                                SizedBox(width: 10),
-                                Row(
-                                  mainAxisAlignment: [5, 6].contains(index)
-                                      ? MainAxisAlignment.spaceBetween
-                                      : MainAxisAlignment.end,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    if ([5, 6].contains(index) &&
-                                        isCurrentUserAssigned &&
-                                        !isSubmitted)
-                                      CustomDropdownMenu(
-                                          width: 150,
-                                          labelText: 'Comment',
-                                          onChanged: (value) =>
-                                              commentStatus[index - 5] = value,
-                                          selectedItems: [
-                                            commentStatus[index - 5]
-                                          ],
-                                          items: [
-                                            'With Comment',
-                                            'No Comment'
-                                          ]),
-                                    if (isCurrentUserAssigned && !isSubmitted)
-                                      ElevatedButton(
-                                        onPressed: ([5, 6].contains(index) &&
-                                                commentStatus[index - 5] == "")
-                                            ? null
-                                            : () => _onSubmitPressed(
-                                                  index: index,
-                                                  assignedValueModel:
-                                                      stageValueModelsLists
-                                                          .last!
-                                                          .singleWhere((valueModel) =>
-                                                              valueModel!
-                                                                  .employeeId ==
-                                                              auth.currentUser!
-                                                                  .uid)!,
-                                                  lastTaskStage:
-                                                      stageStageModels.last,
-                                                  isCommented:
-                                                      [5, 6].contains(index)
-                                                          ? commentStatus[
-                                                                  index - 5] ==
-                                                              'With Comment'
-                                                          : false,
-                                                  isLastSubmit:
-                                                      unsubmittedCount == 1,
-                                                ),
-                                        child: Container(
-                                          height: 46,
-                                          child: Center(
-                                            child: const Text(
-                                              'Submit',
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
+                          
+//                           Form(
+//                             key: formKeysList[index][1],
+//                             child: Row(
+//                               crossAxisAlignment: CrossAxisAlignment.end,
+//                               children: [
+//                                 Flexible(
+//                                   flex: index == 7 ? 6 : 2,
+//                                   child: Column(
+//                                     children: <Widget>[
+//                                       // number fields
+//                                       if (numberFieldNames(index).isNotEmpty)
+//                                         Column(
+//                                           crossAxisAlignment: index < 5
+//                                               ? CrossAxisAlignment.center
+//                                               : CrossAxisAlignment.start,
+//                                           children: <Widget>[
+//                                             Center(
+//                                               child: Text(
+//                                                 'Submitted ' +
+//                                                     stageDetailsList[index]
+//                                                         ['number fields']['suffix'],
+//                                                 style: TextStyle(
+//                                                   fontWeight: FontWeight.bold,
+//                                                 ),
+//                                               ),
+//                                             ),
+//                                             SizedBox(height: 10),
+//                                             if (index < 5)
+//                                               Row(
+//                                                 mainAxisAlignment:
+//                                                     MainAxisAlignment.spaceBetween,
+//                                                 children: <Widget>[
+//                                                   Center(child: Text('Field')),
+//                                                   if (isCurrentUserAssigned)
+//                                                     Center(child: Text('By me')),
+//                                                   Center(child: Text('Total')),
+//                                                 ],
+//                                               ),
+//                                             SizedBox(height: 10),
+//                                             ...numberFieldNames(index)
+//                                                 .map((numFieldName) {
+//                                               return Row(
+//                                                 mainAxisAlignment:
+//                                                     MainAxisAlignment.spaceBetween,
+//                                                 children: [
+//                                                   Text(numFieldName!),
+//                                                   if (isCurrentUserAssigned)
+//                                                     CustomTextFormField(
+//                                                       isNumber: true,
+//                                                       controller:
+//                                                           controllersListForNumberFields[
+//                                                                   index]![
+//                                                               numFieldName
+//                                                                   .toLowerCase()],
+//                                                       width: 80,
+//                                                     ),
+//                                                   if (index < 5)
+//                                                     Text(totalValues[numFieldName
+//                                                                 .toLowerCase()] !=
+//                                                             null
+//                                                         ? totalValues[numFieldName
+//                                                                 .toLowerCase()]
+//                                                             .toString()
+//                                                         : '0'),
+//                                                 ],
+//                                               );
+//                                             }).toList(),
+//                                             SizedBox(height: 10),
+//                                           ],
+//                                         ),
+//                                       if (stageDetailsList[index]['isThereFiles'] !=
+//                                           null) // files button
+//                                         Row(
+//                                           mainAxisAlignment:
+//                                               MainAxisAlignment.spaceBetween,
+//                                           children: [
+//                                             ElevatedButton(
+//                                               onPressed: () async {
+//                                                 FilePickerResult? result =
+//                                                     await FilePicker.platform
+//                                                         .pickFiles(
+//                                                   allowMultiple: true,
+//                                                 );
+//                                                 if (result != null) {
+//                                                   filesList[index] = result.files
+//                                                       .map((file) => file.name)
+//                                                       .toList();
+//                                                 }
+//                                               },
+//                                               child: Container(
+//                                                 height: 48,
+//                                                 width: 80,
+//                                                 child: Center(
+//                                                   child: Text('Browse files'),
+//                                                 ),
+//                                               ),
+//                                             ),
+//                                             if ([2, 3, 4].contains(index))
+//                                               TextButton(
+//                                                 onPressed: () {},
+//                                                 style: TextButton.styleFrom(
+//                                                   minimumSize: Size.zero,
+//                                                   padding: EdgeInsets.zero,
+//                                                   tapTargetSize:
+//                                                       MaterialTapTargetSize
+//                                                           .shrinkWrap,
+//                                                 ),
+//                                                 child: Text('20'),
+//                                               ),
+//                                           ],
+//                                         ),
+//                                       if (stageDetailsList[index]['files'] != null)
+//                                         DataTable(
+//                                           columns: <DataColumn>[
+//                                             ...stageDetailsList[index]['files']
+//                                                     ['columns']
+//                                                 .map(
+//                                                   (col) => DataColumn(
+//                                                     label: Text(
+//                                                       col,
+//                                                       style: TextStyle(
+//                                                         fontStyle: FontStyle.italic,
+//                                                       ),
+//                                                     ),
+//                                                   ),
+//                                                 )
+//                                                 .toList()
+//                                           ],
+//                                           rows: <DataRow>[
+//                                             ...stageDetailsList[index]['files']
+//                                                     ['rowsIds']
+//                                                 .map(
+//                                                   (ri) => DataRow(
+//                                                     cells: <DataCell>[
+//                                                       DataCell(
+//                                                         Container(
+//                                                           alignment:
+//                                                               Alignment.centerRight,
+//                                                           width: 250,
+//                                                           child: Text(ri),
+//                                                         ),
+//                                                       ),
+//                                                       DataCell(
+//                                                         ElevatedButton(
+//                                                           onPressed: () async {
+//                                                             FilePickerResult?
+//                                                                 result =
+//                                                                 await FilePicker
+//                                                                     .platform
+//                                                                     .pickFiles(
+//                                                               allowMultiple: true,
+//                                                             );
+//                                                             if (result != null) {
+//                                                               filesList[index] =
+//                                                                   result.files
+//                                                                       .map((file) =>
+//                                                                           file.name)
+//                                                                       .toList();
+//                                                             }
+//                                                           },
+//                                                           child: Container(
+//                                                             height: 30,
+//                                                             width: 50,
+//                                                             child: Center(
+//                                                               child: Text('Files'),
+//                                                             ),
+//                                                           ),
+//                                                         ),
+//                                                       ),
+//                                                       DataCell(TextButton(
+//                                                         onPressed: () {},
+//                                                         child: Text(
+//                                                           '${Random().nextInt(60)}',
+//                                                           style: TextStyle(
+//                                                               decoration:
+//                                                                   TextDecoration
+//                                                                       .underline,
+//                                                               color: Colors.blue),
+//                                                         ),
+//                                                       )),
+//                                                     ],
+//                                                   ),
+//                                                 )
+//                                                 .toList(),
+//                                           ],
+//                                         )
+//                                     ],
+//                                   ),
+//                                 ),
+//                                 Spacer(flex: 3),
+//                                 Flexible(
+//                                   flex: 5,
+//                                   child: Column(
+//                                     mainAxisSize: MainAxisSize.max,
+//                                     mainAxisAlignment: MainAxisAlignment.end,
+//                                     crossAxisAlignment: CrossAxisAlignment.end,
+//                                     children: [
+//                                       if (notesList.isNotEmpty)
+//                                         Column(
+//                                           children: notesList.map((map) {
+//                                             String initial = staffController
+//                                                 .documents
+//                                                 .singleWhere((staffModel) =>
+//                                                     map!['employeeId']! ==
+//                                                     staffModel.id!)
+//                                                 .initial;
+//                                             return Row(
+//                                               children: <Widget>[
+//                                                 Text(initial + ": "),
+//                                                 Text(map!['note']!),
+//                                               ],
+//                                             );
+//                                           }).toList(),
+//                                         ),
+//                                       if (index == 7)
+//                                         Column(
+//                                           children: [
+//                                             Row(
+//                                               mainAxisAlignment:
+//                                                   MainAxisAlignment.start,
+//                                               crossAxisAlignment:
+//                                                   CrossAxisAlignment.start,
+//                                               children: [
+//                                                 Checkbox(
+//                                                   checkColor: Colors.white,
+//                                                   value: isChecked.value,
+//                                                   onChanged: (bool? value) {
+//                                                     isChecked.value = value!;
+//                                                   },
+//                                                 ),
+//                                                 Text(
+//                                                     '''By clicking this checkbox I confirm that all files
+//  are attached correctly and below appropriate task'''),
+//                                               ],
+//                                             ),
+//                                             SizedBox(height: 10),
+//                                           ],
+//                                         ),
+//                                       if (isCurrentUserAssigned && !isSubmitted)
+//                                         CustomTextFormField(
+//                                           controller: controllersListForNote[index],
+//                                           labelText: stageDetailsList[index]
+//                                               ['string fields'][0],
+//                                           width: double.infinity,
+//                                           maxLines: 2,
+//                                         ),
+//                                       SizedBox(width: 10),
+//                                       Row(
+//                                         mainAxisAlignment: [5, 6].contains(index)
+//                                             ? MainAxisAlignment.spaceBetween
+//                                             : MainAxisAlignment.end,
+//                                         crossAxisAlignment:
+//                                             CrossAxisAlignment.center,
+//                                         children: [
+//                                           if ([5, 6].contains(index) &&
+//                                               isCurrentUserAssigned &&
+//                                               !isSubmitted)
+//                                             CustomDropdownMenu(
+//                                                 width: 150,
+//                                                 labelText: 'Comment',
+//                                                 onChanged: (value) =>
+//                                                     commentStatus[index - 5] =
+//                                                         value,
+//                                                 selectedItems: [
+//                                                   commentStatus[index - 5]
+//                                                 ],
+//                                                 items: [
+//                                                   'With Comment',
+//                                                   'No Comment'
+//                                                 ]),
+//                                           if (isCurrentUserAssigned && !isSubmitted)
+//                                             ElevatedButton(
+//                                               onPressed: ([5, 6].contains(index) &&
+//                                                       commentStatus[index - 5] ==
+//                                                           "")
+//                                                   ? null
+//                                                   : () => _onSubmitPressed(
+//                                                         index: index,
+//                                                         assignedValueModel:
+//                                                             stageValueModelsLists
+//                                                                 .last!
+//                                                                 .singleWhere((valueModel) =>
+//                                                                     valueModel!
+//                                                                         .employeeId ==
+//                                                                     auth.currentUser!
+//                                                                         .uid)!,
+//                                                         lastTaskStage:
+//                                                             stageStageModels.last,
+//                                                         isCommented: [5, 6]
+//                                                                 .contains(index)
+//                                                             ? commentStatus[
+//                                                                     index - 5] ==
+//                                                                 'With Comment'
+//                                                             : false,
+//                                                         isLastSubmit:
+//                                                             unsubmittedCount == 1,
+//                                                       ),
+//                                               child: Container(
+//                                                 height: 46,
+//                                                 child: Center(
+//                                                   child: const Text(
+//                                                     'Submit',
+//                                                   ),
+//                                                 ),
+//                                               ),
+//                                             ),
+//                                         ],
+//                                       ),
+//                                     ],
+//                                   ),
+//                                 ),
+//                               ],
+//                             ),
+//                           ),
+                        
                         ],
                       ),
-                    ),
                   ],
                 ),
               ),

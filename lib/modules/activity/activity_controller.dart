@@ -11,7 +11,7 @@ import '../../constants/table_details.dart';
 import 'activity_model.dart';
 import 'activity_repository.dart';
 
-class ActivityController extends GetxController {
+class ActivityController extends GetxService {
   final GlobalKey<FormState> activityFormKey = GlobalKey<FormState>();
   final _repository = Get.find<ActivityRepository>();
 

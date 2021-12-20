@@ -17,6 +17,7 @@ class CustomTextFormField extends StatelessWidget {
   final Function(String?)? onSubmitted;
   final TextInputAction? textInputAction;
   final Iterable<String>? autofillHints;
+  final double? sizeBoxHeight;
   const CustomTextFormField({
     Key? key,
     this.controller,
@@ -34,6 +35,7 @@ class CustomTextFormField extends StatelessWidget {
     this.textInputAction,
     this.obscureText = false,
     this.autofillHints,
+    this.sizeBoxHeight = 10,
   }) : super(key: key);
 
   @override
@@ -90,7 +92,7 @@ class CustomTextFormField extends StatelessWidget {
                     validator: validator,
                   ),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: sizeBoxHeight),
         ],
       ),
     );

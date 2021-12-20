@@ -10,7 +10,7 @@ import '../../constants/style.dart';
 import 'reference_document_model.dart';
 import 'reference_document_repository.dart';
 
-class ReferenceDocumentController extends GetxController {
+class ReferenceDocumentController extends GetxService {
   final GlobalKey<FormState> referenceDocumentFormKey = GlobalKey<FormState>();
   final _repository = Get.find<ReferenceDocumentRepository>();
   static ReferenceDocumentController instance = Get.find();

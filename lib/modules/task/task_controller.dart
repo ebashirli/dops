@@ -8,7 +8,7 @@ import '../../constants/style.dart';
 import 'task_model.dart';
 import 'task_repository.dart';
 
-class TaskController extends GetxController {
+class TaskController extends GetxService {
   final GlobalKey<FormState> taskFormKey = GlobalKey<FormState>();
   final _repository = Get.find<TaskRepository>();
   static TaskController instance = Get.find();

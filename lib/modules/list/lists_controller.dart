@@ -7,7 +7,7 @@ import 'lists_model.dart';
 import 'lists_repository.dart';
 import 'package:get/get.dart';
 
-class ListsController extends GetxController {
+class ListsController extends GetxService {
   ListsRepository _repository = Get.find<ListsRepository>();
   static ListsController instance = Get.find();
   late Rx<ListsModel> document;
@@ -164,5 +164,4 @@ class ListsController extends GetxController {
       ),
     );
   }
-
 }

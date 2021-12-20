@@ -11,7 +11,7 @@ import '../../constants/style.dart';
 import 'staff_model.dart';
 import 'staff_repository.dart';
 
-class StaffController extends GetxController {
+class StaffController extends GetxService {
   final GlobalKey<FormState> staffFormKey = GlobalKey<FormState>();
   final _repository = Get.find<StaffRepository>();
   static StaffController instance = Get.find();
@@ -31,7 +31,10 @@ class StaffController extends GetxController {
       startDateConroller,
       contractFinishDateController;
 
-  late String currentPlaceText, systemDesignationText, jobTitleText, companyText;
+  late String currentPlaceText,
+      systemDesignationText,
+      jobTitleText,
+      companyText;
 
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
@@ -66,7 +69,8 @@ class StaffController extends GetxController {
 
   saveDocument({required StaffModel model}) async {
     CustomFullScreenDialog.showDialog();
-    UserCredential? userCredential = await authManager.register(model.email, "123456");
+    UserCredential? userCredential =
+        await authManager.register(model.email, "123456");
     await _repository.addModelWithId(model, userCredential!.user!.uid);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
@@ -84,14 +88,13 @@ class StaffController extends GetxController {
     //update
     CustomFullScreenDialog.showDialog();
     await _repository.updateModel(model, id);
-    
+
     // ignore: unnecessary_null_comparison
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
   void deleteStaff(String id) {
-    
     _repository.removeModel(id);
   }
 
@@ -124,7 +127,8 @@ class StaffController extends GetxController {
   }
 
   void fillEditingControllers(String id) {
-    final StaffModel model = documents.where((document) => document.id == id).toList()[0];
+    final StaffModel model =
+        documents.where((document) => document.id == id).toList()[0];
 
     badgeNoController.text = model.badgeNo;
     nameController.text = model.name;
@@ -138,8 +142,10 @@ class StaffController extends GetxController {
     emergencyContactNameController.text = model.emergencyContactName;
     noteController.text = model.note;
 
-    dateOfBirthController.text = '${model.dateOfBirth.day}/${model.dateOfBirth.month}/${model.dateOfBirth.year}';
-    startDateConroller.text = '${model.startDate.day}/${model.startDate.month}/${model.startDate.year}';
+    dateOfBirthController.text =
+        '${model.dateOfBirth.day}/${model.dateOfBirth.month}/${model.dateOfBirth.year}';
+    startDateConroller.text =
+        '${model.startDate.day}/${model.startDate.month}/${model.startDate.year}';
     contractFinishDateController.text =
         '${model.contractFinishDate.day}/${model.contractFinishDate.month}/${model.contractFinishDate.year}';
 
@@ -234,7 +240,8 @@ class StaffController extends GetxController {
                             onChanged: (value) {
                               companyText = value ?? '';
                             },
-                            items: dropdownSourcesController.document.value.companies!,
+                            items: dropdownSourcesController
+                                .document.value.companies!,
                           ),
                           CustomDropdownMenu(
                             labelText: 'System Designation',
@@ -242,7 +249,8 @@ class StaffController extends GetxController {
                             onChanged: (value) {
                               systemDesignationText = value ?? '';
                             },
-                            items: dropdownSourcesController.document.value.systemDesignations!,
+                            items: dropdownSourcesController
+                                .document.value.systemDesignations!,
                           ),
                           CustomDropdownMenu(
                             labelText: 'Job Title',
@@ -250,7 +258,8 @@ class StaffController extends GetxController {
                             onChanged: (value) {
                               jobTitleText = value ?? '';
                             },
-                            items: dropdownSourcesController.document.value.jobTitles!,
+                            items: dropdownSourcesController
+                                .document.value.jobTitles!,
                           ),
                           CustomDateTimeFormField(
                             labelText: 'Start Date',
@@ -260,7 +269,10 @@ class StaffController extends GetxController {
                           CustomTextFormField(
                             controller: emailController,
                             labelText: 'E-mail',
-                            validator: (value) => EmailValidator.validate(value!) ? null : "Please enter a valid email",
+                            validator: (value) =>
+                                EmailValidator.validate(value!)
+                                    ? null
+                                    : "Please enter a valid email",
                           ),
                           CustomTextFormField(
                             controller: homeAddressController,
@@ -272,7 +284,8 @@ class StaffController extends GetxController {
                             onChanged: (value) {
                               currentPlaceText = value ?? '';
                             },
-                            items: dropdownSourcesController.document.value.employeePlaces!,
+                            items: dropdownSourcesController
+                                .document.value.employeePlaces!,
                           ),
                           CustomDateTimeFormField(
                             labelText: 'Contract Finish Date',
@@ -320,7 +333,9 @@ class StaffController extends GetxController {
                             ),
                           ),
                         const Spacer(),
-                        ElevatedButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+                        ElevatedButton(
+                            onPressed: () => Get.back(),
+                            child: const Text('Cancel')),
                         SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: () {
@@ -334,14 +349,18 @@ class StaffController extends GetxController {
                               jobTitle: jobTitleText,
                               email: emailController.text,
                               company: companyText,
-                              dateOfBirth: DateFormat("dd/MM/yyyy").parse(dateOfBirthController.text),
+                              dateOfBirth: DateFormat("dd/MM/yyyy")
+                                  .parse(dateOfBirthController.text),
                               homeAddress: homeAddressController.text,
-                              startDate: DateFormat("dd/MM/yyyy").parse(startDateConroller.text),
+                              startDate: DateFormat("dd/MM/yyyy")
+                                  .parse(startDateConroller.text),
                               currentPlace: currentPlaceText,
-                              contractFinishDate: DateFormat("dd/MM/yyyy").parse(contractFinishDateController.text),
+                              contractFinishDate: DateFormat("dd/MM/yyyy")
+                                  .parse(contractFinishDateController.text),
                               contact: contactController.text,
                               emergencyContact: emergencyContactController.text,
-                              emergencyContactName: emergencyContactNameController.text,
+                              emergencyContactName:
+                                  emergencyContactNameController.text,
                               note: noteController.text,
                             );
                             id == null
@@ -380,7 +399,8 @@ class StaffController extends GetxController {
           case 'isHidden':
             break;
           case 'fullName':
-            map[mapPropName] = '${staffMember.name} ${staffMember.surname} ${staffMember.patronymic}';
+            map[mapPropName] =
+                '${staffMember.name} ${staffMember.surname} ${staffMember.patronymic}';
             break;
           default:
             map[mapPropName] = staffMember.toMap()[mapPropName];

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:dops/components/value_table_view_widget.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
@@ -463,148 +464,271 @@ class StageController extends GetxService {
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    Form(
-                      key: formKeysList[index][0],
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    if (unsubmittedCount != 0 && isCoordinator.value)
+                      Column(
                         children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Column(
-                                children: [
-                                  Container(
-                                    width: 350,
-                                    child: [0, 6, 7, 8].contains(index)
-                                        ? DropdownSearch<StaffModel>(
-                                            enabled: isCoordinator.value &&
-                                                taskStages.last.index == index,
-                                            selectedItem: assigningEmployeeIdsList[
-                                                        index]
-                                                    .isNotEmpty
-                                                ? staffController.documents
-                                                    .firstWhere((staffModel) =>
-                                                        staffModel.id ==
-                                                        assigningEmployeeIdsList[
-                                                            index][0])
-                                                : null,
-                                            items: staffController.documents,
-                                            itemAsString: (StaffModel? item) =>
-                                                '${item!.name} ${item.surname}',
-                                            // maxHeight: 300,
-                                            mode: Mode.MENU,
-                                            dropdownSearchDecoration:
-                                                InputDecoration(
-                                              labelText: stageDetailsList[index]
-                                                  ['staff job'],
-                                              contentPadding:
-                                                  EdgeInsets.fromLTRB(
-                                                      12, 12, 0, 0),
-                                              border: OutlineInputBorder(),
-                                            ),
-                                            showSearchBox: true,
-                                            onChanged: (employee) {
-                                              assigningEmployeeIdsList[index] =
-                                                  [employee!.id!];
-                                            },
-                                          )
-                                        : DropdownSearch<
-                                            StaffModel>.multiSelection(
-                                            enabled: isCoordinator.value &&
-                                                taskStages.last.index == index,
-                                            selectedItems: staffController
-                                                .documents
-                                                .where((element) =>
+                          Form(
+                            key: formKeysList[index][0],
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Container(
+                                          width: 350,
+                                          child: [0, 6, 7].contains(index)
+                                              ? DropdownSearch<StaffModel>(
+                                                  enabled: isCoordinator
+                                                          .value &&
+                                                      taskStages.last.index ==
+                                                          index,
+                                                  selectedItem: assigningEmployeeIdsList[
+                                                              index]
+                                                          .isNotEmpty
+                                                      ? staffController
+                                                          .documents
+                                                          .firstWhere(
+                                                              (staffModel) =>
+                                                                  staffModel
+                                                                      .id ==
+                                                                  assigningEmployeeIdsList[
+                                                                      index][0])
+                                                      : null,
+                                                  items:
+                                                      staffController.documents,
+                                                  itemAsString: (StaffModel?
+                                                          item) =>
+                                                      '${item!.name} ${item.surname}',
+                                                  // maxHeight: 300,
+                                                  mode: Mode.MENU,
+                                                  dropdownSearchDecoration:
+                                                      InputDecoration(
+                                                    labelText:
+                                                        stageDetailsList[index]
+                                                            ['staff job'],
+                                                    contentPadding:
+                                                        EdgeInsets.fromLTRB(
+                                                            12, 12, 0, 0),
+                                                    border:
+                                                        OutlineInputBorder(),
+                                                  ),
+                                                  showSearchBox: true,
+                                                  onChanged: (employee) {
                                                     assigningEmployeeIdsList[
-                                                            index]
-                                                        .contains(element.id))
-                                                .toList(),
-                                            items: staffController.documents,
-                                            itemAsString: (StaffModel?
-                                                    employee) =>
-                                                '${employee!.name} ${employee.surname}',
-                                            // maxHeight: 300,
-                                            mode: Mode.MENU,
-                                            dropdownSearchDecoration:
-                                                InputDecoration(
-                                              labelText: stageDetailsList[index]
-                                                  ['staff job'],
-                                              contentPadding:
-                                                  EdgeInsets.fromLTRB(
-                                                      12, 12, 0, 0),
-                                              border: OutlineInputBorder(),
+                                                        index] = [
+                                                      employee!.id!
+                                                    ];
+                                                  },
+                                                )
+                                              : DropdownSearch<
+                                                  StaffModel>.multiSelection(
+                                                  enabled: isCoordinator
+                                                          .value &&
+                                                      taskStages.last.index ==
+                                                          index,
+                                                  selectedItems: staffController
+                                                      .documents
+                                                      .where((element) =>
+                                                          assigningEmployeeIdsList[
+                                                                  index]
+                                                              .contains(
+                                                                  element.id))
+                                                      .toList(),
+                                                  items:
+                                                      staffController.documents,
+                                                  itemAsString: (StaffModel?
+                                                          employee) =>
+                                                      '${employee!.name} ${employee.surname}',
+                                                  // maxHeight: 300,
+                                                  mode: Mode.MENU,
+                                                  dropdownSearchDecoration:
+                                                      InputDecoration(
+                                                    labelText:
+                                                        stageDetailsList[index]
+                                                            ['staff job'],
+                                                    contentPadding:
+                                                        EdgeInsets.fromLTRB(
+                                                            12, 12, 0, 0),
+                                                    border:
+                                                        OutlineInputBorder(),
+                                                  ),
+                                                  showSearchBox: true,
+                                                  onChanged: (employees) {
+                                                    assigningEmployeeIdsList[
+                                                            index] =
+                                                        employees
+                                                            .map((employee) =>
+                                                                employee.id!)
+                                                            .toList();
+                                                  },
+                                                ),
+                                        ),
+                                        SizedBox(height: 10),
+                                      ],
+                                    ),
+                                    SizedBox(width: 10),
+                                    if (isCoordinator.value &&
+                                        taskStages.last.index == index)
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          _onAssignOrUpdatePressed(
+                                            index: index,
+                                            lastStageId:
+                                                stageStageModels.last.id!,
+                                            assigningEmployeeIds:
+                                                assigningEmployeeIdsList[index]
+                                                    .toSet(),
+                                            assignedEmployeeIds:
+                                                coordinatorAssigns
+                                                    ? null
+                                                    : stageValueModelsLists
+                                                        .last!
+                                                        .map((valueModel) =>
+                                                            valueModel!
+                                                                .employeeId)
+                                                        .toSet(),
+                                          );
+                                        },
+                                        child: Container(
+                                          height: 48,
+                                          child: Center(
+                                            child: Text(
+                                              (coordinatorAssigns)
+                                                  ? 'Assign'
+                                                  : 'Update',
                                             ),
-                                            showSearchBox: true,
-                                            onChanged: (employees) {
-                                              assigningEmployeeIdsList[index] =
-                                                  employees
-                                                      .map((employee) =>
-                                                          employee.id!)
-                                                      .toList();
-                                            },
                                           ),
-                                  ),
-                                  SizedBox(height: 10),
-                                ],
-                              ),
-                              SizedBox(width: 10),
-                              if (isCoordinator.value &&
-                                  taskStages.last.index == index)
-                                ElevatedButton(
-                                  onPressed: () {
-                                    _onAssignOrUpdatePressed(
-                                      index: index,
-                                      lastStageId: stageStageModels.last.id!,
-                                      assigningEmployeeIds:
-                                          assigningEmployeeIdsList[index]
-                                              .toSet(),
-                                      assignedEmployeeIds: coordinatorAssigns
-                                          ? null
-                                          : stageValueModelsLists.last!
-                                              .map((valueModel) =>
-                                                  valueModel!.employeeId)
-                                              .toSet(),
-                                    );
-                                  },
-                                  child: Container(
-                                    height: 48,
-                                    child: Center(
-                                      child: Text(
-                                        (coordinatorAssigns)
-                                            ? 'Assign'
-                                            : 'Update',
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                if (stageDetailsList[index]['get files'] !=
+                                    null)
+                                  ElevatedButton(
+                                    onPressed: () {},
+                                    child: Container(
+                                      height: 48,
+                                      width: 100,
+                                      child: Center(
+                                        child: Text(stageDetailsList[index]
+                                            ['get files']),
                                       ),
                                     ),
                                   ),
-                                ),
-                              SizedBox(width: 100),
-                              Text(
-                                firstAssignDateTimeList[index] != null
-                                    ? 'Start date and time: ${DateFormat("dd-MM-yyyy HH:mm").format(firstAssignDateTimeList[index]!)}'
-                                    : '',
-                              ),
-                            ],
-                          ),
-                          if (stageDetailsList[index]['get files'] != null)
-                            ElevatedButton(
-                              onPressed: () {},
-                              child: Container(
-                                height: 48,
-                                width: 100,
-                                child: Center(
-                                  child: Text(
-                                      stageDetailsList[index]['get files']),
-                                ),
-                              ),
+                              ],
                             ),
+                          ),
+                          Divider(),
                         ],
                       ),
-                    ),
-                    Divider(),
                     if (!coordinatorAssigns)
                       Column(
                         children: [
-                          
+                          ValueTableView(
+                            index: index,
+                            stageValueModelsList: stageValueModelsLists.last!,
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _onAssignOrUpdatePressed({
+    required int index,
+    required String lastStageId,
+    required Set assigningEmployeeIds,
+    Set? assignedEmployeeIds,
+  }) async {
+    ValueModel vm = await ValueModel(
+      stageId: lastStageId,
+      employeeId: '',
+      assignedBy: auth.currentUser!.uid,
+      assignedDateTime: DateTime.now(),
+    );
+
+    if (assignedEmployeeIds == null) {
+      // asigning
+      assigningEmployeeIds.forEach((employeeId) async {
+        vm.employeeId = employeeId;
+        valueController.addNew(model: vm);
+      });
+    } else {
+      // updating
+      assigningEmployeeIds
+          .difference(assignedEmployeeIds)
+          .forEach((employeeId) async {
+        vm.employeeId = employeeId;
+        valueController.addNew(model: vm);
+      });
+      assignedEmployeeIds
+          .difference(assigningEmployeeIds)
+          .forEach((employeeId) async {
+        final String valueId = valueController.documents
+            .singleWhere(
+              (valueModel) => (valueModel!.isHidden == false &&
+                  valueModel.stageId == lastStageId &&
+                  valueModel.employeeId == employeeId),
+            )!
+            .id!;
+        valueController.addValues(map: {'isHidden': true}, id: valueId);
+      });
+    }
+  }
+
+  void _onSubmitPressed({
+    required int index,
+    required ValueModel assignedValueModel,
+    required StageModel lastTaskStage,
+    required bool isLastSubmit,
+    bool isCommented = false,
+  }) {
+    Map<String, dynamic> map = {};
+
+    numberFieldNames(index).forEach((String? fieldName) {
+      if (fieldName != null) {
+        map[fieldName.toLowerCase()] = int.parse(
+            controllersListForNumberFields[index]![fieldName.toLowerCase()]!
+                .text);
+      }
+    });
+
+    map['note'] = controllersListForNote[index].text;
+    map['endDateTime'] = DateTime.now();
+
+    valueController.addValues(
+      map: map,
+      id: assignedValueModel.id!,
+    );
+
+    if (isLastSubmit) {
+      StageModel stage = StageModel(
+        taskId: Get.parameters['id']!,
+        index: index + 1,
+        reviewerCommentCounter: (isCommented && index == 5)
+            ? lastTaskStage.reviewerCommentCounter + 1
+            : 0,
+        checkerCommentCounter: (isCommented && index == 6)
+            ? lastTaskStage.checkerCommentCounter + 1
+            : 0,
+        creationDateTime: DateTime.now(),
+      );
+      addNew(model: stage);
+    }
+  }
+}
+
+
+
 //                           Form(
 //                             key: formKeysList[index][1],
 //                             child: Row(
@@ -920,98 +1044,3 @@ class StageController extends GetxService {
 //                             ),
 //                           ),
                         
-                        ],
-                      ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  void _onAssignOrUpdatePressed({
-    required int index,
-    required String lastStageId,
-    required Set assigningEmployeeIds,
-    Set? assignedEmployeeIds,
-  }) async {
-    ValueModel vm = await ValueModel(
-      stageId: lastStageId,
-      employeeId: '',
-      assignedBy: auth.currentUser!.uid,
-      assignedDateTime: DateTime.now(),
-    );
-
-    if (assignedEmployeeIds == null) {
-      // asigning
-      assigningEmployeeIds.forEach((employeeId) async {
-        vm.employeeId = employeeId;
-        valueController.addNew(model: vm);
-      });
-    } else {
-      // updating
-      assigningEmployeeIds
-          .difference(assignedEmployeeIds)
-          .forEach((employeeId) async {
-        vm.employeeId = employeeId;
-        valueController.addNew(model: vm);
-      });
-      assignedEmployeeIds
-          .difference(assigningEmployeeIds)
-          .forEach((employeeId) async {
-        final String valueId = valueController.documents
-            .singleWhere(
-              (valueModel) => (valueModel!.isHidden == false &&
-                  valueModel.stageId == lastStageId &&
-                  valueModel.employeeId == employeeId),
-            )!
-            .id!;
-        valueController.addValues(map: {'isHidden': true}, id: valueId);
-      });
-    }
-  }
-
-  void _onSubmitPressed({
-    required int index,
-    required ValueModel assignedValueModel,
-    required StageModel lastTaskStage,
-    required bool isLastSubmit,
-    bool isCommented = false,
-  }) {
-    Map<String, dynamic> map = {};
-
-    numberFieldNames(index).forEach((String? fieldName) {
-      if (fieldName != null) {
-        map[fieldName.toLowerCase()] = int.parse(
-            controllersListForNumberFields[index]![fieldName.toLowerCase()]!
-                .text);
-      }
-    });
-
-    map['note'] = controllersListForNote[index].text;
-    map['endDateTime'] = DateTime.now();
-
-    valueController.addValues(
-      map: map,
-      id: assignedValueModel.id!,
-    );
-
-    if (isLastSubmit) {
-      StageModel stage = StageModel(
-        taskId: Get.parameters['id']!,
-        index: index + 1,
-        reviewerCommentCounter: (isCommented && index == 5)
-            ? lastTaskStage.reviewerCommentCounter + 1
-            : 0,
-        checkerCommentCounter: (isCommented && index == 6)
-            ? lastTaskStage.checkerCommentCounter + 1
-            : 0,
-        creationDateTime: DateTime.now(),
-      );
-      addNew(model: stage);
-    }
-  }
-}

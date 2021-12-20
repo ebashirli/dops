@@ -10,7 +10,7 @@ import '../../enum.dart';
 
 // ignore: must_be_immutable
 class HomeView extends GetView<HomeController> {
-  late GetxController tableController;
+  late GetxService tableController;
   late String tableName;
 
   @override

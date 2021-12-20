@@ -8,7 +8,7 @@ import '../../constants/style.dart';
 import 'drawing_model.dart';
 import 'drawing_repository.dart';
 
-class DrawingController extends GetxController {
+class DrawingController extends GetxService {
   final GlobalKey<FormState> drawingFormKey = GlobalKey<FormState>();
   final _repository = Get.find<DrawingRepository>();
   static DrawingController instance = Get.find();

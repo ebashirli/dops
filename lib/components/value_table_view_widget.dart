@@ -1,111 +1,109 @@
 import 'package:dops/constants/constant.dart';
-import 'package:dops/routes/app_pages.dart';
-import 'package:expendable_fab/expendable_fab.dart';
+import 'package:dops/constants/lists.dart';
+import 'package:dops/modules/values/value_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:recase/recase.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
-import '../constants/table_details.dart';
+
+import 'custom_widgets.dart';
 
 class ValueTableView extends StatelessWidget {
-  final controller;
-  final String tableName;
+  final int index;
+  final List<ValueModel?> stageValueModelsList;
 
   ValueTableView({
     Key? key,
-    required this.controller,
-    required this.tableName,
+    required this.index,
+    required this.stageValueModelsList,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Obx(
       () {
-        final DataSource dataSource =
-            DataSource(data: valueController.getDataForValueTableView);
-        final DataGridController _dataGridController = DataGridController();
+        if (valueController.documents.isEmpty) {
+          return CircularProgressIndicator();
+        } else {
+          final List<String> tableColumns = [
+            ...valueTableColumnHeadList.sublist(0, 3),
+            ...stageDetailsList1[index]['columns'],
+            ...valueTableColumnHeadList.sublist(3),
+          ];
+          final DataSource dataSource = DataSource(
+            data: stageValueModelsList.map((valueModel) {
+              late Map<String, dynamic> map = {};
+              tableColumns.forEach((columHead) {
+                map[columHead] =
+                    valueModel!.toMap()[ReCase(columHead).camelCase];
+              });
+              map['id'] = valueModel!.id;
+              return map;
+            }).toList(),
+          );
 
-        void onEditPressed({bool? newRev = false}) {
-          if (_dataGridController.selectedRow == null) {
-            Get.snackbar(
-              'Selection',
-              'Select an item',
-              maxWidth: 250,
-              backgroundColor: Colors.green[50],
-            );
-          } else {
-            String? id = _dataGridController.selectedRow!.getCells()[0].value;
-            if (tableName != 'task') {
-              controller.buildAddEdit(id: id);
-            } else {
-              String parentId =
-                  _dataGridController.selectedRow!.getCells()[1].value;
+          final columnsWithTotal = ['Weight', 'GAS', 'SFD', 'DTL']
+              .toSet()
+              .intersection(stageDetailsList1[index]['columns'].toSet());
+          print(columnsWithTotal);
 
-              controller.buildAddEdit(
-                  id: id, parentId: parentId, newRev: newRev);
-            }
-          }
-        }
+          final DataGridController _dataGridController = DataGridController();
 
-        return Scaffold(
-          body: Padding(
+          return Padding(
             padding: const EdgeInsets.all(10.0),
             child: SfDataGrid(
               isScrollbarAlwaysShown: false,
               source: dataSource,
-              columns: getColumns(tableColNames[tableName]!),
+              columnWidthMode: ColumnWidthMode.fill,
+              tableSummaryRows: columnsWithTotal.isEmpty
+                  ? []
+                  : [
+                      GridTableSummaryRow(
+                          showSummaryInRow: false,
+                          title: 'Total:',
+                          titleColumnSpan: 1,
+                          columns: columnsWithTotal
+                              .map(
+                                (columnName) => GridSummaryColumn(
+                                  name: 'Sum',
+                                  columnName: columnName,
+                                  summaryType: GridSummaryType.sum,
+                                ),
+                              )
+                              .toList(),
+                          position: GridTableSummaryRowPosition.bottom),
+                    ],
+              columns: getColumns(tableColumns),
               gridLinesVisibility: GridLinesVisibility.both,
               headerGridLinesVisibility: GridLinesVisibility.both,
-              columnWidthMode: ColumnWidthMode.fill,
-              allowSorting: true,
+              // allowSorting: true,
               rowHeight: 70,
               controller: _dataGridController,
               selectionMode: SelectionMode.singleDeselect,
               navigationMode: GridNavigationMode.row,
-              onCellDoubleTap: (_) {
-                if (tableName == 'task') {
-                  String? rowId =
-                      _dataGridController.selectedRow!.getCells()[0].value;
-                  if (rowId != null)
-                    Get.toNamed(Routes.STAGES, parameters: {'id': rowId});
-                }
-              },
             ),
-          ),
-        );
+          );
+        }
       },
     );
   }
 
-  displayDeleteDialog(String docId) {
-    Get.defaultDialog(
-      title: "Delete a staff member",
-      titleStyle: TextStyle(fontSize: 20),
-      middleText: 'Are you sure to delete $tableName?',
-      textCancel: "Cancel",
-      textConfirm: "Confirm",
-      confirmTextColor: Colors.black,
-      onCancel: () {},
-      onConfirm: () {},
-    );
-  }
-
-  getColumns(List<String> colNames) {
+  List<GridColumn> getColumns(List<String> colNames) {
     return colNames.map(
-      (colName) {
-        switch (colName) {
-          case 'parentid':
+      (columnName) {
+        switch (columnName) {
+          case 'stageId':
           case 'id':
             return GridColumn(
-              columnName: ReCase(colName).camelCase,
+              columnName: columnName,
               width: 0,
               label: Text(
-                colName,
+                columnName,
               ),
             );
           default:
             return GridColumn(
-              columnName: ReCase(colName).camelCase,
+              columnName: columnName,
               autoFitPadding: const EdgeInsets.all(8.0),
               label: Center(
                 child: Container(
@@ -114,7 +112,7 @@ class ValueTableView extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      colName,
+                      columnName == 'Employee Id' ? 'Employee' : columnName,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
@@ -153,55 +151,91 @@ class DataSource extends DataGridSource {
   List<DataGridRow> get rows => _data;
 
   @override
+  Widget? buildTableSummaryCellWidget(
+    GridTableSummaryRow summaryRow,
+    GridSummaryColumn? summaryColumn,
+    RowColumnIndex rowColumnIndex,
+    String summaryValue,
+  ) =>
+      Container(
+        padding: const EdgeInsets.all(15.0),
+        child: Center(
+            child: Text(
+          summaryValue,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        )),
+      );
+
+  @override
   DataGridRowAdapter buildRow(DataGridRow row) {
+    final bool isImputForm = row.getCells()[2].value == auth.currentUser!.uid &&
+        row
+                .getCells()
+                .singleWhere((element) => element.columnName == 'End date time')
+                .value ==
+            null;
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>(
         (cell) {
-          void onPressed(id) {
-            if (id != 'null') {
-              Get.toNamed(Routes.STAGES, parameters: {'id': id});
-            }
-          }
+          if (['Weight', 'Phase', 'GAS', 'SFD', 'DTL', 'Files', 'Note']
+                  .contains(cell.columnName) &&
+              isImputForm) {
+            switch (cell.columnName) {
+              case 'Files':
+                return Container(
+                  height: 48,
+                  width: 80,
+                  child: Center(
+                    child: Text('Browse files'),
+                  ),
+                );
+              case 'Note':
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: CustomTextFormField(
+                      sizeBoxHeight: 0,
+                      // controller: controllersListForNote[index],
+                      // labelText: stageDetailsList[index]['string fields'][0],
+                      width: double.infinity,
+                      maxLines: 2,
+                    ),
+                  ),
+                );
 
-          return Container(
-            alignment: Alignment.center,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: (cell.columnName == 'assignedTasks' ||
-                          cell.columnName == 'drawingNumber') &&
-                      cell.value.length != 0
-                  ? cell.columnName == 'drawingNumber'
-                      ? TextButton(
-                          onPressed: () => onPressed(cell.value
-                              .substring(cell.value.indexOf('|') + 1)),
-                          child: Text(
-                              cell.value.substring(0, cell.value.indexOf('|'))),
-                        )
-                      : TextButton(
-                          onPressed: () {
-                            Get.defaultDialog(
-                                content: Column(
-                              children: cell.value
-                                  .split('|')
-                                  .sublist(1)
-                                  .map<Widget>(
-                                    (taskNoId) => TextButton(
-                                      onPressed: () =>
-                                          onPressed(taskNoId.split(';')[1]),
-                                      child: Text(taskNoId.split(';')[0]),
-                                    ),
-                                  )
-                                  .toList(),
-                            ));
-                          },
-                          child: Text(
-                              '|'.allMatches(cell.value).length.toString()),
-                        )
-                  : Text(cell.value is DateTime
-                      ? '${cell.value.day}/${cell.value.month}/${cell.value.year}'
-                      : cell.value.toString()),
-            ),
-          );
+              default:
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: CustomTextFormField(
+                      sizeBoxHeight: 0,
+                      isNumber: true,
+                      controller: stageController
+                          .controllersListForNumberFields[2]![cell.columnName],
+                      width: 80,
+                    ),
+                  ),
+                );
+            }
+          } else {
+            final cellValue = ['Employee Id', 'Assigned by']
+                    .contains(cell.columnName)
+                ? staffController.documents
+                    .singleWhere((staff) => staff.id == cell.value)
+                    .initial
+                : cell.value is DateTime
+                    ? '${cell.value.day}/${cell.value.month}/${cell.value.year} ${cell.value.hour}:${cell.value.minute}'
+                    : cell.value.toString();
+            return Container(
+              alignment: Alignment.center,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(cellValue),
+              ),
+            );
+          }
         },
       ).toList(),
     );

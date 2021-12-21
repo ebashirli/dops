@@ -192,10 +192,16 @@ class DataSource extends DataGridSource {
                       cell.value.length != 0
                   ? cell.columnName == 'drawingNumber'
                       ? TextButton(
-                          onPressed: () => onPressed(cell.value
-                              .substring(cell.value.indexOf('|') + 1)),
+                          onPressed: () {
+                            onPressed(cell.value
+                                .substring(cell.value.indexOf('|') + 1));
+                          },
                           child: Text(
-                              cell.value.substring(0, cell.value.indexOf('|'))),
+                            cell.value.substring(
+                              0,
+                              cell.value.indexOf('|'),
+                            ),
+                          ),
                         )
                       : TextButton(
                           onPressed: () {

@@ -6,8 +6,7 @@ class ValueModel {
   DateTime assignedDateTime;
   DateTime? unassignedBy;
   DateTime? unassignedDateTime;
-  DateTime? startDateTime;
-  DateTime? endDateTime;
+  DateTime? submitDateTime;
   int? phase;
   int? weight;
   int? gas;
@@ -26,8 +25,7 @@ class ValueModel {
     required this.assignedDateTime,
     this.unassignedBy,
     this.unassignedDateTime,
-    this.startDateTime,
-    this.endDateTime,
+    this.submitDateTime,
     this.phase,
     this.weight,
     this.gas,
@@ -47,8 +45,7 @@ class ValueModel {
       'assignedDateTime': assignedDateTime,
       'isCommented': isCommented,
       'isHidden': isHidden,
-      'startDateTime': startDateTime != null ? startDateTime : null,
-      'endDateTime': endDateTime != null ? endDateTime : null,
+      'submitDateTime': submitDateTime != null ? submitDateTime : null,
       'phase': phase != null ? phase : null,
       'weight': weight != null ? weight : null,
       'gas': gas != null ? gas : null,
@@ -68,10 +65,8 @@ class ValueModel {
       assignedDateTime: map['assignedDateTime'] != null
           ? map['assignedDateTime'].toDate()
           : null,
-      startDateTime:
-          map['startDateTime'] != null ? map['startDateTime'].toDate() : null,
-      endDateTime:
-          map['endDateTime'] != null ? map['endDateTime'].toDate() : null,
+      submitDateTime:
+          map['submitDateTime'] != null ? map['submitDateTime'].toDate() : null,
       phase: map['phase'] != null ? map['phase'] : null,
       weight: map['weight'] != null ? map['weight'] : null,
       gas: map['gas'] != null ? map['gas'] : null,

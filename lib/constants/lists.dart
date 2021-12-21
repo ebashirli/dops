@@ -161,8 +161,7 @@ List<String> valueTableColumnHeadList = [
   'stageId',
   'Employee Id',
   'Note',
-  'Start date time',
-  'End date time',
+  'Submit date time',
   'Assigned by',
   'Assigned date time',
   'Unassigned by',
@@ -178,41 +177,41 @@ List<Map<String, dynamic>> stageDetailsList1 = [
   {
     'name': 'Modelling',
     'staff job': 'Designers',
-    'columns': <String>['Weight', 'GAS', 'SFD', 'DTL', 'Files'],
+    'columns': <String>['Weight', 'GAS', 'SFD', 'DTL', 'File Names'],
   },
   {
     'name': 'Drafting',
     'staff job': 'Drafters',
-    'columns': <String>['Weight', 'GAS', 'SFD', 'DTL', 'Files'],
+    'columns': <String>['Weight', 'GAS', 'SFD', 'DTL', 'File Names'],
   },
   {
     'name': 'Checking',
     'get files': 'Get whitecopies',
     'staff job': 'Checkers',
-    'columns': <String>['GAS', 'SFD', 'DTL', 'Files'],
+    'columns': <String>['GAS', 'SFD', 'DTL', 'File Names'],
   },
   {
     'name': 'Back Drafting',
     'get files': 'Get checkprints',
     'staff job': 'Back Drafters',
-    'columns': ['Files'],
+    'columns': ['File Names'],
   },
   {
     'name': 'Back Checking',
     'get files': 'Get checkprints',
     'staff job': 'Back Checkers',
-    'columns': ['Files'],
+    'columns': ['File Names', "Comment"],
   },
   {
     'name': 'Reviewing',
     'get files': 'Get checkprints',
     'staff job': 'Reviewer',
-    'columns': ['Files'],
+    'columns': ['File Names', "Comment"],
   },
   {
     'name': 'Filing',
     'staff job': 'Filing resp. person',
-    'columns': ['Files'],
+    'columns': ['File Names'],
     'files': {
       'columns': ['File', 'Mark', 'Quantity'],
       'rowsIds': [

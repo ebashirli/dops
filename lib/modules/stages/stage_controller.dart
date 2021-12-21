@@ -12,8 +12,6 @@ import 'package:dops/modules/values/value_model.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:intl/intl.dart';
 import '../../components/custom_widgets.dart';
 
 class StageController extends GetxService {
@@ -46,9 +44,9 @@ class StageController extends GetxService {
 
   late final List<List<List<String?>>> stageNotesList;
 
-  late List<List<String>> filesList;
+  late RxList<List<String>> fileNamesList;
 
-  late List<String> commentStatus;
+  late List<String?> commentStatus;
 
   final Rx<bool> isCoordinator = false.obs;
 
@@ -106,9 +104,9 @@ class StageController extends GetxService {
 
     stageNotesList = List.generate(9, (index) => <List<String?>>[]);
 
-    filesList = List.generate(9, (index) => <String>[]);
+    fileNamesList = List.generate(9, (index) => <String>[]).obs;
 
-    commentStatus = ['', ''];
+    commentStatus = [null, null];
     _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
 
@@ -424,12 +422,12 @@ class StageController extends GetxService {
                   if (valueModel!.employeeId == auth.currentUser!.uid &&
                       valueModel.isHidden != true) {
                     isCurrentUserAssigned = true;
-                    if (valueModel.endDateTime != null) {
+                    if (valueModel.submitDateTime != null) {
                       isSubmitted = true;
                     }
                   }
 
-                  if (valueModel.endDateTime != null) {
+                  if (valueModel.submitDateTime != null) {
                     notesList.add({
                       'employeeId': valueModel.employeeId,
                       'note': valueModel.note
@@ -449,7 +447,6 @@ class StageController extends GetxService {
                 });
               }
             }
-
             return ExpansionPanel(
               canTapOnHeader: true,
               isExpanded: isExpandedList[index],
@@ -464,7 +461,9 @@ class StageController extends GetxService {
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   children: [
-                    if (unsubmittedCount != 0 && isCoordinator.value)
+                    if (((!coordinatorAssigns && unsubmittedCount != 0) ||
+                            coordinatorAssigns) &&
+                        isCoordinator.value)
                       Column(
                         children: [
                           Form(
@@ -625,13 +624,75 @@ class StageController extends GetxService {
                         ],
                       ),
                     if (!coordinatorAssigns)
-                      Column(
-                        children: [
-                          ValueTableView(
-                            index: index,
-                            stageValueModelsList: stageValueModelsLists.last!,
-                          ),
-                        ],
+                      Form(
+                        key: formKeysList[index][1],
+                        child: Column(
+                          children: [
+                            ValueTableView(
+                              index: index,
+                              stageValueModelsList: stageValueModelsLists.last!,
+                            ),
+                            if (isCurrentUserAssigned && !isSubmitted)
+                              Row(
+                                mainAxisAlignment: [5, 6].contains(index)
+                                    ? MainAxisAlignment.spaceBetween
+                                    : MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  if (index == 7)
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Checkbox(
+                                          checkColor: Colors.white,
+                                          value: isChecked.value,
+                                          onChanged: (bool? value) {
+                                            isChecked.value = value!;
+                                          },
+                                        ),
+                                        Text(
+                                          'By clicking this checkbox I confirm that all files\nare attached correctly and below appropriate task',
+                                        ),
+                                      ],
+                                    ),
+                                  SizedBox(width: 10),
+                                  ElevatedButton(
+                                    onPressed: ([5, 6].contains(index) &&
+                                            commentStatus[index - 5] == "")
+                                        ? null
+                                        : () => _onSubmitPressed(
+                                              index: index,
+                                              assignedValueModel:
+                                                  stageValueModelsLists.last!
+                                                      .singleWhere(
+                                                          (valueModel) =>
+                                                              valueModel!
+                                                                  .employeeId ==
+                                                              auth.currentUser!
+                                                                  .uid)!,
+                                              lastTaskStage:
+                                                  stageStageModels.last,
+                                              isCommented: [5, 6]
+                                                      .contains(index)
+                                                  ? commentStatus[index - 5] ==
+                                                      'With'
+                                                  : false,
+                                              isLastSubmit:
+                                                  unsubmittedCount == 1,
+                                            ),
+                                    child: Container(
+                                      height: 20,
+                                      child:
+                                          Center(child: const Text('Submit')),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
                       ),
                   ],
                 ),
@@ -693,17 +754,21 @@ class StageController extends GetxService {
     bool isCommented = false,
   }) {
     Map<String, dynamic> map = {};
-
-    numberFieldNames(index).forEach((String? fieldName) {
-      if (fieldName != null) {
-        map[fieldName.toLowerCase()] = int.parse(
+    // TODO: add Files to this and get filed names from stageDetailsList1
+    numberFieldNames(index).forEach(
+      (String? fieldName) {
+        if (fieldName != null) {
+          map[fieldName.toLowerCase()] = int.parse(
             controllersListForNumberFields[index]![fieldName.toLowerCase()]!
-                .text);
-      }
-    });
+                .text,
+          );
+        }
+      },
+    );
 
     map['note'] = controllersListForNote[index].text;
-    map['endDateTime'] = DateTime.now();
+    map['fileNames'] = fileNamesList[index];
+    map['submitDateTime'] = DateTime.now();
 
     valueController.addValues(
       map: map,
@@ -921,122 +986,7 @@ class StageController extends GetxService {
 //                                 Spacer(flex: 3),
 //                                 Flexible(
 //                                   flex: 5,
-//                                   child: Column(
-//                                     mainAxisSize: MainAxisSize.max,
-//                                     mainAxisAlignment: MainAxisAlignment.end,
-//                                     crossAxisAlignment: CrossAxisAlignment.end,
-//                                     children: [
-//                                       if (notesList.isNotEmpty)
-//                                         Column(
-//                                           children: notesList.map((map) {
-//                                             String initial = staffController
-//                                                 .documents
-//                                                 .singleWhere((staffModel) =>
-//                                                     map!['employeeId']! ==
-//                                                     staffModel.id!)
-//                                                 .initial;
-//                                             return Row(
-//                                               children: <Widget>[
-//                                                 Text(initial + ": "),
-//                                                 Text(map!['note']!),
-//                                               ],
-//                                             );
-//                                           }).toList(),
-//                                         ),
-//                                       if (index == 7)
-//                                         Column(
-//                                           children: [
-//                                             Row(
-//                                               mainAxisAlignment:
-//                                                   MainAxisAlignment.start,
-//                                               crossAxisAlignment:
-//                                                   CrossAxisAlignment.start,
-//                                               children: [
-//                                                 Checkbox(
-//                                                   checkColor: Colors.white,
-//                                                   value: isChecked.value,
-//                                                   onChanged: (bool? value) {
-//                                                     isChecked.value = value!;
-//                                                   },
-//                                                 ),
-//                                                 Text(
-//                                                     '''By clicking this checkbox I confirm that all files
-//  are attached correctly and below appropriate task'''),
-//                                               ],
-//                                             ),
-//                                             SizedBox(height: 10),
-//                                           ],
-//                                         ),
-//                                       if (isCurrentUserAssigned && !isSubmitted)
-//                                         CustomTextFormField(
-//                                           controller: controllersListForNote[index],
-//                                           labelText: stageDetailsList[index]
-//                                               ['string fields'][0],
-//                                           width: double.infinity,
-//                                           maxLines: 2,
-//                                         ),
-//                                       SizedBox(width: 10),
-//                                       Row(
-//                                         mainAxisAlignment: [5, 6].contains(index)
-//                                             ? MainAxisAlignment.spaceBetween
-//                                             : MainAxisAlignment.end,
-//                                         crossAxisAlignment:
-//                                             CrossAxisAlignment.center,
-//                                         children: [
-//                                           if ([5, 6].contains(index) &&
-//                                               isCurrentUserAssigned &&
-//                                               !isSubmitted)
-//                                             CustomDropdownMenu(
-//                                                 width: 150,
-//                                                 labelText: 'Comment',
-//                                                 onChanged: (value) =>
-//                                                     commentStatus[index - 5] =
-//                                                         value,
-//                                                 selectedItems: [
-//                                                   commentStatus[index - 5]
-//                                                 ],
-//                                                 items: [
-//                                                   'With Comment',
-//                                                   'No Comment'
-//                                                 ]),
-//                                           if (isCurrentUserAssigned && !isSubmitted)
-//                                             ElevatedButton(
-//                                               onPressed: ([5, 6].contains(index) &&
-//                                                       commentStatus[index - 5] ==
-//                                                           "")
-//                                                   ? null
-//                                                   : () => _onSubmitPressed(
-//                                                         index: index,
-//                                                         assignedValueModel:
-//                                                             stageValueModelsLists
-//                                                                 .last!
-//                                                                 .singleWhere((valueModel) =>
-//                                                                     valueModel!
-//                                                                         .employeeId ==
-//                                                                     auth.currentUser!
-//                                                                         .uid)!,
-//                                                         lastTaskStage:
-//                                                             stageStageModels.last,
-//                                                         isCommented: [5, 6]
-//                                                                 .contains(index)
-//                                                             ? commentStatus[
-//                                                                     index - 5] ==
-//                                                                 'With Comment'
-//                                                             : false,
-//                                                         isLastSubmit:
-//                                                             unsubmittedCount == 1,
-//                                                       ),
-//                                               child: Container(
-//                                                 height: 46,
-//                                                 child: Center(
-//                                                   child: const Text(
-//                                                     'Submit',
-//                                                   ),
-//                                                 ),
-//                                               ),
-//                                             ),
-//                                         ],
-//                                       ),
+//                                   
 //                                     ],
 //                                   ),
 //                                 ),

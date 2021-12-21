@@ -1,6 +1,7 @@
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
 import 'package:dops/modules/values/value_model.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:recase/recase.dart';
@@ -30,6 +31,7 @@ class ValueTableView extends StatelessWidget {
             ...stageDetailsList1[index]['columns'],
             ...valueTableColumnHeadList.sublist(3),
           ];
+
           final DataSource dataSource = DataSource(
             data: stageValueModelsList.map((valueModel) {
               late Map<String, dynamic> map = {};
@@ -40,12 +42,13 @@ class ValueTableView extends StatelessWidget {
               map['id'] = valueModel!.id;
               return map;
             }).toList(),
+            index: index,
+            stageValueModelsList: stageValueModelsList,
           );
 
-          final columnsWithTotal = ['Weight', 'GAS', 'SFD', 'DTL']
+          final columnsWithTotal = ['Weight', 'GAS', 'SFD', 'DTL', 'File Names']
               .toSet()
               .intersection(stageDetailsList1[index]['columns'].toSet());
-          print(columnsWithTotal);
 
           final DataGridController _dataGridController = DataGridController();
 
@@ -59,19 +62,20 @@ class ValueTableView extends StatelessWidget {
                   ? []
                   : [
                       GridTableSummaryRow(
-                          showSummaryInRow: false,
-                          title: 'Total:',
-                          titleColumnSpan: 1,
-                          columns: columnsWithTotal
-                              .map(
-                                (columnName) => GridSummaryColumn(
-                                  name: 'Sum',
-                                  columnName: columnName,
-                                  summaryType: GridSummaryType.sum,
-                                ),
-                              )
-                              .toList(),
-                          position: GridTableSummaryRowPosition.bottom),
+                        showSummaryInRow: false,
+                        title: 'Total:',
+                        titleColumnSpan: 1,
+                        columns: columnsWithTotal
+                            .map(
+                              (columnName) => GridSummaryColumn(
+                                name: 'Sum',
+                                columnName: columnName,
+                                summaryType: GridSummaryType.sum,
+                              ),
+                            )
+                            .toList(),
+                        position: GridTableSummaryRowPosition.bottom,
+                      ),
                     ],
               columns: getColumns(tableColumns),
               gridLinesVisibility: GridLinesVisibility.both,
@@ -112,7 +116,11 @@ class ValueTableView extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      columnName == 'Employee Id' ? 'Employee' : columnName,
+                      columnName == 'Employee Id'
+                          ? 'Employee'
+                          : columnName == 'File Names'
+                              ? 'Files'
+                              : columnName,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
@@ -130,7 +138,13 @@ class ValueTableView extends StatelessWidget {
 List<DataGridRow> _data = [];
 
 class DataSource extends DataGridSource {
-  DataSource({required List<Map<String, dynamic>> data}) {
+  final int index;
+  final List<ValueModel?> stageValueModelsList;
+  DataSource({
+    required List<Map<String, dynamic>> data,
+    required this.index,
+    required this.stageValueModelsList,
+  }) {
     _data = data.map<DataGridRow>(
       (map) {
         return DataGridRow(
@@ -138,7 +152,9 @@ class DataSource extends DataGridSource {
             (entry) {
               return DataGridCell<dynamic>(
                 columnName: entry.key,
-                value: entry.value,
+                value: entry.key == 'File Names'
+                    ? entry.value.length
+                    : entry.value,
               );
             },
           ).toList(),
@@ -156,55 +172,107 @@ class DataSource extends DataGridSource {
     GridSummaryColumn? summaryColumn,
     RowColumnIndex rowColumnIndex,
     String summaryValue,
-  ) =>
-      Container(
-        padding: const EdgeInsets.all(15.0),
-        child: Center(
-            child: Text(
-          summaryValue,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        )),
-      );
+  ) {
+    return (summaryColumn != null && summaryColumn.columnName == 'File Names')
+        ? Container(
+            padding: const EdgeInsets.all(15.0),
+            child: Center(
+              child: TextButton(
+                onPressed: () {
+                  stageValueModelsList.forEach((e) {
+                    if (e!.fileNames != null) print(e.fileNames);
+                  });
+                },
+                child: Text(
+                  summaryValue,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          )
+        : Container(
+            padding: const EdgeInsets.all(15.0),
+            child: Center(
+                child: Text(
+              summaryValue,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            )),
+          );
+  }
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
-    final bool isImputForm = row.getCells()[2].value == auth.currentUser!.uid &&
+    final bool isInputForm = row.getCells()[2].value == auth.currentUser!.uid &&
         row
                 .getCells()
-                .singleWhere((element) => element.columnName == 'End date time')
+                .singleWhere(
+                    (element) => element.columnName == 'Submit date time')
                 .value ==
             null;
+    final List<String> fileNames = stageValueModelsList
+        .singleWhere((element) => element!.id == row.getCells()[0].value)!
+        .fileNames!;
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>(
         (cell) {
-          if (['Weight', 'Phase', 'GAS', 'SFD', 'DTL', 'Files', 'Note']
-                  .contains(cell.columnName) &&
-              isImputForm) {
+          if ([
+                'Weight',
+                'Phase',
+                'GAS',
+                'SFD',
+                'DTL',
+                'File Names',
+                'Note',
+                "Comment"
+              ].contains(cell.columnName) &&
+              isInputForm) {
             switch (cell.columnName) {
-              case 'Files':
-                return Container(
-                  height: 48,
-                  width: 80,
-                  child: Center(
-                    child: Text('Browse files'),
-                  ),
-                );
+              case 'File Names':
+                return Obx(() => Container(
+                      padding: EdgeInsets.all(16),
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          FilePickerResult? result =
+                              await FilePicker.platform.pickFiles(
+                            allowMultiple: true,
+                          );
+
+                          if (result != null) {
+                            stageController.fileNamesList[index] =
+                                result.files.map((file) => file.name).toList();
+                          }
+                        },
+                        child: Center(
+                          child: Text(
+                            'Files (${stageController.fileNamesList[index].length})',
+                          ),
+                        ),
+                      ),
+                    ));
+              case 'Comment':
+                return CustomDropdownMenu(
+                    width: 150,
+                    labelText: 'Comment',
+                    onChanged: (value) =>
+                        stageController.commentStatus[index - 5] = value,
+                    selectedItems: [],
+                    items: ['With', 'Without']);
               case 'Note':
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.all(4.0),
                     child: CustomTextFormField(
                       sizeBoxHeight: 0,
-                      // controller: controllersListForNote[index],
-                      // labelText: stageDetailsList[index]['string fields'][0],
+                      controller: stageController.controllersListForNote[index],
                       width: double.infinity,
                       maxLines: 2,
                     ),
                   ),
                 );
-
               default:
                 return Center(
                   child: Padding(
@@ -212,13 +280,21 @@ class DataSource extends DataGridSource {
                     child: CustomTextFormField(
                       sizeBoxHeight: 0,
                       isNumber: true,
-                      controller: stageController
-                          .controllersListForNumberFields[2]![cell.columnName],
+                      controller:
+                          stageController.controllersListForNumberFields[
+                              index]![cell.columnName.toLowerCase()],
                       width: 80,
                     ),
                   ),
                 );
             }
+          } else if (cell.columnName == 'File Names') {
+            return Center(
+              child: TextButton(
+                onPressed: () => print(fileNames),
+                child: Text(cell.value.toString()),
+              ),
+            );
           } else {
             final cellValue = ['Employee Id', 'Assigned by']
                     .contains(cell.columnName)
@@ -227,12 +303,12 @@ class DataSource extends DataGridSource {
                     .initial
                 : cell.value is DateTime
                     ? '${cell.value.day}/${cell.value.month}/${cell.value.year} ${cell.value.hour}:${cell.value.minute}'
-                    : cell.value.toString();
+                    : cell.value ?? '';
             return Container(
               alignment: Alignment.center,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(cellValue),
+                child: Text(cellValue.toString()),
               ),
             );
           }

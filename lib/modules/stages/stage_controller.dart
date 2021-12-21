@@ -46,7 +46,7 @@ class StageController extends GetxService {
 
   late RxList<List<String>> fileNamesList;
 
-  late List<String?> commentStatus;
+  late RxList<String> commentStatus;
 
   final Rx<bool> isCoordinator = false.obs;
 
@@ -106,7 +106,8 @@ class StageController extends GetxService {
 
     fileNamesList = List.generate(9, (index) => <String>[]).obs;
 
-    commentStatus = [null, null];
+    commentStatus = ['', ''].obs;
+
     _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
 
@@ -362,7 +363,6 @@ class StageController extends GetxService {
       padding: const EdgeInsets.only(bottom: 200),
       child: ExpansionPanelList(
         expansionCallback: (int index, bool isExpanded) {
-          // if (index == taskStages.last.index)
           isExpandedList[index] = !isExpanded;
         },
         children: List.generate(
@@ -501,7 +501,6 @@ class StageController extends GetxService {
                                                   itemAsString: (StaffModel?
                                                           item) =>
                                                       '${item!.name} ${item.surname}',
-                                                  // maxHeight: 300,
                                                   mode: Mode.MENU,
                                                   dropdownSearchDecoration:
                                                       InputDecoration(
@@ -634,9 +633,7 @@ class StageController extends GetxService {
                             ),
                             if (isCurrentUserAssigned && !isSubmitted)
                               Row(
-                                mainAxisAlignment: [5, 6].contains(index)
-                                    ? MainAxisAlignment.spaceBetween
-                                    : MainAxisAlignment.end,
+                                mainAxisAlignment: MainAxisAlignment.end,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   if (index == 7)
@@ -663,7 +660,8 @@ class StageController extends GetxService {
                                     onPressed: ([5, 6].contains(index) &&
                                             commentStatus[index - 5] == "")
                                         ? null
-                                        : () => _onSubmitPressed(
+                                        : () {
+                                            _onSubmitPressed(
                                               index: index,
                                               assignedValueModel:
                                                   stageValueModelsLists.last!
@@ -682,13 +680,15 @@ class StageController extends GetxService {
                                                   : false,
                                               isLastSubmit:
                                                   unsubmittedCount == 1,
-                                            ),
+                                            );
+                                          },
                                     child: Container(
                                       height: 20,
                                       child:
                                           Center(child: const Text('Submit')),
                                     ),
                                   ),
+                                  SizedBox(width: 10),
                                 ],
                               ),
                           ],
@@ -769,6 +769,7 @@ class StageController extends GetxService {
     map['note'] = controllersListForNote[index].text;
     map['fileNames'] = fileNamesList[index];
     map['submitDateTime'] = DateTime.now();
+    map['isCommented'] = isCommented;
 
     valueController.addValues(
       map: map,
@@ -779,11 +780,11 @@ class StageController extends GetxService {
       StageModel stage = StageModel(
         taskId: Get.parameters['id']!,
         index: index + 1,
-        reviewerCommentCounter: (isCommented && index == 5)
-            ? lastTaskStage.reviewerCommentCounter + 1
-            : 0,
-        checkerCommentCounter: (isCommented && index == 6)
+        checkerCommentCounter: (isCommented && index == 5)
             ? lastTaskStage.checkerCommentCounter + 1
+            : 0,
+        reviewerCommentCounter: (isCommented && index == 6)
+            ? lastTaskStage.reviewerCommentCounter + 1
             : 0,
         creationDateTime: DateTime.now(),
       );

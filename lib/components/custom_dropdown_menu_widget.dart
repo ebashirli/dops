@@ -4,21 +4,25 @@ import 'package:flutter/material.dart';
 class CustomDropdownMenu extends StatelessWidget {
   final List<dynamic> items;
   final void Function(dynamic) onChanged;
-  final String labelText;
+  final String? labelText;
   final List<String> selectedItems;
   final double? width;
   final bool isMultiSelectable;
   final bool showSearchBox;
+  final double sizeBoxHeight;
+  final double bottomPadding;
 
   CustomDropdownMenu({
     Key? key,
-    required this.labelText,
+    this.labelText,
     required this.onChanged,
     required this.selectedItems,
     this.width,
     required this.items,
     this.isMultiSelectable = false,
     this.showSearchBox = false,
+    this.sizeBoxHeight = 10,
+    this.bottomPadding = 8,
   }) : super(key: key);
 
   @override
@@ -26,9 +30,10 @@ class CustomDropdownMenu extends StatelessWidget {
     return Container(
       width: width,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
+            padding: EdgeInsets.only(bottom: bottomPadding),
             child: isMultiSelectable
                 ? DropdownSearch<String>.multiSelection(
                     selectedItems: selectedItems,
@@ -69,7 +74,11 @@ class CustomDropdownMenu extends StatelessWidget {
                 : DropdownSearch<String>(
                     selectedItem: selectedItems[0],
                     showSearchBox: showSearchBox,
-                    maxHeight: items.length < 10 ? items.length * 100 : 250,
+                    maxHeight: items.length < 3
+                        ? items.length * 50
+                        : items.length < 10
+                            ? items.length * 100
+                            : 250,
                     mode: Mode.MENU,
                     items: items
                         .map((e) => e is List ? e[1].toString() : e.toString())
@@ -84,7 +93,7 @@ class CustomDropdownMenu extends StatelessWidget {
                     onChanged: onChanged,
                   ),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: sizeBoxHeight),
         ],
       ),
     );

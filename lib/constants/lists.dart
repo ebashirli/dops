@@ -160,12 +160,9 @@ List<String> valueTableColumnHeadList = [
   'id',
   'stageId',
   'Employee Id',
+  'Assigned date time',
   'Note',
   'Submit date time',
-  'Assigned by',
-  'Assigned date time',
-  'Unassigned by',
-  'Unasigned date time',
 ];
 
 List<Map<String, dynamic>> stageDetailsList1 = [
@@ -177,7 +174,7 @@ List<Map<String, dynamic>> stageDetailsList1 = [
   {
     'name': 'Modelling',
     'staff job': 'Designers',
-    'columns': <String>['Weight', 'GAS', 'SFD', 'DTL', 'File Names'],
+    'columns': <String>['Weight', 'GAS', 'SFD', 'DTL'],
   },
   {
     'name': 'Drafting',
@@ -200,13 +197,13 @@ List<Map<String, dynamic>> stageDetailsList1 = [
     'name': 'Back Checking',
     'get files': 'Get checkprints',
     'staff job': 'Back Checkers',
-    'columns': ['File Names', "Comment"],
+    'columns': ['File Names', "Is Commented"],
   },
   {
     'name': 'Reviewing',
     'get files': 'Get checkprints',
     'staff job': 'Reviewer',
-    'columns': ['File Names', "Comment"],
+    'columns': ['File Names', "Is Commented"],
   },
   {
     'name': 'Filing',

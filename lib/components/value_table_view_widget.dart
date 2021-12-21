@@ -27,9 +27,9 @@ class ValueTableView extends StatelessWidget {
           return CircularProgressIndicator();
         } else {
           final List<String> tableColumns = [
-            ...valueTableColumnHeadList.sublist(0, 3),
+            ...valueTableColumnHeadList.sublist(0, 4),
             ...stageDetailsList1[index]['columns'],
-            ...valueTableColumnHeadList.sublist(3),
+            ...valueTableColumnHeadList.sublist(4),
           ];
 
           final DataSource dataSource = DataSource(
@@ -51,8 +51,8 @@ class ValueTableView extends StatelessWidget {
               .intersection(stageDetailsList1[index]['columns'].toSet());
 
           final DataGridController _dataGridController = DataGridController();
-
-          return Padding(
+          return Container(
+            height: (stageValueModelsList.length + 1) * 100,
             padding: const EdgeInsets.all(10.0),
             child: SfDataGrid(
               isScrollbarAlwaysShown: false,
@@ -77,11 +77,12 @@ class ValueTableView extends StatelessWidget {
                         position: GridTableSummaryRowPosition.bottom,
                       ),
                     ],
+
               columns: getColumns(tableColumns),
               gridLinesVisibility: GridLinesVisibility.both,
               headerGridLinesVisibility: GridLinesVisibility.both,
               // allowSorting: true,
-              rowHeight: 70,
+              rowHeight: 60,
               controller: _dataGridController,
               selectionMode: SelectionMode.singleDeselect,
               navigationMode: GridNavigationMode.row,
@@ -120,7 +121,9 @@ class ValueTableView extends StatelessWidget {
                           ? 'Employee'
                           : columnName == 'File Names'
                               ? 'Files'
-                              : columnName,
+                              : columnName == 'Is Commented'
+                                  ? 'Comment'
+                                  : columnName,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
@@ -153,7 +156,9 @@ class DataSource extends DataGridSource {
               return DataGridCell<dynamic>(
                 columnName: entry.key,
                 value: entry.key == 'File Names'
-                    ? entry.value.length
+                    ? entry.value != null
+                        ? entry.value.length
+                        : 0
                     : entry.value,
               );
             },
@@ -213,9 +218,12 @@ class DataSource extends DataGridSource {
                     (element) => element.columnName == 'Submit date time')
                 .value ==
             null;
+
     final List<String> fileNames = stageValueModelsList
-        .singleWhere((element) => element!.id == row.getCells()[0].value)!
-        .fileNames!;
+            .singleWhere((element) => element!.id == row.getCells()[0].value)!
+            .fileNames ??
+        <String>[];
+
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>(
         (cell) {
@@ -227,7 +235,7 @@ class DataSource extends DataGridSource {
                 'DTL',
                 'File Names',
                 'Note',
-                "Comment"
+                "Is Commented"
               ].contains(cell.columnName) &&
               isInputForm) {
             switch (cell.columnName) {
@@ -253,14 +261,19 @@ class DataSource extends DataGridSource {
                         ),
                       ),
                     ));
-              case 'Comment':
-                return CustomDropdownMenu(
-                    width: 150,
-                    labelText: 'Comment',
-                    onChanged: (value) =>
-                        stageController.commentStatus[index - 5] = value,
-                    selectedItems: [],
-                    items: ['With', 'Without']);
+              case 'Is Commented':
+                return Center(
+                  child: CustomDropdownMenu(
+                    bottomPadding: 0,
+                    sizeBoxHeight: 0,
+                    width: 140,
+                    onChanged: (value) {
+                      stageController.commentStatus[index - 5] = value;
+                    },
+                    selectedItems: [stageController.commentStatus[index - 5]],
+                    items: ['With', 'Without'],
+                  ),
+                );
               case 'Note':
                 return Center(
                   child: Padding(

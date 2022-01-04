@@ -21,7 +21,7 @@ class ValueRepository {
   }
 
   Stream<List<ValueModel>> getAllDocumentsAsStream() {
-    return _api.getShowingDataAsStream().map((QuerySnapshot query) {
+    return _api.getDataAsStream().map((QuerySnapshot query) {
       List<ValueModel> returnValue = [];
       query.docs.forEach(
         (snapshot) {

@@ -21,7 +21,7 @@ class StageRepository {
   }
 
   Stream<List<StageModel>> getAllDocumentsAsStream() {
-    return _api.getShowingDataAsStream().map((QuerySnapshot query) {
+    return _api.getDataAsStream().map((QuerySnapshot query) {
       List<StageModel> returnValue = [];
       query.docs.forEach(
         (snapshot) {

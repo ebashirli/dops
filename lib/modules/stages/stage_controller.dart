@@ -46,9 +46,11 @@ class StageController extends GetxService {
 
   late RxList<String> commentStatus;
 
-  final Rx<bool> isCoordinator = false.obs;
+  final RxBool isCoordinator = false.obs;
 
-  final Rx<bool> isChecked = false.obs;
+  final RxBool isChecked = false.obs;
+
+  final RxString pressedTaskId = ''.obs;
 
   RxList<StageModel> _documents = RxList<StageModel>([]);
   List<StageModel> get documents => _documents;
@@ -325,7 +327,6 @@ class StageController extends GetxService {
                             map: updatedTaskFields,
                             id: taskModel.id!,
                           );
-                          // TODO: Ask Ismail: update last revision details from here?
                         },
                         child: Text('Update'),
                       ),
@@ -349,16 +350,18 @@ class StageController extends GetxService {
 
     taskStages.sort((a, b) => a.creationDateTime.compareTo(b.creationDateTime));
 
-    final int maxIndex =
-        taskStages.map((stageModel) => stageModel.index).reduce(max);
+    final RxInt maxIndex =
+        taskStages.map((stageModel) => stageModel.index).reduce(max).obs;
+    print(maxIndex);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 200),
+      padding: const EdgeInsets.only(bottom: 300),
       child: ExpansionPanelList(
-        expansionCallback: (int index, bool isExpanded) =>
-            isExpandedList[index] = !isExpanded,
+        expansionCallback: (int index, bool isExpanded) {
+          isExpandedList[index] = !isExpanded;
+        },
         children: List.generate(
-          maxIndex + 1,
+          maxIndex.value + 1,
           (index) {
             List<StageModel> stageStageModels = taskStages
                 .where((stageModel) => stageModel.index == index)
@@ -452,6 +455,7 @@ class StageController extends GetxService {
               body: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (((!coordinatorAssigns && unsubmittedCount != 0) ||
                             coordinatorAssigns) &&
@@ -603,9 +607,7 @@ class StageController extends GetxService {
                       ),
                     if (stageDetailsList[index]['get files'] != null)
                       ElevatedButton(
-                        onPressed: () {
-                          
-                        },
+                        onPressed: () {},
                         child: Container(
                           height: 48,
                           width: 100,
@@ -649,8 +651,10 @@ class StageController extends GetxService {
                                     ),
                                   SizedBox(width: 10),
                                   ElevatedButton(
-                                    onPressed: ([5, 6].contains(index) &&
-                                            commentStatus[index - 5] == "")
+                                    onPressed: (([5, 6].contains(index) &&
+                                                commentStatus[index - 5] ==
+                                                    "") ||
+                                            (index == 7 && !isChecked.value))
                                         ? null
                                         : () {
                                             _onSubmitPressed(
@@ -737,13 +741,12 @@ class StageController extends GetxService {
     }
   }
 
-  void _onSubmitPressed({
-    required int index,
-    required ValueModel assignedValueModel,
-    required StageModel lastTaskStage,
-    required bool isLastSubmit,
-    bool isCommented = false,
-  }) async {
+  void _onSubmitPressed(
+      {required int index,
+      required ValueModel assignedValueModel,
+      required StageModel lastTaskStage,
+      required bool isLastSubmit,
+      bool isCommented = false}) async {
     Map<String, dynamic> map = {};
 
     numberFieldNames(index).forEach(
@@ -766,8 +769,6 @@ class StageController extends GetxService {
       map: map,
       id: assignedValueModel.id!,
     );
-
-    print('isLastSubmit' + isLastSubmit.toString());
 
     if (isLastSubmit) {
       bool anyComment = await valueController.documents.any((valueModel) =>

@@ -1,30 +1,29 @@
 import 'dart:ui';
+import 'package:dops/core/auth_manager.dart';
+import 'package:dops/modules/activity/activity_controller.dart';
+import 'package:dops/modules/activity/activity_repository.dart';
+import 'package:dops/modules/reference_document/reference_document_controller.dart';
 import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/drawing/drawing_repository.dart';
 import 'package:dops/modules/home/home_controller.dart';
 import 'package:dops/modules/list/lists_controller.dart';
 import 'package:dops/modules/list/lists_repository.dart';
+import 'package:dops/modules/reference_document/reference_document_repository.dart';
+import 'package:dops/modules/staff/staff_controller.dart';
+import 'package:dops/modules/staff/staff_repository.dart';
 import 'package:dops/modules/stages/stage_controller.dart';
 import 'package:dops/modules/stages/stage_repository.dart';
 import 'package:dops/modules/task/task_controller.dart';
+import 'package:dops/modules/task/task_repository.dart';
 import 'package:dops/modules/values/value_controller.dart';
 import 'package:dops/modules/values/values_repository.dart';
+import 'package:dops/routes/app_pages.dart';
+import 'package:dops/services/firebase_service/firebase_storage_service.dart';
 
-import 'core/auth_manager.dart';
-import 'modules/activity/activity_controller.dart';
-import 'modules/activity/activity_repository.dart';
-import 'modules/reference_document/reference_document_controller.dart';
-import 'modules/reference_document/reference_document_repository.dart';
-import 'modules/staff/staff_controller.dart';
-import 'modules/staff/staff_repository.dart';
-import 'modules/task/task_repository.dart';
-import 'services/firebase_service/firebase_storage_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_strategy/url_strategy.dart';
-
-import 'routes/app_pages.dart';
 
 Future<void> main() async {
   await initServices();

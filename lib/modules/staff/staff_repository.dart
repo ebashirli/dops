@@ -21,7 +21,7 @@ class StaffRepository {
   }
 
   Stream<List<StaffModel>> getAllDocumentsAsStream() {
-    return _api.getShowingDataAsStream().map((QuerySnapshot query) {
+    return _api.getDataAsStream().map((QuerySnapshot query) {
       List<StaffModel> returnValue = [];
       query.docs.forEach(
         (snapshot) {

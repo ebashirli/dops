@@ -21,7 +21,7 @@ class DrawingRepository {
   }
 
   Stream<List<DrawingModel>> getAllDocumentsAsStream() {
-    return _api.getShowingDataAsStream().map((QuerySnapshot query) {
+    return _api.getDataAsStream().map((QuerySnapshot query) {
       List<DrawingModel> returnValue = [];
       query.docs.forEach(
         (snapshot) {

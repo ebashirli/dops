@@ -10,34 +10,37 @@ class FirebaseStorageService extends GetxService implements StorageService {
     ref = firebaseFirestore.collection(path);
   }
 
+  @override
   Future<QuerySnapshot> getData() {
     return ref.get();
   }
 
-  Stream<QuerySnapshot> getShowingDataAsStream() {
-    return ref.snapshots();
-  }
-
+  @override
   Stream<QuerySnapshot> getDataAsStream() {
     return ref.snapshots();
   }
 
+  @override
   Future<DocumentSnapshot> getDocumentById(String id) {
     return ref.doc(id).get();
   }
 
+  @override
   Future<void> removeDocument(String id) {
     return ref.doc(id).delete();
   }
 
+  @override
   Future<DocumentReference> addDocument(Map data) async {
     return await ref.add(data);
   }
 
+  @override
   Future<void> updateDocument(Map<String, dynamic> data, String id) {
     return ref.doc(id).update(data);
   }
 
+  @override
   Future<void> addDocumentWithId(Map data, String docId) {
     return ref.doc(docId).set(data);
   }
@@ -45,7 +48,6 @@ class FirebaseStorageService extends GetxService implements StorageService {
 
 abstract class StorageService {
   Future<QuerySnapshot> getData();
-  Stream<QuerySnapshot> getShowingDataAsStream();
   Stream<QuerySnapshot> getDataAsStream();
   Future getDocumentById(String id);
   Future<void> removeDocument(String id);

@@ -19,7 +19,7 @@ class ActivityRepository {
   }
 
   Stream<List<ActivityModel>> getAllActivitiesAsStream() {
-    return _api.getShowingDataAsStream().map(
+    return _api.getDataAsStream().map(
       (QuerySnapshot query) {
         List<ActivityModel> returnValue = [];
         query.docs.forEach(

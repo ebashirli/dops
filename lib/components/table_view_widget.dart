@@ -1,3 +1,4 @@
+import 'package:dops/constants/constant.dart';
 import 'package:dops/routes/app_pages.dart';
 import 'package:expendable_fab/expendable_fab.dart';
 import 'package:flutter/material.dart';
@@ -86,8 +87,11 @@ class TableView extends StatelessWidget {
                 if (tableName == 'task') {
                   String? rowId =
                       _dataGridController.selectedRow!.getCells()[0].value;
-                  if (rowId != null)
+                  if (rowId != null) {
+                    stageController.pressedTaskId.value = rowId;
                     Get.toNamed(Routes.STAGES, parameters: {'id': rowId});
+                  }
+                  ;
                 }
               },
             ),
@@ -179,6 +183,7 @@ class DataSource extends DataGridSource {
         (cell) {
           void onPressed(id) {
             if (id != 'null') {
+              stageController.pressedTaskId.value = id;
               Get.toNamed(Routes.STAGES, parameters: {'id': id});
             }
           }

@@ -21,7 +21,7 @@ class ReferenceDocumentRepository {
   }
 
   Stream<List<ReferenceDocumentModel>> getAllDocumentsAsStream() {
-    return _api.getShowingDataAsStream().map((QuerySnapshot query) {
+    return _api.getDataAsStream().map((QuerySnapshot query) {
       List<ReferenceDocumentModel> returnValue = [];
       query.docs.forEach(
         (snapshot) {

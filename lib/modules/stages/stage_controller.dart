@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:dops/components/custom_dropdown_menu_with_model_widget.dart';
 import 'package:dops/components/value_table_view_widget.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
@@ -472,94 +473,8 @@ class StageController extends GetxService {
                                   children: [
                                     Column(
                                       children: [
-                                        Container(
-                                          width: 350,
-                                          child: [0, 6, 7].contains(index)
-                                              ? DropdownSearch<StaffModel>(
-                                                  enabled: isCoordinator
-                                                          .value &&
-                                                      taskStages.last.index ==
-                                                          index,
-                                                  selectedItem: assigningEmployeeIdsList[
-                                                              index]
-                                                          .isNotEmpty
-                                                      ? staffController
-                                                          .documents
-                                                          .firstWhere(
-                                                              (staffModel) =>
-                                                                  staffModel
-                                                                      .id ==
-                                                                  assigningEmployeeIdsList[
-                                                                      index][0])
-                                                      : null,
-                                                  items:
-                                                      staffController.documents,
-                                                  itemAsString: (StaffModel?
-                                                          item) =>
-                                                      '${item!.name} ${item.surname}',
-                                                  mode: Mode.MENU,
-                                                  dropdownSearchDecoration:
-                                                      InputDecoration(
-                                                    labelText:
-                                                        stageDetailsList[index]
-                                                            ['staff job'],
-                                                    contentPadding:
-                                                        EdgeInsets.fromLTRB(
-                                                            12, 12, 0, 0),
-                                                    border:
-                                                        OutlineInputBorder(),
-                                                  ),
-                                                  showSearchBox: true,
-                                                  onChanged: (employee) {
-                                                    assigningEmployeeIdsList[
-                                                        index] = [
-                                                      employee!.id!
-                                                    ];
-                                                  },
-                                                )
-                                              : DropdownSearch<
-                                                  StaffModel>.multiSelection(
-                                                  enabled: isCoordinator
-                                                          .value &&
-                                                      taskStages.last.index ==
-                                                          index,
-                                                  selectedItems: staffController
-                                                      .documents
-                                                      .where((element) =>
-                                                          assigningEmployeeIdsList[
-                                                                  index]
-                                                              .contains(
-                                                                  element.id))
-                                                      .toList(),
-                                                  items:
-                                                      staffController.documents,
-                                                  itemAsString: (StaffModel?
-                                                          employee) =>
-                                                      '${employee!.name} ${employee.surname}',
-                                                  // maxHeight: 300,
-                                                  mode: Mode.MENU,
-                                                  dropdownSearchDecoration:
-                                                      InputDecoration(
-                                                    labelText:
-                                                        stageDetailsList[index]
-                                                            ['staff job'],
-                                                    contentPadding:
-                                                        EdgeInsets.fromLTRB(
-                                                            12, 12, 0, 0),
-                                                    border:
-                                                        OutlineInputBorder(),
-                                                  ),
-                                                  showSearchBox: true,
-                                                  onChanged: (employees) {
-                                                    assigningEmployeeIdsList[
-                                                            index] =
-                                                        employees
-                                                            .map((employee) =>
-                                                                employee.id!)
-                                                            .toList();
-                                                  },
-                                                ),
-                                        ),
+                                        CustomDropdownMenuWithModel(
+                                            index: index),
                                         SizedBox(height: 10),
                                       ],
                                     ),

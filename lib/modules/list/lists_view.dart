@@ -18,13 +18,13 @@ class ListsView extends StatelessWidget {
           separatorBuilder: (context, index) => SizedBox(width: 12),
           itemBuilder: (context, index) {
             return Obx(() {
-              if (dropdownSourcesController.document.value
+              if (listsController.document.value
                       .toMap()
                       .entries
                       .map((e) => e.value)
                       .toList()[index] !=
                   null) {
-                List list = dropdownSourcesController.document.value
+                List list = listsController.document.value
                         .toMap()
                         .entries
                         .map((e) => e.value)

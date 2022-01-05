@@ -181,7 +181,7 @@ class HomeView extends GetView<HomeController> {
       case HomeStates.TaskState:
         return drawingController.buildAddEdit();
       case HomeStates.DropdownSourceListState:
-        return dropdownSourcesController.buildAddEdit();
+        return listsController.buildAddEdit();
     }
   }
 }

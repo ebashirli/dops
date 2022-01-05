@@ -187,7 +187,7 @@ class ActivityController extends GetxService {
                           },
                           selectedItems: [moduleNameText!],
                           items:
-                              dropdownSourcesController.document.value.modules!,
+                              listsController.document.value.modules!,
                         ),
                         Container(
                           width: 200,

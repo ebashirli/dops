@@ -155,7 +155,7 @@ class ReferenceDocumentController extends GetxService {
                       onChanged: (value) {
                         projectText = value ?? '';
                       },
-                      items: dropdownSourcesController.document.value.projects!,
+                      items: listsController.document.value.projects!,
                     ),
                     CustomDropdownMenu(
                       labelText: 'Module name',
@@ -163,7 +163,7 @@ class ReferenceDocumentController extends GetxService {
                       onChanged: (value) {
                         moduleNameText = value ?? '';
                       },
-                      items: dropdownSourcesController.document.value.modules!,
+                      items: listsController.document.value.modules!,
                     ),
                     CustomDropdownMenu(
                       labelText: 'Reference Type',
@@ -171,7 +171,7 @@ class ReferenceDocumentController extends GetxService {
                       onChanged: (value) {
                         referenceTypeText = value ?? '';
                       },
-                      items: dropdownSourcesController
+                      items: listsController
                           .document.value.referenceTypes!,
                     ),
                     CustomTextFormField(

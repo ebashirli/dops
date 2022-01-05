@@ -240,7 +240,7 @@ class StaffController extends GetxService {
                             onChanged: (value) {
                               companyText = value ?? '';
                             },
-                            items: dropdownSourcesController
+                            items: listsController
                                 .document.value.companies!,
                           ),
                           CustomDropdownMenu(
@@ -249,7 +249,7 @@ class StaffController extends GetxService {
                             onChanged: (value) {
                               systemDesignationText = value ?? '';
                             },
-                            items: dropdownSourcesController
+                            items: listsController
                                 .document.value.systemDesignations!,
                           ),
                           CustomDropdownMenu(
@@ -258,7 +258,7 @@ class StaffController extends GetxService {
                             onChanged: (value) {
                               jobTitleText = value ?? '';
                             },
-                            items: dropdownSourcesController
+                            items: listsController
                                 .document.value.jobTitles!,
                           ),
                           CustomDateTimeFormField(
@@ -284,7 +284,7 @@ class StaffController extends GetxService {
                             onChanged: (value) {
                               currentPlaceText = value ?? '';
                             },
-                            items: dropdownSourcesController
+                            items: listsController
                                 .document.value.employeePlaces!,
                           ),
                           CustomDateTimeFormField(

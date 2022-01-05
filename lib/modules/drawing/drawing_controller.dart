@@ -236,7 +236,7 @@ class DrawingController extends GetxService {
                                 onChanged: (value) {
                                   moduleNameText = value ?? '';
                                 },
-                                items: dropdownSourcesController
+                                items: listsController
                                     .document.value.modules!,
                               ),
                               CustomDropdownMenu(
@@ -246,14 +246,14 @@ class DrawingController extends GetxService {
                                 onChanged: (value) {
                                   levelText = value ?? '';
                                 },
-                                items: dropdownSourcesController
+                                items: listsController
                                     .document.value.levels!,
                               ),
                               CustomDropdownMenu(
                                 showSearchBox: true,
                                 isMultiSelectable: true,
                                 labelText: 'Area',
-                                items: dropdownSourcesController
+                                items: listsController
                                     .document.value.areas!,
                                 onChanged: (values) => areaList = values,
                                 selectedItems: areaList,
@@ -265,7 +265,7 @@ class DrawingController extends GetxService {
                                 onChanged: (value) {
                                   functionalAreaText = value ?? '';
                                 },
-                                items: dropdownSourcesController
+                                items: listsController
                                     .document.value.functionalAreas!,
                               ),
                               CustomDropdownMenu(
@@ -275,7 +275,7 @@ class DrawingController extends GetxService {
                                 onChanged: (value) {
                                   structureTypeText = value ?? '';
                                 },
-                                items: dropdownSourcesController
+                                items: listsController
                                     .document.value.structureTypes!,
                               ),
                               CustomTextFormField(

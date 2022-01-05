@@ -15,7 +15,7 @@ ReferenceDocumentController referenceDocumentController =
 ActivityController activityController = ActivityController.instance;
 DrawingController drawingController = DrawingController.instance;
 TaskController taskController = TaskController.instance;
-ListsController dropdownSourcesController =
+ListsController listsController =
     ListsController.instance;
 StaffController staffController = StaffController.instance;
 StageController stageController = StageController.instance;

@@ -28,7 +28,7 @@ class ValueTableView extends StatelessWidget {
         } else {
           final List<String> tableColumns = [
             ...valueTableColumnHeadList.sublist(0, 4),
-            ...stageDetailsList1[index]['columns'],
+            ...stageDetailsList[index]['columns'],
             ...valueTableColumnHeadList.sublist(4),
           ];
 
@@ -48,7 +48,7 @@ class ValueTableView extends StatelessWidget {
 
           final columnsWithTotal = ['Weight', 'GAS', 'SFD', 'DTL', 'File Names']
               .toSet()
-              .intersection(stageDetailsList1[index]['columns'].toSet());
+              .intersection(stageDetailsList[index]['columns'].toSet());
 
           final DataGridController _dataGridController = DataGridController();
           return Container(

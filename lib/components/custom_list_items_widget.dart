@@ -83,18 +83,18 @@ class CustomListItems extends StatelessWidget {
                                     height: 20,
                                     child: GestureDetector(
                                       onTap: () {
-                                        dropdownSourcesController.map =
-                                            dropdownSourcesController
+                                        listsController.map =
+                                            listsController
                                                 .document.value
                                                 .toMap();
-                                        dropdownSourcesController.map[
+                                        listsController.map[
                                                 ReCase(lstName!).camelCase] =
-                                            dropdownSourcesController
+                                            listsController
                                                 .map[ReCase(lstName!).camelCase]
                                               ..remove(lst![index]);
-                                        dropdownSourcesController.updateModel(
+                                        listsController.updateModel(
                                             ListsModel.fromMap(
-                                                dropdownSourcesController.map));
+                                                listsController.map));
                                       },
                                       child: Icon(Icons.close,
                                           size: 16, color: Colors.red),

@@ -1,8 +1,8 @@
-class ChangeInfodModel {
+class ChangeInfoModel {
   final DateTime? dateTime;
   final String? byId;
 
-  ChangeInfodModel(this.dateTime, this.byId);
+  ChangeInfoModel(this.dateTime, this.byId);
 
   Map<String, dynamic> toMap() {
     return {
@@ -11,8 +11,8 @@ class ChangeInfodModel {
     };
   }
 
-  factory ChangeInfodModel.fromMap(Map<String, dynamic> map) {
-    return ChangeInfodModel(
+  factory ChangeInfoModel.fromMap(Map<String, dynamic> map) {
+    return ChangeInfoModel(
       map['dateTime'] != null ? map['dateTime'].toDate() : null,
       map['byId'] != null ? map['byId'] : null,
     );

@@ -13,7 +13,7 @@ class ActivityModel {
   double? cumulative;
   bool isHidden;
 
-  ChangeInfodModel? deletedModel;
+  ChangeInfoModel? deletedModel;
 
   ActivityModel({
     this.id,

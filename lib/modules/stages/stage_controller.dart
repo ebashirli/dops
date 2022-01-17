@@ -5,12 +5,10 @@ import 'package:dops/components/value_table_view_widget.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
-import 'package:dops/modules/staff/staff_model.dart';
 import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/stages/stage_repository.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:dops/modules/values/value_model.dart';
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../components/custom_widgets.dart';
@@ -196,8 +194,7 @@ class StageController extends GetxService {
                               onChanged: (value) {
                                 drawingController.moduleNameText = value ?? '';
                               },
-                              items: dropdownSourcesController
-                                  .document.value.modules!,
+                              items: listsController.document.value.modules!,
                             ),
                             CustomDropdownMenu(
                               showSearchBox: true,
@@ -206,15 +203,13 @@ class StageController extends GetxService {
                               onChanged: (value) {
                                 drawingController.levelText = value ?? '';
                               },
-                              items: dropdownSourcesController
-                                  .document.value.levels!,
+                              items: listsController.document.value.levels!,
                             ),
                             CustomDropdownMenu(
                               showSearchBox: true,
                               isMultiSelectable: true,
                               labelText: 'Area',
-                              items: dropdownSourcesController
-                                  .document.value.areas!,
+                              items: listsController.document.value.areas!,
                               onChanged: (values) =>
                                   drawingController.areaList = values,
                               selectedItems: drawingController.areaList,
@@ -229,7 +224,7 @@ class StageController extends GetxService {
                                 drawingController.functionalAreaText =
                                     value ?? '';
                               },
-                              items: dropdownSourcesController
+                              items: listsController
                                   .document.value.functionalAreas!,
                             ),
                             CustomDropdownMenu(
@@ -242,7 +237,7 @@ class StageController extends GetxService {
                                 drawingController.structureTypeText =
                                     value ?? '';
                               },
-                              items: dropdownSourcesController
+                              items: listsController
                                   .document.value.structureTypes!,
                             ),
                             CustomTextFormField(

@@ -92,4 +92,9 @@ List<Map<String, dynamic>> stageDetailsList = [
     'staff job': 'Nesting Draftsman',
     'columns': <String>[],
   },
+  {
+    'name': 'Issuing',
+    'staff job': 'Coordinator',
+    'columns': <String>[],
+  },
 ];

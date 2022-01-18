@@ -25,12 +25,11 @@ class TaskRepository {
       List<TaskModel> returnValue = [];
       query.docs.forEach(
         (snapshot) {
-          returnValue.add(
-            TaskModel.fromMap(
-              snapshot.data() as Map<String, dynamic>,
-              snapshot.id,
-            ),
+          TaskModel taskModel = TaskModel.fromMap(
+            snapshot.data() as Map<String, dynamic>,
+            snapshot.id,
           );
+          if (taskModel.isHidden != true) returnValue.add(taskModel);
         },
       );
       return returnValue;

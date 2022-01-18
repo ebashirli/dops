@@ -165,39 +165,7 @@ class TaskController extends GetxService {
                           ),
                           SizedBox(width: 10),
                           ElevatedButton(
-                            onPressed: () {
-                              TaskModel newTaskModel = TaskModel(
-                                parentId: parentId,
-                                designDrawings: designDrawingsList,
-                                revisionNumber:
-                                    nextRevisionNumberController.text,
-                                note: taskNoteController.text,
-                                revisionCount: documents.length == 0
-                                    ? 1
-                                    : documents
-                                            .where((task) {
-                                              return task!.parentId == parentId;
-                                            })
-                                            .toList()
-                                            .length +
-                                        1,
-                              );
-                              newTaskModel.changeNumber =
-                                  newTaskModel.revisionCount == 1
-                                      ? 0
-                                      : (documents.length -
-                                              drawingController
-                                                  .documents.length) +
-                                          1;
-                              addNew(model: newTaskModel).then((taskId) {
-                                StageModel stage = StageModel(
-                                  taskId: taskId,
-                                  creationDateTime: DateTime.now(),
-                                );
-
-                                stageController.addNew(model: stage);
-                              });
-                            },
+                            onPressed: () => onAddNextRevisionPressed(parentId),
                             child: Text('Add next revision'),
                           ),
                         ],
@@ -269,5 +237,33 @@ class TaskController extends GetxService {
         return map;
       },
     ).toList();
+  }
+
+  void onAddNextRevisionPressed(String? parentId) {
+    TaskModel newTaskModel = TaskModel(
+      parentId: parentId,
+      designDrawings: designDrawingsList,
+      revisionNumber: nextRevisionNumberController.text,
+      note: taskNoteController.text,
+      revisionCount: documents.length == 0
+          ? 1
+          : documents
+                  .where((task) {
+                    return task!.parentId == parentId;
+                  })
+                  .toList()
+                  .length +
+              1,
+    );
+    newTaskModel.changeNumber = newTaskModel.revisionCount == 1
+        ? 0
+        : (documents.length - drawingController.documents.length) + 1;
+    addNew(model: newTaskModel).then((taskId) {
+      StageModel stage = StageModel(
+        taskId: taskId,
+        creationDateTime: DateTime.now(),
+      );
+      stageController.addNew(model: stage);
+    });
   }
 }

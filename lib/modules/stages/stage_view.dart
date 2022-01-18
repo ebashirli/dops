@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class StageView extends StatelessWidget {
+  final RxInt maxIndex = 1.obs;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,9 +61,7 @@ class StageView extends StatelessWidget {
                     Expanded(
                       child: ListView(
                         controller: ScrollController(),
-                        children: [
-                          Obx(() => stageController.buildPanel()),
-                        ],
+                        children: [stageController.buildPanel()],
                       ),
                     ),
                   ],

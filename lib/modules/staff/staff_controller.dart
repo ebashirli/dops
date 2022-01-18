@@ -42,6 +42,8 @@ class StaffController extends GetxService {
   RxList<StaffModel> _documents = RxList<StaffModel>([]);
   List<StaffModel> get documents => _documents;
 
+  
+
   @override
   void onInit() {
     super.onInit();

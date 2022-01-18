@@ -12,11 +12,20 @@ import 'custom_widgets.dart';
 class ValueTableView extends StatelessWidget {
   final int index;
   final List<ValueModel?> stageValueModelsList;
+  final List<List<String>> fileNamesList;
+  final List<TextEditingController> controllersListForNote;
+  final List<String> commentStatus;
+  final List<Map<String, TextEditingController>?>
+      controllersListForNumberFields;
 
   ValueTableView({
     Key? key,
     required this.index,
     required this.stageValueModelsList,
+    required this.fileNamesList,
+    required this.controllersListForNote,
+    required this.controllersListForNumberFields,
+    required this.commentStatus,
   }) : super(key: key);
 
   @override
@@ -44,6 +53,10 @@ class ValueTableView extends StatelessWidget {
             }).toList(),
             index: index,
             stageValueModelsList: stageValueModelsList,
+            commentStatus: commentStatus,
+            controllersListForNote: controllersListForNote,
+            controllersListForNumberFields: controllersListForNumberFields,
+            fileNamesList: fileNamesList,
           );
 
           final columnsWithTotal = ['Weight', 'GAS', 'SFD', 'DTL', 'File Names']
@@ -143,10 +156,21 @@ List<DataGridRow> _data = [];
 class DataSource extends DataGridSource {
   final int index;
   final List<ValueModel?> stageValueModelsList;
+
+  final List<List<String>> fileNamesList;
+  final List<TextEditingController> controllersListForNote;
+  final List<String> commentStatus;
+  final List<Map<String, TextEditingController>?>
+      controllersListForNumberFields;
+
   DataSource({
     required List<Map<String, dynamic>> data,
     required this.index,
     required this.stageValueModelsList,
+    required this.fileNamesList,
+    required this.controllersListForNote,
+    required this.commentStatus,
+    required this.controllersListForNumberFields,
   }) {
     _data = data.map<DataGridRow>(
       (map) {
@@ -250,13 +274,13 @@ class DataSource extends DataGridSource {
                           );
 
                           if (result != null) {
-                            stageController.fileNamesList[index] =
+                            fileNamesList[index] =
                                 result.files.map((file) => file.name).toList();
                           }
                         },
                         child: Center(
                           child: Text(
-                            'Files (${stageController.fileNamesList[index].length})',
+                            'Files (${fileNamesList[index].length})',
                           ),
                         ),
                       ),
@@ -268,9 +292,9 @@ class DataSource extends DataGridSource {
                     sizeBoxHeight: 0,
                     width: 140,
                     onChanged: (value) {
-                      stageController.commentStatus[index - 5] = value;
+                      commentStatus[index - 5] = value;
                     },
-                    selectedItems: [stageController.commentStatus[index - 5]],
+                    selectedItems: [commentStatus[index - 5]],
                     items: ['With', 'Without'],
                   ),
                 );
@@ -280,7 +304,7 @@ class DataSource extends DataGridSource {
                     padding: const EdgeInsets.all(4.0),
                     child: CustomTextFormField(
                       sizeBoxHeight: 0,
-                      controller: stageController.controllersListForNote[index],
+                      controller: controllersListForNote[index],
                       width: double.infinity,
                       maxLines: 2,
                     ),
@@ -293,9 +317,8 @@ class DataSource extends DataGridSource {
                     child: CustomTextFormField(
                       sizeBoxHeight: 0,
                       isNumber: true,
-                      controller:
-                          stageController.controllersListForNumberFields[
-                              index]![cell.columnName.toLowerCase()],
+                      controller: controllersListForNumberFields[index]![
+                          cell.columnName.toLowerCase()],
                       width: 80,
                     ),
                   ),

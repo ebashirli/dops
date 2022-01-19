@@ -50,25 +50,28 @@ class TableView extends StatelessWidget {
         }
 
         return Scaffold(
-          floatingActionButton: tableName == 'task'
-              ? ExpendableFab(
-                  distance: 80.0,
-                  children: [
-                    ActionButton(
-                      onPressed: onEditPressed,
-                      icon: const Icon(Icons.edit),
-                    ),
-                    ActionButton(
-                      onPressed: () => {onEditPressed(newRev: true)},
-                      icon: const Icon(Icons.add),
-                    ),
-                  ],
-                )
-              : FloatingActionButton(
-                  onPressed: onEditPressed,
-                  child: const Icon(Icons.edit),
-                  backgroundColor: Colors.green,
-                ),
+          floatingActionButton: Visibility(
+            visible: authManager.isCoordinator.value,
+            child: tableName == 'task'
+                ? ExpendableFab(
+                    distance: 80.0,
+                    children: [
+                      ActionButton(
+                        onPressed: onEditPressed,
+                        icon: const Icon(Icons.edit),
+                      ),
+                      ActionButton(
+                        onPressed: () => {onEditPressed(newRev: true)},
+                        icon: const Icon(Icons.add),
+                      ),
+                    ],
+                  )
+                : FloatingActionButton(
+                    onPressed: onEditPressed,
+                    child: const Icon(Icons.edit),
+                    backgroundColor: Colors.green,
+                  ),
+          ),
           body: Padding(
             padding: const EdgeInsets.all(10.0),
             child: SfDataGrid(

@@ -29,23 +29,26 @@ class StageView extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: ExpendableFab(
-        distance: 80.0,
-        children: [
-          ActionButton(
-            onPressed: () {
-              taskController.deleteTask(Get.parameters['id']!);
-            },
-            icon: const Icon(
-              Icons.dangerous,
-              color: Colors.red,
+      floatingActionButton: Visibility(
+        visible: authManager.isCoordinator.value,
+        child: ExpendableFab(
+          distance: 80.0,
+          children: [
+            ActionButton(
+              onPressed: () {
+                taskController.deleteTask(Get.parameters['id']!);
+              },
+              icon: const Icon(
+                Icons.dangerous,
+                color: Colors.red,
+              ),
             ),
-          ),
-          ActionButton(
-            onPressed: () {},
-            icon: const Icon(Icons.edit_attributes),
-          ),
-        ],
+            ActionButton(
+              onPressed: () {},
+              icon: const Icon(Icons.edit_attributes),
+            ),
+          ],
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(100, 20, 100, 20),

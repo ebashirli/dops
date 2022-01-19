@@ -59,12 +59,13 @@ class HomeView extends GetView<HomeController> {
     return AppBar(
       title: Text(_buildTitleOfPage()),
       actions: [
-        IconButton(
-          onPressed: () {
-            _buildAddDatabase();
-          },
-          icon: Icon(Icons.add),
-        ),
+        if (authManager.isCoordinator.value)
+          IconButton(
+            onPressed: () {
+              _buildAddDatabase();
+            },
+            icon: Icon(Icons.add),
+          ),
         Center(
           child: staffController.documents.isNotEmpty
               ? Text(

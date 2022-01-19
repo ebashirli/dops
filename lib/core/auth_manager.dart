@@ -11,6 +11,9 @@ class AuthManager extends GetxService with CacheManager {
   final staffRepository = Get.find<StaffRepository>();
   Rx<StaffModel?> staffModel = Rxn<StaffModel>();
   UserCredential? userCredential;
+
+  final RxBool isCoordinator = false.obs;
+
   Future<UserCredential?> register(String email, password) async {
     try {
       return await auth.createUserWithEmailAndPassword(
@@ -29,6 +32,10 @@ class AuthManager extends GetxService with CacheManager {
       initializeStaffModel();
     } catch (firebaseAuthException) {}
     isLoading.value = false;
+    isCoordinator.value = staffController.documents
+            .singleWhere((staff) => staff.id == auth.currentUser!.uid)
+            .systemDesignation ==
+        'Coordinator';
   }
 
   Future<void> initializeStaffModel() async {
@@ -38,5 +45,6 @@ class AuthManager extends GetxService with CacheManager {
 
   void signOut() async {
     await auth.signOut();
+    isCoordinator.value = false;
   }
 }

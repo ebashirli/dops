@@ -45,8 +45,6 @@ class StageController extends GetxService {
 
   late RxList<String> commentStatus;
 
-  final RxBool isCoordinator = false.obs;
-
   final RxBool isChecked = false.obs;
 
   final RxString pressedTaskId = ''.obs;
@@ -55,7 +53,7 @@ class StageController extends GetxService {
   List<StageModel> get documents => _documents;
 
   List<String?> numberFieldNames(int index) =>
-      stageDetailsList[index]['number fields']['name'];
+      stageDetailsList[index]['columns'];
 
   @override
   void onInit() async {
@@ -118,10 +116,6 @@ class StageController extends GetxService {
   }
 
   Widget buildEditForm() {
-    isCoordinator.value = staffController.documents
-            .singleWhere((staff) => staff.id == auth.currentUser!.uid)
-            .systemDesignation ==
-        'Coordinator';
     if (taskController.documents.isNotEmpty) {
       TaskModel taskModel = taskController.documents
           .where((task) => task!.id == Get.parameters['id'])
@@ -287,7 +281,7 @@ class StageController extends GetxService {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
-                    if (isCoordinator.value)
+                    if (authManager.isCoordinator.value)
                       ElevatedButton(
                         onPressed: () {
                           DrawingModel revisedOrNewModel = DrawingModel(
@@ -338,276 +332,291 @@ class StageController extends GetxService {
     }
   }
 
-  buildPanel() {
-    RxList<StageModel> taskStages = documents
+  List<StageModel> get taskStages {
+    List<StageModel> ts = documents
         .where((stage) => stage.taskId == Get.parameters['id'])
-        .toList()
-        .obs;
+        .toList();
+    ts.sort((a, b) => a.creationDateTime.compareTo(b.creationDateTime));
+    return ts;
+  }
 
-    taskStages.sort((a, b) => a.creationDateTime.compareTo(b.creationDateTime));
+  int get maxIndex =>
+      taskStages.map((stageModel) => stageModel.index).reduce(max);
 
-    final RxInt maxIndex =
-        taskStages.map((stageModel) => stageModel.index).reduce(max).obs;
-    print(maxIndex);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 300),
-      child: ExpansionPanelList(
-        expansionCallback: (int index, bool isExpanded) {
-          isExpandedList[index] = !isExpanded;
-        },
-        children: List.generate(
-          maxIndex.value + 1,
-          (index) {
-            List<StageModel> stageStageModels = taskStages
-                .where((stageModel) => stageModel.index == index)
-                .toList();
-
-            stageStageModels.sort(
-                (a, b) => a.creationDateTime.compareTo(b.creationDateTime));
-
-            // TODO: add isStageSkipped field to StageModel
-
-            // final bool isStageSkipped = false;
-
-            bool coordinatorAssigns = true;
-            bool isCurrentUserAssigned = false;
-            bool isSubmitted = false;
-            int unsubmittedCount = 0;
-
-            Map<String?, int?> totalValues = numberFieldNames(index).isNotEmpty
-                ? Map<String, int>.fromIterable(
-                    numberFieldNames(index),
-                    key: (fieldName) => fieldName.toLowerCase(),
-                    value: (element) => 0,
-                  )
-                : {};
-
-            List<Map<String?, String?>?> notesList = [];
-
-            List<List<ValueModel?>?> stageValueModelsLists = [];
-
-            if (valueController.documents.isNotEmpty &&
-                valueController.documents
-                    .where((vm) => vm!.isHidden == false)
-                    .isNotEmpty) {
-              stageValueModelsLists = stageStageModels
-                  .map((stageModel) => valueController.documents
-                      .where((valueModel) =>
-                          valueModel!.isHidden == false &&
-                          valueModel.stageId == stageModel.id!)
-                      .toList())
+  buildPanel() {
+    print(authManager.isCoordinator.value);
+    if (staffController.documents.isNotEmpty &&
+        taskController.documents.isNotEmpty &&
+        staffController.documents.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 300),
+        child: ExpansionPanelList(
+          expansionCallback: (int index, bool isExpanded) {
+            isExpandedList[index] = !isExpanded;
+          },
+          children: List.generate(
+            maxIndex + 1,
+            (index) {
+              List<StageModel> stageStageModels = taskStages
+                  .where((stageModel) => stageModel.index == index)
                   .toList();
 
-              unsubmittedCount = stageValueModelsLists.last!.length;
+              stageStageModels.sort(
+                  (a, b) => a.creationDateTime.compareTo(b.creationDateTime));
 
-              if (stageValueModelsLists.last!.isNotEmpty) {
-                coordinatorAssigns = false;
+              // TODO: add isStageSkipped field to StageModel
 
-                stageValueModelsLists.last!.forEach((valueModel) {
-                  assigningEmployeeIdsList[index].add(staffController.documents
-                      .singleWhere((staffModel) =>
-                          staffModel.id == valueModel!.employeeId)
-                      .id!);
+              // final bool isStageSkipped = false;
 
-                  if (valueModel!.employeeId == auth.currentUser!.uid &&
-                      valueModel.isHidden != true) {
-                    isCurrentUserAssigned = true;
-                    if (valueModel.submitDateTime != null) {
-                      isSubmitted = true;
-                    }
-                  }
+              bool coordinatorAssigns = true;
+              bool isCurrentUserAssigned = false;
+              bool isSubmitted = false;
+              int unsubmittedCount = 0;
 
-                  if (valueModel.submitDateTime != null) {
-                    notesList.add({
-                      'employeeId': valueModel.employeeId,
-                      'note': valueModel.note
-                    });
+              Map<String?, int?> totalValues =
+                  numberFieldNames(index).isNotEmpty
+                      ? Map<String, int>.fromIterable(
+                          numberFieldNames(index),
+                          key: (fieldName) => fieldName.toLowerCase(),
+                          value: (element) => 0,
+                        )
+                      : {};
 
-                    totalValues.forEach((key, value) {
-                      if (valueModel.employeeId == auth.currentUser!.uid) {
-                        controllersListForNumberFields[index]![key]!.text =
-                            valueModel.toMap()[key].toString();
+              List<Map<String?, String?>?> notesList = [];
+
+              List<List<ValueModel?>?> stageValueModelsLists = [];
+
+              if (valueController.documents.isNotEmpty &&
+                  valueController.documents
+                      .where((vm) => vm!.isHidden == false)
+                      .isNotEmpty) {
+                stageValueModelsLists = stageStageModels
+                    .map((stageModel) => valueController.documents
+                        .where((valueModel) =>
+                            valueModel!.isHidden == false &&
+                            valueModel.stageId == stageModel.id!)
+                        .toList())
+                    .toList();
+
+                unsubmittedCount = stageValueModelsLists.last!.length;
+
+                if (stageValueModelsLists.last!.isNotEmpty) {
+                  coordinatorAssigns = false;
+
+                  stageValueModelsLists.last!.forEach((valueModel) {
+                    assigningEmployeeIdsList[index].add(staffController
+                        .documents
+                        .singleWhere((staffModel) =>
+                            staffModel.id == valueModel!.employeeId)
+                        .id!);
+
+                    if (valueModel!.employeeId == auth.currentUser!.uid &&
+                        valueModel.isHidden != true) {
+                      isCurrentUserAssigned = true;
+                      if (valueModel.submitDateTime != null) {
+                        isSubmitted = true;
                       }
-                      totalValues[key] =
-                          totalValues[key]! + (valueModel.toMap()[key]) as int;
-                    });
+                    }
 
-                    unsubmittedCount--;
-                  }
-                });
+                    if (valueModel.submitDateTime != null) {
+                      notesList.add({
+                        'employeeId': valueModel.employeeId,
+                        'note': valueModel.note
+                      });
+
+                      totalValues.forEach((key, value) {
+                        if (valueModel.employeeId == auth.currentUser!.uid) {
+                          controllersListForNumberFields[index]![key]!.text =
+                              valueModel.toMap()[key].toString();
+                        }
+                        totalValues[key] = totalValues[key]! +
+                            (valueModel.toMap()[key]) as int;
+                      });
+
+                      unsubmittedCount--;
+                    }
+                  });
+                }
               }
-            }
-            return ExpansionPanel(
-              canTapOnHeader: true,
-              isExpanded: isExpandedList[index],
-              headerBuilder: (BuildContext context, bool isExpanded) {
-                return ListTile(
-                  title: Text(
-                    '${index + 1} | ${stageDetailsList[index]['name']}',
-                  ),
-                );
-              },
-              body: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (((!coordinatorAssigns && unsubmittedCount != 0) ||
-                            coordinatorAssigns) &&
-                        isCoordinator.value)
-                      Column(
-                        children: [
-                          Form(
-                            key: formKeysList[index][0],
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Column(
-                                      children: [
-                                        CustomDropdownMenuWithModel(
-                                            index: index),
-                                        SizedBox(height: 10),
-                                      ],
-                                    ),
-                                    SizedBox(width: 10),
-                                    if (isCoordinator.value &&
-                                        taskStages.last.index == index)
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          _onAssignOrUpdatePressed(
-                                            index: index,
-                                            lastStageId:
-                                                stageStageModels.last.id!,
-                                            assigningEmployeeIds:
-                                                assigningEmployeeIdsList[index]
-                                                    .toSet(),
-                                            assignedEmployeeIds:
-                                                coordinatorAssigns
-                                                    ? null
-                                                    : stageValueModelsLists
-                                                        .last!
-                                                        .map((valueModel) =>
-                                                            valueModel!
-                                                                .employeeId)
-                                                        .toSet(),
-                                          );
-                                        },
-                                        child: Container(
-                                          height: 48,
-                                          child: Center(
-                                            child: Text(
-                                              (coordinatorAssigns)
-                                                  ? 'Assign'
-                                                  : 'Update',
+              return ExpansionPanel(
+                canTapOnHeader: true,
+                isExpanded: isExpandedList[index],
+                headerBuilder: (BuildContext context, bool isExpanded) {
+                  return ListTile(
+                    title: Text(
+                      '${index + 1} | ${stageDetailsList[index]['name']}',
+                    ),
+                  );
+                },
+                body: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (((!coordinatorAssigns && unsubmittedCount != 0) ||
+                              coordinatorAssigns) &&
+                          authManager.isCoordinator.value)
+                        Column(
+                          children: [
+                            Form(
+                              key: formKeysList[index][0],
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          CustomDropdownMenuWithModel(
+                                              index: index),
+                                          SizedBox(height: 10),
+                                        ],
+                                      ),
+                                      SizedBox(width: 10),
+                                      if (authManager.isCoordinator.value &&
+                                          taskStages.last.index == index)
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            _onAssignOrUpdatePressed(
+                                              index: index,
+                                              lastStageId:
+                                                  stageStageModels.last.id!,
+                                              assigningEmployeeIds:
+                                                  assigningEmployeeIdsList[
+                                                          index]
+                                                      .toSet(),
+                                              assignedEmployeeIds:
+                                                  coordinatorAssigns
+                                                      ? null
+                                                      : stageValueModelsLists
+                                                          .last!
+                                                          .map((valueModel) =>
+                                                              valueModel!
+                                                                  .employeeId)
+                                                          .toSet(),
+                                            );
+                                          },
+                                          child: Container(
+                                            height: 48,
+                                            child: Center(
+                                              child: Text(
+                                                (coordinatorAssigns)
+                                                    ? 'Assign'
+                                                    : 'Update',
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                  ],
-                                ),
-                              ],
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          Divider(),
-                        ],
-                      ),
-                    if (stageDetailsList[index]['get files'] != null)
-                      ElevatedButton(
-                        onPressed: () {},
-                        child: Container(
-                          height: 48,
-                          width: 100,
-                          child: Center(
-                            child: Text(stageDetailsList[index]['get files']),
+                            Divider(),
+                          ],
+                        ),
+                      if (stageDetailsList[index]['get files'] != null)
+                        ElevatedButton(
+                          onPressed: () {},
+                          child: Container(
+                            height: 48,
+                            width: 100,
+                            child: Center(
+                              child: Text(stageDetailsList[index]['get files']),
+                            ),
                           ),
                         ),
-                      ),
-                    if (!coordinatorAssigns)
-                      Form(
-                        key: formKeysList[index][1],
-                        child: Column(
-                          children: [
-                            ValueTableView(
-                              index: index,
-                              stageValueModelsList: stageValueModelsLists.last!,
-                            ),
-                            if (isCurrentUserAssigned && !isSubmitted)
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  if (index == 7)
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Checkbox(
-                                          checkColor: Colors.white,
-                                          value: isChecked.value,
-                                          onChanged: (bool? value) {
-                                            isChecked.value = value!;
-                                          },
-                                        ),
-                                        Text(
-                                          'By clicking this checkbox I confirm that all files\nare attached correctly and below appropriate task',
-                                        ),
-                                      ],
-                                    ),
-                                  SizedBox(width: 10),
-                                  ElevatedButton(
-                                    onPressed: (([5, 6].contains(index) &&
-                                                commentStatus[index - 5] ==
-                                                    "") ||
-                                            (index == 7 && !isChecked.value))
-                                        ? null
-                                        : () {
-                                            _onSubmitPressed(
-                                              index: index,
-                                              assignedValueModel:
+                      if (!coordinatorAssigns)
+                        Form(
+                          key: formKeysList[index][1],
+                          child: Column(
+                            children: [
+                              ValueTableView(
+                                index: index,
+                                stageValueModelsList:
+                                    stageValueModelsLists.last!,
+                              ),
+                              if (isCurrentUserAssigned && !isSubmitted)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    if (index == 7)
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Checkbox(
+                                            checkColor: Colors.white,
+                                            value: isChecked.value,
+                                            onChanged: (bool? value) {
+                                              isChecked.value = value!;
+                                            },
+                                          ),
+                                          Text(
+                                            'By clicking this checkbox I confirm that all files\nare attached correctly and below appropriate task',
+                                          ),
+                                        ],
+                                      ),
+                                    SizedBox(width: 10),
+                                    ElevatedButton(
+                                      onPressed: (([5, 6].contains(index) &&
+                                                  commentStatus[index - 5] ==
+                                                      "") ||
+                                              (index == 7 && !isChecked.value))
+                                          ? null
+                                          : () {
+                                              ValueModel assignedValueModel =
                                                   stageValueModelsLists.last!
                                                       .singleWhere(
                                                           (valueModel) =>
                                                               valueModel!
                                                                   .employeeId ==
                                                               auth.currentUser!
-                                                                  .uid)!,
-                                              lastTaskStage:
-                                                  stageStageModels.last,
-                                              isCommented: [5, 6]
+                                                                  .uid)!;
+                                              bool isCommented = [5, 6]
                                                       .contains(index)
                                                   ? commentStatus[index - 5] ==
                                                       'With'
-                                                  : false,
-                                              isLastSubmit:
-                                                  unsubmittedCount == 1,
-                                            );
-                                          },
-                                    child: Container(
-                                      height: 20,
-                                      child:
-                                          Center(child: const Text('Submit')),
+                                                  : false;
+                                              _onSubmitPressed(
+                                                index: index,
+                                                assignedValueModel:
+                                                    assignedValueModel,
+                                                lastTaskStage:
+                                                    stageStageModels.last,
+                                                isCommented: isCommented,
+                                                isLastSubmit:
+                                                    unsubmittedCount == 1,
+                                              );
+                                            },
+                                      child: Container(
+                                        height: 20,
+                                        child:
+                                            Center(child: const Text('Submit')),
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(width: 10),
-                                ],
-                              ),
-                          ],
+                                    SizedBox(width: 10),
+                                  ],
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      return CircularProgressIndicator();
+    }
   }
 
   void _onAssignOrUpdatePressed({
@@ -669,6 +678,7 @@ class StageController extends GetxService {
         }
       },
     );
+    print(map);
 
     map['note'] = controllersListForNote[index].text;
     map['fileNames'] = fileNamesList[index];

@@ -25,12 +25,10 @@ class ReferenceDocumentRepository {
       List<ReferenceDocumentModel> returnValue = [];
       query.docs.forEach(
         (snapshot) {
-          returnValue.add(
-            ReferenceDocumentModel.fromMap(
-              snapshot.data() as Map<String, dynamic>,
-              snapshot.id,
-            ),
-          );
+          final snapshot_data = snapshot.data() as Map<String, dynamic>;
+          if (!snapshot_data['isHidden'])
+            returnValue.add(
+                ReferenceDocumentModel.fromMap(snapshot_data, snapshot.id));
         },
       );
       return returnValue;

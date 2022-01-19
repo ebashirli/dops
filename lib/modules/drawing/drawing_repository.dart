@@ -25,12 +25,9 @@ class DrawingRepository {
       List<DrawingModel> returnValue = [];
       query.docs.forEach(
         (snapshot) {
-          returnValue.add(
-            DrawingModel.fromMap(
-              snapshot.data() as Map<String, dynamic>,
-              snapshot.id,
-            ),
-          );
+          final snapshot_data = snapshot.data() as Map<String, dynamic>;
+          if (!snapshot_data['isHidden'])
+            returnValue.add(DrawingModel.fromMap(snapshot_data, snapshot.id));
         },
       );
       return returnValue;

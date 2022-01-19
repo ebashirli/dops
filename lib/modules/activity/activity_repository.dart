@@ -24,16 +24,14 @@ class ActivityRepository {
         List<ActivityModel> returnValue = [];
         query.docs.forEach(
           (snapshot) {
-            returnValue.add(
-              ActivityModel.fromMap(
-                snapshot.data() as Map<String, dynamic>,
-                snapshot.id,
-              ),
-            );
+            final snapshot_data = snapshot.data() as Map<String, dynamic>;
+            if (!snapshot_data['isHidden'])
+              returnValue
+                  .add(ActivityModel.fromMap(snapshot_data, snapshot.id));
           },
         );
-          returnValue.sort((a, b) => (a.finishDate)!.compareTo(b.finishDate!));
-          returnValue.sort((a, b) => (a.startDate)!.compareTo(b.startDate!));
+        returnValue.sort((a, b) => (a.finishDate)!.compareTo(b.finishDate!));
+        returnValue.sort((a, b) => (a.startDate)!.compareTo(b.startDate!));
         return returnValue;
       },
     );

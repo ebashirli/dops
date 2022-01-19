@@ -25,12 +25,9 @@ class StaffRepository {
       List<StaffModel> returnValue = [];
       query.docs.forEach(
         (snapshot) {
-          returnValue.add(
-            StaffModel.fromMap(
-              snapshot.data() as Map<String, dynamic>,
-              snapshot.id,
-            ),
-          );
+          final snapshot_data = snapshot.data() as Map<String, dynamic>;
+          if (!snapshot_data['isHidden'])
+            returnValue.add(StaffModel.fromMap(snapshot_data, snapshot.id));
         },
       );
       return returnValue;

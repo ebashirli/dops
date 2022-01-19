@@ -51,22 +51,6 @@ class MyApp extends StatelessWidget {
       getPages: AppPages.routes,
       unknownRoute: AppPages.routes[1],
       themeMode: ThemeMode.light,
-      darkTheme: ThemeData.dark().copyWith(
-        primaryColor: Color(0xff141A31),
-        primaryColorDark: Color(0xff081029),
-        scaffoldBackgroundColor: Color(0xff141A31),
-        textSelectionTheme: TextSelectionThemeData(cursorColor: Colors.yellow),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ButtonStyle(
-            shape: MaterialStateProperty.all(
-              RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-            backgroundColor: MaterialStateProperty.all(Colors.yellowAccent),
-          ),
-        ),
-      ),
     );
   }
 }
@@ -155,3 +139,22 @@ Future<void> initServices() async {
 
   await Get.putAsync<ValueController>(() async => await ValueController());
 }
+
+
+// darkTheme: ThemeData.dark().copyWith(
+//         primaryColor: Color(0xff141A31),
+//         primaryColorDark: Color(0xff081029),
+//         scaffoldBackgroundColor: Color(0xff141A31),
+//         textSelectionTheme: TextSelectionThemeData(cursorColor: Colors.yellow),
+//         elevatedButtonTheme: ElevatedButtonThemeData(
+//           style: ButtonStyle(
+//             shape: MaterialStateProperty.all(
+//               RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(20),
+//               ),
+//             ),
+//             backgroundColor: MaterialStateProperty.all(Colors.yellowAccent),
+//           ),
+//         ),
+//       ),
+    

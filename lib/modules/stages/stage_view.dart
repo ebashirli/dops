@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class StageView extends StatelessWidget {
-  final RxInt maxIndex = 1.obs;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,28 +49,15 @@ class StageView extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(100, 20, 100, 20),
-        child: StreamBuilder<Object>(
-            stream: taskController.documents.stream,
-            builder: (context, snapshot) {
-              if (snapshot.hasData || taskController.documents.isNotEmpty) {
-                return Column(
-                  children: [
-                    stageController.buildEditForm(),
-                    SizedBox(height: 10),
-                    Expanded(
-                      child: ListView(
-                        controller: ScrollController(),
-                        children: [stageController.buildPanel()],
-                      ),
-                    ),
-                  ],
-                );
-              } else {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-            }),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // stageController.buildEditForm(),
+              SizedBox(height: 10),
+              stageController.buildPanel(),
+            ],
+          ),
+        ),
       ),
     );
   }

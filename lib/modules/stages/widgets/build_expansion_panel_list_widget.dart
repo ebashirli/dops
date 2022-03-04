@@ -1,15 +1,13 @@
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
-import 'package:dops/modules/stages/stage_model.dart';
 import 'package:flutter/material.dart';
 
 import 'expansion_panel_body_widget.dart';
 
 class BuildExpansionPanelListWidget extends StatefulWidget {
-  const BuildExpansionPanelListWidget({
+  BuildExpansionPanelListWidget({
     Key? key,
   }) : super(key: key);
-  final List<StageModel> taskStages = stageController.taskStages;
 
   @override
   State<BuildExpansionPanelListWidget> createState() =>
@@ -65,7 +63,7 @@ class Item {
 }
 
 List<Item> generateItems(int numberOfItems) {
-  return List<Item>.generate(numberOfItems, (int index) {
+  return List<Item>.generate(numberOfItems + 1, (int index) {
     return Item(
       headerValue: '${index + 1} | ${stageDetailsList[index]['name']}',
       body: ExpansionPanelBodyWidget(index: index),

@@ -15,7 +15,7 @@ List<String> get listNames => [
       'Areas',
     ];
 
-List<String> valueTableColumnHeadList = [
+List<String> valueTableCommonColumnHeadList = [
   'id',
   'stageId',
   'Employee Id',
@@ -28,46 +28,54 @@ List<Map<String, dynamic>> stageDetailsList = [
   {
     'name': 'Importing',
     'staff job': 'Importer',
-    'columns': <String>['Weight', 'Phase'],
+    'form fields': <String>['Weight', 'Phase'],
   },
   {
     'name': 'Modelling',
     'staff job': 'Designers',
-    'columns': <String>['Weight', 'GAS', 'SFD', 'DTL'],
+    'form fields': <String>['Weight', 'GAS', 'SFD', 'DTL'],
   },
   {
     'name': 'Drafting',
     'staff job': 'Drafters',
-    'columns': <String>['Weight', 'GAS', 'SFD', 'DTL', 'File Names'],
+    'form fields': <String>['Weight', 'GAS', 'SFD', 'DTL'],
+    'file names': true,
   },
   {
     'name': 'Checking',
     'get files': 'Get whitecopies',
     'staff job': 'Checkers',
-    'columns': <String>['GAS', 'SFD', 'DTL', 'File Names'],
+    'form fields': <String>['GAS', 'SFD', 'DTL'],
+    'file names': true,
   },
   {
     'name': 'Back Drafting',
     'get files': 'Get checkprints',
     'staff job': 'Back Drafters',
-    'columns': ['File Names'],
+    'form fields': <String>[],
+    'file names': true,
   },
   {
     'name': 'Back Checking',
     'get files': 'Get checkprints',
     'staff job': 'Back Checkers',
-    'columns': ['File Names', "Is Commented"],
+    'form fields': <String>[],
+    'file names': true,
+    "comment": true,
   },
   {
     'name': 'Reviewing',
     'get files': 'Get checkprints',
     'staff job': 'Reviewer',
-    'columns': ['File Names', "Is Commented"],
+    'form fields': <String>[],
+    'file names': true,
+    "comment": true,
   },
   {
     'name': 'Filing',
     'staff job': 'Filing resp. person',
-    'columns': ['File Names'],
+    'form fields': <String>[],
+    'file names': true,
     'files': {
       'columns': ['File', 'Mark', 'Quantity'],
       'rowsIds': [
@@ -90,11 +98,11 @@ List<Map<String, dynamic>> stageDetailsList = [
     'name': 'Nesting Box',
     'get files': 'Original Files',
     'staff job': 'Nesting Draftsman',
-    'columns': <String>[],
+    'form fields': <String>[],
   },
   {
     'name': 'Issuing',
     'staff job': 'Coordinator',
-    'columns': <String>[],
+    'form fields': <String>[],
   },
 ];

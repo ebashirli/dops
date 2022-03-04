@@ -1,109 +1,100 @@
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
 import 'package:dops/modules/values/value_model.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:recase/recase.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-import 'custom_widgets.dart';
-
 class ValueTableView extends StatelessWidget {
   final int index;
-  final List<ValueModel?> stageValueModelsList;
-  final List<List<String>> fileNamesList;
-  final List<TextEditingController> controllersListForNote;
-  final List<String> commentStatus;
-  final List<Map<String, TextEditingController>?>
-      controllersListForNumberFields;
+  final List<ValueModel?>? stageValueModelsList;
 
   ValueTableView({
     Key? key,
     required this.index,
     required this.stageValueModelsList,
-    required this.fileNamesList,
-    required this.controllersListForNote,
-    required this.controllersListForNumberFields,
-    required this.commentStatus,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () {
-        if (valueController.documents.isEmpty) {
-          return CircularProgressIndicator();
-        } else {
-          final List<String> tableColumns = [
-            ...valueTableColumnHeadList.sublist(0, 4),
-            ...stageDetailsList[index]['columns'],
-            ...valueTableColumnHeadList.sublist(4),
-          ];
-
-          final DataSource dataSource = DataSource(
-            data: stageValueModelsList.map((valueModel) {
-              late Map<String, dynamic> map = {};
-              tableColumns.forEach((columHead) {
-                map[columHead] =
-                    valueModel!.toMap()[ReCase(columHead).camelCase];
-              });
-              map['id'] = valueModel!.id;
-              return map;
-            }).toList(),
-            index: index,
-            stageValueModelsList: stageValueModelsList,
-            commentStatus: commentStatus,
-            controllersListForNote: controllersListForNote,
-            controllersListForNumberFields: controllersListForNumberFields,
-            fileNamesList: fileNamesList,
+    return stageValueModelsList == null || stageValueModelsList!.isEmpty
+        ? Text('no data')
+        : Obx(
+            () {
+              if (valueController.documents.isEmpty) {
+                return CircularProgressIndicator();
+              } else {
+                final List<String> tableColumns = <String>[
+                  ...valueTableCommonColumnHeadList.sublist(0, 4),
+                  ...stageDetailsList[index]['form fields'],
+                  if (stageDetailsList[index]['file names'] != null)
+                    'File name',
+                  if (stageDetailsList[index]['comment'] != null) 'Commented',
+                  ...valueTableCommonColumnHeadList.sublist(4),
+                ];
+                final DataSource dataSource = DataSource(
+                  data: stageValueModelsList!.map((valueModel) {
+                    late Map<String, dynamic> map = {};
+                    tableColumns.forEach((columHead) {
+                      map[columHead] =
+                          valueModel!.toMap()[ReCase(columHead).camelCase];
+                    });
+                    map['id'] = valueModel!.id;
+                    return map;
+                  }).toList(),
+                  index: index,
+                  stageValueModelsList: stageValueModelsList!,
+                );
+                final columnsWithTotal = [
+                  'Weight',
+                  'GAS',
+                  'SFD',
+                  'DTL',
+                  'File Names'
+                ].toSet().intersection(
+                    stageDetailsList[index]['form fields'].toSet());
+                final DataGridController _dataGridController =
+                    DataGridController();
+                return Container(
+                  height: (stageValueModelsList!.length + 1) * 100,
+                  padding: const EdgeInsets.all(10.0),
+                  child: SfDataGrid(
+                    isScrollbarAlwaysShown: false,
+                    source: dataSource,
+                    columnWidthMode: ColumnWidthMode.fill,
+                    tableSummaryRows: columnsWithTotal.isEmpty
+                        ? []
+                        : [
+                            GridTableSummaryRow(
+                              showSummaryInRow: false,
+                              title: 'Total:',
+                              titleColumnSpan: 1,
+                              columns: columnsWithTotal
+                                  .map(
+                                    (columnName) => GridSummaryColumn(
+                                      name: 'Sum',
+                                      columnName: columnName,
+                                      summaryType: GridSummaryType.sum,
+                                    ),
+                                  )
+                                  .toList(),
+                              position: GridTableSummaryRowPosition.bottom,
+                            ),
+                          ],
+                    columns: getColumns(tableColumns),
+                    gridLinesVisibility: GridLinesVisibility.both,
+                    headerGridLinesVisibility: GridLinesVisibility.both,
+                    // allowSorting: true,
+                    rowHeight: 60,
+                    controller: _dataGridController,
+                    selectionMode: SelectionMode.singleDeselect,
+                    navigationMode: GridNavigationMode.row,
+                  ),
+                );
+              }
+            },
           );
-
-          final columnsWithTotal = ['Weight', 'GAS', 'SFD', 'DTL', 'File Names']
-              .toSet()
-              .intersection(stageDetailsList[index]['columns'].toSet());
-
-          final DataGridController _dataGridController = DataGridController();
-          return Container(
-            height: (stageValueModelsList.length + 1) * 100,
-            padding: const EdgeInsets.all(10.0),
-            child: SfDataGrid(
-              isScrollbarAlwaysShown: false,
-              source: dataSource,
-              columnWidthMode: ColumnWidthMode.fill,
-              tableSummaryRows: columnsWithTotal.isEmpty
-                  ? []
-                  : [
-                      GridTableSummaryRow(
-                        showSummaryInRow: false,
-                        title: 'Total:',
-                        titleColumnSpan: 1,
-                        columns: columnsWithTotal
-                            .map(
-                              (columnName) => GridSummaryColumn(
-                                name: 'Sum',
-                                columnName: columnName,
-                                summaryType: GridSummaryType.sum,
-                              ),
-                            )
-                            .toList(),
-                        position: GridTableSummaryRowPosition.bottom,
-                      ),
-                    ],
-
-              columns: getColumns(tableColumns),
-              gridLinesVisibility: GridLinesVisibility.both,
-              headerGridLinesVisibility: GridLinesVisibility.both,
-              // allowSorting: true,
-              rowHeight: 60,
-              controller: _dataGridController,
-              selectionMode: SelectionMode.singleDeselect,
-              navigationMode: GridNavigationMode.row,
-            ),
-          );
-        }
-      },
-    );
   }
 
   List<GridColumn> getColumns(List<String> colNames) {
@@ -157,20 +148,10 @@ class DataSource extends DataGridSource {
   final int index;
   final List<ValueModel?> stageValueModelsList;
 
-  final List<List<String>> fileNamesList;
-  final List<TextEditingController> controllersListForNote;
-  final List<String> commentStatus;
-  final List<Map<String, TextEditingController>?>
-      controllersListForNumberFields;
-
   DataSource({
     required List<Map<String, dynamic>> data,
     required this.index,
     required this.stageValueModelsList,
-    required this.fileNamesList,
-    required this.controllersListForNote,
-    required this.commentStatus,
-    required this.controllersListForNumberFields,
   }) {
     _data = data.map<DataGridRow>(
       (map) {
@@ -235,99 +216,13 @@ class DataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
-    final bool isInputForm = row.getCells()[2].value == auth.currentUser!.uid &&
-        row
-                .getCells()
-                .singleWhere(
-                    (element) => element.columnName == 'Submit date time')
-                .value ==
-            null;
-
-    final List<String> fileNames = stageValueModelsList
-            .singleWhere((element) => element!.id == row.getCells()[0].value)!
-            .fileNames ??
-        <String>[];
-
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>(
         (cell) {
-          if ([
-                'Weight',
-                'Phase',
-                'GAS',
-                'SFD',
-                'DTL',
-                'File Names',
-                'Note',
-                "Is Commented"
-              ].contains(cell.columnName) &&
-              isInputForm) {
-            switch (cell.columnName) {
-              case 'File Names':
-                return Obx(() => Container(
-                      padding: EdgeInsets.all(16),
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          FilePickerResult? result =
-                              await FilePicker.platform.pickFiles(
-                            allowMultiple: true,
-                          );
-
-                          if (result != null) {
-                            fileNamesList[index] =
-                                result.files.map((file) => file.name).toList();
-                          }
-                        },
-                        child: Center(
-                          child: Text(
-                            'Files (${fileNamesList[index].length})',
-                          ),
-                        ),
-                      ),
-                    ));
-              case 'Is Commented':
-                return Center(
-                  child: CustomDropdownMenu(
-                    bottomPadding: 0,
-                    sizeBoxHeight: 0,
-                    width: 140,
-                    onChanged: (value) {
-                      commentStatus[index - 5] = value;
-                    },
-                    selectedItems: [commentStatus[index - 5]],
-                    items: ['With', 'Without'],
-                  ),
-                );
-              case 'Note':
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: CustomTextFormField(
-                      sizeBoxHeight: 0,
-                      controller: controllersListForNote[index],
-                      width: double.infinity,
-                      maxLines: 2,
-                    ),
-                  ),
-                );
-              default:
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: CustomTextFormField(
-                      sizeBoxHeight: 0,
-                      isNumber: true,
-                      controller: controllersListForNumberFields[index]![
-                          cell.columnName.toLowerCase()],
-                      width: 80,
-                    ),
-                  ),
-                );
-            }
-          } else if (cell.columnName == 'File Names') {
+          if (cell.columnName == 'File Names') {
             return Center(
               child: TextButton(
-                onPressed: () => print(fileNames),
+                onPressed: () => print(stageController.fileNames),
                 child: Text(cell.value.toString()),
               ),
             );

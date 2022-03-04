@@ -42,7 +42,12 @@ class StaffController extends GetxService {
   RxList<StaffModel> _documents = RxList<StaffModel>([]);
   List<StaffModel> get documents => _documents;
 
-  
+  bool get isCoordinator =>
+      staffController.documents
+          .singleWhere((staff) => staff.id == auth.currentUser!.uid)
+          .systemDesignation ==
+      'Coordinator';
+  String get currentUserId => auth.currentUser!.uid;
 
   @override
   void onInit() {
@@ -242,8 +247,7 @@ class StaffController extends GetxService {
                             onChanged: (value) {
                               companyText = value ?? '';
                             },
-                            items: listsController
-                                .document.value.companies!,
+                            items: listsController.document.value.companies!,
                           ),
                           CustomDropdownMenu(
                             labelText: 'System Designation',
@@ -260,8 +264,7 @@ class StaffController extends GetxService {
                             onChanged: (value) {
                               jobTitleText = value ?? '';
                             },
-                            items: listsController
-                                .document.value.jobTitles!,
+                            items: listsController.document.value.jobTitles!,
                           ),
                           CustomDateTimeFormField(
                             labelText: 'Start Date',
@@ -286,8 +289,8 @@ class StaffController extends GetxService {
                             onChanged: (value) {
                               currentPlaceText = value ?? '';
                             },
-                            items: listsController
-                                .document.value.employeePlaces!,
+                            items:
+                                listsController.document.value.employeePlaces!,
                           ),
                           CustomDateTimeFormField(
                             labelText: 'Contract Finish Date',

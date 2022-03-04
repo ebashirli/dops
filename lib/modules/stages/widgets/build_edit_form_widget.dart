@@ -14,10 +14,6 @@ class BuildEditFormWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isCoordinator = staffController.documents.indexWhere((staff) =>
-            staff.id == auth.currentUser!.uid &&
-            staff.systemDesignation == 'Coordinator') !=
-        -1;
     if (taskController.documents.isNotEmpty) {
       TaskModel taskModel = taskController.documents
           .firstWhere((task) => task!.id == Get.parameters['id'])!;
@@ -32,7 +28,7 @@ class BuildEditFormWidget extends StatelessWidget {
       return _buildEditFormWidget(
         drawingModel: drawingModel,
         taskModel: taskModel,
-        isCoordinator: isCoordinator,
+        isCoordinator: staffController.isCoordinator,
       );
     } else {
       return CircularProgressIndicator();

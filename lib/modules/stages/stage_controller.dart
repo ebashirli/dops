@@ -257,12 +257,14 @@ class StageController extends GetxService {
       id: valueModelAssignedCurrentUser!.id!,
     );
 
+    print('isLastSubmit: $isLastSubmit');
+
     if (isLastSubmit) {
       bool anyComment = await valueController.documents.any((valueModel) =>
               valueModel!.stageId == lastTaskStage.id &&
               valueModel.isCommented) ||
           commentCheckbox.value;
-      print(anyComment);
+      print('anyComment: $anyComment');
 
       StageModel stage = StageModel(
         taskId: lastTaskStage.taskId,
@@ -278,14 +280,18 @@ class StageController extends GetxService {
 
       String nextStageId = await addNew(model: stage);
 
-      print(lastIndex);
+      print('nextStageId: $nextStageId');
+      print('lastIndex: $lastIndex');
 
       if (lastIndex == 4 ||
           ((lastIndex == 6 || lastIndex == 7) && anyComment)) {
+        print(taskValueModels);
         final List<String?> designerIds =
-            taskValueModels[1][0]!.map((e) => e!.employeeId).toList();
+            taskValueModels[1].values.last.map((e) => e!.employeeId).toList();
+        print('designerIds: $designerIds');
         final List<String?> drafterIds =
-            taskValueModels[2][0]!.map((e) => e!.employeeId).toList();
+            taskValueModels[2].values.last.map((e) => e!.employeeId).toList();
+        print('drafterIds: $drafterIds');
 
         [...designerIds, ...drafterIds].toSet().forEach((empId) {
           valueController.addNew(

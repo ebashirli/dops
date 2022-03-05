@@ -52,30 +52,15 @@ class StageView extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(100, 20, 100, 20),
-        child: StreamBuilder<Object>(
-            stream: taskController.documents.stream,
-            builder: (context, snapshot) {
-              if (snapshot.hasData || taskController.documents.isNotEmpty) {
-                return Column(
-                  children: [
-                    stageController.buildEditForm(),
-                    SizedBox(height: 10),
-                    Expanded(
-                      child: ListView(
-                        controller: ScrollController(),
-                        children: [
-                          Obx(() => stageController.buildPanel()),
-                        ],
-                      ),
-                    ),
-                  ],
-                );
-              } else {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-            }),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // stageController.buildEditForm(),
+              SizedBox(height: 10),
+              stageController.buildPanel(),
+            ],
+          ),
+        ),
       ),
     );
   }

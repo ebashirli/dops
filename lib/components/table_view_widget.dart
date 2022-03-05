@@ -21,87 +21,94 @@ class TableView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () {
-        final DataSource dataSource =
-            DataSource(data: controller.getDataForTableView);
-        final DataGridController _dataGridController = DataGridController();
+    return (tableName != 'task'
+            ? controller.documents.isEmpty
+            : drawingController.documents.isEmpty)
+        ? CircularProgressIndicator()
+        : Obx(
+            () {
+              final DataSource dataSource =
+                  DataSource(data: controller.getDataForTableView);
 
-        void onEditPressed({bool? newRev = false}) {
-          if (_dataGridController.selectedRow == null) {
-            Get.snackbar(
-              'Selection',
-              'Select an item',
-              maxWidth: 250,
-              backgroundColor: Colors.green[50],
-            );
-          } else {
-            String? id = _dataGridController.selectedRow!.getCells()[0].value;
-            if (tableName != 'task') {
-              controller.buildAddEdit(id: id);
-            } else {
-              String parentId =
-                  _dataGridController.selectedRow!.getCells()[1].value;
+              final DataGridController _dataGridController =
+                  DataGridController();
 
-              controller.buildAddEdit(
-                  id: id, parentId: parentId, newRev: newRev);
-            }
-          }
-        }
-
-        return Scaffold(
-          floatingActionButton: Visibility(
-            visible: authManager.isCoordinator.value,
-            child: tableName == 'task'
-                ? ExpendableFab(
-                    distance: 80.0,
-                    children: [
-                      ActionButton(
-                        onPressed: onEditPressed,
-                        icon: const Icon(Icons.edit),
-                      ),
-                      ActionButton(
-                        onPressed: () => {onEditPressed(newRev: true)},
-                        icon: const Icon(Icons.add),
-                      ),
-                    ],
-                  )
-                : FloatingActionButton(
-                    onPressed: onEditPressed,
-                    child: const Icon(Icons.edit),
-                    backgroundColor: Colors.green,
-                  ),
-          ),
-          body: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: SfDataGrid(
-              isScrollbarAlwaysShown: false,
-              source: dataSource,
-              columns: getColumns(tableColNames[tableName]!),
-              gridLinesVisibility: GridLinesVisibility.both,
-              headerGridLinesVisibility: GridLinesVisibility.both,
-              columnWidthMode: ColumnWidthMode.fill,
-              allowSorting: true,
-              rowHeight: 70,
-              controller: _dataGridController,
-              selectionMode: SelectionMode.singleDeselect,
-              navigationMode: GridNavigationMode.row,
-              onCellDoubleTap: (_) {
-                if (tableName == 'task') {
-                  String? rowId =
+              void onEditPressed({bool? newRev = false}) {
+                if (_dataGridController.selectedRow == null) {
+                  Get.snackbar(
+                    'Selection',
+                    'Select an item',
+                    maxWidth: 250,
+                    backgroundColor: Colors.green[50],
+                  );
+                } else {
+                  String? id =
                       _dataGridController.selectedRow!.getCells()[0].value;
-                  if (rowId != null) {
-                    stageController.pressedTaskId.value = rowId;
-                    Get.toNamed(Routes.STAGES, parameters: {'id': rowId});
+                  if (tableName != 'task') {
+                    controller.buildAddEdit(id: id);
+                  } else {
+                    String parentId =
+                        _dataGridController.selectedRow!.getCells()[1].value;
+
+                    controller.buildAddEdit(
+                        id: id, parentId: parentId, newRev: newRev);
                   }
-                  ;
                 }
-              },
-            ),
-          ),
-        );
-      },
-    );
+              }
+
+              return Scaffold(
+                floatingActionButton: Visibility(
+                  visible: staffController.isCoordinator,
+                  child: tableName == 'task'
+                      ? ExpendableFab(
+                          distance: 80.0,
+                          children: [
+                            ActionButton(
+                              onPressed: onEditPressed,
+                              icon: const Icon(Icons.edit),
+                            ),
+                            ActionButton(
+                              onPressed: () => {onEditPressed(newRev: true)},
+                              icon: const Icon(Icons.add),
+                            ),
+                          ],
+                        )
+                      : FloatingActionButton(
+                          onPressed: onEditPressed,
+                          child: const Icon(Icons.edit),
+                          backgroundColor: Colors.green,
+                        ),
+                ),
+                body: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: SfDataGrid(
+                    isScrollbarAlwaysShown: false,
+                    source: dataSource,
+                    columns: getColumns(tableColNames[tableName]!),
+                    gridLinesVisibility: GridLinesVisibility.both,
+                    headerGridLinesVisibility: GridLinesVisibility.both,
+                    columnWidthMode: ColumnWidthMode.fill,
+                    allowSorting: true,
+                    rowHeight: 70,
+                    controller: _dataGridController,
+                    selectionMode: SelectionMode.singleDeselect,
+                    navigationMode: GridNavigationMode.row,
+                    onCellDoubleTap: (_) {
+                      if (tableName == 'task') {
+                        String? rowId = _dataGridController.selectedRow!
+                            .getCells()[0]
+                            .value;
+                        if (rowId != null) {
+                          Get.toNamed(Routes.STAGES, parameters: {'id': rowId});
+                        }
+                        ;
+                      }
+                    },
+                  ),
+                ),
+              );
+            },
+          );
   }
 
   displayDeleteDialog(String docId) {
@@ -184,60 +191,65 @@ class DataSource extends DataGridSource {
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>(
         (cell) {
-          void onPressed(id) {
-            if (id != 'null') {
-              stageController.pressedTaskId.value = id;
-              Get.toNamed(Routes.STAGES, parameters: {'id': id});
-            }
-          }
+          if (cell.value != null) {
+            void onPressed(String id) =>
+                Get.toNamed(Routes.STAGES, parameters: {'id': id});
 
-          return Container(
-            alignment: Alignment.center,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: (cell.columnName == 'assignedTasks' ||
-                          cell.columnName == 'drawingNumber') &&
-                      cell.value.length != 0
-                  ? cell.columnName == 'drawingNumber'
-                      ? TextButton(
-                          onPressed: () {
-                            onPressed(cell.value
-                                .substring(cell.value.indexOf('|') + 1));
-                          },
-                          child: Text(
-                            cell.value.substring(
-                              0,
-                              cell.value.indexOf('|'),
-                            ),
-                          ),
-                        )
-                      : TextButton(
-                          onPressed: () {
-                            Get.defaultDialog(
-                                content: Column(
-                              children: cell.value
-                                  .split('|')
-                                  .sublist(1)
-                                  .map<Widget>(
-                                    (taskNoId) => TextButton(
-                                      onPressed: () =>
-                                          onPressed(taskNoId.split(';')[1]),
-                                      child: Text(taskNoId.split(';')[0]),
-                                    ),
-                                  )
-                                  .toList(),
-                            ));
-                          },
-                          child: Text(
-                              '|'.allMatches(cell.value).length.toString()),
-                        )
-                  : Text(cell.value is DateTime
-                      ? '${cell.value.day}/${cell.value.month}/${cell.value.year}'
-                      : cell.value.toString()),
-            ),
-          );
+            Text textDrawingNumber = Text('');
+            String? taskId = null;
+
+            if (cell.columnName == 'drawingNumber') {
+              int indexOfVbar = cell.value.indexOf('|');
+              if (indexOfVbar != -1) {
+                textDrawingNumber = Text(cell.value.substring(0, indexOfVbar));
+                taskId = cell.value.substring(indexOfVbar + 1);
+              }
+            }
+
+            return Container(
+              alignment: Alignment.center,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: (cell.columnName == 'assignedTasks' ||
+                        cell.columnName == 'drawingNumber')
+                    ? cell.columnName == 'drawingNumber'
+                        ? taskId != 'null'
+                            ? TextButton(
+                                onPressed: () => onPressed(taskId!),
+                                child: textDrawingNumber,
+                              )
+                            : textDrawingNumber
+                        : TextButton(
+                            onPressed: () => taskNumberDialog(cell, onPressed),
+                            child: Text(
+                                '|'.allMatches(cell.value).length.toString()),
+                          )
+                    : Text(cell.value is DateTime
+                        ? '${cell.value.day}/${cell.value.month}/${cell.value.year}'
+                        : cell.value.toString()),
+              ),
+            );
+          } else {
+            return Text('');
+          }
         },
       ).toList(),
     );
+  }
+
+  void taskNumberDialog(DataGridCell<dynamic> cell, void onPressed(String id)) {
+    Get.defaultDialog(
+        content: Column(
+      children: cell.value
+          .split('|')
+          .sublist(1)
+          .map<Widget>(
+            (taskNoId) => TextButton(
+              onPressed: () => onPressed(taskNoId.split(';')[1]),
+              child: Text(taskNoId.split(';')[0]),
+            ),
+          )
+          .toList(),
+    ));
   }
 }

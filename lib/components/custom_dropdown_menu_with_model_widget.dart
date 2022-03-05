@@ -1,65 +1,58 @@
-import 'package:dops/constants/constant.dart';
-import 'package:dops/constants/lists.dart';
-import 'package:dops/modules/staff/staff_model.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 
-class CustomDropdownMenuWithModel extends StatelessWidget {
-  final int index;
+class CustomDropdownMenuWithModel<T> extends StatelessWidget {
+  final List<T>? items;
+  final void Function(List<T?>) onChanged;
+  final String Function(T?) itemAsString;
+  final List<T?> selectedItems;
+  final bool isMultiselection;
+  final String labelText;
+  final bool showSearchBox;
 
   CustomDropdownMenuWithModel({
     Key? key,
-    required this.index,
+    this.items,
+    required this.selectedItems,
+    required this.onChanged,
+    required this.itemAsString,
+    required this.labelText,
+    this.isMultiselection = false,
+    this.showSearchBox = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 350,
-      child: [0, 6, 7].contains(index)
-          ? DropdownSearch<StaffModel>(
-              selectedItem:
-                  stageController.assigningEmployeeIdsList[index].isNotEmpty
-                      ? staffController.documents.firstWhere((staffModel) =>
-                          staffModel.id ==
-                          stageController.assigningEmployeeIdsList[index][0])
-                      : null,
-              items: staffController.documents,
-              itemAsString: (StaffModel? item) =>
-                  '${item!.name} ${item.surname}',
+      child: !isMultiselection
+          ? DropdownSearch<T>(
+              selectedItem: selectedItems.isNotEmpty ? selectedItems[0] : null,
+              items: items,
+              itemAsString: itemAsString,
               mode: Mode.MENU,
               dropdownSearchDecoration: InputDecoration(
-                labelText: stageDetailsList[index]['staff job'],
+                labelText: labelText,
                 contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
                 border: OutlineInputBorder(),
               ),
               showSearchBox: true,
-              onChanged: (employee) {
-                stageController.assigningEmployeeIdsList[index] = [
-                  employee!.id!
-                ];
+              onChanged: (value) {
+                if (value != null) onChanged([value]);
               },
             )
-          : DropdownSearch<StaffModel>.multiSelection(
-              selectedItems: staffController.documents
-                  .where((element) => stageController
-                      .assigningEmployeeIdsList[index]
-                      .contains(element.id))
-                  .toList(),
-              items: staffController.documents,
-              itemAsString: (StaffModel? employee) =>
-                  '${employee!.name} ${employee.surname}',
+          : DropdownSearch<T?>.multiSelection(
+              selectedItems: selectedItems,
+              items: items,
+              itemAsString: itemAsString,
               mode: Mode.MENU,
               dropdownSearchDecoration: InputDecoration(
-                labelText: stageDetailsList[index]['staff job'],
+                labelText: labelText,
                 contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
                 border: OutlineInputBorder(),
               ),
               showSearchBox: true,
-              onChanged: (employees) {
-                stageController.assigningEmployeeIdsList[index] =
-                    employees.map((employee) => employee.id!).toList();
-              },
+              onChanged: onChanged,
             ),
     );
   }

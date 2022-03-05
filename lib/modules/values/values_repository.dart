@@ -25,9 +25,13 @@ class ValueRepository {
       List<ValueModel> returnValue = [];
       query.docs.forEach(
         (snapshot) {
-          final snapshot_data = snapshot.data() as Map<String, dynamic>;
-          if (!snapshot_data['isHidden'])
-            returnValue.add(ValueModel.fromMap(snapshot_data, snapshot.id));
+          if (!(snapshot.data() as Map<String, dynamic>)['isHidden'])
+            returnValue.add(
+              ValueModel.fromMap(
+                snapshot.data() as Map<String, dynamic>,
+                snapshot.id,
+              ),
+            );
         },
       );
       return returnValue;

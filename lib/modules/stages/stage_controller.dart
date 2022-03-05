@@ -1,105 +1,152 @@
 import 'dart:math';
-
-import 'package:dops/components/custom_dropdown_menu_with_model_widget.dart';
+import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/components/value_table_view_widget.dart';
-import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
-import 'package:dops/modules/drawing/drawing_model.dart';
+import 'package:dops/modules/stages/stages/custom_expansion_panel_list.dart';
+import 'package:dops/modules/stages/stages/expantion_panel_item_model.dart';
+import 'package:dops/modules/stages/stages/stage/coordinator_form.dart';
+import 'package:dops/modules/stages/stages/stage/worker_form.dart';
+import 'package:intl/intl.dart';
+
+import 'package:dops/constants/constant.dart';
+import 'package:dops/modules/staff/staff_model.dart';
 import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/stages/stage_repository.dart';
-import 'package:dops/modules/task/task_model.dart';
+import 'package:dops/modules/stages/widgets/build_edit_form_widget.dart';
 import 'package:dops/modules/values/value_model.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../components/custom_widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:recase/recase.dart';
 
 class StageController extends GetxService {
   final _repository = Get.find<StageRepository>();
   static StageController instance = Get.find();
 
-  final RxList<bool> isExpandedList =
-      List<bool>.generate(9, (int index) => false, growable: false).obs;
+  RxList<StageModel?> _documents = RxList<StageModel>([]);
 
-  final List<List<GlobalKey<FormState>>> formKeysList =
-      List<List<GlobalKey<FormState>>>.generate(
-    9,
-    (int index) => [
-      GlobalKey<FormState>(),
-      GlobalKey<FormState>(),
-    ],
-    growable: false,
-  );
+  RxList<StageModel?> get documents => _documents;
 
-  late final List<List<String>> assigningEmployeeIdsList;
+  List<StageModel?> get taskStages {
+    List<StageModel?> _taskStages = documents.isNotEmpty
+        ? documents
+            .where((stageModel) => stageModel!.taskId == Get.parameters['id'])
+            .toList()
+        : [];
+    if (_taskStages.isNotEmpty)
+      _taskStages
+          .sort((a, b) => a!.creationDateTime.compareTo(b!.creationDateTime));
+    return _taskStages;
+  }
 
-  late final List<Map<String, TextEditingController>?>
-      controllersListForNumberFields;
+  int get maxIndex =>
+      taskStages.map((stageModel) => stageModel!.index).reduce(max);
 
-  // late final List<Map<String, int>> valueSumList;
+  int get lastIndex => taskStages.last!.index;
 
-  late final List<TextEditingController> controllersListForNote;
+  RxList<StaffModel?> assigningStaffModels = RxList([]);
+  List<StaffModel?> get assignedStaffModels => taskValueModels[lastIndex]
+      .values
+      .last
+      .map((e) => staffController.documents
+          .singleWhere((element) => element.id == e?.employeeId))
+      .toList();
 
-  late final List<List<List<String?>>> stageNotesList;
+  List<Map<StageModel, List<ValueModel?>>> get taskValueModels => List.generate(
+        maxIndex + 1,
+        (index) => Map.fromIterable(
+          taskStages
+              .where((StageModel? stageModel) => stageModel!.index == index),
+          key: (stageModel) => stageModel,
+          value: (stageModel) => valueController.documents
+              .where((ValueModel? valueModel) =>
+                  valueModel!.stageId == stageModel.id)
+              .toList(),
+        ),
+      );
 
-  late RxList<List<String>> fileNamesList;
+  bool get coordinatorAssigns => taskValueModels[lastIndex].values.last.isEmpty;
 
-  late RxList<String> commentStatus;
+  bool get isLastSubmit =>
+      lastTaskStageValues.where((element) {
+        return element!.submitDateTime == null;
+      }).length ==
+      1;
 
-  final RxBool isChecked = false.obs;
+  StageModel get lastTaskStage => taskValueModels[lastIndex].keys.last;
 
-  final RxString pressedTaskId = ''.obs;
+  List<ValueModel?> get lastTaskStageValues =>
+      taskValueModels[lastIndex].values.last;
 
-  RxList<StageModel> _documents = RxList<StageModel>([]);
-  List<StageModel> get documents => _documents;
+  ValueModel? get valueModelAssignedCurrentUser {
+    List<ValueModel?> valueModelList = lastTaskStageValues.where(
+      (element) {
+        return element!.employeeId == staffController.currentUserId;
+      },
+    ).toList();
+    return valueModelList.isNotEmpty ? valueModelList[0] : null;
+  }
 
-  List<String?> numberFieldNames(int index) =>
-      stageDetailsList[index]['columns'];
+  bool get isWorkerFormVisible => valueModelAssignedCurrentUser == null
+      ? false
+      : valueModelAssignedCurrentUser!.submitDateTime == null;
+
+  List<String> get specialFieldNames =>
+      stageDetailsList[lastIndex]['form fields'];
+
+  late List<TextEditingController> textEditingControllers;
+
+  late RxList<String> fileNames = RxList<String>([]);
+  // late Rx<String> commentStatus = Rx<String>('');
+
+  final RxBool commentCheckbox = false.obs;
 
   @override
-  void onInit() async {
-    super.onInit();
-    drawingController
-      ..drawingNumberController = TextEditingController()
-      ..nextRevisionNumberController = TextEditingController()
-      ..drawingTitleController = TextEditingController()
-      ..drawingNoteController = TextEditingController()
-      ..taskNoteController = TextEditingController()
-      ..areaList = []
-      ..designDrawingsList = []
-      ..activityCodeIdText = ''
-      ..moduleNameText = ''
-      ..levelText = ''
-      ..functionalAreaText = ''
-      ..structureTypeText = '';
-
-    assigningEmployeeIdsList = List<List<String>>.generate(
-      9,
-      (int index) => <String>[],
-      growable: false,
-    );
-
-    controllersListForNumberFields =
-        List<Map<String, TextEditingController>?>.generate(9, (index) {
-      Map<String, TextEditingController> map = {};
-
-      if (numberFieldNames(index).isNotEmpty) {
-        numberFieldNames(index).forEach((String? fieldName) {
-          map[fieldName!.toLowerCase()] = TextEditingController();
-        });
-      }
-      return map;
-    });
-
-    controllersListForNote =
-        List.generate(9, (index) => TextEditingController());
-
-    stageNotesList = List.generate(9, (index) => <List<String?>>[]);
-
-    fileNamesList = List.generate(9, (index) => <String>[]).obs;
-
-    commentStatus = ['', ''].obs;
-
+  void onInit() {
     _documents.bindStream(_repository.getAllDocumentsAsStream());
+    textEditingControllers =
+        List<TextEditingController>.generate(5, (_) => TextEditingController());
+    super.onInit();
+  }
+
+  Widget buildEditForm() => BuildEditFormWidget();
+  Widget buildPanel() {
+    return Obx(() {
+      final List<Widget> children = documents.isNotEmpty
+          ? [
+              CustomExpansionPanelList(data: generateItems(maxIndex + 1)),
+              SizedBox(height: 200),
+            ]
+          : [Center(child: CircularProgressIndicator())];
+
+      return Column(children: children);
+    });
+  }
+
+  List<ExpantionPanelItemModel> generateItems(int numberOfItems) {
+    return List<ExpantionPanelItemModel>.generate(numberOfItems, (int index) {
+      return ExpantionPanelItemModel(
+        headerValue: '${index + 1} | ${stageDetailsList[index]['name']}',
+        expandedValue: 'This is item number $index',
+        coordinatorForm: CoordinatorForm(
+          index: index,
+          visible: lastIndex == index,
+        ),
+        workerForm: WorkerForm(
+          index: index,
+          visible: lastIndex == index,
+        ),
+        valueTable: Column(
+          children: [
+            Divider(),
+            ValueTableView(
+              index: index,
+              stageValueModelsList: taskValueModels[index]
+                  [taskValueModels[index].keys.last],
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Future<String> addNew({required StageModel model}) async {
@@ -110,599 +157,120 @@ class StageController extends GetxService {
     return model.id!;
   }
 
-  @override
-  void onReady() {
-    super.onReady();
+  Map<String, List<List<String>>> getValueModelRows(index) {
+    List<String> allColumnHeaders = [
+      'Employee Initial',
+      ...stageDetailsList[index]['columns'],
+      'Note',
+      'Assigned date time',
+      'Submit date time',
+    ];
+
+    List<ValueModel?> valueModelList = taskValueModels[index].values.last;
+
+    List<String> specialFieldNames = stageDetailsList[index]['columns']
+      ..remove('File Names');
+
+    List<List<String>> rows = valueModelList.isNotEmpty
+        ? valueModelList.map((ValueModel? valueModel) {
+            return [
+              staffController.documents
+                  .singleWhere((StaffModel element) =>
+                      element.id == valueModel!.employeeId)
+                  .initial,
+              ...specialFieldNames
+                  .map((fn) => valueModel!.toMap()[fn.toLowerCase()] != null
+                      ? valueModel.toMap()[ReCase(fn).camelCase].toString()
+                      : '')
+                  .toList(),
+              valueModel!.note ?? '',
+              DateFormat('yyyy-MM-dd kk:mm:ss')
+                  .format(valueModel.assignedDateTime),
+              valueModel.submitDateTime != null
+                  ? DateFormat('yyyy-MM-dd kk:mm:ss')
+                      .format(valueModel.submitDateTime!)
+                  : '',
+            ];
+          }).toList()
+        : [];
+    return {
+      'headers': [allColumnHeaders],
+      'rows': rows
+    };
   }
 
-  Widget buildEditForm() {
-    if (taskController.documents.isNotEmpty) {
-      TaskModel taskModel = taskController.documents
-          .where((task) => task!.id == Get.parameters['id'])
-          .toList()[0]!;
+  void onAssignOrUpdatePressed() async {
+    Set<String?> assignedEmployeeIds = lastTaskStageValues.isNotEmpty
+        ? lastTaskStageValues
+            .map((ValueModel? valueModel) => valueModel!.employeeId)
+            .toSet()
+        : {};
 
-      DrawingModel drawingModel = drawingController.documents
-          .where((drawing) => drawing.id == taskModel.parentId)
-          .toList()[0];
+    Set<String> assigningEmployeeIds =
+        assigningStaffModels.map((e) => e!.id!).toSet();
 
-      drawingController.fillEditingControllers(
-        drawingModel: drawingModel,
-        taskModel: taskModel,
-      );
-      return Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: drawingController.drawingFormKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          child: Container(
-            width: Get.width * .5,
-            child: Column(
-              children: [
-                Container(
-                  height: 220,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Column(
-                          children: <Widget>[
-                            SizedBox(height: 10),
-                            CustomDropdownMenu(
-                              showSearchBox: true,
-                              labelText: 'Activity code',
-                              selectedItems: [
-                                activityController.documents
-                                    .where(
-                                      (activity) =>
-                                          activity.id ==
-                                          drawingController.activityCodeIdText,
-                                    )
-                                    .toList()[0]
-                                    .activityId!,
-                              ],
-                              onChanged: (value) {
-                                drawingController.activityCodeIdText =
-                                    activityController.documents
-                                        .where((activity) =>
-                                            activity.activityId == value)
-                                        .toList()[0]
-                                        .id!;
-                              },
-                              items: activityController.documents
-                                  .map((document) => document.activityId)
-                                  .toList(),
-                            ),
-                            CustomTextFormField(
-                              controller:
-                                  drawingController.drawingNumberController,
-                              labelText: 'Drawing Number',
-                            ),
-                            CustomTextFormField(
-                              controller:
-                                  drawingController.drawingTitleController,
-                              labelText: 'Drawing Title',
-                            ),
-                            CustomDropdownMenu(
-                              labelText: 'Module name',
-                              selectedItems: [drawingController.moduleNameText],
-                              onChanged: (value) {
-                                drawingController.moduleNameText = value ?? '';
-                              },
-                              items: listsController.document.value.modules!,
-                            ),
-                            CustomDropdownMenu(
-                              showSearchBox: true,
-                              labelText: 'Level',
-                              selectedItems: [drawingController.levelText],
-                              onChanged: (value) {
-                                drawingController.levelText = value ?? '';
-                              },
-                              items: listsController.document.value.levels!,
-                            ),
-                            CustomDropdownMenu(
-                              showSearchBox: true,
-                              isMultiSelectable: true,
-                              labelText: 'Area',
-                              items: listsController.document.value.areas!,
-                              onChanged: (values) =>
-                                  drawingController.areaList = values,
-                              selectedItems: drawingController.areaList,
-                            ),
-                            CustomDropdownMenu(
-                              showSearchBox: true,
-                              labelText: 'Functional Area',
-                              selectedItems: [
-                                drawingController.functionalAreaText
-                              ],
-                              onChanged: (value) {
-                                drawingController.functionalAreaText =
-                                    value ?? '';
-                              },
-                              items: listsController
-                                  .document.value.functionalAreas!,
-                            ),
-                            CustomDropdownMenu(
-                              showSearchBox: true,
-                              labelText: 'Structure Type',
-                              selectedItems: [
-                                drawingController.structureTypeText
-                              ],
-                              onChanged: (value) {
-                                drawingController.structureTypeText =
-                                    value ?? '';
-                              },
-                              items: listsController
-                                  .document.value.structureTypes!,
-                            ),
-                            CustomTextFormField(
-                              controller:
-                                  drawingController.drawingNoteController,
-                              labelText: 'Note',
-                            ),
-                          ],
-                        ),
-                        Column(
-                          children: <Widget>[
-                            Text(
-                              '${drawingModel.drawingNumber}-${taskModel.revisionNumber}',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            CustomTextFormField(
-                              controller: drawingController
-                                  .nextRevisionNumberController,
-                              labelText: 'Next Revision number',
-                            ),
-                            CustomDropdownMenu(
-                              isMultiSelectable: true,
-                              labelText: 'Design Drawings',
-                              items: referenceDocumentController.documents
-                                  .map((document) => document.documentNumber)
-                                  .toList(),
-                              onChanged: (values) =>
-                                  drawingController.designDrawingsList = values,
-                              selectedItems:
-                                  drawingController.designDrawingsList,
-                            ),
-                            CustomTextFormField(
-                              controller: drawingController.taskNoteController,
-                              labelText: 'Note',
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    if (authManager.isCoordinator.value)
-                      ElevatedButton(
-                        onPressed: () {
-                          DrawingModel revisedOrNewModel = DrawingModel(
-                            activityCodeId:
-                                drawingController.activityCodeIdText,
-                            drawingNumber:
-                                drawingController.drawingNumberController.text,
-                            drawingTitle:
-                                drawingController.drawingTitleController.text,
-                            level: drawingController.levelText,
-                            module: drawingController.moduleNameText,
-                            structureType: drawingController.structureTypeText,
-                            note: drawingController.drawingNoteController.text,
-                            area: drawingController.areaList,
-                            functionalArea:
-                                drawingController.functionalAreaText,
-                          );
-
-                          Map<String, dynamic> updatedTaskFields = {
-                            'revisionNumber': drawingController
-                                .nextRevisionNumberController.text,
-                            'designDrawings':
-                                drawingController.designDrawingsList,
-                            'note': drawingController.taskNoteController.text,
-                          };
-
-                          drawingController.updateDrawing(
-                            updatedModel: revisedOrNewModel,
-                            id: drawingModel.id!,
-                          );
-
-                          taskController.updateTaskFields(
-                            map: updatedTaskFields,
-                            id: taskModel.id!,
-                          );
-                        },
-                        child: Text('Update'),
-                      ),
-                  ],
-                )
-              ],
-            ),
-          ),
-        ),
-      );
-    } else {
-      return CircularProgressIndicator();
-    }
-  }
-
-  List<StageModel> get taskStages {
-    List<StageModel> ts = documents
-        .where((stage) => stage.taskId == Get.parameters['id'])
-        .toList();
-    ts.sort((a, b) => a.creationDateTime.compareTo(b.creationDateTime));
-    return ts;
-  }
-
-  int get maxIndex =>
-      taskStages.map((stageModel) => stageModel.index).reduce(max);
-
-  buildPanel() {
-    print(authManager.isCoordinator.value);
-    if (staffController.documents.isNotEmpty &&
-        taskController.documents.isNotEmpty &&
-        staffController.documents.isNotEmpty) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 300),
-        child: ExpansionPanelList(
-          expansionCallback: (int index, bool isExpanded) {
-            isExpandedList[index] = !isExpanded;
-          },
-          children: List.generate(
-            maxIndex + 1,
-            (index) {
-              List<StageModel> stageStageModels = taskStages
-                  .where((stageModel) => stageModel.index == index)
-                  .toList();
-
-              stageStageModels.sort(
-                  (a, b) => a.creationDateTime.compareTo(b.creationDateTime));
-
-              // TODO: add isStageSkipped field to StageModel
-
-              // final bool isStageSkipped = false;
-
-              bool coordinatorAssigns = true;
-              bool isCurrentUserAssigned = false;
-              bool isSubmitted = false;
-              int unsubmittedCount = 0;
-
-              Map<String?, int?> totalValues =
-                  numberFieldNames(index).isNotEmpty
-                      ? Map<String, int>.fromIterable(
-                          numberFieldNames(index),
-                          key: (fieldName) => fieldName.toLowerCase(),
-                          value: (element) => 0,
-                        )
-                      : {};
-
-              List<Map<String?, String?>?> notesList = [];
-
-              List<List<ValueModel?>?> stageValueModelsLists = [];
-
-              if (valueController.documents.isNotEmpty &&
-                  valueController.documents
-                      .where((vm) => vm!.isHidden == false)
-                      .isNotEmpty) {
-                stageValueModelsLists = stageStageModels
-                    .map((stageModel) => valueController.documents
-                        .where((valueModel) =>
-                            valueModel!.isHidden == false &&
-                            valueModel.stageId == stageModel.id!)
-                        .toList())
-                    .toList();
-
-                unsubmittedCount = stageValueModelsLists.last!.length;
-
-                if (stageValueModelsLists.last!.isNotEmpty) {
-                  coordinatorAssigns = false;
-
-                  stageValueModelsLists.last!.forEach((valueModel) {
-                    assigningEmployeeIdsList[index].add(staffController
-                        .documents
-                        .singleWhere((staffModel) =>
-                            staffModel.id == valueModel!.employeeId)
-                        .id!);
-
-                    if (valueModel!.employeeId == auth.currentUser!.uid &&
-                        valueModel.isHidden != true) {
-                      isCurrentUserAssigned = true;
-                      if (valueModel.submitDateTime != null) {
-                        isSubmitted = true;
-                      }
-                    }
-
-                    if (valueModel.submitDateTime != null) {
-                      notesList.add({
-                        'employeeId': valueModel.employeeId,
-                        'note': valueModel.note
-                      });
-
-                      totalValues.forEach((key, value) {
-                        if (valueModel.employeeId == auth.currentUser!.uid) {
-                          controllersListForNumberFields[index]![key]!.text =
-                              valueModel.toMap()[key].toString();
-                        }
-                        totalValues[key] = totalValues[key]! +
-                            (valueModel.toMap()[key]) as int;
-                      });
-
-                      unsubmittedCount--;
-                    }
-                  });
-                }
-              }
-              return ExpansionPanel(
-                canTapOnHeader: true,
-                isExpanded: isExpandedList[index],
-                headerBuilder: (BuildContext context, bool isExpanded) {
-                  return ListTile(
-                    title: Text(
-                      '${index + 1} | ${stageDetailsList[index]['name']}',
-                    ),
-                  );
-                },
-                body: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (((!coordinatorAssigns && unsubmittedCount != 0) ||
-                              coordinatorAssigns) &&
-                          authManager.isCoordinator.value)
-                        Column(
-                          children: [
-                            Form(
-                              key: formKeysList[index][0],
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Column(
-                                        children: [
-                                          CustomDropdownMenuWithModel(
-                                              index: index),
-                                          SizedBox(height: 10),
-                                        ],
-                                      ),
-                                      SizedBox(width: 10),
-                                      if (authManager.isCoordinator.value &&
-                                          taskStages.last.index == index)
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            _onAssignOrUpdatePressed(
-                                              index: index,
-                                              lastStageId:
-                                                  stageStageModels.last.id!,
-                                              assigningEmployeeIds:
-                                                  assigningEmployeeIdsList[
-                                                          index]
-                                                      .toSet(),
-                                              assignedEmployeeIds:
-                                                  coordinatorAssigns
-                                                      ? null
-                                                      : stageValueModelsLists
-                                                          .last!
-                                                          .map((valueModel) =>
-                                                              valueModel!
-                                                                  .employeeId)
-                                                          .toSet(),
-                                            );
-                                          },
-                                          child: Container(
-                                            height: 48,
-                                            child: Center(
-                                              child: Text(
-                                                (coordinatorAssigns)
-                                                    ? 'Assign'
-                                                    : 'Update',
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Divider(),
-                          ],
-                        ),
-                      if (stageDetailsList[index]['get files'] != null)
-                        ElevatedButton(
-                          onPressed: () {},
-                          child: Container(
-                            height: 48,
-                            width: 100,
-                            child: Center(
-                              child: Text(stageDetailsList[index]['get files']),
-                            ),
-                          ),
-                        ),
-                      if (!coordinatorAssigns)
-                        Form(
-                          key: formKeysList[index][1],
-                          child: Column(
-                            children: [
-                              ValueTableView(
-                                index: index,
-                                stageValueModelsList:
-                                    stageValueModelsLists.last!,
-                              ),
-                              if (isCurrentUserAssigned && !isSubmitted)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    if (index == 7)
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Checkbox(
-                                            checkColor: Colors.white,
-                                            value: isChecked.value,
-                                            onChanged: (bool? value) {
-                                              isChecked.value = value!;
-                                            },
-                                          ),
-                                          Text(
-                                            'By clicking this checkbox I confirm that all files\nare attached correctly and below appropriate task',
-                                          ),
-                                        ],
-                                      ),
-                                    SizedBox(width: 10),
-                                    ElevatedButton(
-                                      onPressed: (([5, 6].contains(index) &&
-                                                  commentStatus[index - 5] ==
-                                                      "") ||
-                                              (index == 7 && !isChecked.value))
-                                          ? null
-                                          : () {
-                                              ValueModel assignedValueModel =
-                                                  stageValueModelsLists.last!
-                                                      .singleWhere(
-                                                          (valueModel) =>
-                                                              valueModel!
-                                                                  .employeeId ==
-                                                              auth.currentUser!
-                                                                  .uid)!;
-                                              bool isCommented = [5, 6]
-                                                      .contains(index)
-                                                  ? commentStatus[index - 5] ==
-                                                      'With'
-                                                  : false;
-                                              _onSubmitPressed(
-                                                index: index,
-                                                assignedValueModel:
-                                                    assignedValueModel,
-                                                lastTaskStage:
-                                                    stageStageModels.last,
-                                                isCommented: isCommented,
-                                                isLastSubmit:
-                                                    unsubmittedCount == 1,
-                                              );
-                                            },
-                                      child: Container(
-                                        height: 20,
-                                        child:
-                                            Center(child: const Text('Submit')),
-                                      ),
-                                    ),
-                                    SizedBox(width: 10),
-                                  ],
-                                ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      );
-    } else {
-      return CircularProgressIndicator();
-    }
-  }
-
-  void _onAssignOrUpdatePressed({
-    required int index,
-    required String lastStageId,
-    required Set assigningEmployeeIds,
-    Set? assignedEmployeeIds,
-  }) async {
     ValueModel vm = await ValueModel(
-      stageId: lastStageId,
+      stageId: lastTaskStage.id!,
       employeeId: '',
       assignedBy: auth.currentUser!.uid,
       assignedDateTime: DateTime.now(),
     );
-    if (assignedEmployeeIds == null) {
+
+    if (assignedEmployeeIds.isEmpty) {
       // asigning
       assigningEmployeeIds.forEach((employeeId) async {
         vm.employeeId = employeeId;
         valueController.addNew(model: vm);
       });
     } else {
-      // updating
+      assignedEmployeeIds.difference(assigningEmployeeIds).forEach(
+          (employeeId) => valueController.addValues(
+              map: {'isHidden': true},
+              id: lastTaskStageValues
+                  .singleWhere((ValueModel? valueModel) =>
+                      valueModel!.employeeId == employeeId)!
+                  .id!));
       assigningEmployeeIds
           .difference(assignedEmployeeIds)
-          .forEach((employeeId) async {
+          .forEach((employeeId) {
         vm.employeeId = employeeId;
         valueController.addNew(model: vm);
       });
-      assignedEmployeeIds
-          .difference(assigningEmployeeIds)
-          .forEach((employeeId) async {
-        final String valueId = valueController.documents
-            .singleWhere(
-              (valueModel) => (valueModel!.isHidden == false &&
-                  valueModel.stageId == lastStageId &&
-                  valueModel.employeeId == employeeId),
-            )!
-            .id!;
-        valueController.addValues(map: {'isHidden': true}, id: valueId);
-      });
     }
+    assigningStaffModels.value = [];
   }
 
-  void _onSubmitPressed(
-      {required int index,
-      required ValueModel assignedValueModel,
-      required StageModel lastTaskStage,
-      required bool isLastSubmit,
-      bool isCommented = false}) async {
+  void onSubmitPressed() async {
     Map<String, dynamic> map = {};
 
-    numberFieldNames(index).forEach(
-      (String? fieldName) {
-        if (fieldName != null) {
-          map[fieldName.toLowerCase()] = int.parse(
-            controllersListForNumberFields[index]![fieldName.toLowerCase()]!
-                .text,
-          );
-        }
-      },
-    );
-    print(map);
-
-    map['note'] = controllersListForNote[index].text;
-    map['fileNames'] = fileNamesList[index];
+    for (var i = 0; i < specialFieldNames.length; i++) {
+      map[specialFieldNames[i].toLowerCase()] =
+          int.parse(textEditingControllers[i].text);
+    }
+    map['isCommented'] = commentCheckbox.value;
+    map['note'] = textEditingControllers.last.text;
+    map['fileNames'] = fileNames;
     map['submitDateTime'] = DateTime.now();
-    map['isCommented'] = isCommented;
 
     valueController.addValues(
       map: map,
-      id: assignedValueModel.id!,
+      id: valueModelAssignedCurrentUser!.id!,
     );
 
     if (isLastSubmit) {
       bool anyComment = await valueController.documents.any((valueModel) =>
               valueModel!.stageId == lastTaskStage.id &&
               valueModel.isCommented) ||
-          isCommented;
+          commentCheckbox.value;
+      print(anyComment);
 
       StageModel stage = StageModel(
         taskId: lastTaskStage.taskId,
-        index: anyComment ? 4 : index + 1,
-        checkerCommentCounter: (isCommented && index == 5)
+        index: anyComment ? 4 : lastIndex + 1,
+        checkerCommentCounter: (commentCheckbox.value && lastIndex == 5)
             ? lastTaskStage.checkerCommentCounter + 1
             : 0,
-        reviewerCommentCounter: (isCommented && index == 6)
+        reviewerCommentCounter: (commentCheckbox.value && lastIndex == 6)
             ? lastTaskStage.reviewerCommentCounter + 1
             : 0,
         creationDateTime: DateTime.now(),
@@ -710,49 +278,28 @@ class StageController extends GetxService {
 
       String nextStageId = await addNew(model: stage);
 
-      if (index == 3 || ((index == 5 || index == 6) && anyComment)) {
-        final String? designingId = await documents
-            .singleWhere((stageModel) =>
-                stageModel.index == 1 &&
-                stageModel.taskId == lastTaskStage.taskId)
-            .id;
+      print(lastIndex);
 
-        final String? draftingId = await documents
-            .singleWhere((stageModel) =>
-                stageModel.index == 2 &&
-                stageModel.taskId == lastTaskStage.taskId)
-            .id;
+      if (lastIndex == 4 ||
+          ((lastIndex == 6 || lastIndex == 7) && anyComment)) {
+        final List<String?> designerIds =
+            taskValueModels[1][0]!.map((e) => e!.employeeId).toList();
+        final List<String?> drafterIds =
+            taskValueModels[2][0]!.map((e) => e!.employeeId).toList();
 
-        final List<String?> designerIds = valueController.documents
-            .where((valueModel) => valueModel!.stageId == designingId)
-            .map((valueModel) => valueModel!.employeeId)
-            .toList();
-        final List<String?> drafterIds = valueController.documents
-            .where((valueModel) => valueModel!.stageId == draftingId)
-            .map((valueModel) => valueModel!.employeeId)
-            .toList();
-
-        [...designerIds, ...drafterIds].toSet().forEach((designerId) {
+        [...designerIds, ...drafterIds].toSet().forEach((empId) {
           valueController.addNew(
             model: ValueModel(
               stageId: nextStageId,
-              employeeId: designerId,
-              assignedBy: auth.currentUser!.uid,
+              employeeId: empId,
+              assignedBy: 'System',
               assignedDateTime: DateTime.now(),
             ),
           );
         });
-      } else if (index == 4) {
-        final String? checkingId = await documents
-            .singleWhere((stageModel) =>
-                stageModel.index == 3 &&
-                stageModel.taskId == lastTaskStage.taskId)
-            .id;
-        final List<String?> checkerIds = valueController.documents
-            .where((valueModel) => valueModel!.stageId == checkingId)
-            .map((valueModel) => valueModel!.employeeId)
-            .toList();
-
+      } else if (lastIndex == 5) {
+        final List<String?> checkerIds =
+            taskValueModels[3].values.last.map((e) => e!.employeeId).toList();
         checkerIds.forEach((checkerId) {
           valueController.addNew(
             model: ValueModel(
@@ -765,5 +312,8 @@ class StageController extends GetxService {
         });
       }
     }
+    textEditingControllers.forEach((e) => e.clear());
+    fileNames.value = [];
+    commentCheckbox.value = false;
   }
 }

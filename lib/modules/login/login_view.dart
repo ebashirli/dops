@@ -46,6 +46,7 @@ class LoginView extends GetView<AuthManager> with CacheManager {
                             if (value!.contains('\n')) {
                               focusNode.requestFocus();
                             }
+                            return null;
                           }),
                       CustomTextFormField(
                         focusNode: focusNode,

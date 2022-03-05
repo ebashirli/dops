@@ -19,6 +19,7 @@ class AuthManager extends GetxService with CacheManager {
       return await auth.createUserWithEmailAndPassword(
           email: email, password: password);
     } catch (firebaseAuthException) {}
+    return null;
   }
 
   Future<void> login(String email, password) async {

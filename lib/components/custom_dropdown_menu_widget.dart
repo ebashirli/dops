@@ -74,7 +74,7 @@ class CustomDropdownMenu extends StatelessWidget {
                 : DropdownSearch<String>(
                     selectedItem: selectedItems[0],
                     showSearchBox: showSearchBox,
-                    maxHeight: items.length < 3
+                    maxHeight: items.length <= 3
                         ? items.length * 50
                         : items.length < 10
                             ? items.length * 100

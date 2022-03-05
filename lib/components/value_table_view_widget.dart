@@ -29,8 +29,9 @@ class ValueTableView extends StatelessWidget {
                   ...valueTableCommonColumnHeadList.sublist(0, 4),
                   ...stageDetailsList[index]['form fields'],
                   if (stageDetailsList[index]['file names'] != null)
-                    'File name',
-                  if (stageDetailsList[index]['comment'] != null) 'Commented',
+                    'File Names',
+                  if (stageDetailsList[index]['comment'] != null)
+                    'Is Commented',
                   ...valueTableCommonColumnHeadList.sublist(4),
                 ];
                 final DataSource dataSource = DataSource(

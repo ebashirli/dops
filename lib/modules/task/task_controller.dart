@@ -191,6 +191,7 @@ class TaskController extends GetxService {
           designDrawings: [],
           note: '',
         );
+        print(documents.length);
 
         if (documents.isNotEmpty) {
           List<TaskModel?> drawingTasks =

@@ -191,7 +191,8 @@ class DataSource extends DataGridSource {
               child: TextButton(
                 onPressed: () {
                   stageValueModelsList.forEach((e) {
-                    if (e!.fileNames != null) print(e.fileNames);
+                    print(e!.id);
+                    if (e.fileNames != null) print(e.fileNames);
                   });
                 },
                 child: Text(
@@ -223,7 +224,11 @@ class DataSource extends DataGridSource {
           if (cell.columnName == 'File Names') {
             return Center(
               child: TextButton(
-                onPressed: () => print(stageController.fileNames),
+                onPressed: () {
+                  print(stageValueModelsList
+                      .singleWhere((e) => e!.id == row.getCells()[0].value)!
+                      .fileNames);
+                },
                 child: Text(cell.value.toString()),
               ),
             );

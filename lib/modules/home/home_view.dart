@@ -10,7 +10,7 @@ import '../../enum.dart';
 
 // ignore: must_be_immutable
 class HomeView extends GetView<HomeController> {
-  late GetxService tableController;
+  late GetxService _controller;
   late String tableName;
 
   @override
@@ -27,12 +27,12 @@ class HomeView extends GetView<HomeController> {
   Widget _buildBody() {
     switch (controller.homeStates) {
       case HomeStates.ActivityState:
-        tableController = activityController;
+        _controller = activityController;
         tableName = 'activity';
         break;
 
       case HomeStates.ReferenceDocumentState:
-        tableController = referenceDocumentController;
+        _controller = referenceDocumentController;
         tableName = 'reference document';
         break;
 
@@ -40,17 +40,17 @@ class HomeView extends GetView<HomeController> {
         return ListsView();
 
       case HomeStates.StaffState:
-        tableController = staffController;
+        _controller = staffController;
         tableName = 'staff';
         break;
 
       case HomeStates.TaskState:
-        tableController = taskController;
+        _controller = taskController;
         tableName = 'task';
         break;
     }
     return TableView(
-      controller: tableController,
+      controller: _controller,
       tableName: tableName,
     );
   }

@@ -21,86 +21,94 @@ class TableView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () {
-        final DataSource dataSource =
-            DataSource(data: controller.getDataForTableView);
-        final DataGridController _dataGridController = DataGridController();
+    return (tableName != 'task'
+            ? controller.documents.isEmpty
+            : drawingController.documents.isEmpty)
+        ? CircularProgressIndicator()
+        : Obx(
+            () {
+              final DataSource dataSource =
+                  DataSource(data: controller.getDataForTableView);
 
-        void onEditPressed({bool? newRev = false}) {
-          if (_dataGridController.selectedRow == null) {
-            Get.snackbar(
-              'Selection',
-              'Select an item',
-              maxWidth: 250,
-              backgroundColor: Colors.green[50],
-            );
-          } else {
-            String? id = _dataGridController.selectedRow!.getCells()[0].value;
-            if (tableName != 'task') {
-              controller.buildAddEdit(id: id);
-            } else {
-              String parentId =
-                  _dataGridController.selectedRow!.getCells()[1].value;
+              final DataGridController _dataGridController =
+                  DataGridController();
 
-              controller.buildAddEdit(
-                  id: id, parentId: parentId, newRev: newRev);
-            }
-          }
-        }
-
-        return Scaffold(
-          floatingActionButton: Visibility(
-            visible: staffController.isCoordinator,
-            child: tableName == 'task'
-                ? ExpendableFab(
-                    distance: 80.0,
-                    children: [
-                      ActionButton(
-                        onPressed: onEditPressed,
-                        icon: const Icon(Icons.edit),
-                      ),
-                      ActionButton(
-                        onPressed: () => {onEditPressed(newRev: true)},
-                        icon: const Icon(Icons.add),
-                      ),
-                    ],
-                  )
-                : FloatingActionButton(
-                    onPressed: onEditPressed,
-                    child: const Icon(Icons.edit),
-                    backgroundColor: Colors.green,
-                  ),
-          ),
-          body: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: SfDataGrid(
-              isScrollbarAlwaysShown: false,
-              source: dataSource,
-              columns: getColumns(tableColNames[tableName]!),
-              gridLinesVisibility: GridLinesVisibility.both,
-              headerGridLinesVisibility: GridLinesVisibility.both,
-              columnWidthMode: ColumnWidthMode.fill,
-              allowSorting: true,
-              rowHeight: 70,
-              controller: _dataGridController,
-              selectionMode: SelectionMode.singleDeselect,
-              navigationMode: GridNavigationMode.row,
-              onCellDoubleTap: (_) {
-                if (tableName == 'task') {
-                  String? rowId =
+              void onEditPressed({bool? newRev = false}) {
+                if (_dataGridController.selectedRow == null) {
+                  Get.snackbar(
+                    'Selection',
+                    'Select an item',
+                    maxWidth: 250,
+                    backgroundColor: Colors.green[50],
+                  );
+                } else {
+                  String? id =
                       _dataGridController.selectedRow!.getCells()[0].value;
-                  if (rowId != null) {
-                    Get.toNamed(Routes.STAGES, parameters: {'id': rowId});
+                  if (tableName != 'task') {
+                    controller.buildAddEdit(id: id);
+                  } else {
+                    String parentId =
+                        _dataGridController.selectedRow!.getCells()[1].value;
+
+                    controller.buildAddEdit(
+                        id: id, parentId: parentId, newRev: newRev);
                   }
-                  ;
                 }
-              },
-            ),
-          ),
-        );
-      },
-    );
+              }
+
+              return Scaffold(
+                floatingActionButton: Visibility(
+                  visible: staffController.isCoordinator,
+                  child: tableName == 'task'
+                      ? ExpendableFab(
+                          distance: 80.0,
+                          children: [
+                            ActionButton(
+                              onPressed: onEditPressed,
+                              icon: const Icon(Icons.edit),
+                            ),
+                            ActionButton(
+                              onPressed: () => {onEditPressed(newRev: true)},
+                              icon: const Icon(Icons.add),
+                            ),
+                          ],
+                        )
+                      : FloatingActionButton(
+                          onPressed: onEditPressed,
+                          child: const Icon(Icons.edit),
+                          backgroundColor: Colors.green,
+                        ),
+                ),
+                body: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: SfDataGrid(
+                    isScrollbarAlwaysShown: false,
+                    source: dataSource,
+                    columns: getColumns(tableColNames[tableName]!),
+                    gridLinesVisibility: GridLinesVisibility.both,
+                    headerGridLinesVisibility: GridLinesVisibility.both,
+                    columnWidthMode: ColumnWidthMode.fill,
+                    allowSorting: true,
+                    rowHeight: 70,
+                    controller: _dataGridController,
+                    selectionMode: SelectionMode.singleDeselect,
+                    navigationMode: GridNavigationMode.row,
+                    onCellDoubleTap: (_) {
+                      if (tableName == 'task') {
+                        String? rowId = _dataGridController.selectedRow!
+                            .getCells()[0]
+                            .value;
+                        if (rowId != null) {
+                          Get.toNamed(Routes.STAGES, parameters: {'id': rowId});
+                        }
+                        ;
+                      }
+                    },
+                  ),
+                ),
+              );
+            },
+          );
   }
 
   displayDeleteDialog(String docId) {

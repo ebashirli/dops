@@ -96,7 +96,7 @@ class StageController extends GetxService {
   late List<TextEditingController> textEditingControllers;
 
   late RxList<String> fileNames = RxList<String>([]);
-  late Rx<String> commentStatus = Rx<String>('');
+  // late Rx<String> commentStatus = Rx<String>('');
 
   final RxBool commentCheckbox = false.obs;
 
@@ -135,10 +135,15 @@ class StageController extends GetxService {
           index: index,
           visible: lastIndex == index,
         ),
-        valueTable: ValueTableView(
-          index: index,
-          stageValueModelsList: taskValueModels[index]
-              [taskValueModels[index].keys.last],
+        valueTable: Column(
+          children: [
+            Divider(),
+            ValueTableView(
+              index: index,
+              stageValueModelsList: taskValueModels[index]
+                  [taskValueModels[index].keys.last],
+            ),
+          ],
         ),
       );
     });
@@ -236,20 +241,16 @@ class StageController extends GetxService {
   }
 
   void onSubmitPressed() async {
-    textEditingControllers.forEach((e) => e.clear());
-    fileNames.value = [];
-    commentStatus.value = '';
     Map<String, dynamic> map = {};
 
     for (var i = 0; i < specialFieldNames.length; i++) {
       map[specialFieldNames[i].toLowerCase()] =
           int.parse(textEditingControllers[i].text);
     }
-
+    map['isCommented'] = commentCheckbox.value;
     map['note'] = textEditingControllers.last.text;
     map['fileNames'] = fileNames;
     map['submitDateTime'] = DateTime.now();
-    map['isCommented'] = commentCheckbox.value;
 
     valueController.addValues(
       map: map,
@@ -261,6 +262,7 @@ class StageController extends GetxService {
               valueModel!.stageId == lastTaskStage.id &&
               valueModel.isCommented) ||
           commentCheckbox.value;
+      print(anyComment);
 
       StageModel stage = StageModel(
         taskId: lastTaskStage.taskId,
@@ -276,50 +278,28 @@ class StageController extends GetxService {
 
       String nextStageId = await addNew(model: stage);
 
-      if (lastIndex == 3 ||
-          ((lastIndex == 5 || lastIndex == 6) && anyComment)) {
-        final String? designingId = await documents
-            .singleWhere((stageModel) =>
-                stageModel!.index == 1 &&
-                stageModel.taskId == lastTaskStage.taskId)!
-            .id;
+      print(lastIndex);
 
-        final String? draftingId = await documents
-            .singleWhere((stageModel) =>
-                stageModel!.index == 2 &&
-                stageModel.taskId == lastTaskStage.taskId)!
-            .id;
+      if (lastIndex == 4 ||
+          ((lastIndex == 6 || lastIndex == 7) && anyComment)) {
+        final List<String?> designerIds =
+            taskValueModels[1][0]!.map((e) => e!.employeeId).toList();
+        final List<String?> drafterIds =
+            taskValueModels[2][0]!.map((e) => e!.employeeId).toList();
 
-        final List<String?> designerIds = valueController.documents
-            .where((valueModel) => valueModel!.stageId == designingId)
-            .map((valueModel) => valueModel!.employeeId)
-            .toList();
-        final List<String?> drafterIds = valueController.documents
-            .where((valueModel) => valueModel!.stageId == draftingId)
-            .map((valueModel) => valueModel!.employeeId)
-            .toList();
-
-        [...designerIds, ...drafterIds].toSet().forEach((designerId) {
+        [...designerIds, ...drafterIds].toSet().forEach((empId) {
           valueController.addNew(
             model: ValueModel(
               stageId: nextStageId,
-              employeeId: designerId,
-              assignedBy: auth.currentUser!.uid,
+              employeeId: empId,
+              assignedBy: 'System',
               assignedDateTime: DateTime.now(),
             ),
           );
         });
-      } else if (lastIndex == 4) {
-        final String? checkingId = await documents
-            .singleWhere((stageModel) =>
-                stageModel!.index == 3 &&
-                stageModel.taskId == lastTaskStage.taskId)!
-            .id;
-        final List<String?> checkerIds = valueController.documents
-            .where((valueModel) => valueModel!.stageId == checkingId)
-            .map((valueModel) => valueModel!.employeeId)
-            .toList();
-
+      } else if (lastIndex == 5) {
+        final List<String?> checkerIds =
+            taskValueModels[3].values.last.map((e) => e!.employeeId).toList();
         checkerIds.forEach((checkerId) {
           valueController.addNew(
             model: ValueModel(
@@ -332,5 +312,8 @@ class StageController extends GetxService {
         });
       }
     }
+    textEditingControllers.forEach((e) => e.clear());
+    fileNames.value = [];
+    commentCheckbox.value = false;
   }
 }

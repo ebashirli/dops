@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:dops/core/auth_manager.dart';
+import 'package:dops/core/cache_manager.dart';
 import 'package:dops/modules/activity/activity_controller.dart';
 import 'package:dops/modules/activity/activity_repository.dart';
 import 'package:dops/modules/reference_document/reference_document_controller.dart';
@@ -138,6 +139,7 @@ Future<void> initServices() async {
   await Get.putAsync<StageController>(() async => await StageController());
 
   await Get.putAsync<ValueController>(() async => await ValueController());
+  await Get.putAsync<CacheManager>(() async => await CacheManager());
 }
 
 

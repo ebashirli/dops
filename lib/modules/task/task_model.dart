@@ -1,13 +1,13 @@
 class TaskModel {
   String? id;
   String? parentId;
-  String revisionNumber;
+  String revisionMark;
   bool? issueType;
-  int revisionCount = 0;
+  int revisionCount;
   double? percentage;
   bool? revisionStatus;
   int? changeNumber;
-  List<String> designDrawings;
+  List<String> referenceDocuments;
   String note;
   DateTime? taskCreateDate;
   bool isHidden;
@@ -15,8 +15,8 @@ class TaskModel {
   TaskModel({
     this.id,
     this.parentId,
-    required this.revisionNumber,
-    required this.designDrawings,
+    required this.revisionMark,
+    required this.referenceDocuments,
     this.revisionCount = 0,
     this.changeNumber,
     this.issueType = false,
@@ -30,8 +30,8 @@ class TaskModel {
   Map<String, dynamic> toMap() {
     return {
       'parentId': parentId,
-      'revisionNumber': revisionNumber,
-      'designDrawings': designDrawings,
+      'revisionMark': revisionMark,
+      'referenceDocuments': referenceDocuments,
       'note': note,
       'revisionCount': revisionCount,
       'changeNumber': changeNumber,
@@ -44,8 +44,8 @@ class TaskModel {
     return TaskModel(
       id: id ?? null,
       parentId: map['parentId'],
-      revisionNumber: map['revisionNumber'],
-      designDrawings: List<String>.from(map['designDrawings']),
+      revisionMark: map['revisionMark'],
+      referenceDocuments: List<String>.from(map['referenceDocuments']),
       note: map['note'],
       taskCreateDate:
           map['taskCreateDate'] != null ? map['taskCreateDate'].toDate() : null,

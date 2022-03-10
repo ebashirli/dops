@@ -13,8 +13,8 @@ class TaskController extends GetxService {
   final _repository = Get.find<TaskRepository>();
   static TaskController instance = Get.find();
 
-  late TextEditingController nextRevisionNumberController, taskNoteController;
-  late List<String> designDrawingsList;
+  late TextEditingController nextRevisionMarkController, taskNoteController;
+  late List<String> referenceDocumentsList;
 
   RxList<TaskModel> _documents = RxList<TaskModel>([]);
   RxList<TaskModel?> get documents => _documents;
@@ -22,9 +22,9 @@ class TaskController extends GetxService {
   @override
   void onInit() {
     super.onInit();
-    nextRevisionNumberController = TextEditingController();
+    nextRevisionMarkController = TextEditingController();
     taskNoteController = TextEditingController();
-    designDrawingsList = [];
+    referenceDocumentsList = [];
 
     _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
@@ -68,8 +68,8 @@ class TaskController extends GetxService {
   }
 
   void clearEditingControllers() {
-    nextRevisionNumberController.clear();
-    designDrawingsList = [];
+    nextRevisionMarkController.clear();
+    referenceDocumentsList = [];
     taskNoteController.clear();
   }
 
@@ -122,7 +122,7 @@ class TaskController extends GetxService {
                               children: <Widget>[
                                 Text(
                                   //  TODO: ask Ismayil
-                                  'Current Revision: ${selectedDrawing.drawingNumber}${selectedTask != null ? '-' + selectedTask.revisionNumber : ''}',
+                                  'Current Revision: ${selectedDrawing.drawingNumber}${selectedTask != null ? '-' + selectedTask.revisionMark : ''}',
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -130,20 +130,20 @@ class TaskController extends GetxService {
                                 ),
                                 SizedBox(height: 10),
                                 CustomTextFormField(
-                                  controller: nextRevisionNumberController,
+                                  controller: nextRevisionMarkController,
                                   labelText: 'Next Revision number',
                                 ),
                                 CustomDropdownMenu(
                                   showSearchBox: true,
                                   isMultiSelectable: true,
-                                  labelText: 'Design Drawings',
+                                  labelText: 'Reference Documents',
                                   items: referenceDocumentController.documents
                                       .map(
                                           (document) => document.documentNumber)
                                       .toList(),
                                   onChanged: (values) =>
-                                      designDrawingsList = values,
-                                  selectedItems: designDrawingsList,
+                                      referenceDocumentsList = values,
+                                  selectedItems: referenceDocumentsList,
                                 ),
                                 CustomTextFormField(
                                   controller: taskNoteController,
@@ -186,12 +186,11 @@ class TaskController extends GetxService {
       (drawing) {
         TaskModel task = TaskModel(
           id: null,
-          revisionNumber: '',
+          revisionMark: '',
           revisionCount: 0,
-          designDrawings: [],
+          referenceDocuments: [],
           note: '',
         );
-        print(documents.length);
 
         if (documents.isNotEmpty) {
           List<TaskModel?> drawingTasks =
@@ -218,7 +217,7 @@ class TaskController extends GetxService {
               .toList()[0]
               .activityId,
           'drawingNumber': '${drawing.drawingNumber}|${task.id}',
-          'revisionNumber': task.revisionNumber,
+          'revisionMark': task.revisionMark,
           'drawingTitle': drawing.drawingTitle,
           'module': drawing.module,
           'issueType': task.revisionCount == 1
@@ -231,7 +230,7 @@ class TaskController extends GetxService {
           'revisionStatus': 'Current',
           'level': drawing.level,
           'structureType': drawing.structureType,
-          'designDrawings': '${task.designDrawings.join(';')}',
+          'referenceDocuments': '${task.referenceDocuments.join(';')}',
           'changeNumber': task.changeNumber,
           'taskCreateDate': task.taskCreateDate ?? '',
         };
@@ -243,8 +242,8 @@ class TaskController extends GetxService {
   void onAddNextRevisionPressed(String? parentId) {
     TaskModel newTaskModel = TaskModel(
       parentId: parentId,
-      designDrawings: designDrawingsList,
-      revisionNumber: nextRevisionNumberController.text,
+      referenceDocuments: referenceDocumentsList,
+      revisionMark: nextRevisionMarkController.text,
       note: taskNoteController.text,
       revisionCount: documents.length == 0
           ? 1

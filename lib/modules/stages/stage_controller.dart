@@ -1,30 +1,39 @@
 import 'dart:math';
 import 'package:dops/components/custom_widgets.dart';
-import 'package:dops/components/value_table_view_widget.dart';
+import 'package:dops/modules/drawing/drawing_model.dart';
+import 'package:dops/modules/stages/widgets/value_table_view_widget.dart';
 import 'package:dops/constants/lists.dart';
-import 'package:dops/modules/stages/stages/custom_expansion_panel_list.dart';
-import 'package:dops/modules/stages/stages/expantion_panel_item_model.dart';
-import 'package:dops/modules/stages/stages/stage/coordinator_form.dart';
-import 'package:dops/modules/stages/stages/stage/worker_form.dart';
+import 'package:dops/modules/stages/widgets/custom_expansion_panel_list.dart';
+import 'package:dops/modules/stages/widgets/expantion_panel_item_model.dart';
+import 'package:dops/modules/stages/widgets/coordinator_form.dart';
+import 'package:dops/modules/task/task_model.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
 
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/staff/staff_model.dart';
 import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/stages/stage_repository.dart';
-import 'package:dops/modules/stages/widgets/build_edit_form_widget.dart';
+import 'package:dops/modules/stages/widgets/fields_panel.dart/build_edit_form_widget.dart';
 import 'package:dops/modules/values/value_model.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:recase/recase.dart';
+
+import 'widgets/empoyee_forms/employee_forms.dart';
 
 class StageController extends GetxService {
   final _repository = Get.find<StageRepository>();
   static StageController instance = Get.find();
 
   RxList<StageModel?> _documents = RxList<StageModel>([]);
+  List<StageModel?> get documents => _documents;
 
-  RxList<StageModel?> get documents => _documents;
+  TaskModel get currentTask => taskController.documents
+      .singleWhere((e) => e!.id == Get.parameters['id'])!;
+
+  DrawingModel get currentDrawing =>
+      drawingController.documents.singleWhere((e) => e.id == currentTask.id);
 
   List<StageModel?> get taskStages {
     List<StageModel?> _taskStages = documents.isNotEmpty
@@ -96,9 +105,11 @@ class StageController extends GetxService {
   late List<TextEditingController> textEditingControllers;
 
   late RxList<String> fileNames = RxList<String>([]);
-  // late Rx<String> commentStatus = Rx<String>('');
+  late RxBool commentStatus = false.obs;
 
   final RxBool commentCheckbox = false.obs;
+
+  final RxInt nestingGroup = 0.obs;
 
   @override
   void onInit() {
@@ -145,6 +156,7 @@ class StageController extends GetxService {
             ),
           ],
         ),
+        index: index,
       );
     });
   }
@@ -174,10 +186,7 @@ class StageController extends GetxService {
     List<List<String>> rows = valueModelList.isNotEmpty
         ? valueModelList.map((ValueModel? valueModel) {
             return [
-              staffController.documents
-                  .singleWhere((StaffModel element) =>
-                      element.id == valueModel!.employeeId)
-                  .initial,
+              cacheManager.getStaff()!.initial,
               ...specialFieldNames
                   .map((fn) => valueModel!.toMap()[fn.toLowerCase()] != null
                       ? valueModel.toMap()[ReCase(fn).camelCase].toString()
@@ -247,7 +256,7 @@ class StageController extends GetxService {
       map[specialFieldNames[i].toLowerCase()] =
           int.parse(textEditingControllers[i].text);
     }
-    map['isCommented'] = commentCheckbox.value;
+    map['isCommented'] = commentStatus.value;
     map['note'] = textEditingControllers.last.text;
     map['fileNames'] = fileNames;
     map['submitDateTime'] = DateTime.now();
@@ -257,22 +266,19 @@ class StageController extends GetxService {
       id: valueModelAssignedCurrentUser!.id!,
     );
 
-    print('isLastSubmit: $isLastSubmit');
-
     if (isLastSubmit) {
       bool anyComment = await valueController.documents.any((valueModel) =>
               valueModel!.stageId == lastTaskStage.id &&
               valueModel.isCommented) ||
-          commentCheckbox.value;
-      print('anyComment: $anyComment');
+          commentStatus.value;
 
       StageModel stage = StageModel(
         taskId: lastTaskStage.taskId,
         index: anyComment ? 4 : lastIndex + 1,
-        checkerCommentCounter: (commentCheckbox.value && lastIndex == 5)
+        checkerCommentCounter: (commentStatus.value && lastIndex == 5)
             ? lastTaskStage.checkerCommentCounter + 1
             : 0,
-        reviewerCommentCounter: (commentCheckbox.value && lastIndex == 6)
+        reviewerCommentCounter: (commentStatus.value && lastIndex == 6)
             ? lastTaskStage.reviewerCommentCounter + 1
             : 0,
         creationDateTime: DateTime.now(),
@@ -280,27 +286,23 @@ class StageController extends GetxService {
 
       String nextStageId = await addNew(model: stage);
 
-      print('nextStageId: $nextStageId');
-      print('lastIndex: $lastIndex');
+      final ValueModel valueModel = ValueModel(
+        stageId: nextStageId,
+        employeeId: '',
+        assignedBy: 'System',
+        assignedDateTime: DateTime.now(),
+      );
 
       if (lastIndex == 4 ||
           ((lastIndex == 6 || lastIndex == 7) && anyComment)) {
-        print(taskValueModels);
         final List<String?> designerIds =
             taskValueModels[1].values.last.map((e) => e!.employeeId).toList();
-        print('designerIds: $designerIds');
         final List<String?> drafterIds =
             taskValueModels[2].values.last.map((e) => e!.employeeId).toList();
-        print('drafterIds: $drafterIds');
 
         [...designerIds, ...drafterIds].toSet().forEach((empId) {
           valueController.addNew(
-            model: ValueModel(
-              stageId: nextStageId,
-              employeeId: empId,
-              assignedBy: 'System',
-              assignedDateTime: DateTime.now(),
-            ),
+            model: valueModel..employeeId = empId,
           );
         });
       } else if (lastIndex == 5) {
@@ -308,18 +310,47 @@ class StageController extends GetxService {
             taskValueModels[3].values.last.map((e) => e!.employeeId).toList();
         checkerIds.forEach((checkerId) {
           valueController.addNew(
-            model: ValueModel(
-              stageId: nextStageId,
-              employeeId: checkerId,
-              assignedBy: auth.currentUser!.uid,
-              assignedDateTime: DateTime.now(),
-            ),
+            model: valueModel..employeeId = checkerId,
+          );
+        });
+      } else if (lastIndex == 6 && taskValueModels[6].length > 1) {
+        final List<String?> reviewerIds = taskValueModels[6]
+            .values
+            .toList()[taskValueModels[6].length - 2]
+            .map((e) => e!.employeeId)
+            .toList();
+        reviewerIds.forEach((reviewerId) {
+          valueController.addNew(
+            model: valueModel..employeeId = reviewerId,
           );
         });
       }
     }
     textEditingControllers.forEach((e) => e.clear());
     fileNames.value = [];
+    commentStatus.value = false;
     commentCheckbox.value = false;
+  }
+
+  void onFileButtonPressed({
+    List<String>? allowedExtensions,
+    bool allowMultiple = true,
+    void Function(FilePickerResult result)? fun,
+  }) async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: allowedExtensions != null ? FileType.custom : FileType.any,
+      allowMultiple: allowMultiple,
+      allowedExtensions: allowedExtensions,
+    );
+
+    if (result != null) {
+      fun != null
+          ? fun(result)
+          : fileNames.value = result.files.map((file) => file.name).toList();
+    }
+  }
+
+  void onFileCountButtonPressed(fileNames) {
+    Get.defaultDialog();
   }
 }

@@ -2,11 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
+import 'package:dops/modules/reference_document/add_update_form_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
-import '../../constants/style.dart';
 import 'reference_document_model.dart';
 import 'reference_document_repository.dart';
 
@@ -130,174 +129,11 @@ class ReferenceDocumentController extends GetxService {
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
       title:
           id == null ? 'Add Reference Document' : 'Update Reference Document',
-      content: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(8),
-            topLeft: Radius.circular(8),
-          ),
-          color: light, //Color(0xff1E2746),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: referenceDocumentFormKey,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            child: SingleChildScrollView(
-              child: Container(
-                width: Get.width * 0.5,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CustomDropdownMenu(
-                      labelText: 'Project',
-                      selectedItems: [projectText],
-                      onChanged: (value) {
-                        projectText = value ?? '';
-                      },
-                      items: listsController.document.value.projects!,
-                    ),
-                    CustomDropdownMenu(
-                      labelText: 'Module name',
-                      selectedItems: [moduleNameText],
-                      onChanged: (value) {
-                        moduleNameText = value ?? '';
-                      },
-                      items: listsController.document.value.modules!,
-                    ),
-                    CustomDropdownMenu(
-                      labelText: 'Reference Type',
-                      selectedItems: [referenceTypeText],
-                      onChanged: (value) {
-                        referenceTypeText = value ?? '';
-                      },
-                      items: listsController
-                          .document.value.referenceTypes!,
-                    ),
-                    CustomTextFormField(
-                      controller: documentNumberController,
-                      labelText: 'Document number',
-                    ),
-                    CustomTextFormField(
-                      controller: titleController,
-                      labelText: 'Title',
-                    ),
-                    CustomTextFormField(
-                      controller: transmittalNumberController,
-                      labelText: 'Transmittal number',
-                    ),
-                    Obx(() {
-                      return Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          SizedBox(
-                            width: 400,
-                            child: CustomDateTimeFormField(
-                              labelText: 'Received date',
-                              initialValue: receiveDateController.text,
-                              controller: receiveDateController,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 200,
-                            child: GestureDetector(
-                              onTap: () {
-                                _handleChangedRadio(false);
-                              },
-                              child: ListTile(
-                                title: const Text('Action Required'),
-                                leading: Radio<bool>(
-                                  value: false,
-                                  groupValue: actionRequiredOrNext.value,
-                                  onChanged: (bool? value) {
-                                    actionRequiredOrNext.value = value!;
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 200,
-                            child: GestureDetector(
-                              onTap: () {
-                                _handleChangedRadio(true);
-                              },
-                              child: ListTile(
-                                title: const Text('Next'),
-                                leading: Radio<bool>(
-                                  value: true,
-                                  groupValue: actionRequiredOrNext.value,
-                                  onChanged: _handleChangedRadio,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    }),
-                    Container(
-                      child: Row(
-                        children: <Widget>[
-                          if (id != null)
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                deleteReferenceDocument(id);
-                                Get.back();
-                              },
-                              icon: Icon(Icons.delete),
-                              label: const Text('Delete'),
-                              style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                  Colors.red,
-                                ),
-                              ),
-                            ),
-                          const Spacer(),
-                          ElevatedButton(
-                              onPressed: () => Get.back(),
-                              child: const Text('Cancel')),
-                          SizedBox(width: 10),
-                          ElevatedButton(
-                            onPressed: () {
-                              ReferenceDocumentModel model =
-                                  ReferenceDocumentModel(
-                                project: projectText,
-                                referenceType: referenceTypeText,
-                                moduleName: moduleNameText,
-                                documentNumber: documentNumberController.text,
-                                title: titleController.text,
-                                transmittalNumber:
-                                    transmittalNumberController.text,
-                                receivedDate: DateFormat('dd/MM/yyyy')
-                                    .parse(receiveDateController.text),
-                                actionRequiredOrNext:
-                                    actionRequiredOrNext.value,
-                                assignedTasksCount: 0,
-                              );
-                              id == null
-                                  ? saveDocument(model: model)
-                                  : updateDocument(model: model, id: id);
-                            },
-                            child: Text(
-                              id != null ? 'Update' : 'Add',
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+      content: AddUpdateFormWidget(id: id),
     );
   }
 
-  void _handleChangedRadio(bool? value) {
+  void handleChangedRadio(bool? value) {
     actionRequiredOrNext.value = value!;
   }
 
@@ -313,7 +149,7 @@ class ReferenceDocumentController extends GetxService {
           if (drawing.isNotEmpty) {
             final String drawingNumber = drawing[0].drawingNumber;
 
-            if (task!.designDrawings.contains(refDoc.documentNumber))
+            if (task!.referenceDocuments.contains(refDoc.documentNumber))
               assignedTasks += '|${drawingNumber};${task.id}';
           }
         });
@@ -321,19 +157,19 @@ class ReferenceDocumentController extends GetxService {
 
       Map<String, dynamic> map = {
         'id': refDoc.id,
-        'project': !refDoc.actionRequiredOrNext ? 'Action required' : 'Next',
+        'project': refDoc.project,
         'referenceType': refDoc.referenceType,
         'moduleName': refDoc.moduleName,
         'documentNumber': refDoc.documentNumber,
         'title': refDoc.title,
         'transmittalNumber': refDoc.transmittalNumber,
         'receivedDate': refDoc.receivedDate,
-        'actionRequiredOrNext': refDoc.actionRequiredOrNext,
+        'actionRequiredOrNext':
+            !refDoc.actionRequiredOrNext ? 'Action required' : 'Next',
         'assignedTasks': assignedTasks,
       };
 
       return map;
     }).toList();
   }
-
 }

@@ -1,10 +1,9 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
-import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/stages/stage_model.dart';
+import 'package:dops/modules/task/widgets/task_form.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../constants/style.dart';
 import 'task_model.dart';
 import 'task_repository.dart';
 
@@ -17,7 +16,7 @@ class TaskController extends GetxService {
   late List<String> referenceDocumentsList;
 
   RxList<TaskModel> _documents = RxList<TaskModel>([]);
-  RxList<TaskModel?> get documents => _documents;
+  List<TaskModel?> get documents => _documents;
 
   @override
   void onInit() {
@@ -69,116 +68,31 @@ class TaskController extends GetxService {
 
   void clearEditingControllers() {
     nextRevisionMarkController.clear();
-    referenceDocumentsList = [];
     taskNoteController.clear();
+    referenceDocumentsList = [];
   }
 
-  buildAddEdit({String? id, String? parentId, bool newRev = false}) {
-    if (!newRev) {
-      drawingController.buildAddEdit(
-        drawingId: parentId,
-        taskId: id,
-      );
-    } else {
-      clearEditingControllers();
+  void fillEditingControllers(String id) {
+    TaskModel taskModel = documents.singleWhere((e) => e!.id == id)!;
+    nextRevisionMarkController.text = taskModel.revisionMark;
+    taskNoteController.text = taskModel.note;
+    referenceDocumentsList = taskModel.referenceDocuments;
+  }
 
-      DrawingModel selectedDrawing = drawingController.documents
-          .where((drawing) => drawing.id == parentId)
-          .toList()[0];
+  buildAddEdit({String? id}) {
+    id != null ? fillEditingControllers(id) : clearEditingControllers();
 
-      final TaskModel? selectedTask = (documents.isNotEmpty && id != null)
-          ? documents.where((task) => task!.id == id).toList()[0]
-          : null;
+    formDialog(id);
+  }
 
-      Get.defaultDialog(
-        barrierDismissible: false,
-        radius: 12,
-        titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-        title: 'Add next revision',
-        content: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(
-              topRight: Radius.circular(8),
-              topLeft: Radius.circular(8),
-            ),
-            color: light, //Color(0xff1E2746),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Form(
-              key: taskFormKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              child: Container(
-                width: Get.width * .5,
-                child: Column(
-                  children: [
-                    Container(
-                      height: 540,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Column(
-                              children: <Widget>[
-                                Text(
-                                  //  TODO: ask Ismayil
-                                  'Current Revision: ${selectedDrawing.drawingNumber}${selectedTask != null ? '-' + selectedTask.revisionMark : ''}',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                CustomTextFormField(
-                                  controller: nextRevisionMarkController,
-                                  labelText: 'Next Revision number',
-                                ),
-                                CustomDropdownMenu(
-                                  showSearchBox: true,
-                                  isMultiSelectable: true,
-                                  labelText: 'Reference Documents',
-                                  items: referenceDocumentController.documents
-                                      .map(
-                                          (document) => document.documentNumber)
-                                      .toList(),
-                                  onChanged: (values) =>
-                                      referenceDocumentsList = values,
-                                  selectedItems: referenceDocumentsList,
-                                ),
-                                CustomTextFormField(
-                                  controller: taskNoteController,
-                                  labelText: 'Note',
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      child: Row(
-                        children: <Widget>[
-                          ElevatedButton(
-                            onPressed: () => Get.back(),
-                            child: const Text('Cancel'),
-                          ),
-                          SizedBox(width: 10),
-                          ElevatedButton(
-                            onPressed: () => onAddNextRevisionPressed(parentId),
-                            child: Text('Add next revision'),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
+  formDialog(String? id) {
+    Get.defaultDialog(
+      barrierDismissible: false,
+      radius: 12,
+      titlePadding: EdgeInsets.only(top: 20, bottom: 20),
+      title: 'Add next revision',
+      content: TaskForm(id: id),
+    );
   }
 
   List<Map<String, dynamic>> get getDataForTableView {
@@ -219,6 +133,7 @@ class TaskController extends GetxService {
           'drawingNumber': '${drawing.drawingNumber}|${task.id}',
           'revisionMark': task.revisionMark,
           'drawingTitle': drawing.drawingTitle,
+          'drawingTag': drawing.drawingTag,
           'module': drawing.module,
           'issueType': task.revisionCount == 1
               ? 'First issue'

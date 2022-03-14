@@ -1,10 +1,10 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
+import 'package:dops/modules/drawing/widgets/drawing_form.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../constants/style.dart';
 import 'drawing_model.dart';
 import 'drawing_repository.dart';
 
@@ -14,13 +14,14 @@ class DrawingController extends GetxService {
   static DrawingController instance = Get.find();
 
   late TextEditingController drawingNumberController,
-      nextRevisionNumberController,
+      nextRevisionMarkController,
       drawingTitleController,
       drawingNoteController,
       taskNoteController;
 
   late List<String> areaList;
-  late List<String> designDrawingsList;
+  late List<String> drawingTagList;
+  late List<String> referenceDocumentsList;
 
   late String activityCodeIdText,
       moduleNameText,
@@ -35,13 +36,14 @@ class DrawingController extends GetxService {
   void onInit() {
     super.onInit();
     drawingNumberController = TextEditingController();
-    nextRevisionNumberController = TextEditingController();
+    nextRevisionMarkController = TextEditingController();
     drawingTitleController = TextEditingController();
     drawingNoteController = TextEditingController();
     taskNoteController = TextEditingController();
 
     areaList = [];
-    designDrawingsList = [];
+    drawingTagList = [];
+    referenceDocumentsList = [];
     activityCodeIdText = '';
     moduleNameText = '';
     levelText = '';
@@ -105,7 +107,7 @@ class DrawingController extends GetxService {
 
   void clearEditingControllers() {
     drawingNumberController.clear();
-    nextRevisionNumberController.clear();
+    nextRevisionMarkController.clear();
     drawingTitleController.clear();
     drawingNoteController.clear();
 
@@ -116,6 +118,7 @@ class DrawingController extends GetxService {
     structureTypeText = '';
 
     areaList = [];
+    drawingTagList = [];
   }
 
   void fillEditingControllers(
@@ -131,268 +134,71 @@ class DrawingController extends GetxService {
     structureTypeText = drawingModel.structureType;
 
     areaList = drawingModel.area;
+    drawingTagList = drawingModel.drawingTag;
 
     if (taskModel != null) {
-      nextRevisionNumberController.text = taskModel.revisionNumber;
+      nextRevisionMarkController.text = taskModel.revisionMark;
       taskNoteController.text = taskModel.note;
-      designDrawingsList = taskModel.designDrawings;
+      referenceDocumentsList = taskModel.referenceDocuments;
     }
   }
 
-  buildAddEdit({String? drawingId, String? taskId}) {
+  buildAddEdit({String? drawingId}) {
     late final DrawingModel? drawingModel;
     late final TaskModel? taskModel;
 
-    String drawingWithRevNum = '';
+    String? taskId = null;
+
+    if (taskController.documents.isNotEmpty) {
+      if (taskController.documents
+          .map((e) => e!.parentId)
+          .contains(drawingId)) {
+        taskId = taskController.documents
+            .lastWhere((e) => e!.parentId == drawingId)!
+            .id;
+      }
+    }
 
     if (drawingId != null) {
       drawingModel =
-          documents.where((drawings) => drawings.id == drawingId).toList()[0];
+          documents.singleWhere((drawings) => drawings.id == drawingId);
 
       if (taskId != null) {
-        taskModel = taskController.documents
-            .where((task) => task!.id == taskId)
-            .toList()[0];
-        drawingWithRevNum =
-            '${drawingModel.drawingNumber}-${taskModel!.revisionNumber}';
+        taskModel =
+            taskController.documents.singleWhere((task) => task!.id == taskId);
       }
 
       fillEditingControllers(
-          drawingModel: drawingModel,
-          taskModel: taskId != null ? taskModel : null);
+        drawingModel: drawingModel,
+        taskModel: taskId != null ? taskModel : null,
+      );
     } else {
       clearEditingControllers();
     }
 
-    Get.defaultDialog(
-      barrierDismissible: false,
-      radius: 12,
-      titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: drawingId == null ? 'Add new drawing' : 'Update drawing',
-      content: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(8),
-            topLeft: Radius.circular(8),
-          ),
-          color: light, //Color(0xff1E2746),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: drawingFormKey,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            child: Container(
-              width: Get.width * .5,
-              child: Column(
-                children: [
-                  Container(
-                    height: 540,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Column(
-                            children: <Widget>[
-                              SizedBox(height: 10),
-                              CustomDropdownMenu(
-                                showSearchBox: true,
-                                labelText: 'Activity code',
-                                selectedItems: [
-                                  drawingId == null
-                                      ? activityCodeIdText
-                                      : activityController.documents
-                                          .where(
-                                            (activity) =>
-                                                activity.id ==
-                                                activityCodeIdText,
-                                          )
-                                          .toList()[0]
-                                          .activityId!,
-                                ],
-                                onChanged: (value) {
-                                  activityCodeIdText = activityController
-                                      .documents
-                                      .where((activity) =>
-                                          activity.activityId == value)
-                                      .toList()[0]
-                                      .id!;
-                                },
-                                items: activityController.documents
-                                    .map((document) => document.activityId)
-                                    .toList(),
-                              ),
-                              CustomTextFormField(
-                                controller: drawingNumberController,
-                                labelText: 'Drawing Number',
-                              ),
-                              CustomTextFormField(
-                                controller: drawingTitleController,
-                                labelText: 'Drawing Title',
-                              ),
-                              CustomDropdownMenu(
-                                labelText: 'Module name',
-                                selectedItems: [moduleNameText],
-                                onChanged: (value) {
-                                  moduleNameText = value ?? '';
-                                },
-                                items: listsController
-                                    .document.value.modules!,
-                              ),
-                              CustomDropdownMenu(
-                                showSearchBox: true,
-                                labelText: 'Level',
-                                selectedItems: [levelText],
-                                onChanged: (value) {
-                                  levelText = value ?? '';
-                                },
-                                items: listsController
-                                    .document.value.levels!,
-                              ),
-                              CustomDropdownMenu(
-                                showSearchBox: true,
-                                isMultiSelectable: true,
-                                labelText: 'Area',
-                                items: listsController
-                                    .document.value.areas!,
-                                onChanged: (values) => areaList = values,
-                                selectedItems: areaList,
-                              ),
-                              CustomDropdownMenu(
-                                showSearchBox: true,
-                                labelText: 'Functional Area',
-                                selectedItems: [functionalAreaText],
-                                onChanged: (value) {
-                                  functionalAreaText = value ?? '';
-                                },
-                                items: listsController
-                                    .document.value.functionalAreas!,
-                              ),
-                              CustomDropdownMenu(
-                                showSearchBox: true,
-                                labelText: 'Structure Type',
-                                selectedItems: [structureTypeText],
-                                onChanged: (value) {
-                                  structureTypeText = value ?? '';
-                                },
-                                items: listsController
-                                    .document.value.structureTypes!,
-                              ),
-                              CustomTextFormField(
-                                controller: drawingNoteController,
-                                labelText: 'Note',
-                              ),
-                            ],
-                          ),
-                          if (taskId != null)
-                            Column(
-                              children: <Widget>[
-                                Text(
-                                  drawingWithRevNum,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-                                CustomTextFormField(
-                                  controller: nextRevisionNumberController,
-                                  labelText: 'Next Revision number',
-                                ),
-                                CustomDropdownMenu(
-                                  isMultiSelectable: true,
-                                  labelText: 'Design Drawings',
-                                  items: referenceDocumentController.documents
-                                      .map(
-                                          (document) => document.documentNumber)
-                                      .toList(),
-                                  onChanged: (values) =>
-                                      designDrawingsList = values,
-                                  selectedItems: designDrawingsList,
-                                ),
-                                CustomTextFormField(
-                                  controller: taskNoteController,
-                                  labelText: 'Note',
-                                ),
-                              ],
-                            )
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Container(
-                    child: Row(
-                      children: <Widget>[
-                        if (drawingId != null)
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              deleteDrawing(drawingId);
-                              Get.back();
-                            },
-                            icon: Icon(Icons.delete),
-                            label: const Text('Delete'),
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                Colors.red,
-                              ),
-                            ),
-                          ),
-                        const Spacer(),
-                        ElevatedButton(
-                            onPressed: () => Get.back(),
-                            child: const Text('Cancel')),
-                        SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            DrawingModel revisedOrNewDrawing = DrawingModel(
-                              activityCodeId: activityCodeIdText,
-                              drawingNumber: drawingNumberController.text,
-                              drawingTitle: drawingTitleController.text,
-                              level: levelText,
-                              module: moduleNameText,
-                              structureType: structureTypeText,
-                              note: drawingNoteController.text,
-                              area: areaList,
-                              functionalArea: functionalAreaText,
-                            );
+    final double dialogWidth = Get.width * .5;
 
-                            if (drawingId == null) {
-                              addNewDrawing(model: revisedOrNewDrawing);
-                            } else {
-                              updateDrawing(
-                                updatedModel: revisedOrNewDrawing,
-                                id: drawingId,
-                              );
-                              if (taskId != null) {
-                                Map<String, dynamic> revisedTaskFields = {
-                                  'designDrawings': designDrawingsList,
-                                  'revisionNumber':
-                                      nextRevisionNumberController.text,
-                                  'note': taskNoteController.text,
-                                };
-
-                                taskController.updateTaskFields(
-                                  map: revisedTaskFields,
-                                  id: taskId,
-                                );
-                              }
-                              // TODO: update last revision details from here?
-                            }
-                          },
-                          child: Text(
-                            drawingId != null ? 'Update' : 'Add',
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+    formDialog(
+      drawingId: drawingId,
+      dialogWidth: dialogWidth,
+      taskId: taskId,
     );
   }
+
+  void formDialog({
+    String? drawingId,
+    String? taskId,
+    required double dialogWidth,
+  }) =>
+      Get.defaultDialog(
+        barrierDismissible: false,
+        radius: 12,
+        titlePadding: EdgeInsets.only(top: 20, bottom: 20),
+        title: drawingId == null ? 'Add new drawing' : 'Update drawing',
+        content: DrawingForm(
+          dialogWidth: dialogWidth,
+          drawingId: drawingId,
+          taskId: taskId,
+        ),
+      );
 }

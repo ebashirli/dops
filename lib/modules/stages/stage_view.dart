@@ -10,16 +10,7 @@ class StageView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          Center(
-            child: staffController.documents.isNotEmpty
-                ? Text(
-                    staffController.documents
-                        .singleWhere(
-                            (staff) => staff.id == auth.currentUser!.uid)
-                        .initial,
-                  )
-                : CircularProgressIndicator(),
-          ),
+          Center(child: Text(cacheManager.getStaff()!.initial)),
           IconButton(
             onPressed: () {
               authManager.signOut();
@@ -30,13 +21,14 @@ class StageView extends StatelessWidget {
         ],
       ),
       floatingActionButton: Visibility(
-        visible: authManager.isCoordinator.value,
+        visible: staffController.isCoordinator,
         child: ExpendableFab(
           distance: 80.0,
           children: [
             ActionButton(
               onPressed: () {
                 taskController.deleteTask(Get.parameters['id']!);
+                Get.offAndToNamed(Routes.SPLASH);
               },
               icon: const Icon(
                 Icons.dangerous,
@@ -51,11 +43,17 @@ class StageView extends StatelessWidget {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(100, 20, 100, 20),
+        padding: const EdgeInsets.fromLTRB(50, 20, 50, 20),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // stageController.buildEditForm(),
+              stageController.buildEditForm(),
+              // Row(
+              //   children: <Widget>[
+              //     DrawingDetailsTable(),
+              //     TaskDetailsTable(),
+              //   ],
+              // ),
               SizedBox(height: 10),
               stageController.buildPanel(),
             ],

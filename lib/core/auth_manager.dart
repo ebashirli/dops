@@ -9,15 +9,15 @@ class AuthManager extends GetxService with CacheManager {
   static final AuthManager instance = Get.find();
   RxBool isLoading = false.obs;
   final staffRepository = Get.find<StaffRepository>();
-  Rx<StaffModel?> staffModel = Rxn<StaffModel>();
+  Rx<StaffModel?> logedInStaff = Rxn<StaffModel>();
   UserCredential? userCredential;
-
-  final RxBool isCoordinator = false.obs;
 
   Future<UserCredential?> register(String email, password) async {
     try {
       return await auth.createUserWithEmailAndPassword(
-          email: email, password: password);
+        email: email,
+        password: password,
+      );
     } catch (firebaseAuthException) {}
     return null;
   }
@@ -25,27 +25,25 @@ class AuthManager extends GetxService with CacheManager {
   Future<void> login(String email, password) async {
     isLoading.value = true;
     try {
-      if (staffController.documents
-          .where((staffModel) =>
-              staffModel.isHidden == false && staffModel.email == email)
-          .isNotEmpty)
-        await auth.signInWithEmailAndPassword(email: email, password: password);
-      initializeStaffModel();
+      await auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      if (auth.currentUser != null) initializeStaffModel();
     } catch (firebaseAuthException) {}
     isLoading.value = false;
-    isCoordinator.value = staffController.documents
-            .singleWhere((staff) => staff.id == auth.currentUser!.uid)
-            .systemDesignation ==
-        'Coordinator';
   }
 
   Future<void> initializeStaffModel() async {
-    staffModel.value = staffController.documents.singleWhere((staffModel) =>
-        staffModel.isHidden == false && staffModel.id == auth.currentUser!.uid);
+    logedInStaff.value = staffController.documents
+        .singleWhere((staffModel) => staffModel.id == auth.currentUser!.uid);
+    saveID(auth.currentUser!.uid);
+    saveStaff(logedInStaff.value!);
   }
 
   void signOut() async {
     await auth.signOut();
-    isCoordinator.value = false;
+    removeStaff();
+    removeID();
   }
 }

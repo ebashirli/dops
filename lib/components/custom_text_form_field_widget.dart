@@ -5,6 +5,7 @@ class CustomTextFormField extends StatelessWidget {
   final TextEditingController? controller;
   final String? labelText;
   final double? width;
+  final double? height;
   final String? Function(String?)? validator;
   final String? initialValue;
   final bool readOnly;
@@ -14,15 +15,20 @@ class CustomTextFormField extends StatelessWidget {
   final bool obscureText;
   final int? maxLines;
   final FocusNode? focusNode;
-  final Function(String?)? onSubmitted;
+  final Function(String?)? onFieldSubmitted;
   final TextInputAction? textInputAction;
   final Iterable<String>? autofillHints;
   final double? sizeBoxHeight;
+  final void Function(String)? onChanged;
+  final double? contentPadding;
+  final bool? enabled;
+
   const CustomTextFormField({
     Key? key,
     this.controller,
     this.labelText,
     this.width,
+    this.height,
     this.validator,
     this.initialValue,
     this.readOnly = false,
@@ -31,23 +37,30 @@ class CustomTextFormField extends StatelessWidget {
     this.maxLines,
     this.isNumber = false,
     this.focusNode,
-    this.onSubmitted,
+    this.onFieldSubmitted,
     this.textInputAction,
     this.obscureText = false,
     this.autofillHints,
-    this.sizeBoxHeight = 10,
+    this.sizeBoxHeight = 0,
+    this.onChanged,
+    this.contentPadding = 10,
+    this.enabled = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: width,
+      height: height,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             child: isNumber
                 ? TextFormField(
+                    enabled: enabled,
+                    readOnly: readOnly,
+                    onChanged: onChanged,
                     obscureText: obscureText,
                     autofillHints: autofillHints,
                     autovalidateMode: AutovalidateMode.always,
@@ -55,7 +68,7 @@ class CustomTextFormField extends StatelessWidget {
                     controller: controller,
                     textInputAction: textInputAction,
                     keyboardType: TextInputType.number,
-                    onFieldSubmitted: onSubmitted,
+                    onFieldSubmitted: onFieldSubmitted,
                     inputFormatters: <TextInputFormatter>[
                       FilteringTextInputFormatter.allow(
                         RegExp(r'[0-9]'),
@@ -63,7 +76,7 @@ class CustomTextFormField extends StatelessWidget {
                     ],
                     decoration: InputDecoration(
                       labelText: labelText,
-                      contentPadding: EdgeInsets.all(10),
+                      contentPadding: EdgeInsets.all(contentPadding!),
                       icon: icon,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -71,18 +84,19 @@ class CustomTextFormField extends StatelessWidget {
                     ),
                   )
                 : TextFormField(
+                    enabled: enabled,
+                    onChanged: onChanged,
                     autofillHints: autofillHints,
                     obscureText: obscureText,
                     autovalidateMode: AutovalidateMode.always,
-                    onFieldSubmitted: onSubmitted,
-                    // onSaved: onSubmitted,
+                    onFieldSubmitted: onFieldSubmitted,
                     focusNode: focusNode,
                     keyboardType: TextInputType.multiline,
                     initialValue: initialValue,
                     readOnly: readOnly,
                     maxLines: maxLines,
                     decoration: InputDecoration(
-                      contentPadding: EdgeInsets.all(10),
+                      contentPadding: EdgeInsets.all(contentPadding!),
                       labelText: labelText,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),

@@ -12,6 +12,7 @@ class ListsModel {
   List<dynamic>? systemDesignations;
   List<dynamic>? functionalAreas;
   List<dynamic>? areas;
+  List<dynamic>? drawingTags;
   ListsModel({
     this.id = 'list',
     this.companies,
@@ -26,6 +27,7 @@ class ListsModel {
     this.systemDesignations,
     this.functionalAreas,
     this.areas,
+    this.drawingTags,
   });
 
   Map<String, dynamic> toMap() {
@@ -42,6 +44,7 @@ class ListsModel {
       'systemDesignations': systemDesignations,
       'functionalAreas': functionalAreas,
       'areas': areas,
+      'drawingTags': drawingTags,
     };
   }
 
@@ -60,6 +63,7 @@ class ListsModel {
       systemDesignations: map['systemDesignations'],
       functionalAreas: map['functionalAreas'],
       areas: map['areas'],
+      drawingTags: map['drawingTags'],
     );
   }
 }

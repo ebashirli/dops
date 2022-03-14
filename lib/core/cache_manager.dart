@@ -1,31 +1,49 @@
+import 'package:dops/modules/staff/staff_model.dart';
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
-mixin CacheManager {
-  Future<void> saveEmail(String email) async {
-    final box = GetStorage();
-    await box.write(CacheManagerKey.EMAIL.toString(), email);
+class CacheManager {
+  static final CacheManager instance = Get.find();
+  final box = GetStorage();
+
+  Future<void> saveStaff(StaffModel staffModel) async =>
+      await box.write(CacheManagerKey.STAFF.toString(), staffModel.toMap());
+
+  StaffModel? getStaff() {
+    Map<String, dynamic>? logedInStaff =
+        box.read(CacheManagerKey.STAFF.toString()) as Map<String, dynamic>?;
+
+    return logedInStaff != null
+        ? StaffModel.fromMap(
+            logedInStaff,
+            getID(),
+          )
+        : null;
   }
 
-  Future<void> savePassword(String password) async {
-    final box = GetStorage();
-    await box.write(CacheManagerKey.PASSWORD.toString(), password);
+  Future<void> removeStaff() async =>
+      await box.remove(CacheManagerKey.STAFF.toString());
+
+  Future<void> savePassword(String password) async =>
+      await box.write(CacheManagerKey.PASSWORD.toString(), password);
+
+  String? getPassword() => box.read(CacheManagerKey.PASSWORD.toString());
+
+  Future<void> saveEmail(String email) async =>
+      await box.write(CacheManagerKey.EMAIL.toString(), email);
+
+  String? getEmail() => box.read(CacheManagerKey.EMAIL.toString());
+
+  Future<void> saveID(String id) async =>
+      await box.write(CacheManagerKey.ID.toString(), id);
+
+  String? getID() {
+    String? id = box.read(CacheManagerKey.ID.toString());
+    return id;
   }
 
-  String? getEmail() {
-    final box = GetStorage();
-    return box.read(CacheManagerKey.EMAIL.toString());
-  }
-
-  String? getPassword() {
-    final box = GetStorage();
-    return box.read(CacheManagerKey.PASSWORD.toString());
-  }
-
-  // Future<void> removeStaff() async {
-  //   final box = GetStorage();
-  //   await box.remove(CacheManagerKey.STAFF.toString());
-  // }
-
+  Future<void> removeID() async =>
+      await box.remove(CacheManagerKey.ID.toString());
 }
 
-enum CacheManagerKey { EMAIL, PASSWORD }
+enum CacheManagerKey { EMAIL, PASSWORD, STAFF, ID }

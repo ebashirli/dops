@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class StaffModel {
   String? id;
   String badgeNo;
@@ -11,11 +13,11 @@ class StaffModel {
   String jobTitle;
   String email;
   String company;
-  DateTime dateOfBirth;
+  String dateOfBirth;
   String homeAddress;
-  DateTime startDate;
+  String startDate;
   String currentPlace;
-  DateTime contractFinishDate;
+  String contractFinishDate;
   String contact;
   String emergencyContact;
   String emergencyContactName;
@@ -84,13 +86,22 @@ class StaffModel {
       jobTitle: map['jobTitle'],
       email: map['email'],
       company: map['company'],
-      dateOfBirth:
-          map['dateOfBirth'] != null ? map['dateOfBirth'].toDate() : null,
+      dateOfBirth: map['dateOfBirth'] != null
+          ? map['dateOfBirth'] is Timestamp
+              ? map['dateOfBirth'].toDate().toString()
+              : map['dateOfBirth']
+          : null,
       homeAddress: map['homeAddress'],
-      startDate: map['startDate'] != null ? map['startDate'].toDate() : null,
+      startDate: map['startDate'] != null
+          ? map['startDate'] is Timestamp
+              ? map['startDate'].toDate().toString()
+              : map['startDate']
+          : null,
       currentPlace: map['currentPlace'],
       contractFinishDate: map['contractFinishDate'] != null
-          ? map['contractFinishDate'].toDate()
+          ? map['contractFinishDate'] is Timestamp
+              ? map['contractFinishDate'].toDate().toString()
+              : map['contractFinishDate']
           : null,
       contact: map['contact'],
       emergencyContact: map['emergencyContact'],

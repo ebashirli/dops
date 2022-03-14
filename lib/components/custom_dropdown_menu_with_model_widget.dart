@@ -1,4 +1,4 @@
-import 'package:dropdown_search/dropdown_search.dart';
+import 'package:dropdown_search2/dropdown_search2.dart';
 import 'package:flutter/material.dart';
 
 class CustomDropdownMenuWithModel<T> extends StatelessWidget {
@@ -9,6 +9,11 @@ class CustomDropdownMenuWithModel<T> extends StatelessWidget {
   final bool isMultiselection;
   final String labelText;
   final bool showSearchBox;
+  final Widget Function(BuildContext)? clearButtonBuilder;
+  final bool showClearButton;
+  final double? width;
+  final double? height;
+  final bool enabled;
 
   CustomDropdownMenuWithModel({
     Key? key,
@@ -19,14 +24,21 @@ class CustomDropdownMenuWithModel<T> extends StatelessWidget {
     required this.labelText,
     this.isMultiselection = false,
     this.showSearchBox = true,
+    this.showClearButton = false,
+    this.clearButtonBuilder,
+    this.width = 350,
+    this.height = 50,
+    this.enabled = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 350,
+      width: width,
+      height: height,
       child: !isMultiselection
           ? DropdownSearch<T>(
+              enabled: enabled,
               selectedItem: selectedItems.isNotEmpty ? selectedItems[0] : null,
               items: items,
               itemAsString: itemAsString,
@@ -40,8 +52,11 @@ class CustomDropdownMenuWithModel<T> extends StatelessWidget {
               onChanged: (value) {
                 if (value != null) onChanged([value]);
               },
+              clearButtonBuilder: clearButtonBuilder,
+              showClearButton: showClearButton,
             )
           : DropdownSearch<T?>.multiSelection(
+              enabled: enabled,
               selectedItems: selectedItems,
               items: items,
               itemAsString: itemAsString,
@@ -52,7 +67,7 @@ class CustomDropdownMenuWithModel<T> extends StatelessWidget {
                 border: OutlineInputBorder(),
               ),
               showSearchBox: true,
-              onChanged: onChanged,
+              onChange: onChanged,
             ),
     );
   }

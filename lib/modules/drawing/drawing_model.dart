@@ -6,6 +6,7 @@ class DrawingModel {
   String module;
   String level;
   List<String> area;
+  List<String> drawingTag;
   String functionalArea;
   String structureType;
   String note;
@@ -20,6 +21,7 @@ class DrawingModel {
     required this.module,
     required this.level,
     required this.area,
+    required this.drawingTag,
     required this.functionalArea,
     required this.structureType,
     required this.note,
@@ -35,6 +37,7 @@ class DrawingModel {
       'module': module,
       'level': level,
       'area': area,
+      'drawingTag': drawingTag,
       'functionalArea': functionalArea,
       'structureType': structureType,
       'note': note,
@@ -52,6 +55,7 @@ class DrawingModel {
       module: map['module'],
       level: map['level'],
       area: List<String>.from(map['area']),
+      drawingTag: List<String>.from(map['drawingTag']),
       functionalArea: map['functionalArea'],
       structureType: map['structureType'],
       note: map['note'],

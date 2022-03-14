@@ -1,17 +1,18 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/table_details.dart';
+import 'package:dops/core/cache_manager.dart';
+import 'package:dops/components/date_time_extension.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 
 import '../../constants/style.dart';
 import 'staff_model.dart';
 import 'staff_repository.dart';
 
-class StaffController extends GetxService {
+class StaffController extends GetxService with CacheManager {
   final GlobalKey<FormState> staffFormKey = GlobalKey<FormState>();
   final _repository = Get.find<StaffRepository>();
   static StaffController instance = Get.find();
@@ -42,11 +43,10 @@ class StaffController extends GetxService {
   RxList<StaffModel> _documents = RxList<StaffModel>([]);
   List<StaffModel> get documents => _documents;
 
-  bool get isCoordinator =>
-      staffController.documents
-          .singleWhere((staff) => staff.id == auth.currentUser!.uid)
-          .systemDesignation ==
-      'Coordinator';
+  bool get isCoordinator => getStaff() != null
+      ? getStaff()!.systemDesignation == 'Coordinator'
+      : false;
+
   String get currentUserId => auth.currentUser!.uid;
 
   @override
@@ -150,11 +150,12 @@ class StaffController extends GetxService {
     noteController.text = model.note;
 
     dateOfBirthController.text =
-        '${model.dateOfBirth.day}/${model.dateOfBirth.month}/${model.dateOfBirth.year}';
-    startDateConroller.text =
-        '${model.startDate.day}/${model.startDate.month}/${model.startDate.year}';
+        DateTime.parse(model.dateOfBirth).toDayMonthYear();
+
+    startDateConroller.text = DateTime.parse(model.startDate).toDayMonthYear();
+
     contractFinishDateController.text =
-        '${model.contractFinishDate.day}/${model.contractFinishDate.month}/${model.contractFinishDate.year}';
+        DateTime.parse(model.contractFinishDate).toDayMonthYear();
 
     currentPlaceText = model.currentPlace;
     systemDesignationText = model.systemDesignation;
@@ -354,14 +355,12 @@ class StaffController extends GetxService {
                               jobTitle: jobTitleText,
                               email: emailController.text,
                               company: companyText,
-                              dateOfBirth: DateFormat("dd/MM/yyyy")
-                                  .parse(dateOfBirthController.text),
+                              dateOfBirth: dateOfBirthController.text,
                               homeAddress: homeAddressController.text,
-                              startDate: DateFormat("dd/MM/yyyy")
-                                  .parse(startDateConroller.text),
+                              startDate: startDateConroller.text,
                               currentPlace: currentPlaceText,
-                              contractFinishDate: DateFormat("dd/MM/yyyy")
-                                  .parse(contractFinishDateController.text),
+                              contractFinishDate:
+                                  contractFinishDateController.text,
                               contact: contactController.text,
                               emergencyContact: emergencyContactController.text,
                               emergencyContactName:

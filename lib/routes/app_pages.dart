@@ -1,7 +1,10 @@
+import 'package:dops/constants/constant.dart';
 import 'package:dops/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../bindings/bindings.dart';
+import '../modules/home/home_view.dart';
+import '../modules/login/login_view.dart';
 import '../modules/stages/stage_view.dart';
 import '../unknown_route_page.dart';
 
@@ -16,22 +19,22 @@ class AppPages {
   static const LOGIN = Routes.LOGIN;
   static const SPLASH = Routes.SPLASH;
   static final routes = [
-    // GetPage(
-    //   name: _Paths.HOME,
-    //   page: () => HomeView(),
-    //   middlewares: [AuthMiddlware()],
-    //   binding: HomeBinding(),
-    // ),
-    // GetPage(
-    //   name: _Paths.LOGIN,
-    //   page: () => LoginView(),
-    //   middlewares: [AuthMiddlware()],
-    //   binding: LoginBinding(),
-    // ),
+    GetPage(
+      name: _Paths.HOME,
+      page: () => HomeView(),
+      middlewares: [AuthMiddlware()],
+      binding: HomeBinding(),
+    ),
+    GetPage(
+      name: _Paths.LOGIN,
+      page: () => LoginView(),
+      // middlewares: [AuthMiddlware()],
+      binding: HomeBinding(),
+    ),
     GetPage(
       name: _Paths.STAGES,
       page: () => StageView(),
-      // middlewares: [AuthMiddlware()],
+      middlewares: [AuthMiddlware()],
       binding: HomeBinding(),
     ),
     GetPage(
@@ -44,5 +47,6 @@ class AppPages {
 }
 
 class AuthMiddlware extends GetMiddleware {
-  RouteSettings? redirect(String? route) => RouteSettings(name: Routes.SPLASH);
+  RouteSettings? redirect(String? route) =>
+      cacheManager.getID() != null ? null : RouteSettings(name: Routes.LOGIN);
 }

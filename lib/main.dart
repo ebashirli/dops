@@ -139,6 +139,7 @@ Future<void> initServices() async {
   await Get.putAsync<StageController>(() async => await StageController());
 
   await Get.putAsync<ValueController>(() async => await ValueController());
+
   await Get.putAsync<CacheManager>(() async => await CacheManager());
 }
 

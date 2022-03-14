@@ -1,4 +1,4 @@
-import 'package:dropdown_search/dropdown_search.dart';
+import 'package:dropdown_search2/dropdown_search2.dart';
 import 'package:flutter/material.dart';
 
 class CustomDropdownMenu extends StatelessWidget {
@@ -8,6 +8,7 @@ class CustomDropdownMenu extends StatelessWidget {
   final List<String> selectedItems;
   final double? width;
   final bool isMultiSelectable;
+  final bool enabled;
   final bool showSearchBox;
   final double sizeBoxHeight;
   final double bottomPadding;
@@ -21,8 +22,9 @@ class CustomDropdownMenu extends StatelessWidget {
     required this.items,
     this.isMultiSelectable = false,
     this.showSearchBox = false,
-    this.sizeBoxHeight = 10,
-    this.bottomPadding = 8,
+    this.sizeBoxHeight = 0,
+    this.bottomPadding = 0,
+    bool this.enabled = true,
   }) : super(key: key);
 
   @override
@@ -36,6 +38,7 @@ class CustomDropdownMenu extends StatelessWidget {
             padding: EdgeInsets.only(bottom: bottomPadding),
             child: isMultiSelectable
                 ? DropdownSearch<String>.multiSelection(
+                    enabled: enabled,
                     selectedItems: selectedItems,
                     showSearchBox: showSearchBox,
                     maxHeight: items.length < 3
@@ -56,7 +59,7 @@ class CustomDropdownMenu extends StatelessWidget {
                         .map((e) => e is List ? e[1].toString() : e.toString())
                         .toList(),
                     showClearButton: true,
-                    onChanged: onChanged,
+                    onChange: onChanged,
                     popupSelectionWidget: (
                       cnt,
                       String item,
@@ -72,6 +75,7 @@ class CustomDropdownMenu extends StatelessWidget {
                     clearButtonSplashRadius: 20,
                   )
                 : DropdownSearch<String>(
+                    enabled: enabled,
                     selectedItem: selectedItems[0],
                     showSearchBox: showSearchBox,
                     maxHeight: items.length <= 3

@@ -1,4 +1,5 @@
 import 'package:dops/core/auth_manager.dart';
+import 'package:dops/core/cache_manager.dart';
 import 'package:dops/modules/activity/activity_controller.dart';
 import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/list/lists_controller.dart';
@@ -20,3 +21,4 @@ StaffController staffController = StaffController.instance;
 StageController stageController = StageController.instance;
 ValueController valueController = ValueController.instance;
 FirebaseAuth auth = FirebaseAuth.instance;
+CacheManager cacheManager = CacheManager.instance;

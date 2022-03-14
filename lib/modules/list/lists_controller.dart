@@ -1,5 +1,5 @@
 import 'package:dops/constants/lists.dart';
-import 'package:dropdown_search/dropdown_search.dart';
+import 'package:dropdown_search2/dropdown_search2.dart';
 import 'package:flutter/material.dart';
 import 'package:recase/recase.dart';
 import '../../enum.dart';
@@ -50,7 +50,7 @@ class ListsController extends GetxService {
         title: 'Add New List Item',
         contentPadding: EdgeInsets.only(left: 12, right: 12),
         content: Container(
-          width: 500,
+          width: Get.width * .3,
           child: Column(
             children: <Widget>[
               DropdownSearch<String>(

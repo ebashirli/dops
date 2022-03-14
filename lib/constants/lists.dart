@@ -13,6 +13,7 @@ List<String> get listNames => [
       'System Designations',
       'Functional Areas',
       'Areas',
+      'Drawing Tags'
     ];
 
 List<String> valueTableCommonColumnHeadList = [
@@ -25,22 +26,26 @@ List<String> valueTableCommonColumnHeadList = [
 ];
 
 List<Map<String, dynamic>> stageDetailsList = [
+  // 0
   {
     'name': 'Importing',
     'staff job': '3D Admin',
     'form fields': <String>['Weight', 'Phase'],
   },
+  // 1
   {
     'name': 'Modelling',
     'staff job': 'Designers',
     'form fields': <String>['Weight', 'GAS', 'SFD', 'DTL'],
   },
+  // 2
   {
     'name': 'Drafting',
     'staff job': 'Drafters',
     'form fields': <String>['Weight', 'GAS', 'SFD', 'DTL'],
     'file names': true,
   },
+  // 3
   {
     'name': 'Checking',
     'get files': 'Get whitecopies',
@@ -48,6 +53,7 @@ List<Map<String, dynamic>> stageDetailsList = [
     'form fields': <String>['GAS', 'SFD', 'DTL'],
     'file names': true,
   },
+  // 4
   {
     'name': 'Back Drafting',
     'get files': 'Get checkprints',
@@ -55,6 +61,7 @@ List<Map<String, dynamic>> stageDetailsList = [
     'form fields': <String>[],
     'file names': true,
   },
+  // 5
   {
     'name': 'Back Checking',
     'get files': 'Get checkprints',
@@ -63,6 +70,7 @@ List<Map<String, dynamic>> stageDetailsList = [
     'file names': true,
     "comment": true,
   },
+  // 6
   {
     'name': 'Reviewing',
     'get files': 'Get checkprints',
@@ -71,6 +79,7 @@ List<Map<String, dynamic>> stageDetailsList = [
     'file names': true,
     "comment": true,
   },
+  // 7
   {
     'name': 'Filing',
     'staff job': 'Filing resp. person',
@@ -94,12 +103,14 @@ List<Map<String, dynamic>> stageDetailsList = [
       ]
     },
   },
+  // 8
   {
     'name': 'Nesting Box',
     'get files': 'Original Files',
     'staff job': 'Nesting Draftsman',
     'form fields': <String>[],
   },
+  // 9
   {
     'name': 'Issuing',
     'staff job': 'Coordinator',

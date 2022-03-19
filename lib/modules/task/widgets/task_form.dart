@@ -11,19 +11,23 @@ class TaskForm extends StatelessWidget {
     Key? key,
     this.id,
     this.newRev = false,
+    this.drawingId,
   }) : super(key: key);
 
   final String? id;
   final bool newRev;
+  final String? drawingId;
 
   @override
   Widget build(BuildContext context) {
-    String drawingId = homeController.dataGridController.value.selectedRow!
-        .getCells()[1]
-        .value;
-
-    DrawingModel drawingModel =
-        drawingController.documents.singleWhere((e) => e.id == drawingId);
+    DrawingModel drawingModel = drawingController.documents.singleWhere(
+      (e) =>
+          e.id ==
+          (drawingId ??
+              taskController.documents
+                  .singleWhere((e) => e!.id == id)!
+                  .parentId),
+    );
 
     TaskModel? taskModel = newRev
         ? null

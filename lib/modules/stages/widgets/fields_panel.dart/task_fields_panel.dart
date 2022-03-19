@@ -98,8 +98,10 @@ class TaskUpdateFormWidget extends StatelessWidget {
               Container(
                 width: (totalWidth * .333) * .3,
                 child: ElevatedButton(
-                  onPressed: () =>
-                      taskController.buildAddEdit(id: taskModel.id),
+                  onPressed: () => taskController.buildAddEdit(
+                    id: taskModel.id,
+                    fromStages: true,
+                  ),
                   child: Text('Edit'),
                 ),
               )

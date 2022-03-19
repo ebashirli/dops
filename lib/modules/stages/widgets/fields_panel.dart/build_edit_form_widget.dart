@@ -11,7 +11,7 @@ class BuildEditFormWidget extends StatelessWidget {
   const BuildEditFormWidget({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(_) {
     return Obx(() {
       if (taskController.documents.isNotEmpty) {
         TaskModel taskModel = taskController.documents
@@ -76,7 +76,6 @@ class BuildEditFormWidget extends StatelessWidget {
   List<Widget> stageIndicators() {
     return List.generate(
       10,
-      // ignore: unnecessary_null_comparison
       (index) => stageController.maxIndex == null
           ? CircularProgressIndicator()
           : Row(

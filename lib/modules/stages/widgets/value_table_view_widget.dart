@@ -57,41 +57,46 @@ class ValueTableView extends StatelessWidget {
                     stageDetailsList[index]['form fields'].toSet());
                 final DataGridController _dataGridController =
                     DataGridController();
-                return Container(
-                  height: (stageValueModelsList!.length + 1) * 100,
-                  padding: const EdgeInsets.all(10.0),
-                  child: SfDataGrid(
-                    isScrollbarAlwaysShown: false,
-                    source: dataSource,
-                    columnWidthMode: ColumnWidthMode.fill,
-                    tableSummaryRows: columnsWithTotal.isEmpty
-                        ? []
-                        : [
-                            GridTableSummaryRow(
-                              showSummaryInRow: false,
-                              title: 'Total:',
-                              titleColumnSpan: 1,
-                              columns: columnsWithTotal
-                                  .map(
-                                    (columnName) => GridSummaryColumn(
-                                      name: 'Sum',
-                                      columnName: columnName,
-                                      summaryType: GridSummaryType.sum,
-                                    ),
-                                  )
-                                  .toList(),
-                              position: GridTableSummaryRowPosition.bottom,
-                            ),
-                          ],
-                    columns: getColumns(tableColumns),
-                    gridLinesVisibility: GridLinesVisibility.both,
-                    headerGridLinesVisibility: GridLinesVisibility.both,
-                    // allowSorting: true,
-                    rowHeight: 60,
-                    controller: _dataGridController,
-                    selectionMode: SelectionMode.singleDeselect,
-                    navigationMode: GridNavigationMode.row,
-                  ),
+                return Column(
+                  children: [
+                    Divider(),
+                    Container(
+                      height: (stageValueModelsList!.length + 1) * 100,
+                      padding: const EdgeInsets.all(10.0),
+                      child: SfDataGrid(
+                        isScrollbarAlwaysShown: false,
+                        source: dataSource,
+                        columnWidthMode: ColumnWidthMode.fill,
+                        tableSummaryRows: columnsWithTotal.isEmpty
+                            ? []
+                            : [
+                                GridTableSummaryRow(
+                                  showSummaryInRow: false,
+                                  title: 'Total:',
+                                  titleColumnSpan: 1,
+                                  columns: columnsWithTotal
+                                      .map(
+                                        (columnName) => GridSummaryColumn(
+                                          name: 'Sum',
+                                          columnName: columnName,
+                                          summaryType: GridSummaryType.sum,
+                                        ),
+                                      )
+                                      .toList(),
+                                  position: GridTableSummaryRowPosition.bottom,
+                                ),
+                              ],
+                        columns: getColumns(tableColumns),
+                        gridLinesVisibility: GridLinesVisibility.both,
+                        headerGridLinesVisibility: GridLinesVisibility.both,
+                        // allowSorting: true,
+                        rowHeight: 60,
+                        controller: _dataGridController,
+                        selectionMode: SelectionMode.singleDeselect,
+                        navigationMode: GridNavigationMode.row,
+                      ),
+                    ),
+                  ],
                 );
               }
             },

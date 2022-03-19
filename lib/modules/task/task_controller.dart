@@ -3,6 +3,7 @@ import 'package:dops/components/select_item_snackbar.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/task/widgets/task_form.dart';
+import 'package:dops/modules/values/value_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'task_model.dart';
@@ -80,30 +81,27 @@ class TaskController extends GetxService {
     referenceDocumentsList = taskModel.referenceDocuments;
   }
 
-  buildAddEdit({
-    String? id,
-    bool newRev = false,
-  }) {
-    if (homeController.dataGridController.value.selectedRow == null) {
-      selectItemSnackbar();
-    } else {
-      id = homeController.dataGridController.value.selectedRow!
-          .getCells()[0]
-          .value;
+  buildAddEdit({String? id, bool newRev = false, bool fromStages = false}) {
+    String? drawingId = null;
+    if (!fromStages) {
+      if (homeController.dataGridController.value.selectedRow == null) {
+        selectItemSnackbar();
+      } else {
+        id = homeController.dataGridController.value.selectedRow!
+            .getCells()[0]
+            .value;
+        drawingId = homeController.dataGridController.value.selectedRow!
+            .getCells()[1]
+            .value;
+      }
     }
 
     newRev ? clearEditingControllers() : fillEditingControllers(id!);
 
-    formDialog(
-      id: id,
-      newRev: newRev,
-    );
+    formDialog(id: id, newRev: newRev, drawingId: drawingId);
   }
 
-  formDialog({
-    String? id,
-    bool newRev = false,
-  }) {
+  formDialog({String? id, bool newRev = false, String? drawingId}) {
     Get.defaultDialog(
       barrierDismissible: false,
       radius: 12,
@@ -112,6 +110,7 @@ class TaskController extends GetxService {
       content: TaskForm(
         id: id,
         newRev: newRev,
+        drawingId: drawingId,
       ),
     );
   }
@@ -200,14 +199,32 @@ class TaskController extends GetxService {
         taskId: taskId,
         creationDateTime: DateTime.now(),
       );
-      stageController.addNew(model: stage);
+      stageController.addNew(model: stage).then((stageId) {
+        TaskModel? taskModel = taskController.documents
+            .firstWhere((e) => e!.parentId == parentId, orElse: null);
+        if (taskModel != null) {
+          StageModel firstStageModel = stageController.documents
+              .firstWhere((e) => e!.taskId == taskModel.id)!;
+
+          ValueModel firstValueModel = valueController.documents
+              .firstWhere((e) => e!.stageId == firstStageModel.id)!;
+
+          ValueModel valueModel = ValueModel(
+            stageId: stageId,
+            employeeId: firstValueModel.employeeId,
+            assignedBy: firstValueModel.assignedBy,
+            assignedDateTime: firstValueModel.assignedDateTime,
+            phase: firstValueModel.phase,
+            submitDateTime: firstValueModel.submitDateTime,
+          );
+          valueController.addNew(model: valueModel);
+        }
+      });
     });
   }
 
   void onUpdatePressed({required String id}) {
     TaskModel taskModel = documents.singleWhere((e) => e!.id == id)!;
-    print(taskModel.revisionMark + id);
-
     Map<String, dynamic> map = {
       if (nextRevisionMarkController.text != taskModel.revisionMark)
         'revisionMark': nextRevisionMarkController.text,
@@ -223,5 +240,40 @@ class TaskController extends GetxService {
   void onDeletePressed(String id) {
     deleteTask(id);
     Get.back();
+  }
+
+  String? get selectedTaskId =>
+      homeController.dataGridController.value.selectedRow!.getCells()[0].value;
+
+  TaskModel? get selectedTask => taskController.documents.firstWhere(
+        (e) => e!.id == selectedTaskId,
+        orElse: null,
+      );
+
+  RxBool isAddTaskButtonVisible = false.obs;
+
+  bool get isTaskCompleted {
+    stageController.documents.sort(
+      (a, b) => a!.creationDateTime.compareTo(
+        b!.creationDateTime,
+      ),
+    );
+
+    StageModel? lastStageModelOfTask = stageController.documents.lastWhere(
+      (e) => e!.taskId == selectedTaskId,
+      orElse: null,
+    );
+
+    if (lastStageModelOfTask == null || lastStageModelOfTask.index != 9)
+      return false;
+
+    ValueModel? issuingValueModel = valueController.documents.lastWhere(
+      (e) => e!.stageId == lastStageModelOfTask.id,
+      orElse: null,
+    );
+
+    if (issuingValueModel == null) return false;
+
+    return issuingValueModel.submitDateTime != null;
   }
 }

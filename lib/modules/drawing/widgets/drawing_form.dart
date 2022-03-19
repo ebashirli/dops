@@ -32,161 +32,168 @@ class DrawingForm extends StatelessWidget {
         child: Form(
           key: drawingController.drawingFormKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
-          child: Container(
+          child: SizedBox(
             width: dialogWidth,
             child: Column(
               children: [
-                Container(
+                SizedBox(
                   height: 320,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
                         height: 320,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Row(
+                        child: Obx(() => Column(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
-                                CustomDropdownMenuWithModel<ActivityModel>(
-                                  width: dialogWidth * .185,
-                                  items: activityController.documents,
-                                  labelText: 'Activity code',
-                                  showSearchBox: true,
-                                  selectedItems: activitiCodeSelectedItem,
-                                  onChanged: onActivityCodeChanged,
-                                  itemAsString:
-                                      (ActivityModel? activityModel) =>
-                                          activityModel!.activityId!,
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    CustomDropdownMenuWithModel<ActivityModel>(
+                                      width: dialogWidth * .185,
+                                      items: activityController.documents,
+                                      labelText: 'Activity code',
+                                      showSearchBox: true,
+                                      selectedItems: activitiCodeSelectedItem,
+                                      onChanged: onActivityCodeChanged,
+                                      itemAsString:
+                                          (ActivityModel? activityModel) =>
+                                              activityModel!.activityId!,
+                                    ),
+                                    CustomTextFormField(
+                                      width: dialogWidth * .305,
+                                      controller: drawingController
+                                          .drawingNumberController,
+                                      labelText: 'Drawing Number',
+                                    ),
+                                    CustomDropdownMenu(
+                                      width: dialogWidth * .16,
+                                      labelText: 'Module name',
+                                      selectedItems: [
+                                        drawingController.moduleNameText
+                                      ],
+                                      onChanged: onModuleNameChanged,
+                                      items: listsController
+                                          .document.value.modules!,
+                                    ),
+                                    CustomDropdownMenu(
+                                      width: dialogWidth * .325,
+                                      showSearchBox: true,
+                                      isMultiSelectable: true,
+                                      labelText: 'Area',
+                                      items:
+                                          listsController.document.value.areas!,
+                                      onChanged: onAreaChanged,
+                                      selectedItems: drawingController.areaList,
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    CustomDropdownMenu(
+                                      width: dialogWidth * .50,
+                                      showSearchBox: true,
+                                      labelText: 'Level',
+                                      selectedItems: [
+                                        drawingController.levelText
+                                      ],
+                                      onChanged: (value) {
+                                        drawingController.levelText =
+                                            value ?? '';
+                                      },
+                                      items: listsController
+                                          .document.value.levels!,
+                                    ),
+                                    CustomDropdownMenu(
+                                      width: dialogWidth * .49,
+                                      showSearchBox: true,
+                                      labelText: 'Structure Type',
+                                      selectedItems: [
+                                        drawingController.structureTypeText
+                                      ],
+                                      onChanged: onStructureTypeChanged,
+                                      items: listsController
+                                          .document.value.structureTypes!,
+                                    ),
+                                  ],
                                 ),
                                 CustomTextFormField(
-                                  width: dialogWidth * .305,
                                   controller:
-                                      drawingController.drawingNumberController,
-                                  labelText: 'Drawing Number',
+                                      drawingController.drawingTitleController,
+                                  labelText: 'Drawing Title',
                                 ),
                                 CustomDropdownMenu(
-                                  width: dialogWidth * .16,
-                                  labelText: 'Module name',
-                                  selectedItems: [
-                                    drawingController.moduleNameText
-                                  ],
-                                  onChanged: onModuleNameChanged,
-                                  items:
-                                      listsController.document.value.modules!,
-                                ),
-                                CustomDropdownMenu(
-                                  width: dialogWidth * .325,
                                   showSearchBox: true,
                                   isMultiSelectable: true,
-                                  labelText: 'Area',
-                                  items: listsController.document.value.areas!,
-                                  onChanged: onAreaChanged,
-                                  selectedItems: drawingController.areaList,
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                CustomDropdownMenu(
-                                  width: dialogWidth * .50,
-                                  showSearchBox: true,
-                                  labelText: 'Level',
-                                  selectedItems: [drawingController.levelText],
-                                  onChanged: (value) {
-                                    drawingController.levelText = value ?? '';
-                                  },
-                                  items: listsController.document.value.levels!,
-                                ),
-                                CustomDropdownMenu(
-                                  width: dialogWidth * .49,
-                                  showSearchBox: true,
-                                  labelText: 'Structure Type',
-                                  selectedItems: [
-                                    drawingController.structureTypeText
-                                  ],
-                                  onChanged: onStructureTypeChanged,
+                                  labelText: 'Drawing tags',
                                   items: listsController
-                                      .document.value.structureTypes!,
+                                      .document.value.drawingTags!,
+                                  onChanged: (values) =>
+                                      drawingController.drawingTagList = values,
+                                  selectedItems:
+                                      drawingController.drawingTagList,
                                 ),
-                              ],
-                            ),
-                            CustomTextFormField(
-                              controller:
-                                  drawingController.drawingTitleController,
-                              labelText: 'Drawing Title',
-                            ),
-                            CustomDropdownMenu(
-                              showSearchBox: true,
-                              isMultiSelectable: true,
-                              labelText: 'Drawing tags',
-                              items:
-                                  listsController.document.value.drawingTags!,
-                              onChanged: (values) =>
-                                  drawingController.drawingTagList = values,
-                              selectedItems: drawingController.drawingTagList,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                CustomTextFormField(
-                                  width: dialogWidth * .5,
-                                  controller:
-                                      drawingController.drawingNoteController,
-                                  labelText: 'Note',
-                                ),
-                                CustomDropdownMenu(
-                                  width: dialogWidth * .49,
-                                  showSearchBox: true,
-                                  labelText: 'Functional Area',
-                                  selectedItems: [
-                                    drawingController.functionalAreaText
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    CustomTextFormField(
+                                      width: dialogWidth * .5,
+                                      controller: drawingController
+                                          .drawingNoteController,
+                                      labelText: 'Note',
+                                    ),
+                                    CustomDropdownMenu(
+                                      width: dialogWidth * .49,
+                                      showSearchBox: true,
+                                      labelText: 'Functional Area',
+                                      selectedItems: [
+                                        drawingController.functionalAreaText
+                                      ],
+                                      onChanged: (value) => drawingController
+                                          .functionalAreaText = value ?? '',
+                                      items: listsController
+                                          .document.value.functionalAreas!,
+                                    ),
                                   ],
-                                  onChanged: (value) => drawingController
-                                      .functionalAreaText = value ?? '',
-                                  items: listsController
-                                      .document.value.functionalAreas!,
                                 ),
+                                SizedBox(height: 20.0)
                               ],
-                            ),
-                            SizedBox(height: 20.0)
-                          ],
-                        ),
+                            )),
                       ),
                     ],
                   ),
                 ),
                 SizedBox(height: 10),
-                Container(
-                  child: Row(
-                    children: <Widget>[
-                      if (drawingId != null)
-                        ElevatedButton.icon(
-                          onPressed: onDeletePressed,
-                          icon: Icon(Icons.delete),
-                          label: const Text('Delete'),
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.red,
-                            ),
+                Row(
+                  children: <Widget>[
+                    if (drawingId != null)
+                      ElevatedButton.icon(
+                        onPressed: onDeletePressed,
+                        icon: Icon(Icons.delete),
+                        label: const Text('Delete'),
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                            Colors.red,
                           ),
                         ),
-                      const Spacer(),
-                      ElevatedButton(
-                        onPressed: () => Get.back(),
-                        child: const Text('Cancel'),
                       ),
-                      SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: onUpdateAddPressed,
-                        child: Text(
-                          drawingId != null ? 'Update' : 'Add',
-                        ),
+                    const Spacer(),
+                    ElevatedButton(
+                      onPressed: () => Get.back(),
+                      child: const Text('Cancel'),
+                    ),
+                    SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: onUpdateAddPressed,
+                      child: Text(
+                        drawingId != null ? 'Update' : 'Add',
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 )
               ],
             ),

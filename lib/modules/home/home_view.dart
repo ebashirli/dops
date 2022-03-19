@@ -67,9 +67,9 @@ class HomeView extends GetView<HomeController> {
                 child: Text('Add ${_buildTitleOfPage(isForTitle: false)}'),
               ),
               SizedBox(width: 10),
-              if (controller.homeStates == HomeStates.TaskState)
+              if (homeController.homeStates == HomeStates.TaskState)
                 ElevatedButton(
-                  onPressed: homeController.onEditPressed,
+                  onPressed: controller.onEditPressed,
                   child: Text('Add task'),
                 ),
             ],

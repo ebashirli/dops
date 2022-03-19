@@ -95,9 +95,11 @@ class StageController extends GetxService {
     return valueModelList.isNotEmpty ? valueModelList[0] : null;
   }
 
-  bool get isWorkerFormVisible => valueModelAssignedCurrentUser == null
-      ? false
-      : valueModelAssignedCurrentUser!.submitDateTime == null;
+  bool isWorkerFormVisible(ExpantionPanelItemModel item) =>
+      valueModelAssignedCurrentUser == null
+          ? false
+          : valueModelAssignedCurrentUser!.submitDateTime == null &&
+              item.index == stageController.lastIndex;
 
   List<String> get specialFieldNames =>
       stageDetailsList[lastIndex]['form fields'];
@@ -127,7 +129,7 @@ class StageController extends GetxService {
               CustomExpansionPanelList(data: generateItems(maxIndex + 1)),
               SizedBox(height: 200),
             ]
-          : [Center(child: CircularProgressIndicator())];
+          : [CircularProgressIndicator()];
 
       return Column(children: children);
     });
@@ -135,27 +137,29 @@ class StageController extends GetxService {
 
   List<ExpantionPanelItemModel> generateItems(int numberOfItems) {
     return List<ExpantionPanelItemModel>.generate(numberOfItems, (int index) {
+      final Widget workerForm = index == 7
+          ? FilingStageForm()
+          : index == 8
+              ? NestingStageForm()
+              : WorkerForm(
+                  index: index,
+                  visible: lastIndex == index,
+                );
+      final Widget coordinatorForm =
+          CoordinatorForm(index: index, visible: lastIndex == index);
+      final Widget valueTableView = ValueTableView(
+        index: index,
+        stageValueModelsList: taskValueModels[index]
+            [taskValueModels[index].keys.last],
+      );
+      final String headerValue =
+          '${index + 1} | ${stageDetailsList[index]['name']}';
+
       return ExpantionPanelItemModel(
-        headerValue: '${index + 1} | ${stageDetailsList[index]['name']}',
-        expandedValue: 'This is item number $index',
-        coordinatorForm: CoordinatorForm(
-          index: index,
-          visible: lastIndex == index,
-        ),
-        workerForm: WorkerForm(
-          index: index,
-          visible: lastIndex == index,
-        ),
-        valueTable: Column(
-          children: [
-            Divider(),
-            ValueTableView(
-              index: index,
-              stageValueModelsList: taskValueModels[index]
-                  [taskValueModels[index].keys.last],
-            ),
-          ],
-        ),
+        headerValue: headerValue,
+        coordinatorForm: coordinatorForm,
+        workerForm: workerForm,
+        valueTable: valueTableView,
         index: index,
       );
     });

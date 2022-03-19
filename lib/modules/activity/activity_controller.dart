@@ -186,8 +186,7 @@ class ActivityController extends GetxService {
                             moduleNameText = value ?? '';
                           },
                           selectedItems: [moduleNameText!],
-                          items:
-                              listsController.document.value.modules!,
+                          items: listsController.document.value.modules!,
                         ),
                         Container(
                           width: 200,
@@ -268,9 +267,7 @@ class ActivityController extends GetxService {
                                       id: id,
                                     );
                             },
-                            child: Text(
-                              id != null ? 'Update' : 'Add',
-                            ),
+                            child: Text(id != null ? 'Update' : 'Add'),
                           ),
                         ],
                       ),

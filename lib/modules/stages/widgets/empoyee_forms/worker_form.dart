@@ -25,11 +25,11 @@ class WorkerForm extends StatelessWidget {
                   ...List.generate(
                     stageController.specialFieldNames.length,
                     (ind) => CustomTextFormField(
-                        isNumber: true,
-                        width: 80,
-                        labelText: stageController.specialFieldNames[ind],
-                        controller:
-                            stageController.textEditingControllers[ind]),
+                      isNumber: true,
+                      width: 80,
+                      labelText: stageController.specialFieldNames[ind],
+                      controller: stageController.textEditingControllers[ind],
+                    ),
                   ),
                   if (stageDetailsList[index]['file names'] != null)
                     ElevatedButton(
@@ -45,8 +45,8 @@ class WorkerForm extends StatelessWidget {
                       bottomPadding: 0,
                       sizeBoxHeight: 0,
                       width: 140,
-                      onChanged: (value) =>
-                          stageController.commentStatus.value = value == 'With',
+                      onChanged: (value) => stageController
+                          .commentStatus.value = (value == 'With'),
                       selectedItems: [''],
                       items: ['', 'With', 'Without'],
                     ),

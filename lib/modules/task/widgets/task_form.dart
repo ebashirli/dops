@@ -1,16 +1,36 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/style.dart';
+import 'package:dops/modules/drawing/drawing_model.dart';
+import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class TaskForm extends StatelessWidget {
-  const TaskForm({Key? key, this.id}) : super(key: key);
+  const TaskForm({
+    Key? key,
+    this.id,
+    this.newRev = false,
+  }) : super(key: key);
 
   final String? id;
+  final bool newRev;
 
   @override
   Widget build(BuildContext context) {
+    String drawingId = homeController.dataGridController.value.selectedRow!
+        .getCells()[1]
+        .value;
+
+    DrawingModel drawingModel =
+        drawingController.documents.singleWhere((e) => e.id == drawingId);
+
+    TaskModel? taskModel = newRev
+        ? null
+        : taskController.documents.singleWhere(
+            (e) => e!.id == id,
+          );
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(
@@ -22,70 +42,81 @@ class TaskForm extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
-          key: taskController.taskFormKey,
+          key: taskController.formKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Container(
-            width: Get.width * .5,
+            width: Get.width * .3,
             child: Column(
               children: [
                 Container(
-                  height: 540,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Column(
-                          children: <Widget>[
-                            // Text(
-                            //   //  TODO: ask Ismayil
-                            //   'Current Revision: ${id.drawingNumber}${selectedTask != null ? '-' + selectedTask!.revisionMark : ''}',
-                            //   style: TextStyle(
-                            //     fontSize: 18,
-                            //     fontWeight: FontWeight.bold,
-                            //   ),
-                            // ),
-                            SizedBox(height: 10),
-                            CustomTextFormField(
-                              controller:
-                                  taskController.nextRevisionMarkController,
-                              labelText: 'Next Revision number',
-                            ),
-                            CustomDropdownMenu(
-                              showSearchBox: true,
-                              isMultiSelectable: true,
-                              labelText: 'Reference Documents',
-                              items: itemsReferenceDocuments(),
-                              onChanged: onReferenceDocumentsChanged,
-                              selectedItems:
-                                  taskController.referenceDocumentsList,
-                            ),
-                            CustomTextFormField(
+                  height: Get.width * .09,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        '${drawingModel.drawingNumber}${taskModel != null ? '-' + taskModel.revisionMark : ''}',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Row(
+                        children: [
+                          CustomTextFormField(
+                            width: 80,
+                            controller:
+                                taskController.nextRevisionMarkController,
+                            labelText: 'Next Revision number',
+                          ),
+                          SizedBox(width: 20),
+                          Expanded(
+                            child: CustomTextFormField(
+                              width: 200,
                               controller: taskController.taskNoteController,
                               labelText: 'Note',
                             ),
-                          ],
-                        )
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                      CustomDropdownMenu(
+                        showSearchBox: true,
+                        isMultiSelectable: true,
+                        labelText: 'Reference Documents',
+                        items: itemsReferenceDocuments(),
+                        onChanged: onReferenceDocumentsChanged,
+                        selectedItems: taskController.referenceDocumentsList,
+                      ),
+                    ],
                   ),
                 ),
                 SizedBox(height: 10),
                 Container(
                   child: Row(
                     children: <Widget>[
+                      if (id != null && !newRev)
+                        ElevatedButton.icon(
+                          onPressed: () => taskController.onDeletePressed(id!),
+                          icon: Icon(Icons.delete),
+                          label: const Text('Delete'),
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.red,
+                            ),
+                          ),
+                        ),
+                      const Spacer(),
                       ElevatedButton(
                         onPressed: () => Get.back(),
                         child: const Text('Cancel'),
                       ),
                       SizedBox(width: 10),
                       ElevatedButton(
-                        onPressed: () => id == null
-                            ? taskController.onAddNextRevisionPressed(id)
-                            : taskController.updateTaskFields(
-                                map: {},
-                                id: id!,
-                              ),
-                        child: Text(id != null ? 'Update' : 'Add'),
+                        onPressed: () => newRev
+                            ? taskController
+                                .onAddNextRevisionPressed(drawingModel.id)
+                            : taskController.onUpdatePressed(id: id!),
+                        child: Text(newRev ? 'Add' : 'Update'),
                       ),
                     ],
                   ),
@@ -107,17 +138,3 @@ class TaskForm extends StatelessWidget {
         .toList();
   }
 }
-
-
-// if (taskId != null) {
-//         Map<String, dynamic> revisedTaskFields = {
-//           'referenceDocuments': drawingController.referenceDocumentsList,
-//           'revisionMark': drawingController.nextRevisionMarkController.text,
-//           'note': drawingController.taskNoteController.text,
-//         };
-
-//         taskController.updateTaskFields(
-//           map: revisedTaskFields,
-//           id: taskId!,
-//         );
-//       }

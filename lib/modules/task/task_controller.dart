@@ -1,4 +1,5 @@
 import 'package:dops/components/custom_widgets.dart';
+import 'package:dops/components/select_item_snackbar.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/task/widgets/task_form.dart';
@@ -8,7 +9,7 @@ import 'task_model.dart';
 import 'task_repository.dart';
 
 class TaskController extends GetxService {
-  final GlobalKey<FormState> taskFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final _repository = Get.find<TaskRepository>();
   static TaskController instance = Get.find();
 
@@ -41,13 +42,13 @@ class TaskController extends GetxService {
     required Map<String, dynamic> map,
     required String id,
   }) async {
-    final isValid = drawingController.drawingFormKey.currentState!.validate();
+    final isValid = taskController.formKey.currentState!.validate();
 
     if (!isValid) {
       return;
     }
 
-    drawingController.drawingFormKey.currentState!.save();
+    taskController.formKey.currentState!.save();
     CustomFullScreenDialog.showDialog();
     await _repository.updateFields(map, id);
     CustomFullScreenDialog.cancelDialog();
@@ -79,19 +80,39 @@ class TaskController extends GetxService {
     referenceDocumentsList = taskModel.referenceDocuments;
   }
 
-  buildAddEdit({String? id}) {
-    id != null ? fillEditingControllers(id) : clearEditingControllers();
+  buildAddEdit({
+    String? id,
+    bool newRev = false,
+  }) {
+    if (homeController.dataGridController.value.selectedRow == null) {
+      selectItemSnackbar();
+    } else {
+      id = homeController.dataGridController.value.selectedRow!
+          .getCells()[0]
+          .value;
+    }
 
-    formDialog(id);
+    newRev ? clearEditingControllers() : fillEditingControllers(id!);
+
+    formDialog(
+      id: id,
+      newRev: newRev,
+    );
   }
 
-  formDialog(String? id) {
+  formDialog({
+    String? id,
+    bool newRev = false,
+  }) {
     Get.defaultDialog(
       barrierDismissible: false,
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: 'Add next revision',
-      content: TaskForm(id: id),
+      title: newRev ? 'Add next revision' : 'Update current revision',
+      content: TaskForm(
+        id: id,
+        newRev: newRev,
+      ),
     );
   }
 
@@ -173,6 +194,7 @@ class TaskController extends GetxService {
     newTaskModel.changeNumber = newTaskModel.revisionCount == 1
         ? 0
         : (documents.length - drawingController.documents.length) + 1;
+
     addNew(model: newTaskModel).then((taskId) {
       StageModel stage = StageModel(
         taskId: taskId,
@@ -180,5 +202,26 @@ class TaskController extends GetxService {
       );
       stageController.addNew(model: stage);
     });
+  }
+
+  void onUpdatePressed({required String id}) {
+    TaskModel taskModel = documents.singleWhere((e) => e!.id == id)!;
+    print(taskModel.revisionMark + id);
+
+    Map<String, dynamic> map = {
+      if (nextRevisionMarkController.text != taskModel.revisionMark)
+        'revisionMark': nextRevisionMarkController.text,
+      if (taskNoteController.text != taskModel.note)
+        'note': taskNoteController.text,
+      if (referenceDocumentsList != taskModel.referenceDocuments)
+        'referenceDocuments': referenceDocumentsList,
+    };
+
+    updateTaskFields(map: map, id: id);
+  }
+
+  void onDeletePressed(String id) {
+    deleteTask(id);
+    Get.back();
   }
 }

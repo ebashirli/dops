@@ -1,6 +1,7 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
+import 'package:dops/modules/values/value_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -106,10 +107,8 @@ class DrawingUpdateFormWidget extends StatelessWidget {
                     children: <Widget>[
                       CustomTextFormField(
                         enabled: enabled,
-
                         width: (totalWidth * .333) * .3,
-                        // TODO: change this widget according to tekla phase
-                        initialValue: 'some tekla phase',
+                        initialValue: phaseInitialValue(),
                         labelText: 'Tekla Phase',
                       ),
                       SizedBox(width: 10),
@@ -125,7 +124,7 @@ class DrawingUpdateFormWidget extends StatelessWidget {
                           width: (totalWidth * .333) * .3,
                           child: ElevatedButton(
                             onPressed: () => drawingController.buildAddEdit(
-                                drawingId: drawingModel.id),
+                                id: drawingModel.id),
                             child: Text('Edit'),
                           ),
                         ),
@@ -138,6 +137,13 @@ class DrawingUpdateFormWidget extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String phaseInitialValue() {
+    final List<ValueModel?> listValueModel =
+        stageController.taskValueModels.first.values.first;
+
+    return listValueModel.isEmpty ? ' ' : '${listValueModel.first}';
   }
 
   void onUpdatePressed(DrawingModel drawingModel) {

@@ -59,13 +59,22 @@ class HomeView extends GetView<HomeController> {
     return AppBar(
       title: Text(_buildTitleOfPage()),
       actions: [
-        if (authManager.isCoordinator.value)
-          IconButton(
-            onPressed: () {
-              _buildAddDatabase();
-            },
-            icon: Icon(Icons.add),
+        if (staffController.isCoordinator)
+          Row(
+            children: [
+              ElevatedButton(
+                onPressed: () => _buildAddDatabase(),
+                child: Text('Add ${_buildTitleOfPage(isForTitle: false)}'),
+              ),
+              SizedBox(width: 10),
+              if (controller.homeStates == HomeStates.TaskState)
+                ElevatedButton(
+                  onPressed: homeController.onEditPressed,
+                  child: Text('Add task'),
+                ),
+            ],
           ),
+        SizedBox(width: 10),
         Center(
           child: staffController.documents.isNotEmpty
               ? Text(
@@ -102,7 +111,6 @@ class HomeView extends GetView<HomeController> {
             },
           ),
           SizedBox(height: 10),
-          // if (authManager.staffModel!.value.systemDesignation != UserRole.User)
           TextButton.icon(
             icon: Icon(Icons.golf_course),
             label: const Text('Reference Documents'),
@@ -130,7 +138,6 @@ class HomeView extends GetView<HomeController> {
             },
           ),
           SizedBox(height: 10),
-          // if (authManager.staffModel!.value.systemDesignation == UserRole.Admin)
           TextButton.icon(
             icon: Icon(Icons.people),
             label: const Text('Staff'),
@@ -153,21 +160,18 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
-  String _buildTitleOfPage() {
+  String _buildTitleOfPage({bool isForTitle = true}) {
     switch (controller.homeStates) {
       case HomeStates.ActivityState:
-        return 'Activity Code';
-
+        return isForTitle ? 'Activity Code' : 'activity code';
       case HomeStates.ReferenceDocumentState:
-        return 'Reference Documents';
-
+        return isForTitle ? 'Reference Documents' : 'reference document';
       case HomeStates.DropdownSourceListState:
-        return 'Lists';
-
+        return isForTitle ? 'Lists' : 'list items';
       case HomeStates.StaffState:
-        return 'Staff';
+        return isForTitle ? 'Staff' : 'employee';
       case HomeStates.TaskState:
-        return 'Drawings';
+        return isForTitle ? 'Drawings' : 'drawing';
     }
   }
 

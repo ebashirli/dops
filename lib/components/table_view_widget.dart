@@ -1,3 +1,4 @@
+import 'package:dops/components/select_item_snackbar.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/routes/app_pages.dart';
 import 'package:expendable_fab/expendable_fab.dart';
@@ -19,6 +20,8 @@ class TableView extends StatelessWidget {
 
   get rowId => null;
 
+  DataSource get dataSource => DataSource(data: controller.getDataForTableView);
+
   @override
   Widget build(BuildContext context) {
     return (tableName != 'task'
@@ -26,50 +29,20 @@ class TableView extends StatelessWidget {
             : drawingController.documents.isEmpty)
         ? CircularProgressIndicator()
         : Obx(
-            () {
-              final DataSource dataSource =
-                  DataSource(data: controller.getDataForTableView);
-
-              final DataGridController _dataGridController =
-                  DataGridController();
-
-              void onEditPressed({bool? newRev = false}) {
-                if (_dataGridController.selectedRow == null) {
-                  Get.snackbar(
-                    'Selection',
-                    'Select an item',
-                    maxWidth: 250,
-                    backgroundColor: Colors.green[50],
-                  );
-                } else {
-                  String? id =
-                      _dataGridController.selectedRow!.getCells()[0].value;
-                  if (tableName != 'task') {
-                    controller.buildAddEdit(id: id);
-                  } else {
-                    String parentId =
-                        _dataGridController.selectedRow!.getCells()[1].value;
-
-                    controller.buildAddEdit(
-                        id: id, parentId: parentId, newRev: newRev);
-                  }
-                }
-              }
-
-              return Scaffold(
-                floatingActionButton: Visibility(
-                  visible: staffController.isCoordinator,
-                  child: tableName == 'task'
+            () => Scaffold(
+              floatingActionButton: !staffController.isCoordinator
+                  ? null
+                  : tableName == 'task'
                       ? ExpendableFab(
                           distance: 80.0,
                           children: [
-                            ActionButton(
-                              onPressed: onEditPressed,
-                              icon: const Icon(Icons.edit),
+                            ElevatedButton(
+                              onPressed: () => onEditPressed(isDrawing: true),
+                              child: Text('Edit drawing'),
                             ),
-                            ActionButton(
-                              onPressed: () => {onEditPressed(newRev: true)},
-                              icon: const Icon(Icons.add),
+                            ElevatedButton(
+                              onPressed: onEditPressed,
+                              child: Text('Edit task'),
                             ),
                           ],
                         )
@@ -78,37 +51,54 @@ class TableView extends StatelessWidget {
                           child: const Icon(Icons.edit),
                           backgroundColor: Colors.green,
                         ),
-                ),
-                body: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: SfDataGrid(
-                    isScrollbarAlwaysShown: false,
-                    source: dataSource,
-                    columns: getColumns(tableColNames[tableName]!),
-                    gridLinesVisibility: GridLinesVisibility.both,
-                    headerGridLinesVisibility: GridLinesVisibility.both,
-                    columnWidthMode: ColumnWidthMode.fill,
-                    allowSorting: true,
-                    rowHeight: 70,
-                    controller: _dataGridController,
-                    selectionMode: SelectionMode.singleDeselect,
-                    navigationMode: GridNavigationMode.row,
-                    onCellDoubleTap: (_) {
-                      if (tableName == 'task') {
-                        String? rowId = _dataGridController.selectedRow!
-                            .getCells()[0]
-                            .value;
-                        if (rowId != null) {
-                          Get.toNamed(Routes.STAGES, parameters: {'id': rowId});
-                        }
-                        ;
+              body: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: SfDataGrid(
+                  isScrollbarAlwaysShown: false,
+                  source: dataSource,
+                  columns: getColumns(tableColNames[tableName]!),
+                  gridLinesVisibility: GridLinesVisibility.both,
+                  headerGridLinesVisibility: GridLinesVisibility.both,
+                  columnWidthMode: ColumnWidthMode.fill,
+                  allowSorting: true,
+                  rowHeight: 70,
+                  controller: homeController.dataGridController.value,
+                  selectionMode: SelectionMode.singleDeselect,
+                  navigationMode: GridNavigationMode.row,
+                  onCellDoubleTap: (_) {
+                    if (tableName == 'task') {
+                      String? rowId = homeController
+                          .dataGridController.value.selectedRow!
+                          .getCells()[0]
+                          .value;
+                      if (rowId != null) {
+                        Get.toNamed(Routes.STAGES, parameters: {'id': rowId});
                       }
-                    },
-                  ),
+                      ;
+                    }
+                  },
                 ),
-              );
-            },
+              ),
+            ),
           );
+  }
+
+  void onEditPressed({bool isDrawing = false}) {
+    if (homeController.dataGridController.value.selectedRow == null) {
+      selectItemSnackbar();
+    } else {
+      String? id = homeController.dataGridController.value.selectedRow!
+          .getCells()[isDrawing ? 1 : 0]
+          .value;
+
+      id == null
+          ? selectItemSnackbar(
+              message: 'Select a drawing with a task to update',
+            )
+          : isDrawing
+              ? drawingController.buildAddEdit(id: id)
+              : controller.buildAddEdit(id: id);
+    }
   }
 
   displayDeleteDialog(String docId) {
@@ -239,17 +229,18 @@ class DataSource extends DataGridSource {
 
   void taskNumberDialog(DataGridCell<dynamic> cell, void onPressed(String id)) {
     Get.defaultDialog(
-        content: Column(
-      children: cell.value
-          .split('|')
-          .sublist(1)
-          .map<Widget>(
-            (taskNoId) => TextButton(
-              onPressed: () => onPressed(taskNoId.split(';')[1]),
-              child: Text(taskNoId.split(';')[0]),
-            ),
-          )
-          .toList(),
-    ));
+      content: Column(
+        children: cell.value
+            .split('|')
+            .sublist(1)
+            .map<Widget>(
+              (taskNoId) => TextButton(
+                onPressed: () => onPressed(taskNoId.split(';')[1]),
+                child: Text(taskNoId.split(';')[0]),
+              ),
+            )
+            .toList(),
+      ),
+    );
   }
 }

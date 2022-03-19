@@ -143,7 +143,7 @@ class DrawingController extends GetxService {
     }
   }
 
-  buildAddEdit({String? drawingId}) {
+  buildAddEdit({String? id}) {
     late final DrawingModel? drawingModel;
     late final TaskModel? taskModel;
 
@@ -152,16 +152,16 @@ class DrawingController extends GetxService {
     if (taskController.documents.isNotEmpty) {
       if (taskController.documents
           .map((e) => e!.parentId)
-          .contains(drawingId)) {
+          .contains(id)) {
         taskId = taskController.documents
-            .lastWhere((e) => e!.parentId == drawingId)!
+            .lastWhere((e) => e!.parentId == id)!
             .id;
       }
     }
 
-    if (drawingId != null) {
+    if (id != null) {
       drawingModel =
-          documents.singleWhere((drawings) => drawings.id == drawingId);
+          documents.singleWhere((drawings) => drawings.id == id);
 
       if (taskId != null) {
         taskModel =
@@ -179,7 +179,7 @@ class DrawingController extends GetxService {
     final double dialogWidth = Get.width * .5;
 
     formDialog(
-      drawingId: drawingId,
+      drawingId: id,
       dialogWidth: dialogWidth,
       taskId: taskId,
     );

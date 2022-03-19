@@ -233,12 +233,13 @@ class StageController extends GetxService {
       });
     } else {
       assignedEmployeeIds.difference(assigningEmployeeIds).forEach(
-          (employeeId) => valueController.addValues(
-              map: {'isHidden': true},
-              id: lastTaskStageValues
-                  .singleWhere((ValueModel? valueModel) =>
-                      valueModel!.employeeId == employeeId)!
-                  .id!));
+            (employeeId) => valueController.addValues(
+                map: {'isHidden': true},
+                id: lastTaskStageValues
+                    .singleWhere((ValueModel? valueModel) =>
+                        valueModel!.employeeId == employeeId)!
+                    .id!),
+          );
       assigningEmployeeIds
           .difference(assignedEmployeeIds)
           .forEach((employeeId) {

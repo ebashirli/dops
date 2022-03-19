@@ -19,7 +19,7 @@ class ValueTableView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return stageValueModelsList == null || stageValueModelsList!.isEmpty
-        ? Text('no data')
+        ? SizedBox.shrink()
         : Obx(
             () {
               if (valueController.documents.isEmpty) {

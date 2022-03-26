@@ -2,12 +2,10 @@ class TaskModel {
   String? id;
   String? parentId;
   String revisionMark;
-  bool? issueType;
-  int revisionCount;
-  double? percentage;
-  bool? revisionStatus;
-  int? changeNumber;
   List<String> referenceDocuments;
+  int changeNumber;
+  bool isHold;
+  String? holdReason;
   String note;
   DateTime? taskCreateDate;
   bool isHidden;
@@ -17,12 +15,10 @@ class TaskModel {
     this.parentId,
     required this.revisionMark,
     required this.referenceDocuments,
-    this.revisionCount = 0,
-    this.changeNumber,
-    this.issueType = false,
     required this.note,
-    this.percentage,
-    this.revisionStatus = true,
+    required this.changeNumber,
+    this.isHold = false,
+    this.holdReason,
     this.taskCreateDate,
     this.isHidden = false,
   });
@@ -32,9 +28,10 @@ class TaskModel {
       'parentId': parentId,
       'revisionMark': revisionMark,
       'referenceDocuments': referenceDocuments,
-      'note': note,
-      'revisionCount': revisionCount,
       'changeNumber': changeNumber,
+      'isHold': isHold,
+      'holdReason': holdReason,
+      'note': note,
       'taskCreateDate': taskCreateDate,
       'isHidden': isHidden,
     };
@@ -46,12 +43,13 @@ class TaskModel {
       parentId: map['parentId'],
       revisionMark: map['revisionMark'],
       referenceDocuments: List<String>.from(map['referenceDocuments']),
+      changeNumber: map['changeNumber'],
+      isHold: map['isHold'] != null ? map['isHold'] : null,
+      holdReason: map['holdReason'] != null ? map['holdReason'] : null,
       note: map['note'],
       taskCreateDate:
           map['taskCreateDate'] != null ? map['taskCreateDate'].toDate() : null,
       isHidden: map['isHidden'] != null ? map['isHidden'] : null,
-      revisionCount: map['revisionCount'] != null ? map['revisionCount'] : null,
-      changeNumber: map['changeNumber'] != null ? map['changeNumber'] : null,
     );
   }
 }

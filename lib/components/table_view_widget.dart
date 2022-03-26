@@ -18,69 +18,80 @@ class TableView extends StatelessWidget {
     required this.tableName,
   }) : super(key: key);
 
-  get rowId => null;
-
   DataSource get dataSource => DataSource(data: controller.getDataForTableView);
 
   @override
-  Widget build(BuildContext context) {
-    return (tableName != 'task'
-            ? controller.documents.isEmpty
-            : drawingController.documents.isEmpty)
-        ? CircularProgressIndicator()
-        : Obx(
-            () => Scaffold(
-              floatingActionButton: !staffController.isCoordinator
-                  ? null
-                  : tableName == 'task'
-                      ? ExpendableFab(
-                          distance: 80.0,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () => onEditPressed(isDrawing: true),
-                              child: Text('Edit drawing'),
-                            ),
-                            ElevatedButton(
-                              onPressed: onEditPressed,
-                              child: Text('Edit task'),
-                            ),
-                          ],
-                        )
-                      : FloatingActionButton(
-                          onPressed: onEditPressed,
-                          child: const Icon(Icons.edit),
-                          backgroundColor: Colors.green,
-                        ),
-              body: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: SfDataGrid(
-                  isScrollbarAlwaysShown: false,
-                  source: dataSource,
-                  columns: getColumns(tableColNames[tableName]!),
-                  gridLinesVisibility: GridLinesVisibility.both,
-                  headerGridLinesVisibility: GridLinesVisibility.both,
-                  columnWidthMode: ColumnWidthMode.fill,
-                  allowSorting: true,
-                  rowHeight: 70,
-                  controller: homeController.dataGridController.value,
-                  selectionMode: SelectionMode.singleDeselect,
-                  navigationMode: GridNavigationMode.row,
-                  onCellDoubleTap: (_) {
-                    if (tableName == 'task') {
-                      String? rowId = homeController
-                          .dataGridController.value.selectedRow!
-                          .getCells()[0]
-                          .value;
-                      if (rowId != null) {
-                        Get.toNamed(Routes.STAGES, parameters: {'id': rowId});
-                      }
-                      ;
-                    }
-                  },
-                ),
+  Widget build(BuildContext context) => isDocumentsEmpty
+      ? CircularProgressIndicator()
+      : Obx(
+          () => Scaffold(
+            floatingActionButton: baseFab(),
+            body: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: SfDataGrid(
+                isScrollbarAlwaysShown: false,
+                source: dataSource,
+                columns: getColumns(tableColNames[tableName]!),
+                gridLinesVisibility: GridLinesVisibility.both,
+                headerGridLinesVisibility: GridLinesVisibility.both,
+                columnWidthMode: ColumnWidthMode.fill,
+                allowSorting: true,
+                rowHeight: 70,
+                controller: homeController.dataGridController.value,
+                selectionMode: SelectionMode.singleDeselect,
+                navigationMode: GridNavigationMode.row,
+                onCellDoubleTap: onCellDoubleTap,
               ),
             ),
-          );
+          ),
+        );
+
+  bool get isDocumentsEmpty => (tableName != 'task'
+      ? controller.documents.isEmpty
+      : drawingController.documents.isEmpty);
+
+  Widget? baseFab() {
+    return !staffController.isCoordinator
+        ? null
+        : tableName == 'task'
+            ? expandableFab()
+            : fab();
+  }
+
+  FloatingActionButton fab() {
+    return FloatingActionButton(
+      onPressed: onEditPressed,
+      child: const Icon(Icons.edit),
+      backgroundColor: Colors.green,
+    );
+  }
+
+  ExpendableFab expandableFab() {
+    return ExpendableFab(
+      distance: 80.0,
+      children: [
+        ElevatedButton(
+          onPressed: () => onEditPressed(isDrawing: true),
+          child: Text('Edit drawing'),
+        ),
+        ElevatedButton(
+          onPressed: onEditPressed,
+          child: Text('Edit task'),
+        ),
+      ],
+    );
+  }
+
+  void onCellDoubleTap(_) {
+    if (tableName == 'task') {
+      String? rowId = homeController.dataGridController.value.selectedRow!
+          .getCells()[0]
+          .value;
+      if (rowId != null) {
+        Get.toNamed(Routes.STAGES, parameters: {'id': rowId});
+      }
+      ;
+    }
   }
 
   void onEditPressed({bool isDrawing = false}) {
@@ -114,7 +125,7 @@ class TableView extends StatelessWidget {
     );
   }
 
-  getColumns(List<String> colNames) {
+  List<GridColumn> getColumns(List<String> colNames) {
     return colNames.map(
       (colName) {
         switch (colName) {

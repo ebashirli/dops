@@ -48,18 +48,18 @@ class PastCycleContent extends StatelessWidget {
       child: SingleChildScrollView(
         child: Column(
           children: List.generate(
-            stageController.taskValueModels[index].length,
+            stageController.valueModelsOfCurrentTask[index].length,
             (int ind) {
               var list =
-                  stageController.taskValueModels[index].keys.toList()[ind];
+                  stageController.valueModelsOfCurrentTask[index].keys.toList()[ind];
               return Column(
                 children: [
                   Text(
                       '${list.index} - ${list.checkerCommentCounter} - ${list.reviewerCommentCounter}'),
                   ValueTableView(
                     index: index,
-                    stageValueModelsList: stageController.taskValueModels[index]
-                        [stageController.taskValueModels[index].keys
+                    stageValueModelsList: stageController.valueModelsOfCurrentTask[index]
+                        [stageController.valueModelsOfCurrentTask[index].keys
                             .toList()[ind]],
                   ),
                 ],

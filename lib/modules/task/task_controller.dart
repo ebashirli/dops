@@ -1,6 +1,8 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/components/select_item_snackbar.dart';
 import 'package:dops/constants/constant.dart';
+import 'package:dops/constants/lists.dart';
+import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/task/widgets/task_form.dart';
 import 'package:dops/modules/values/value_model.dart';
@@ -18,7 +20,9 @@ class TaskController extends GetxService {
   late List<String> referenceDocumentsList;
 
   RxList<TaskModel> _documents = RxList<TaskModel>([]);
-  List<TaskModel?> get documents => _documents;
+  List<TaskModel?> get documents =>
+      _documents.where((e) => e.isHidden == false).toList();
+  List<TaskModel?> get documentsAll => _documents;
 
   @override
   void onInit() {
@@ -121,57 +125,82 @@ class TaskController extends GetxService {
         TaskModel task = TaskModel(
           id: null,
           revisionMark: '',
-          revisionCount: 0,
           referenceDocuments: [],
           note: '',
+          changeNumber: 0,
         );
 
         if (documents.isNotEmpty) {
           List<TaskModel?> drawingTasks =
-              documents.where((task) => task!.parentId == drawing.id).toList();
+              documents.where((e) => e!.parentId == drawing.id).toList();
 
-          if (drawingTasks.isNotEmpty) {
-            drawingTasks
-                .sort((a, b) => b!.revisionCount.compareTo(a!.revisionCount));
-
-            task = drawingTasks[0]!;
-          }
+          if (drawingTasks.isNotEmpty) task = drawingTasks.first!;
         }
 
-        Map<String, dynamic> map = {
+        return {
           'id': task.id ?? null,
           'parentId': drawing.id,
-          'priority': activityController.documents.indexOf(activityController
-                  .documents
-                  .where((activity) => activity.id == drawing.activityCodeId)
-                  .toList()[0]) +
-              1,
-          'activityCode': activityController.documents
-              .where((activity) => activity.id == drawing.activityCodeId)
-              .toList()[0]
-              .activityId,
-          'drawingNumber': '${drawing.drawingNumber}|${task.id}',
+          'priority': getPriorrity(drawing),
+          'activityCode': getActivityCode(drawing),
+          'drawingNumber': getDrawingNumber(drawing, task),
           'revisionMark': task.revisionMark,
           'drawingTitle': drawing.drawingTitle,
+          'taskStatus': taskStatusProvider(task),
           'drawingTag': drawing.drawingTag,
           'module': drawing.module,
-          'issueType': task.revisionCount == 1
-              ? 'First issue'
-              : task.revisionCount == 0
-                  ? ''
-                  : 'Revision',
-          'revisionCount': task.revisionCount,
-          'percentage': task.percentage,
-          'revisionStatus': 'Current',
+          'revisionType': revisionTypeProvider(task),
+          'percentage': 0,
+          'revisionStatus': revisionStatusProvider(task),
+          'hold': task.isHold ? 'Hold' : 'Live',
+          'holdReason': task.holdReason,
           'level': drawing.level,
           'structureType': drawing.structureType,
-          'referenceDocuments': '${task.referenceDocuments.join(';')}',
+          'referenceDocuments': getReferenceDocuments(task),
           'changeNumber': task.changeNumber,
           'taskCreateDate': task.taskCreateDate ?? '',
         };
-        return map;
       },
     ).toList();
+  }
+
+  String revisionTypeProvider(TaskModel task) {
+    documents.sort((a, b) => a!.taskCreateDate!.compareTo(b!.taskCreateDate!));
+    int indexOfTask = documents
+        .where((e) => e!.parentId == task.parentId)
+        .toList()
+        .indexOf(task);
+    return indexOfTask == -1
+        ? ""
+        : indexOfTask == 0
+            ? 'First issue'
+            : 'Revision';
+  }
+
+  String revisionStatusProvider(TaskModel task) {
+    documents.sort((a, b) => a!.taskCreateDate!.compareTo(b!.taskCreateDate!));
+    bool isTaskLast =
+        documents.lastWhere((e) => e!.parentId == task.parentId) == task;
+    return isTaskLast ? 'Current' : 'Superseded';
+  }
+
+  String getDrawingNumber(DrawingModel drawing, TaskModel task) =>
+      '${drawing.drawingNumber}|${task.id}';
+
+  String getReferenceDocuments(TaskModel task) =>
+      '${task.referenceDocuments.join(';')}';
+
+  int getPriorrity(DrawingModel drawing) {
+    return activityController.documents.indexOf(activityController.documents
+            .where((activity) => activity.id == drawing.activityCodeId)
+            .toList()[0]) +
+        1;
+  }
+
+  String? getActivityCode(DrawingModel drawing) {
+    return activityController.documents
+        .where((activity) => activity.id == drawing.activityCodeId)
+        .toList()[0]
+        .activityId;
   }
 
   void onAddNextRevisionPressed(String? parentId) {
@@ -180,19 +209,8 @@ class TaskController extends GetxService {
       referenceDocuments: referenceDocumentsList,
       revisionMark: nextRevisionMarkController.text,
       note: taskNoteController.text,
-      revisionCount: documents.length == 0
-          ? 1
-          : documents
-                  .where((task) {
-                    return task!.parentId == parentId;
-                  })
-                  .toList()
-                  .length +
-              1,
+      changeNumber: lastChangeNumber + 1,
     );
-    newTaskModel.changeNumber = newTaskModel.revisionCount == 1
-        ? 0
-        : (documents.length - drawingController.documents.length) + 1;
 
     addNew(model: newTaskModel).then((taskId) {
       StageModel stage = StageModel(
@@ -223,6 +241,10 @@ class TaskController extends GetxService {
     });
   }
 
+  int get lastChangeNumber => documentsAll
+      .reduce((a, b) => a!.changeNumber > b!.changeNumber ? a : b)!
+      .changeNumber;
+
   void onUpdatePressed({required String id}) {
     TaskModel taskModel = documents.singleWhere((e) => e!.id == id)!;
     Map<String, dynamic> map = {
@@ -250,8 +272,6 @@ class TaskController extends GetxService {
         orElse: null,
       );
 
-  RxBool isAddTaskButtonVisible = false.obs;
-
   bool get isTaskCompleted {
     stageController.documents.sort(
       (a, b) => a!.creationDateTime.compareTo(
@@ -275,5 +295,20 @@ class TaskController extends GetxService {
     if (issuingValueModel == null) return false;
 
     return issuingValueModel.submitDateTime != null;
+  }
+
+  String taskStatusProvider(TaskModel task) {
+    List<Map<StageModel, List<ValueModel?>>> valueModelsOfTask =
+        stageController.valueModelsByTaskId(task.id!);
+    List<StageModel> stageModelsOnLastIndex =
+        valueModelsOfTask.last.keys.toList();
+    stageModelsOnLastIndex.sort(
+      (a, b) => a.creationDateTime.compareTo(b.creationDateTime),
+    );
+    final String stageName =
+        stageDetailsList[stageModelsOnLastIndex.last.index]['name'];
+    return valueModelsOfTask.last[stageModelsOnLastIndex.last]!.isEmpty
+        ? 'Awaits $stageName'
+        : stageName;
   }
 }

@@ -13,6 +13,15 @@ class TaskUpdateFormWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final double totalWidth = Get.width - 120;
     final bool enabled = false;
+    taskController.documents
+        .sort((a, b) => a!.taskCreateDate!.compareTo(b!.taskCreateDate!));
+    final List<TaskModel?> taskModelsOfDrawing = taskController.documents
+        .where((e) => e!.parentId == taskModel.parentId)
+        .toList();
+    final bool isTaskModelFirst = taskModelsOfDrawing.first == taskModel;
+    final bool isTaskModelLast = taskModelsOfDrawing.last == taskModel;
+    final int indexOfThisTaskModel =
+        taskController.documents.indexOf(taskModel);
 
     return Column(
       children: <Widget>[
@@ -29,22 +38,21 @@ class TaskUpdateFormWidget extends StatelessWidget {
               enabled: enabled,
               width: totalWidth * .12,
               readOnly: true,
-              initialValue: taskModel.issueType! ? 'First Issue' : 'Revision',
+              initialValue: isTaskModelFirst ? 'First Issue' : 'Revision',
               labelText: 'Revision Type',
             ),
             CustomTextFormField(
               enabled: enabled,
               width: totalWidth * .12,
               readOnly: true,
-              initialValue:
-                  taskModel.revisionStatus! ? 'Current' : 'Superseded',
+              initialValue: isTaskModelLast ? 'Current' : 'Superseded',
               labelText: 'Revision Status',
             ),
             CustomTextFormField(
               enabled: enabled,
               width: totalWidth * .12,
               readOnly: true,
-              initialValue: taskModel.changeNumber.toString(),
+              initialValue: indexOfThisTaskModel.toString(),
               labelText: 'ECF Number',
             ),
             CustomTextFormField(
@@ -71,7 +79,7 @@ class TaskUpdateFormWidget extends StatelessWidget {
             CustomTextFormField(
               enabled: enabled,
               width: totalWidth * .19,
-              initialValue: taskModel.changeNumber.toString(),
+              initialValue: taskModel.isHold ? 'Hold' : 'Live',
               labelText: 'Activity Status',
             ),
           ],

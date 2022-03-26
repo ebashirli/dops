@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class CustomExpendableFab extends StatelessWidget {
-  const CustomExpendableFab({
-    Key? key,
-  }) : super(key: key);
+  const CustomExpendableFab({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -150,18 +150,14 @@ class DrawingController extends GetxService {
     String? taskId = null;
 
     if (taskController.documents.isNotEmpty) {
-      if (taskController.documents
-          .map((e) => e!.parentId)
-          .contains(id)) {
-        taskId = taskController.documents
-            .lastWhere((e) => e!.parentId == id)!
-            .id;
+      if (taskController.documents.map((e) => e!.parentId).contains(id)) {
+        taskId =
+            taskController.documents.lastWhere((e) => e!.parentId == id)!.id;
       }
     }
 
     if (id != null) {
-      drawingModel =
-          documents.singleWhere((drawings) => drawings.id == id);
+      drawingModel = documents.singleWhere((drawings) => drawings.id == id);
 
       if (taskId != null) {
         taskModel =
@@ -185,11 +181,8 @@ class DrawingController extends GetxService {
     );
   }
 
-  void formDialog({
-    String? drawingId,
-    String? taskId,
-    required double dialogWidth,
-  }) =>
+  void formDialog(
+          {String? drawingId, String? taskId, required double dialogWidth}) =>
       Get.defaultDialog(
         barrierDismissible: false,
         radius: 12,

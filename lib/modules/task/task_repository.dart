@@ -29,7 +29,8 @@ class TaskRepository {
             snapshot.data() as Map<String, dynamic>,
             snapshot.id,
           );
-          if (taskModel.isHidden != true) returnValue.add(taskModel);
+          // if (taskModel.isHidden != true) returnValue.add(taskModel);
+          returnValue.add(taskModel);
         },
       );
       return returnValue;

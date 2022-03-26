@@ -32,4 +32,8 @@ class ValueController extends GetxService {
   void onReady() {
     super.onReady();
   }
+
+  List<ValueModel?> valueModelsByStageId(String stageId) => documents.isNotEmpty
+      ? documents.where((e) => e!.stageId == stageId).toList()
+      : [];
 }

@@ -1,6 +1,8 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
+import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/task/task_model.dart';
+import 'package:dops/modules/values/value_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -66,7 +68,7 @@ class TaskUpdateFormWidget extends StatelessWidget {
               enabled: enabled,
               width: totalWidth * .16,
               readOnly: true,
-              initialValue: 'Last activity date', //lastActivityDate(),
+              initialValue: lastActivityDate(taskModel.id),
               labelText: 'Last activity date',
             ),
             CustomTextFormField(
@@ -119,7 +121,21 @@ class TaskUpdateFormWidget extends StatelessWidget {
     );
   }
 
-  String? lastActivityDate() => '';
-  // stageController.lastTaskStageValues.isEmpty ? stageController.lastTaskStage.creationDateTime : stageController.lastTaskStageValues.map((e) => e!.submitDateTime)
+  String? lastActivityDate(taskId) {
+    final List<ValueModel?> valueModelsList =
+        stageController.valueModelsByTaskId(taskId)[stageController.lastIndex]
+            [stageController.lastTaskStage]!;
 
+    DateTime assignedDateTime = DateTime(0);
+
+    if (valueModelsList.isNotEmpty)
+      assignedDateTime = valueModelsList
+          .map((e) => e!.assignedDateTime)
+          .reduce((a, b) => a.isAfter(b) ? a : b);
+
+    return '${<DateTime>[
+      stageController.lastTaskStage.creationDateTime,
+      assignedDateTime
+    ].reduce((a, b) => a.isAfter(b) ? a : b)}';
+  }
 }

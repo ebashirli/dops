@@ -159,12 +159,16 @@ class TaskController extends GetxService {
           'revisionType': revisionTypeProvider(task),
           'percentage': 0,
           'revisionStatus': revisionStatusProvider(task),
-          'hold': task.isHeld ? 'Hold' : 'Live',
+          'hold': task.isHeld
+              ? 'Hold'
+              : task.id != null
+                  ? 'Live'
+                  : '',
           'holdReason': task.holdReason,
           'level': drawing.level,
           'structureType': drawing.structureType,
           'referenceDocuments': getReferenceDocuments(task),
-          'changeNumber': task.changeNumber,
+          'changeNumber': task.changeNumber == 0 ? '' : task.changeNumber,
           'taskCreateDate': task.taskCreateDate ?? '',
         };
       },

@@ -24,44 +24,41 @@ class _CoordinatorFormState extends State<CoordinatorForm> {
   Widget build(BuildContext context) {
     if (widget.index == 9)
       return ElevatedButton(onPressed: () {}, child: Text('Done'));
-    return Obx(() {
-      return Visibility(
-        visible: widget.visible,
-        child: Column(
-          children: [
-            SizedBox(height: 10),
-            if (widget.index != 9)
-              Row(
-                children: [
-                  const SizedBox(width: 10),
-                  CustomDropdownMenuWithModel<StaffModel>(
-                    items: staffController.documents,
-                    selectedItems: stageController.assignedStaffModels,
-                    onChanged: onChanged,
-                    itemAsString: itemAsString,
-                    labelText: labelText,
-                    isMultiselection: [1, 2, 3, 4, 5, 8].contains(widget.index),
-                  ),
-                  const SizedBox(width: 20),
-                  if (stageController.assigningStaffModels.isNotEmpty &&
-                      !listEquals(stageController.assignedStaffModels,
-                          stageController.assigningStaffModels))
-                    ElevatedButton(
-                      onPressed: () {
-                        stageController.onAssignOrUpdatePressed();
-                      },
-                      child: Text(
-                        stageController.coordinatorAssigns
+    return Obx(() => Visibility(
+          visible: widget.visible,
+          child: Column(
+            children: [
+              SizedBox(height: 10),
+              if (widget.index != 9)
+                Row(
+                  children: [
+                    const SizedBox(width: 10),
+                    CustomDropdownMenuWithModel<StaffModel>(
+                      items: staffController.documents,
+                      selectedItems: stageController.assignedStaffModels,
+                      onChanged: onChanged,
+                      itemAsString: itemAsString,
+                      labelText: labelText,
+                      isMultiselection:
+                          [1, 2, 3, 4, 5, 8].contains(widget.index),
+                    ),
+                    const SizedBox(width: 20),
+                    if (stageController.assigningStaffModels.isNotEmpty &&
+                        !listEquals(stageController.assignedStaffModels,
+                            stageController.assigningStaffModels))
+                      ElevatedButton(
+                        onPressed: () {
+                          stageController.onAssignOrUpdatePressed();
+                        },
+                        child: Text(stageController.coordinatorAssigns
                             ? 'Assign'
-                            : 'Update',
-                      ),
-                    )
-                ],
-              )
-          ],
-        ),
-      );
-    });
+                            : 'Update'),
+                      )
+                  ],
+                )
+            ],
+          ),
+        ));
   }
 
   void onChanged(List<StaffModel?> listStaffModel) {

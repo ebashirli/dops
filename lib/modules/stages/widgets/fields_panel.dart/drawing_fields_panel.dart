@@ -143,7 +143,9 @@ class DrawingUpdateFormWidget extends StatelessWidget {
     final List<ValueModel?> listValueModel =
         stageController.valueModelsOfCurrentTask.first.values.first;
 
-    return listValueModel.isEmpty ? ' ' : '${listValueModel.first}';
+    return listValueModel.isEmpty
+        ? ' '
+        : '${listValueModel.first!.phase ?? ""}';
   }
 
   void onUpdatePressed(DrawingModel drawingModel) {

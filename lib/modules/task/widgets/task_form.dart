@@ -109,9 +109,11 @@ class TaskForm extends StatelessWidget {
                           child: Obx(
                             () => Row(
                               children: [
-                                Text(taskController.isHeld.value
-                                    ? 'Unhold: '
-                                    : 'Hold: '),
+                                Text(
+                                  taskController.isHeld.value
+                                      ? 'Unhold: '
+                                      : 'Hold: ',
+                                ),
                                 Center(
                                   child: Switch(
                                     value: taskController.isHeld.value,

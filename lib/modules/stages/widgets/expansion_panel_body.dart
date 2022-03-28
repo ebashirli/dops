@@ -12,8 +12,12 @@ class ExpansionPanelBody extends StatelessWidget {
   Widget build(BuildContext context) => Obx(
         () => Column(
           children: <Widget>[
-            if (staffController.isCoordinator) item.coordinatorForm,
-            if (stageController.isWorkerFormVisible(item)) workerForm(item),
+            if (staffController.isCoordinator &&
+                !stageController.currentTask.isHeld)
+              item.coordinatorForm,
+            if (stageController.isWorkerFormVisible(item) &&
+                !stageController.currentTask.isHeld)
+              workerForm(item),
             if ([4, 5, 6].contains(item.index))
               TxtButtonForPastCycles(
                 index: item.index,

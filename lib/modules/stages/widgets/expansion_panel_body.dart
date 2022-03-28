@@ -9,21 +9,19 @@ class ExpansionPanelBody extends StatelessWidget {
   final ExpantionPanelItemModel item;
 
   @override
-  Widget build(BuildContext context) {
-    return Obx(() {
-      return Column(
-        children: <Widget>[
-          if (staffController.isCoordinator) item.coordinatorForm,
-          if (stageController.isWorkerFormVisible(item)) workerForm(item),
-          if ([4, 5, 6].contains(item.index))
-            TxtButtonForPastCycles(
-              index: item.index,
-            ),
-          item.valueTable,
-        ],
+  Widget build(BuildContext context) => Obx(
+        () => Column(
+          children: <Widget>[
+            if (staffController.isCoordinator) item.coordinatorForm,
+            if (stageController.isWorkerFormVisible(item)) workerForm(item),
+            if ([4, 5, 6].contains(item.index))
+              TxtButtonForPastCycles(
+                index: item.index,
+              ),
+            item.valueTable,
+          ],
+        ),
       );
-    });
-  }
 
   Widget workerForm(ExpantionPanelItemModel item) {
     return Padding(

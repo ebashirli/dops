@@ -21,11 +21,11 @@ class HomeController extends GetxService {
       selectItemSnackbar();
     } else {
       String? id = dataGridController.value.selectedRow!.getCells()[0].value;
-      // print(taskController.isTaskCompleted);
       if (id != null && !taskController.isTaskCompleted) {
         selectItemSnackbar(
-            title: 'Task completion',
-            message: 'Current task has not been completed yet');
+          title: 'Task completion',
+          message: 'Current task has not been completed yet',
+        );
       } else {
         taskController.buildAddEdit(id: id, newRev: true);
       }

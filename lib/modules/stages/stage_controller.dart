@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/stages/widgets/value_table_view_widget.dart';
@@ -35,22 +34,21 @@ class StageController extends GetxService {
   DrawingModel get currentDrawing =>
       drawingController.documents.singleWhere((e) => e.id == currentTask.id);
 
-  List<StageModel?> get taskStages {
-    List<StageModel?> _taskStages = documents.isNotEmpty
+  List<StageModel?> get stagesOfCurrentTask {
+    List<StageModel?> _stagesOfCurrentTask = documents.isNotEmpty
         ? documents
             .where((stageModel) => stageModel!.taskId == Get.parameters['id'])
             .toList()
         : [];
-    if (_taskStages.isNotEmpty)
-      _taskStages
+    if (_stagesOfCurrentTask.isNotEmpty)
+      _stagesOfCurrentTask
           .sort((a, b) => a!.creationDateTime.compareTo(b!.creationDateTime));
-    return _taskStages;
+    return _stagesOfCurrentTask;
   }
 
-  int get maxIndex =>
-      taskStages.map((stageModel) => stageModel!.index).reduce(max);
+  int get maxIndex => valueModelsOfCurrentTask.length;
 
-  int get lastIndex => taskStages.last!.index;
+  int get lastIndex => stagesOfCurrentTask.last!.index;
 
   RxList<StaffModel?> assigningStaffModels = RxList([]);
   List<StaffModel?> get assignedStaffModels =>
@@ -67,6 +65,9 @@ class StageController extends GetxService {
   List<Map<StageModel, List<ValueModel?>>> valueModelsByTaskId(String taskId) {
     List<StageModel?> stagesOfTask =
         documents.where((e) => e!.taskId == taskId).toList();
+
+    stagesOfTask
+        .sort((a, b) => a!.creationDateTime.compareTo(b!.creationDateTime));
 
     List<int> indice = stagesOfTask.map((e) => e!.index).toList();
     indice.sort();
@@ -96,11 +97,10 @@ class StageController extends GetxService {
       valueModelsOfCurrentTask[lastIndex].values.last;
 
   ValueModel? get valueModelAssignedCurrentUser {
-    List<ValueModel?> valueModelList = lastTaskStageValues.where(
-      (element) {
-        return element!.employeeId == staffController.currentUserId;
-      },
-    ).toList();
+    List<ValueModel?> valueModelList = lastTaskStageValues
+        .where(
+            (element) => element!.employeeId == staffController.currentUserId)
+        .toList();
     return valueModelList.isNotEmpty ? valueModelList[0] : null;
   }
 
@@ -135,7 +135,7 @@ class StageController extends GetxService {
     return Obx(() {
       final List<Widget> children = documents.isNotEmpty
           ? [
-              CustomExpansionPanelList(data: generateItems(maxIndex + 1)),
+              CustomExpansionPanelList(data: generateItems(maxIndex)),
               SizedBox(height: 200),
             ]
           : [CircularProgressIndicator()];

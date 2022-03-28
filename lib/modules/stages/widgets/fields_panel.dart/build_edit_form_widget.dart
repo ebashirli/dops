@@ -83,7 +83,7 @@ class BuildEditFormWidget extends StatelessWidget {
                 Container(
                   height: 20,
                   width: (Get.width - 280) / 10,
-                  color: index <= stageController.maxIndex
+                  color: index < stageController.maxIndex
                       ? index == stageController.lastIndex
                           ? Colors.green
                           : Colors.yellow

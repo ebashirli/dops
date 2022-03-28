@@ -18,7 +18,7 @@ class CoordinatorForm extends StatefulWidget {
 }
 
 class _CoordinatorFormState extends State<CoordinatorForm> {
-  get labelText => stageDetailsList[widget.index]['staff job'];
+  String get labelText => stageDetailsList[widget.index]['staff job'];
 
   @override
   Widget build(BuildContext context) {

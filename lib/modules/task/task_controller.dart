@@ -306,27 +306,18 @@ class TaskController extends GetxService {
       );
 
   bool get isTaskCompleted {
-    stageController.documents.sort(
-      (a, b) => a!.creationDateTime.compareTo(
-        b!.creationDateTime,
-      ),
+    // TODO: Rearrage here
+    final List<Map<StageModel, List<ValueModel?>>> valueModelsMap =
+        stageController.valueModelsByTaskId(
+      homeController.dataGridController.value.selectedRow!
+          .getCells()
+          .first
+          .value,
     );
-
-    StageModel? lastStageModelOfTask = stageController.documents.lastWhere(
-      (e) => e!.taskId == selectedTaskId,
-      orElse: null,
-    );
-
-    if (lastStageModelOfTask == null || lastStageModelOfTask.index != 3)
-      return false;
-
-    ValueModel? issuingValueModel = valueController.documents.lastWhere(
-      (e) => e!.stageId == lastStageModelOfTask.id,
-      orElse: null,
-    );
-
-    if (issuingValueModel == null) return false;
-
-    return issuingValueModel.submitDateTime != null;
+    return valueModelsMap.length < 6
+        ? false
+        : !valueModelsMap.last.values.last
+            .map((e) => e!.submitDateTime)
+            .contains(null);
   }
 }

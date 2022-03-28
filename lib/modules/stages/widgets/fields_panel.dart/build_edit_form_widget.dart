@@ -12,27 +12,29 @@ class BuildEditFormWidget extends StatelessWidget {
 
   @override
   Widget build(_) {
-    return Obx(() {
-      if (taskController.documents.isNotEmpty) {
-        TaskModel taskModel = taskController.documents
-            .singleWhere((task) => task!.id == Get.parameters['id'])!;
+    return Obx(
+      () {
+        if (taskController.documents.isNotEmpty) {
+          TaskModel taskModel = taskController.documents
+              .singleWhere((task) => task!.id == Get.parameters['id'])!;
 
-        DrawingModel drawingModel = drawingController.documents
-            .singleWhere((drawing) => drawing.id == taskModel.parentId);
+          DrawingModel drawingModel = drawingController.documents
+              .singleWhere((drawing) => drawing.id == taskModel.parentId);
 
-        drawingController.fillEditingControllers(
-          drawingModel: drawingModel,
-          taskModel: taskModel,
-        );
-        return _buildEditFormWidget(
-          drawingModel: drawingModel,
-          taskModel: taskModel,
-          isCoordinator: staffController.isCoordinator,
-        );
-      } else {
-        return CircularProgressIndicator();
-      }
-    });
+          drawingController.fillEditingControllers(
+            drawingModel: drawingModel,
+            taskModel: taskModel,
+          );
+          return _buildEditFormWidget(
+            drawingModel: drawingModel,
+            taskModel: taskModel,
+            isCoordinator: staffController.isCoordinator,
+          );
+        } else {
+          return CircularProgressIndicator();
+        }
+      },
+    );
   }
 
   Widget _buildEditFormWidget({

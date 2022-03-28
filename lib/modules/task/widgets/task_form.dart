@@ -35,6 +35,18 @@ class TaskForm extends StatelessWidget {
             (e) => e!.id == id,
           );
 
+    final bool isStageAssigned = taskModel == null
+        ? false
+        : !stageController
+            .valueModelsByTaskId(taskModel.id!)
+            .map(
+              (e) => e.values
+                  .map(
+                      (e1) => e1.map((e2) => e2!.submitDateTime).contains(null))
+                  .contains(true),
+            )
+            .contains(true);
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(
@@ -91,36 +103,37 @@ class TaskForm extends StatelessWidget {
                         onChanged: onReferenceDocumentsChanged,
                         selectedItems: taskController.referenceDocumentsList,
                       ),
-                      SizedBox(
-                        height: 50,
-                        child: Obx(
-                          () => Row(
-                            children: [
-                              Text(taskController.isHeld.value
-                                  ? 'Unhold: '
-                                  : 'Hold: '),
-                              Center(
-                                child: Switch(
-                                  value: taskController.isHeld.value,
-                                  onChanged: (value) =>
-                                      taskController.isHeld.value = value,
-                                  activeTrackColor: Colors.lightGreenAccent,
-                                  activeColor: Colors.green,
-                                ),
-                              ),
-                              if (taskController.isHeld.value)
-                                Expanded(
-                                  child: CustomTextFormField(
-                                    width: 200,
-                                    controller:
-                                        taskController.holdReasonController,
-                                    labelText: 'Hold Reason',
+                      if (isStageAssigned)
+                        SizedBox(
+                          height: 50,
+                          child: Obx(
+                            () => Row(
+                              children: [
+                                Text(taskController.isHeld.value
+                                    ? 'Unhold: '
+                                    : 'Hold: '),
+                                Center(
+                                  child: Switch(
+                                    value: taskController.isHeld.value,
+                                    onChanged: (value) =>
+                                        taskController.isHeld.value = value,
+                                    activeTrackColor: Colors.lightGreenAccent,
+                                    activeColor: Colors.green,
                                   ),
                                 ),
-                            ],
+                                if (taskController.isHeld.value)
+                                  Expanded(
+                                    child: CustomTextFormField(
+                                      width: 200,
+                                      controller:
+                                          taskController.holdReasonController,
+                                      labelText: 'Hold Reason',
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
-                        ),
-                      )
+                        )
                     ],
                   ),
                 ),

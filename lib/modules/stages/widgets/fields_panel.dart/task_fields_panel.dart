@@ -79,7 +79,7 @@ class TaskUpdateFormWidget extends StatelessWidget {
             CustomTextFormField(
               enabled: enabled,
               width: totalWidth * .19,
-              initialValue: taskModel.isHold ? 'Hold' : 'Live',
+              initialValue: taskModel.isHeld ? 'Hold' : 'Live',
               labelText: 'Activity Status',
             ),
           ],

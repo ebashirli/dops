@@ -53,7 +53,7 @@ class TaskForm extends StatelessWidget {
             child: Column(
               children: [
                 Container(
-                  height: Get.width * .09,
+                  height: Get.width * .14,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
@@ -91,40 +91,68 @@ class TaskForm extends StatelessWidget {
                         onChanged: onReferenceDocumentsChanged,
                         selectedItems: taskController.referenceDocumentsList,
                       ),
+                      SizedBox(
+                        height: 50,
+                        child: Obx(
+                          () => Row(
+                            children: [
+                              Text(taskController.isHeld.value
+                                  ? 'Unhold: '
+                                  : 'Hold: '),
+                              Center(
+                                child: Switch(
+                                  value: taskController.isHeld.value,
+                                  onChanged: (value) =>
+                                      taskController.isHeld.value = value,
+                                  activeTrackColor: Colors.lightGreenAccent,
+                                  activeColor: Colors.green,
+                                ),
+                              ),
+                              if (taskController.isHeld.value)
+                                Expanded(
+                                  child: CustomTextFormField(
+                                    width: 200,
+                                    controller:
+                                        taskController.holdReasonController,
+                                    labelText: 'Hold Reason',
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      )
                     ],
                   ),
                 ),
                 SizedBox(height: 10),
-                Container(
-                  child: Row(
-                    children: <Widget>[
-                      if (id != null && !newRev)
-                        ElevatedButton.icon(
-                          onPressed: () => taskController.onDeletePressed(id!),
-                          icon: Icon(Icons.delete),
-                          label: const Text('Delete'),
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.red,
-                            ),
+                Row(
+                  children: <Widget>[
+                    if (id != null && !newRev)
+                      ElevatedButton.icon(
+                        onPressed: () => taskController.onDeletePressed(id!),
+                        icon: Icon(Icons.delete),
+                        label: const Text('Delete'),
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                            Colors.red,
                           ),
                         ),
-                      const Spacer(),
-                      ElevatedButton(
-                        onPressed: () => Get.back(),
-                        child: const Text('Cancel'),
                       ),
-                      SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: () => newRev
-                            ? taskController
-                                .onAddNextRevisionPressed(drawingModel.id)
-                            : taskController.onUpdatePressed(id: id!),
-                        child: Text(newRev ? 'Add' : 'Update'),
-                      ),
-                    ],
-                  ),
-                )
+                    const Spacer(),
+                    ElevatedButton(
+                      onPressed: () => Get.back(),
+                      child: const Text('Cancel'),
+                    ),
+                    SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: () => newRev
+                          ? taskController
+                              .onAddNextRevisionPressed(drawingModel.id)
+                          : taskController.onUpdatePressed(id: id!),
+                      child: Text(newRev ? 'Add' : 'Update'),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

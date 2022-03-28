@@ -16,8 +16,11 @@ class TaskController extends GetxService {
   final _repository = Get.find<TaskRepository>();
   static TaskController instance = Get.find();
 
-  late TextEditingController nextRevisionMarkController, taskNoteController;
+  late TextEditingController nextRevisionMarkController,
+      taskNoteController,
+      holdReasonController;
   late List<String> referenceDocumentsList;
+  final RxBool isHeld = false.obs;
 
   RxList<TaskModel> _documents = RxList<TaskModel>([]);
   List<TaskModel?> get documents =>
@@ -29,6 +32,7 @@ class TaskController extends GetxService {
     super.onInit();
     nextRevisionMarkController = TextEditingController();
     taskNoteController = TextEditingController();
+    holdReasonController = TextEditingController();
     referenceDocumentsList = [];
 
     _documents.bindStream(_repository.getAllDocumentsAsStream());
@@ -75,14 +79,18 @@ class TaskController extends GetxService {
   void clearEditingControllers() {
     nextRevisionMarkController.clear();
     taskNoteController.clear();
+    holdReasonController.clear();
+    isHeld.value = false;
     referenceDocumentsList = [];
   }
 
   void fillEditingControllers(String id) {
     TaskModel taskModel = documents.singleWhere((e) => e!.id == id)!;
     nextRevisionMarkController.text = taskModel.revisionMark;
-    taskNoteController.text = taskModel.note;
+    taskNoteController.text = taskModel.note ?? '';
+    holdReasonController.text = taskModel.holdReason ?? '';
     referenceDocumentsList = taskModel.referenceDocuments;
+    isHeld.value = taskModel.isHeld;
   }
 
   buildAddEdit({String? id, bool newRev = false, bool fromStages = false}) {
@@ -151,7 +159,7 @@ class TaskController extends GetxService {
           'revisionType': revisionTypeProvider(task),
           'percentage': 0,
           'revisionStatus': revisionStatusProvider(task),
-          'hold': task.isHold ? 'Hold' : 'Live',
+          'hold': task.isHeld ? 'Hold' : 'Live',
           'holdReason': task.holdReason,
           'level': drawing.level,
           'structureType': drawing.structureType,
@@ -163,7 +171,25 @@ class TaskController extends GetxService {
     ).toList();
   }
 
+  String taskStatusProvider(TaskModel task) {
+    if (task.id == null) return '';
+    List<Map<StageModel, List<ValueModel?>>> valueModelsOfTask =
+        stageController.valueModelsByTaskId(task.id!);
+    List<StageModel> stageModelsOnLastIndex =
+        valueModelsOfTask.last.keys.toList();
+    stageModelsOnLastIndex.sort(
+      (a, b) => a.creationDateTime.compareTo(b.creationDateTime),
+    );
+    final String stageName =
+        stageDetailsList[stageModelsOnLastIndex.last.index]['name'];
+    return valueModelsOfTask.last[stageModelsOnLastIndex.last]!.isEmpty
+        ? 'Awaits $stageName'
+        : stageName;
+  }
+
   String revisionTypeProvider(TaskModel task) {
+    if (task.id == null) return '';
+
     documents.sort((a, b) => a!.taskCreateDate!.compareTo(b!.taskCreateDate!));
     int indexOfTask = documents
         .where((e) => e!.parentId == task.parentId)
@@ -177,6 +203,8 @@ class TaskController extends GetxService {
   }
 
   String revisionStatusProvider(TaskModel task) {
+    if (task.id == null) return '';
+
     documents.sort((a, b) => a!.taskCreateDate!.compareTo(b!.taskCreateDate!));
     bool isTaskLast =
         documents.lastWhere((e) => e!.parentId == task.parentId) == task;
@@ -209,6 +237,8 @@ class TaskController extends GetxService {
       referenceDocuments: referenceDocumentsList,
       revisionMark: nextRevisionMarkController.text,
       note: taskNoteController.text,
+      isHeld: isHeld.value,
+      holdReason: holdReasonController.text,
       changeNumber: lastChangeNumber + 1,
     );
 
@@ -252,6 +282,9 @@ class TaskController extends GetxService {
         'revisionMark': nextRevisionMarkController.text,
       if (taskNoteController.text != taskModel.note)
         'note': taskNoteController.text,
+      if (isHeld.value != taskModel.isHeld) 'isHeld': isHeld.value,
+      if (holdReasonController.text != taskModel.holdReason)
+        'holdReason': holdReasonController.text,
       if (referenceDocumentsList != taskModel.referenceDocuments)
         'referenceDocuments': referenceDocumentsList,
     };
@@ -284,7 +317,7 @@ class TaskController extends GetxService {
       orElse: null,
     );
 
-    if (lastStageModelOfTask == null || lastStageModelOfTask.index != 9)
+    if (lastStageModelOfTask == null || lastStageModelOfTask.index != 3)
       return false;
 
     ValueModel? issuingValueModel = valueController.documents.lastWhere(
@@ -295,20 +328,5 @@ class TaskController extends GetxService {
     if (issuingValueModel == null) return false;
 
     return issuingValueModel.submitDateTime != null;
-  }
-
-  String taskStatusProvider(TaskModel task) {
-    List<Map<StageModel, List<ValueModel?>>> valueModelsOfTask =
-        stageController.valueModelsByTaskId(task.id!);
-    List<StageModel> stageModelsOnLastIndex =
-        valueModelsOfTask.last.keys.toList();
-    stageModelsOnLastIndex.sort(
-      (a, b) => a.creationDateTime.compareTo(b.creationDateTime),
-    );
-    final String stageName =
-        stageDetailsList[stageModelsOnLastIndex.last.index]['name'];
-    return valueModelsOfTask.last[stageModelsOnLastIndex.last]!.isEmpty
-        ? 'Awaits $stageName'
-        : stageName;
   }
 }

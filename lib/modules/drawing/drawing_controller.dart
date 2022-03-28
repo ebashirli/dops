@@ -16,8 +16,7 @@ class DrawingController extends GetxService {
   late TextEditingController drawingNumberController,
       nextRevisionMarkController,
       drawingTitleController,
-      drawingNoteController,
-      taskNoteController;
+      drawingNoteController;
 
   late List<String> areaList;
   late List<String> drawingTagList;
@@ -39,7 +38,6 @@ class DrawingController extends GetxService {
     nextRevisionMarkController = TextEditingController();
     drawingTitleController = TextEditingController();
     drawingNoteController = TextEditingController();
-    taskNoteController = TextEditingController();
 
     areaList = [];
     drawingTagList = [];
@@ -138,7 +136,6 @@ class DrawingController extends GetxService {
 
     if (taskModel != null) {
       nextRevisionMarkController.text = taskModel.revisionMark;
-      taskNoteController.text = taskModel.note;
       referenceDocumentsList = taskModel.referenceDocuments;
     }
   }

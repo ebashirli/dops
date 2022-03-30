@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
-import 'package:dops/modules/reference_document/add_update_form_widget.dart';
+import 'package:dops/modules/reference_document/ref_doc_add_update_form_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -129,7 +129,7 @@ class ReferenceDocumentController extends GetxService {
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
       title:
           id == null ? 'Add Reference Document' : 'Update Reference Document',
-      content: AddUpdateFormWidget(id: id),
+      content: RefDocAddUpdateFormWidget(id: id),
     );
   }
 

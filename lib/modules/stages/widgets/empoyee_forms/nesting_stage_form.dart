@@ -5,13 +5,13 @@ import 'package:get/get.dart';
 
 class NestingStageForm extends StatelessWidget {
   NestingStageForm({Key? key}) : super(key: key);
-  final RxList nestingGroupNumbersList = RxList([1, 2, 3, 4, 5]);
+  final RxList issueGroupNumbersList = RxList([1, 2, 3, 4, 5]);
   late final RxList filteredList;
   final TextEditingController textEditingController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    filteredList = nestingGroupNumbersList;
+    filteredList = issueGroupNumbersList;
 
     return Form(
       child: Row(

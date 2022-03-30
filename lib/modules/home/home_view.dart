@@ -48,6 +48,11 @@ class HomeView extends GetView<HomeController> {
         _controller = taskController;
         tableName = 'task';
         break;
+
+      case HomeStates.IssueState:
+        _controller = issueController;
+        tableName = 'issue';
+        break;
     }
     return TableView(
       controller: _controller,
@@ -155,6 +160,15 @@ class HomeView extends GetView<HomeController> {
               Get.back();
             },
           ),
+          SizedBox(height: 10),
+          TextButton.icon(
+            icon: Icon(Icons.print),
+            label: const Text('Issues'),
+            onPressed: () {
+              controller.homeStates = HomeStates.IssueState;
+              Get.back();
+            },
+          ),
         ],
       ),
     );
@@ -172,6 +186,8 @@ class HomeView extends GetView<HomeController> {
         return isForTitle ? 'Staff' : 'employee';
       case HomeStates.TaskState:
         return isForTitle ? 'Drawings' : 'drawing';
+      case HomeStates.IssueState:
+        return isForTitle ? 'Issue' : 'issue';
     }
   }
 
@@ -187,6 +203,8 @@ class HomeView extends GetView<HomeController> {
         return drawingController.buildAddEdit();
       case HomeStates.DropdownSourceListState:
         return listsController.buildAddEdit();
+      case HomeStates.IssueState:
+        return issueController.buildAddEdit();
     }
   }
 }

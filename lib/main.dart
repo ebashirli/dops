@@ -3,6 +3,8 @@ import 'package:dops/core/auth_manager.dart';
 import 'package:dops/core/cache_manager.dart';
 import 'package:dops/modules/activity/activity_controller.dart';
 import 'package:dops/modules/activity/activity_repository.dart';
+import 'package:dops/modules/issue/issue_controller.dart';
+import 'package:dops/modules/issue/issue_repository.dart';
 import 'package:dops/modules/reference_document/reference_document_controller.dart';
 import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/drawing/drawing_repository.dart';
@@ -67,36 +69,49 @@ class MyCustomScrollBehavior extends MaterialScrollBehavior {
 @override
 Future<void> initServices() async {
   await Get.putAsync<StorageService>(
-      () async => await FirebaseStorageService('activities'),
-      tag: 'activities');
+    () async => await FirebaseStorageService('activities'),
+    tag: 'activities',
+  );
 
   await Get.putAsync<StorageService>(
-      () async => await FirebaseStorageService('reference_documents'),
-      tag: 'reference_documents');
+    () async => await FirebaseStorageService('reference_documents'),
+    tag: 'reference_documents',
+  );
 
   await Get.putAsync<StorageService>(
-      () async => await FirebaseStorageService('staff'),
-      tag: 'staff');
+    () async => await FirebaseStorageService('staff'),
+    tag: 'staff',
+  );
 
   await Get.putAsync<StorageService>(
-      () async => await FirebaseStorageService('tasks'),
-      tag: 'tasks');
+    () async => await FirebaseStorageService('tasks'),
+    tag: 'tasks',
+  );
 
   await Get.putAsync<StorageService>(
-      () async => await FirebaseStorageService('drawings'),
-      tag: 'drawings');
+    () async => await FirebaseStorageService('drawings'),
+    tag: 'drawings',
+  );
 
   await Get.putAsync<StorageService>(
-      () async => await FirebaseStorageService('lists'),
-      tag: 'lists');
+    () async => await FirebaseStorageService('lists'),
+    tag: 'lists',
+  );
 
   await Get.putAsync<StorageService>(
-      () async => await FirebaseStorageService('stages'),
-      tag: 'stages');
+    () async => await FirebaseStorageService('stages'),
+    tag: 'stages',
+  );
 
   await Get.putAsync<StorageService>(
-      () async => await FirebaseStorageService('values'),
-      tag: 'values');
+    () async => await FirebaseStorageService('values'),
+    tag: 'values',
+  );
+
+  await Get.putAsync<StorageService>(
+    () async => await FirebaseStorageService('issue'),
+    tag: 'issue',
+  );
 
   // Get.putAsync repositories
 
@@ -117,6 +132,8 @@ Future<void> initServices() async {
   await Get.putAsync<ListsRepository>(() async => await ListsRepository());
 
   await Get.putAsync<ValueRepository>(() async => await ValueRepository());
+
+  await Get.putAsync<IssueRepository>(() async => await IssueRepository());
 
   // Get.putAsync controllers
 
@@ -139,6 +156,8 @@ Future<void> initServices() async {
   await Get.putAsync<StageController>(() async => await StageController());
 
   await Get.putAsync<ValueController>(() async => await ValueController());
+
+  await Get.putAsync<IssueController>(() async => await IssueController());
 
   await Get.putAsync<CacheManager>(() async => await CacheManager());
 }

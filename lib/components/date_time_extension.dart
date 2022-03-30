@@ -24,4 +24,6 @@ extension DateTimeExtension on DateTime {
   }
 
   String toDayMonthYear() => '$day/$month/$year';
+  String toDMYhm() =>
+      '$day/$month/$year ${hour.toString().length == 1 ? "0" : ""}$hour:${minute.toString().length == 1 ? "0" : ""}$minute';
 }

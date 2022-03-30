@@ -286,21 +286,20 @@ class ActivityController extends GetxService {
     return documents.map((activity) {
       String assignedTasks = '';
 
-      List<String?> drawingIdsWithtThisActivity = drawingController.documents
+      List<String?> drawingIdsOfActivity = drawingController.documents
           .where((drawing) =>
               drawing.isHidden == false &&
               drawing.activityCodeId == activity.id)
-          .toList()
           .map((drawing) => drawing.id)
           .toList();
 
-      List<TaskModel?> tasksWithDrawings = taskController.documents
+      List<TaskModel?> taskIdsOfDrawings = taskController.documents
           .where((task) => task != null
-              ? drawingIdsWithtThisActivity.contains(task.parentId)
+              ? drawingIdsOfActivity.contains(task.parentId)
               : false)
           .toList();
 
-      tasksWithDrawings.forEach((task) {
+      taskIdsOfDrawings.forEach((task) {
         if (task != null) {
           final String drawingNumber = drawingController.documents
               .where((drawing) => drawing.id == task.parentId)

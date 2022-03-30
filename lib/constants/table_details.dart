@@ -71,6 +71,15 @@ Map<String, List<String>> tableColNames = {
     'Change Number',
     'Task Create Date',
   ],
+  'issue': [
+    'id',
+    'Group Number',
+    'Create Date',
+    'Linked Tasks',
+    'Files',
+    'Notes',
+    // 'Submit',
+  ],
 };
 
 List<String> mapPropNamesGetter(String tableName) {

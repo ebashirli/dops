@@ -105,9 +105,9 @@ List<Map<String, dynamic>> stageDetailsList = [
   },
   // 8
   {
-    'name': 'Nesting',
+    'name': 'Issue',
     'get files': 'Original Files',
-    'staff job': 'Nesting Draftsman',
+    'staff job': 'Issue Draftsman',
     'form fields': <String>[],
   },
   // 9

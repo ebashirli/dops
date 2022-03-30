@@ -4,6 +4,7 @@ enum HomeStates {
   DropdownSourceListState,
   StaffState,
   TaskState,
+  IssueState,
 }
 enum States { Loading, Completed, Error }
-enum UserRole{User, Coordinator, Admin}
+enum UserRole { User, Coordinator, Admin }

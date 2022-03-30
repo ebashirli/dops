@@ -84,7 +84,7 @@ class FilingStageForm extends StatelessWidget {
                     Column(
                       children: [
                         TextButton(
-                          onPressed: () => print(fileNamesList[ind]),
+                          onPressed: () => filesDialog(fileNamesList[ind]),
                           child:
                               Obx(() => Text('${fileNamesList[ind].length}')),
                         ),

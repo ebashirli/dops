@@ -55,10 +55,15 @@ class CustomListItems extends StatelessWidget {
             lst![0] == 'No Data'
                 ? Expanded(
                     child: Center(
-                        child: const Text(
-                    'No Data',
-                    style: TextStyle(color: Colors.red, fontSize: 24),
-                  )))
+                      child: const Text(
+                        'No Data',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 24,
+                        ),
+                      ),
+                    ),
+                  )
                 : Expanded(
                     child: ListView.builder(
                       shrinkWrap: true,
@@ -83,10 +88,9 @@ class CustomListItems extends StatelessWidget {
                                     height: 20,
                                     child: GestureDetector(
                                       onTap: () {
-                                        listsController.map =
-                                            listsController
-                                                .document.value
-                                                .toMap();
+                                        listsController.map = listsController
+                                            .document.value
+                                            .toMap();
                                         listsController.map[
                                                 ReCase(lstName!).camelCase] =
                                             listsController

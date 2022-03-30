@@ -40,7 +40,7 @@ class TaskController extends GetxService {
 
   Future<String> addNew({required TaskModel model}) async {
     CustomFullScreenDialog.showDialog();
-    model.taskCreateDate = DateTime.now();
+    model.creationDate = DateTime.now();
     await _repository.add(model).then((value) => model.id = value);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
@@ -90,7 +90,7 @@ class TaskController extends GetxService {
     taskNoteController.text = taskModel.note ?? '';
     holdReasonController.text = taskModel.holdReason ?? '';
     referenceDocumentsList = taskModel.referenceDocuments;
-    isHeld.value = taskModel.isHeld;
+    isHeld.value = taskModel.holdReason != null;
   }
 
   buildAddEdit({String? id, bool newRev = false, bool fromStages = false}) {
@@ -139,10 +139,10 @@ class TaskController extends GetxService {
         );
 
         if (documents.isNotEmpty) {
-          List<TaskModel?> drawingTasks =
+          List<TaskModel?> tasksOfDrawing =
               documents.where((e) => e!.parentId == drawing.id).toList();
 
-          if (drawingTasks.isNotEmpty) task = drawingTasks.first!;
+          if (tasksOfDrawing.isNotEmpty) task = tasksOfDrawing.first!;
         }
 
         return {
@@ -156,27 +156,45 @@ class TaskController extends GetxService {
           'taskStatus': taskStatusProvider(task),
           'drawingTag': drawing.drawingTag,
           'module': drawing.module,
-          'revisionType': revisionTypeProvider(task),
+          'revisionType': getRevTypeAndStatus(task),
           'percentage': 0,
-          'revisionStatus': revisionStatusProvider(task),
-          'hold': task.isHeld
-              ? 'Hold'
-              : task.id != null
-                  ? 'Live'
-                  : '',
-          'holdReason': task.holdReason,
+          'revisionStatus': getRevTypeAndStatus(task, isStatus: true),
+          'hold': getActivityStatus(task),
+          'holdReason': getHoldReason(task),
           'level': drawing.level,
           'structureType': drawing.structureType,
           'referenceDocuments': getReferenceDocuments(task),
           'changeNumber': task.changeNumber == 0 ? '' : task.changeNumber,
-          'taskCreateDate': task.taskCreateDate ?? '',
+          'taskCreateDate': task.creationDate ?? '',
         };
       },
     ).toList();
   }
 
+  String? getHoldReason(TaskModel task) => task.holdReason != null
+      ? task.holdReason
+      : stageController.containsHold(task)
+          ? stageController
+              .valueModelsByTaskId(task.id!)[7]
+              .values
+              .first
+              .first!
+              .holdContainingReason
+          : '';
+
+  String getActivityStatus(TaskModel task) {
+    return task.holdReason != null
+        ? 'Hold'
+        : task.id == null
+            ? ''
+            : stageController.containsHold(task)
+                ? 'Contains Hold'
+                : 'Live';
+  }
+
   String taskStatusProvider(TaskModel task) {
     if (task.id == null) return '';
+
     List<Map<StageModel, List<ValueModel?>>> valueModelsOfTask =
         stageController.valueModelsByTaskId(task.id!);
     List<StageModel> stageModelsOnLastIndex =
@@ -191,28 +209,23 @@ class TaskController extends GetxService {
         : stageName;
   }
 
-  String revisionTypeProvider(TaskModel task) {
-    if (task.id == null) return '';
-
-    documents.sort((a, b) => a!.taskCreateDate!.compareTo(b!.taskCreateDate!));
-    int indexOfTask = documents
+  String getRevTypeAndStatus(TaskModel task, {bool isStatus = false}) {
+    List<TaskModel?> siblingTasks = documents
         .where((e) => e!.parentId == task.parentId)
         .toList()
-        .indexOf(task);
-    return indexOfTask == -1
-        ? ""
-        : indexOfTask == 0
-            ? 'First issue'
-            : 'Revision';
-  }
+      ..sort((a, b) => a!.creationDate!.compareTo(b!.creationDate!));
 
-  String revisionStatusProvider(TaskModel task) {
-    if (task.id == null) return '';
-
-    documents.sort((a, b) => a!.taskCreateDate!.compareTo(b!.taskCreateDate!));
-    bool isTaskLast =
-        documents.lastWhere((e) => e!.parentId == task.parentId) == task;
-    return isTaskLast ? 'Current' : 'Superseded';
+    bool isTaskEqual =
+        (!isStatus ? siblingTasks.first! : siblingTasks.last!) == task;
+    return task.id == null
+        ? ''
+        : isTaskEqual
+            ? isStatus
+                ? 'Current'
+                : 'First issue'
+            : isStatus
+                ? 'Superseded'
+                : 'Revision';
   }
 
   String getDrawingNumber(DrawingModel drawing, TaskModel task) =>
@@ -241,8 +254,6 @@ class TaskController extends GetxService {
       referenceDocuments: referenceDocumentsList,
       revisionMark: nextRevisionMarkController.text,
       note: taskNoteController.text,
-      isHeld: isHeld.value,
-      holdReason: holdReasonController.text,
       changeNumber: lastChangeNumber + 1,
     );
 
@@ -286,9 +297,8 @@ class TaskController extends GetxService {
         'revisionMark': nextRevisionMarkController.text,
       if (taskNoteController.text != taskModel.note)
         'note': taskNoteController.text,
-      if (isHeld.value != taskModel.isHeld) 'isHeld': isHeld.value,
-      if (holdReasonController.text != taskModel.holdReason)
-        'holdReason': holdReasonController.text,
+      if (holdReasonController.text != taskModel.holdReason || !isHeld.value)
+        'holdReason': isHeld.value ? holdReasonController.text : null,
       if (referenceDocumentsList != taskModel.referenceDocuments)
         'referenceDocuments': referenceDocumentsList,
     };

@@ -46,9 +46,9 @@ class TableView extends StatelessWidget {
           ),
         );
 
-  bool get isDocumentsEmpty => (tableName != 'task'
+  bool get isDocumentsEmpty => tableName != 'task'
       ? controller.documents.isEmpty
-      : drawingController.documents.isEmpty);
+      : drawingController.documents.isEmpty;
 
   Widget? baseFab() {
     return !staffController.isCoordinator
@@ -211,23 +211,37 @@ class DataSource extends DataGridSource {
               alignment: Alignment.center,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: (cell.columnName == 'assignedTasks' ||
-                        cell.columnName == 'drawingNumber')
-                    ? cell.columnName == 'drawingNumber'
-                        ? taskId != 'null'
-                            ? TextButton(
-                                onPressed: () => onPressed(taskId!),
-                                child: textDrawingNumber,
+                child: cell.columnName == 'files'
+                    ? TextButton(
+                        onPressed: cell.value.isNotEmpty
+                            ? () => filesDialog(cell.value)
+                            : null,
+                        child: Text(cell.value.length.toString()),
+                      )
+                    : (cell.columnName == 'assignedTasks' ||
+                            cell.columnName == 'drawingNumber')
+                        ? cell.columnName == 'drawingNumber'
+                            ? taskId != 'null'
+                                ? TextButton(
+                                    onPressed: () => onPressed(taskId!),
+                                    child: textDrawingNumber,
+                                  )
+                                : textDrawingNumber
+                            : TextButton(
+                                onPressed: '|'.allMatches(cell.value).isNotEmpty
+                                    ? () =>
+                                        taskNumberDialog(cell.value, onPressed)
+                                    : null,
+                                child: Text('|'
+                                    .allMatches(cell.value)
+                                    .length
+                                    .toString()),
                               )
-                            : textDrawingNumber
-                        : TextButton(
-                            onPressed: () => taskNumberDialog(cell, onPressed),
-                            child: Text(
-                                '|'.allMatches(cell.value).length.toString()),
-                          )
-                    : Text(cell.value is DateTime
-                        ? '${cell.value.day}/${cell.value.month}/${cell.value.year}'
-                        : cell.value.toString()),
+                        : Text(
+                            cell.value is DateTime
+                                ? '${cell.value.day}/${cell.value.month}/${cell.value.year}'
+                                : cell.value.toString(),
+                          ),
               ),
             );
           } else {
@@ -238,20 +252,23 @@ class DataSource extends DataGridSource {
     );
   }
 
-  void taskNumberDialog(DataGridCell<dynamic> cell, void onPressed(String id)) {
-    Get.defaultDialog(
-      content: Column(
-        children: cell.value
-            .split('|')
-            .sublist(1)
-            .map<Widget>(
-              (taskNoId) => TextButton(
-                onPressed: () => onPressed(taskNoId.split(';')[1]),
-                child: Text(taskNoId.split(';')[0]),
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
+  void taskNumberDialog(
+    String cellValue,
+    void onPressed(String id),
+  ) =>
+      Get.defaultDialog(
+        title: 'Assigned Tasks',
+        content: Column(
+          children: cellValue.split('|').sublist(1).map<Widget>(
+            (taskNoId) {
+              String taskId = taskNoId.split(';')[1];
+              return TextButton(
+                onPressed: () => onPressed(taskId),
+                child: Text(
+                    '${taskNoId.split(';')[0]}-${taskController.documents.singleWhere((e) => e!.id == taskId)!.revisionMark}'),
+              );
+            },
+          ).toList(),
+        ),
+      );
 }

@@ -120,7 +120,7 @@ class StageController extends GetxService {
 
   final RxBool commentCheckbox = false.obs;
 
-  final RxInt nestingGroup = 0.obs;
+  final RxInt issueGroup = 0.obs;
 
   @override
   void onInit() {
@@ -264,6 +264,17 @@ class StageController extends GetxService {
     assigningStaffModels.value = [];
   }
 
+  bool containsHold(TaskModel taskModel) {
+    return valueModelsByTaskId(taskModel.id!).length < 7
+        ? false
+        : valueModelsByTaskId(taskModel.id!)[7]
+                .values
+                .first
+                .first!
+                .holdContainingReason !=
+            null;
+  }
+
   void onSubmitPressed() async {
     Map<String, dynamic> map = {};
 
@@ -275,11 +286,6 @@ class StageController extends GetxService {
     map['note'] = textEditingControllers.last.text;
     map['fileNames'] = fileNames;
     map['submitDateTime'] = DateTime.now();
-
-    valueController.addValues(
-      map: map,
-      id: valueModelAssignedCurrentUser!.id!,
-    );
 
     if (isLastSubmit) {
       bool anyComment = await valueController.documents.any((valueModel) =>

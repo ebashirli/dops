@@ -58,7 +58,8 @@ class _SplashScreenState extends State<SplashScreen> {
             Container(
               width: 200,
               height: 200,
-              child: Image.asset('images/azfen_logo.png'),
+              child: CircularProgressIndicator(),
+              // child: Image.asset('images/azfen_logo.png'),
             ),
             const Text(
               'AZFEN J.V',

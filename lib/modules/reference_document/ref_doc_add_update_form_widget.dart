@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
-class AddUpdateFormWidget extends StatelessWidget {
-  const AddUpdateFormWidget({Key? key, this.id}) : super(key: key);
+class RefDocAddUpdateFormWidget extends StatelessWidget {
+  const RefDocAddUpdateFormWidget({Key? key, this.id}) : super(key: key);
   final String? id;
 
   @override

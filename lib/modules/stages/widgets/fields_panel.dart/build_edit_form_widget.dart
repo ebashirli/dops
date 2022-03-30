@@ -78,23 +78,21 @@ class BuildEditFormWidget extends StatelessWidget {
   List<Widget> stageIndicators() {
     return List.generate(
       10,
-      (index) => stageController.maxIndex == null
-          ? CircularProgressIndicator()
-          : Row(
-              children: [
-                Container(
-                  height: 20,
-                  width: (Get.width - 280) / 10,
-                  color: index < stageController.maxIndex
-                      ? index == stageController.lastIndex
-                          ? Colors.green
-                          : Colors.yellow
-                      : Colors.grey,
-                  child: Center(child: Text('${index + 1}')),
-                ),
-                Container(width: 2),
-              ],
-            ),
+      (index) => Row(
+        children: [
+          Container(
+            height: 20,
+            width: (Get.width - 280) / 10,
+            color: index < stageController.maxIndex
+                ? index == stageController.lastIndex
+                    ? Colors.green
+                    : Colors.yellow
+                : Colors.grey,
+            child: Center(child: Text('${index + 1}')),
+          ),
+          Container(width: 2),
+        ],
+      ),
     );
   }
 }

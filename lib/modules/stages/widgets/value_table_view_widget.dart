@@ -166,11 +166,7 @@ class DataSource extends DataGridSource {
             (entry) {
               return DataGridCell<dynamic>(
                 columnName: entry.key,
-                value: entry.key == 'File Names'
-                    ? entry.value != null
-                        ? entry.value.length
-                        : 0
-                    : entry.value,
+                value: entry.value,
               );
             },
           ).toList(),
@@ -232,9 +228,10 @@ class DataSource extends DataGridSource {
             return Center(
               child: fileNames != null
                   ? TextButton(
-                      onPressed: () =>
-                          stageController.onFileCountButtonPressed(fileNames),
-                      child: Text(cell.value.toString()),
+                      onPressed: cell.value.isNotEmpty
+                          ? () => filesDialog(cell.value)
+                          : null,
+                      child: Text(cell.value.length.toString()),
                     )
                   : SizedBox(),
             );

@@ -1,9 +1,9 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
-import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:dops/modules/values/value_model.dart';
 import 'package:flutter/material.dart';
+import 'package:dops/components/date_time_extension.dart';
 import 'package:get/get.dart';
 
 class TaskUpdateFormWidget extends StatelessWidget {
@@ -16,14 +16,7 @@ class TaskUpdateFormWidget extends StatelessWidget {
     final double totalWidth = Get.width - 120;
     final bool enabled = false;
     taskController.documents
-        .sort((a, b) => a!.taskCreateDate!.compareTo(b!.taskCreateDate!));
-    final List<TaskModel?> taskModelsOfDrawing = taskController.documents
-        .where((e) => e!.parentId == taskModel.parentId)
-        .toList();
-    final bool isTaskModelFirst = taskModelsOfDrawing.first == taskModel;
-    final bool isTaskModelLast = taskModelsOfDrawing.last == taskModel;
-    final int indexOfThisTaskModel =
-        taskController.documents.indexOf(taskModel);
+        .sort((a, b) => a!.creationDate!.compareTo(b!.creationDate!));
 
     return Column(
       children: <Widget>[
@@ -40,28 +33,31 @@ class TaskUpdateFormWidget extends StatelessWidget {
               enabled: enabled,
               width: totalWidth * .12,
               readOnly: true,
-              initialValue: isTaskModelFirst ? 'First Issue' : 'Revision',
+              initialValue: taskController.getRevTypeAndStatus(taskModel),
               labelText: 'Revision Type',
             ),
             CustomTextFormField(
               enabled: enabled,
               width: totalWidth * .12,
               readOnly: true,
-              initialValue: isTaskModelLast ? 'Current' : 'Superseded',
+              initialValue: taskController.getRevTypeAndStatus(
+                taskModel,
+                isStatus: true,
+              ),
               labelText: 'Revision Status',
             ),
             CustomTextFormField(
               enabled: enabled,
               width: totalWidth * .12,
               readOnly: true,
-              initialValue: indexOfThisTaskModel.toString(),
+              initialValue: taskModel.changeNumber.toString(),
               labelText: 'ECF Number',
             ),
             CustomTextFormField(
               enabled: enabled,
               width: totalWidth * .12,
               readOnly: true,
-              initialValue: taskModel.taskCreateDate.toString(),
+              initialValue: taskModel.creationDate!.toDMYhm(),
               labelText: 'Task create date',
             ),
             CustomTextFormField(
@@ -81,7 +77,7 @@ class TaskUpdateFormWidget extends StatelessWidget {
             CustomTextFormField(
               enabled: enabled,
               width: totalWidth * .19,
-              initialValue: taskModel.isHeld ? 'Hold' : 'Live',
+              initialValue: taskController.getActivityStatus(taskModel),
               labelText: 'Activity Status',
             ),
           ],
@@ -136,6 +132,6 @@ class TaskUpdateFormWidget extends StatelessWidget {
     return '${<DateTime>[
       stageController.lastTaskStage.creationDateTime,
       assignedDateTime
-    ].reduce((a, b) => a.isAfter(b) ? a : b)}';
+    ].reduce((a, b) => a.isAfter(b) ? a : b).toDMYhm()}';
   }
 }

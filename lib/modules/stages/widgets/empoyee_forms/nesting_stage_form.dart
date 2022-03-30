@@ -35,7 +35,7 @@ class NestingStageForm extends StatelessWidget {
               SizedBox(width: 20),
               ElevatedButton(
                 onPressed: () {},
-                child: Text('Submit'),
+                child: Text('Add to Group'),
               ),
             ],
           )

@@ -40,7 +40,7 @@ class TaskForm extends StatelessWidget {
         : !stageController
             .valueModelsByTaskId(taskModel.id!)
             .map(
-              (e) => e.values
+              (e) => e!.values
                   .map(
                       (e1) => e1.map((e2) => e2!.submitDateTime).contains(null))
                   .contains(true),
@@ -162,7 +162,7 @@ class TaskForm extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () => newRev
                           ? taskController
-                              .onAddNextRevisionPressed(drawingModel.id)
+                              .onAddNextRevisionPressed(drawingModel.id!)
                           : taskController.onUpdatePressed(id: id!),
                       child: Text(newRev ? 'Add' : 'Update'),
                     ),

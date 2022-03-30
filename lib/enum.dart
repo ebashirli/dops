@@ -1,7 +1,7 @@
 enum HomeStates {
   ActivityState,
   ReferenceDocumentState,
-  DropdownSourceListState,
+  ListState,
   StaffState,
   TaskState,
   IssueState,

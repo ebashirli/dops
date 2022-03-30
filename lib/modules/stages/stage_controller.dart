@@ -52,17 +52,18 @@ class StageController extends GetxService {
 
   RxList<StaffModel?> assigningStaffModels = RxList([]);
   List<StaffModel?> get assignedStaffModels =>
-      valueModelsOfCurrentTask[lastIndex]
+      valueModelsOfCurrentTask[lastIndex]!
           .values
           .last
           .map((e) => staffController.documents
               .singleWhere((element) => element.id == e?.employeeId))
           .toList();
 
-  List<Map<StageModel, List<ValueModel?>>> get valueModelsOfCurrentTask =>
+  List<Map<StageModel, List<ValueModel?>>?> get valueModelsOfCurrentTask =>
       valueModelsByTaskId(currentTask.id!);
 
-  List<Map<StageModel, List<ValueModel?>>> valueModelsByTaskId(String taskId) {
+  List<Map<StageModel, List<ValueModel?>>?> valueModelsByTaskId(String taskId) {
+    if (documents.isEmpty) return [];
     List<StageModel?> stagesOfTask =
         documents.where((e) => e!.taskId == taskId).toList();
 
@@ -83,7 +84,7 @@ class StageController extends GetxService {
   }
 
   bool get coordinatorAssigns =>
-      valueModelsOfCurrentTask[lastIndex].values.last.isEmpty;
+      valueModelsOfCurrentTask[lastIndex]!.values.last.isEmpty;
 
   bool get isLastSubmit =>
       lastTaskStageValues.where((element) {
@@ -91,10 +92,11 @@ class StageController extends GetxService {
       }).length ==
       1;
 
-  StageModel get lastTaskStage => valueModelsOfCurrentTask[lastIndex].keys.last;
+  StageModel get lastTaskStage =>
+      valueModelsOfCurrentTask[lastIndex]!.keys.last;
 
   List<ValueModel?> get lastTaskStageValues =>
-      valueModelsOfCurrentTask[lastIndex].values.last;
+      valueModelsOfCurrentTask[lastIndex]!.values.last;
 
   ValueModel? get valueModelAssignedCurrentUser {
     List<ValueModel?> valueModelList = lastTaskStageValues
@@ -158,8 +160,8 @@ class StageController extends GetxService {
           CoordinatorForm(index: index, visible: lastIndex == index);
       final Widget valueTableView = ValueTableView(
         index: index,
-        stageValueModelsList: valueModelsOfCurrentTask[index]
-            [valueModelsOfCurrentTask[index].keys.last],
+        stageValueModelsList: valueModelsOfCurrentTask[index]![
+            valueModelsOfCurrentTask[index]!.keys.last],
       );
       final String headerValue =
           '${index + 1} | ${stageDetailsList[index]['name']}';
@@ -192,7 +194,7 @@ class StageController extends GetxService {
     ];
 
     List<ValueModel?> valueModelList =
-        valueModelsOfCurrentTask[index].values.last;
+        valueModelsOfCurrentTask[index]!.values.last;
 
     List<String> specialFieldNames = stageDetailsList[index]['columns']
       ..remove('File Names');
@@ -265,9 +267,9 @@ class StageController extends GetxService {
   }
 
   bool containsHold(TaskModel taskModel) {
-    return valueModelsByTaskId(taskModel.id!).length < 7
+    return taskModel.id == null || valueModelsByTaskId(taskModel.id!).length < 7
         ? false
-        : valueModelsByTaskId(taskModel.id!)[7]
+        : valueModelsByTaskId(taskModel.id!)[7]!
                 .values
                 .first
                 .first!
@@ -287,6 +289,11 @@ class StageController extends GetxService {
     map['fileNames'] = fileNames;
     map['submitDateTime'] = DateTime.now();
 
+    valueController.addValues(
+      map: map,
+      id: valueModelAssignedCurrentUser!.id!,
+    );
+
     if (isLastSubmit) {
       bool anyComment = await valueController.documents.any((valueModel) =>
               valueModel!.stageId == lastTaskStage.id &&
@@ -296,12 +303,16 @@ class StageController extends GetxService {
       StageModel stage = StageModel(
         taskId: lastTaskStage.taskId,
         index: anyComment ? 4 : lastIndex + 1,
-        checkerCommentCounter: (commentStatus.value && lastIndex == 5)
-            ? lastTaskStage.checkerCommentCounter + 1
-            : 0,
-        reviewerCommentCounter: (commentStatus.value && lastIndex == 6)
-            ? lastTaskStage.reviewerCommentCounter + 1
-            : 0,
+        checkerCommentCounter: lastIndex == 4
+            ? lastTaskStage.checkerCommentCounter
+            : (commentStatus.value && lastIndex == 5)
+                ? lastTaskStage.checkerCommentCounter + 1
+                : 0,
+        reviewerCommentCounter: [4, 5].contains(lastIndex)
+            ? lastTaskStage.reviewerCommentCounter
+            : (commentStatus.value && lastIndex == 6)
+                ? lastTaskStage.reviewerCommentCounter + 1
+                : 0,
         creationDateTime: DateTime.now(),
       );
 
@@ -316,12 +327,12 @@ class StageController extends GetxService {
 
       if (lastIndex == 4 ||
           ((lastIndex == 6 || lastIndex == 7) && anyComment)) {
-        final List<String?> designerIds = valueModelsOfCurrentTask[1]
+        final List<String?> designerIds = valueModelsOfCurrentTask[1]!
             .values
             .last
             .map((e) => e!.employeeId)
             .toList();
-        final List<String?> drafterIds = valueModelsOfCurrentTask[2]
+        final List<String?> drafterIds = valueModelsOfCurrentTask[2]!
             .values
             .last
             .map((e) => e!.employeeId)
@@ -333,7 +344,7 @@ class StageController extends GetxService {
           );
         });
       } else if (lastIndex == 5) {
-        final List<String?> checkerIds = valueModelsOfCurrentTask[3]
+        final List<String?> checkerIds = valueModelsOfCurrentTask[3]!
             .values
             .last
             .map((e) => e!.employeeId)
@@ -343,10 +354,10 @@ class StageController extends GetxService {
             model: valueModel..employeeId = checkerId,
           );
         });
-      } else if (lastIndex == 6 && valueModelsOfCurrentTask[6].length > 1) {
-        final List<String?> reviewerIds = valueModelsOfCurrentTask[6]
+      } else if (lastIndex == 6 && valueModelsOfCurrentTask[6]!.length > 1) {
+        final List<String?> reviewerIds = valueModelsOfCurrentTask[6]!
             .values
-            .toList()[valueModelsOfCurrentTask[6].length - 2]
+            .toList()[valueModelsOfCurrentTask[6]!.length - 2]
             .map((e) => e!.employeeId)
             .toList();
         reviewerIds.forEach((reviewerId) {

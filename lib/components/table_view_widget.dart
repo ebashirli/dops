@@ -22,7 +22,7 @@ class TableView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => isDocumentsEmpty
-      ? CircularProgressIndicator()
+      ? CircularProgressIndicator() // TODO: apply timer here after several seconds it indicator turns column heads
       : Obx(
           () => Scaffold(
             floatingActionButton: baseFab(),
@@ -48,7 +48,11 @@ class TableView extends StatelessWidget {
 
   bool get isDocumentsEmpty => tableName != 'task'
       ? controller.documents.isEmpty
-      : drawingController.documents.isEmpty;
+      : drawingController.documents.isEmpty
+          ? true
+          : taskController.documents.isNotEmpty
+              ? stageController.documents.isEmpty
+              : false;
 
   Widget? baseFab() {
     return !staffController.isCoordinator

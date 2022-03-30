@@ -36,7 +36,7 @@ class HomeView extends GetView<HomeController> {
         tableName = 'reference document';
         break;
 
-      case HomeStates.DropdownSourceListState:
+      case HomeStates.ListState:
         return ListsView();
 
       case HomeStates.StaffState:
@@ -129,7 +129,7 @@ class HomeView extends GetView<HomeController> {
             icon: Icon(Icons.local_activity),
             label: const Text('Lists'),
             onPressed: () {
-              controller.homeStates = HomeStates.DropdownSourceListState;
+              controller.homeStates = HomeStates.ListState;
               Get.back();
             },
           ),
@@ -180,7 +180,7 @@ class HomeView extends GetView<HomeController> {
         return isForTitle ? 'Activity Code' : 'activity code';
       case HomeStates.ReferenceDocumentState:
         return isForTitle ? 'Reference Documents' : 'reference document';
-      case HomeStates.DropdownSourceListState:
+      case HomeStates.ListState:
         return isForTitle ? 'Lists' : 'list items';
       case HomeStates.StaffState:
         return isForTitle ? 'Staff' : 'employee';
@@ -201,7 +201,7 @@ class HomeView extends GetView<HomeController> {
         return staffController.buildAddEdit();
       case HomeStates.TaskState:
         return drawingController.buildAddEdit();
-      case HomeStates.DropdownSourceListState:
+      case HomeStates.ListState:
         return listsController.buildAddEdit();
       case HomeStates.IssueState:
         return issueController.buildAddEdit();

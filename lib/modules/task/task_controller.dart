@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/components/select_item_snackbar.dart';
 import 'package:dops/constants/constant.dart';
@@ -175,7 +177,7 @@ class TaskController extends GetxService {
       ? task.holdReason
       : stageController.containsHold(task)
           ? stageController
-              .valueModelsByTaskId(task.id!)[7]
+              .valueModelsByTaskId(task.id!)[7]!
               .values
               .first
               .first!
@@ -195,21 +197,26 @@ class TaskController extends GetxService {
   String taskStatusProvider(TaskModel task) {
     if (task.id == null) return '';
 
-    List<Map<StageModel, List<ValueModel?>>> valueModelsOfTask =
+
+    List<Map<StageModel, List<ValueModel?>>?> valueModelsOfTask =
         stageController.valueModelsByTaskId(task.id!);
+
+    if (valueModelsOfTask.isEmpty) return '';
+
     List<StageModel> stageModelsOnLastIndex =
-        valueModelsOfTask.last.keys.toList();
+        valueModelsOfTask.last!.keys.toList();
     stageModelsOnLastIndex.sort(
       (a, b) => a.creationDateTime.compareTo(b.creationDateTime),
     );
     final String stageName =
         stageDetailsList[stageModelsOnLastIndex.last.index]['name'];
-    return valueModelsOfTask.last[stageModelsOnLastIndex.last]!.isEmpty
+    return valueModelsOfTask.last![stageModelsOnLastIndex.last]!.isEmpty
         ? 'Awaits $stageName'
         : stageName;
   }
 
-  String getRevTypeAndStatus(TaskModel task, {bool isStatus = false}) {
+  String? getRevTypeAndStatus(TaskModel task, {bool isStatus = false}) {
+    if (task.id == null) return '';
     List<TaskModel?> siblingTasks = documents
         .where((e) => e!.parentId == task.parentId)
         .toList()
@@ -217,15 +224,13 @@ class TaskController extends GetxService {
 
     bool isTaskEqual =
         (!isStatus ? siblingTasks.first! : siblingTasks.last!) == task;
-    return task.id == null
-        ? ''
-        : isTaskEqual
-            ? isStatus
-                ? 'Current'
-                : 'First issue'
-            : isStatus
-                ? 'Superseded'
-                : 'Revision';
+    return isTaskEqual
+        ? isStatus
+            ? 'Current'
+            : 'First issue'
+        : isStatus
+            ? 'Superseded'
+            : 'Revision';
   }
 
   String getDrawingNumber(DrawingModel drawing, TaskModel task) =>
@@ -248,13 +253,19 @@ class TaskController extends GetxService {
         .activityId;
   }
 
-  void onAddNextRevisionPressed(String? parentId) {
+  void onAddNextRevisionPressed(String parentId) {
+    int nextChangeNumber = documents.isEmpty
+        ? 0
+        : documents.where((e) => e!.parentId == parentId).isEmpty
+            ? 0
+            : documentsAll.map((e) => e!.changeNumber).reduce(max) + 1;
+
     TaskModel newTaskModel = TaskModel(
       parentId: parentId,
       referenceDocuments: referenceDocumentsList,
       revisionMark: nextRevisionMarkController.text,
       note: taskNoteController.text,
-      changeNumber: lastChangeNumber + 1,
+      changeNumber: nextChangeNumber,
     );
 
     addNew(model: newTaskModel).then((taskId) {
@@ -263,8 +274,10 @@ class TaskController extends GetxService {
         creationDateTime: DateTime.now(),
       );
       stageController.addNew(model: stage).then((stageId) {
-        TaskModel? taskModel = taskController.documents
-            .firstWhere((e) => e!.parentId == parentId, orElse: null);
+        TaskModel? taskModel = documents.isEmpty
+            ? null
+            : documents.firstWhere((e) => e!.parentId == parentId,
+                orElse: null);
         if (taskModel != null) {
           StageModel firstStageModel = stageController.documents
               .firstWhere((e) => e!.taskId == taskModel.id)!;
@@ -285,10 +298,6 @@ class TaskController extends GetxService {
       });
     });
   }
-
-  int get lastChangeNumber => documentsAll
-      .reduce((a, b) => a!.changeNumber > b!.changeNumber ? a : b)!
-      .changeNumber;
 
   void onUpdatePressed({required String id}) {
     TaskModel taskModel = documents.singleWhere((e) => e!.id == id)!;
@@ -314,14 +323,14 @@ class TaskController extends GetxService {
   String? get selectedTaskId =>
       homeController.dataGridController.value.selectedRow!.getCells()[0].value;
 
-  TaskModel? get selectedTask => taskController.documents.firstWhere(
+  TaskModel? get selectedTask => documents.firstWhere(
         (e) => e!.id == selectedTaskId,
         orElse: null,
       );
 
   bool get isTaskCompleted {
     // TODO: Rearrage here
-    final List<Map<StageModel, List<ValueModel?>>> valueModelsMap =
+    final List<Map<StageModel, List<ValueModel?>>?> valueModelsMap =
         stageController.valueModelsByTaskId(
       homeController.dataGridController.value.selectedRow!
           .getCells()
@@ -330,7 +339,7 @@ class TaskController extends GetxService {
     );
     return valueModelsMap.length < 6
         ? false
-        : !valueModelsMap.last.values.last
+        : !valueModelsMap.last!.values.last
             .map((e) => e!.submitDateTime)
             .contains(null);
   }

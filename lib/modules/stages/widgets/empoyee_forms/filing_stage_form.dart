@@ -132,7 +132,7 @@ class FilingStageForm extends StatelessWidget {
                         ? null
                         : () {
                             stageController.fileNames.value =
-                                fileNamesList.reduce((a, b) => a + b).toList();
+                                fileNamesList.reduce((a, b) => a + b);
                             stageController.onSubmitPressed();
                           },
                     child: Text('Submit'),

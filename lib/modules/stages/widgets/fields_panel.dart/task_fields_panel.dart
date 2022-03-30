@@ -119,7 +119,7 @@ class TaskUpdateFormWidget extends StatelessWidget {
 
   String? lastActivityDate(taskId) {
     final List<ValueModel?> valueModelsList =
-        stageController.valueModelsByTaskId(taskId)[stageController.lastIndex]
+        stageController.valueModelsByTaskId(taskId)[stageController.lastIndex]!
             [stageController.lastTaskStage]!;
 
     DateTime assignedDateTime = DateTime(0);

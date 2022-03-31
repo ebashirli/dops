@@ -83,7 +83,7 @@ List<Map<String, dynamic>> stageDetailsList = [
   {
     'name': 'Filing',
     'staff job': 'Filing resp. person',
-    'form fields': <String>[],
+    'form fields': <String>['HOLD'],
     'file names': true,
     'files': {
       'columns': ['File', 'Mark', 'Quantity'],

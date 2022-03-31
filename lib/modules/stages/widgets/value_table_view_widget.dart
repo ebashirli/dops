@@ -116,6 +116,7 @@ class ValueTableView extends StatelessWidget {
                 columnName,
               ),
             );
+
           default:
             return GridColumn(
               columnName: columnName,
@@ -133,7 +134,9 @@ class ValueTableView extends StatelessWidget {
                               ? 'Files'
                               : columnName == 'Is Commented'
                                   ? 'Comment'
-                                  : columnName,
+                                  : columnName == 'HOLD'
+                                      ? 'Hold Reason'
+                                      : columnName,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                       ),

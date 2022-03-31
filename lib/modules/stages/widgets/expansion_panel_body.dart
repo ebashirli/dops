@@ -19,9 +19,7 @@ class ExpansionPanelBody extends StatelessWidget {
                 stageController.currentTask.holdReason == null)
               workerForm(item),
             if ([4, 5, 6].contains(item.index))
-              TxtButtonForPastCycles(
-                index: item.index,
-              ),
+              TxtButtonForPastCycles(index: item.index),
             item.valueTable,
           ],
         ),

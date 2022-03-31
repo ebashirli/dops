@@ -12,7 +12,7 @@ class ValueModel {
   int? gas;
   int? sfd;
   int? dtl;
-  String? holdContainingReason;
+  String? hold;
   String? note;
   List<String>? fileNames;
   bool isCommented;
@@ -32,7 +32,7 @@ class ValueModel {
     this.gas,
     this.sfd,
     this.dtl,
-    this.holdContainingReason,
+    this.hold,
     this.note,
     this.fileNames,
     this.isCommented = false,
@@ -47,8 +47,7 @@ class ValueModel {
       'assignedDateTime': assignedDateTime,
       'isCommented': isCommented,
       'isHidden': isHidden,
-      'holdContainingReason':
-          holdContainingReason != null ? holdContainingReason : null,
+      'hold': hold != null ? hold : null,
       'submitDateTime': submitDateTime != null ? submitDateTime : null,
       'phase': phase != null ? phase : null,
       'weight': weight != null ? weight : null,
@@ -71,9 +70,7 @@ class ValueModel {
           : null,
       submitDateTime:
           map['submitDateTime'] != null ? map['submitDateTime'].toDate() : null,
-      holdContainingReason: map['holdContainingReason'] != null
-          ? map['holdContainingReason']
-          : null,
+      hold: map['hold'] != null ? map['hold'] : null,
       phase: map['phase'] != null ? map['phase'] : null,
       weight: map['weight'] != null ? map['weight'] : null,
       gas: map['gas'] != null ? map['gas'] : null,

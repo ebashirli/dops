@@ -7,3 +7,4 @@ export 'custom_text_form_field_widget.dart';
 export 'custom_text_widget.dart';
 export 'custom_dropdown_menu_with_model_widget.dart';
 export 'custom_expendable_fab_widget.dart';
+export 'hold_widget.dart';

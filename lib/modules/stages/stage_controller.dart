@@ -117,8 +117,8 @@ class StageController extends GetxService {
 
   late List<TextEditingController> textEditingControllers;
 
-  late RxList<String> fileNames = RxList<String>([]);
-  late RxBool commentStatus = false.obs;
+  final RxList<String> fileNames = RxList<String>([]);
+  final RxBool commentStatus = false.obs;
 
   final RxBool commentCheckbox = false.obs;
 
@@ -152,10 +152,7 @@ class StageController extends GetxService {
           ? FilingStageForm()
           : index == 8
               ? NestingStageForm()
-              : WorkerForm(
-                  index: index,
-                  visible: lastIndex == index,
-                );
+              : WorkerForm(index: index, visible: lastIndex == index);
       final Widget coordinatorForm =
           CoordinatorForm(index: index, visible: lastIndex == index);
       final Widget valueTableView = ValueTableView(
@@ -273,7 +270,7 @@ class StageController extends GetxService {
                 .values
                 .first
                 .first!
-                .holdContainingReason !=
+                .hold !=
             null;
   }
 
@@ -284,6 +281,7 @@ class StageController extends GetxService {
       map[specialFieldNames[i].toLowerCase()] =
           int.parse(textEditingControllers[i].text);
     }
+
     map['isCommented'] = commentStatus.value;
     map['note'] = textEditingControllers.last.text;
     map['fileNames'] = fileNames;
@@ -295,9 +293,11 @@ class StageController extends GetxService {
     );
 
     if (isLastSubmit) {
-      bool anyComment = await valueController.documents.any((valueModel) =>
-              valueModel!.stageId == lastTaskStage.id &&
-              valueModel.isCommented) ||
+      bool anyComment = await valueController.documents.any(
+            (valueModel) =>
+                valueModel!.stageId == lastTaskStage.id &&
+                valueModel.isCommented,
+          ) ||
           commentStatus.value;
 
       StageModel stage = StageModel(

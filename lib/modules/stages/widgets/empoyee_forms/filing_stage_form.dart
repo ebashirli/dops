@@ -95,50 +95,58 @@ class FilingStageForm extends StatelessWidget {
               ),
             ),
             SizedBox(width: 40),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Obx(() {
-                      return Checkbox(
-                        checkColor: Colors.white,
-                        value: isChecked.value,
-                        onChanged: (bool? isCh) => isChecked.value = isCh!,
-                      );
-                    }),
-                    Column(
-                      children: [
-                        SizedBox(height: 6),
-                        Text(
-                          'By clicking this checkbox I confirm that all files\nare attached correctly and below appropriate task',
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                CustomTextFormField(
-                  width: 340,
-                  maxLines: 5,
-                  labelText: 'Note',
-                  controller: stageController.textEditingControllers.last,
-                ),
-                SizedBox(height: 20),
-                Obx(() {
-                  return ElevatedButton(
-                    onPressed: !isChecked.value
-                        ? null
-                        : () {
-                            stageController.fileNames.value =
-                                fileNamesList.reduce((a, b) => a + b);
-                            stageController.onSubmitPressed();
-                          },
-                    child: Text('Submit'),
-                  );
-                }),
-              ],
+            SizedBox(
+              width: 360,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  HoldWidget(isContainsHold: true),
+                  SizedBox(height: 10),
+                  CustomTextFormField(
+                    maxLines: 5,
+                    labelText: 'Note',
+                    controller: stageController.textEditingControllers.last,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Obx(() {
+                        return Checkbox(
+                          checkColor: Colors.white,
+                          value: isChecked.value,
+                          onChanged: (bool? isCh) => isChecked.value = isCh!,
+                        );
+                      }),
+                      Column(
+                        children: [
+                          SizedBox(height: 6),
+                          Text(
+                            'By clicking this checkbox I confirm that all files\nare attached correctly and below appropriate task',
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Obx(() {
+                        return ElevatedButton(
+                          onPressed: !isChecked.value
+                              ? null
+                              : () {
+                                  stageController.fileNames.value =
+                                      fileNamesList.reduce((a, b) => a + b);
+                                  stageController.onSubmitPressed();
+                                },
+                          child: Text('Submit'),
+                        );
+                      }),
+                    ],
+                  ),
+                ],
+              ),
             )
           ],
         ),

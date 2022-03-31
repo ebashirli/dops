@@ -104,38 +104,7 @@ class TaskForm extends StatelessWidget {
                         selectedItems: taskController.referenceDocumentsList,
                       ),
                       if (isStageAssigned)
-                        SizedBox(
-                          height: 50,
-                          child: Obx(
-                            () => Row(
-                              children: [
-                                Text(
-                                  taskController.isHeld.value
-                                      ? 'Unhold: '
-                                      : 'Hold: ',
-                                ),
-                                Center(
-                                  child: Switch(
-                                    value: taskController.isHeld.value,
-                                    onChanged: (value) =>
-                                        taskController.isHeld.value = value,
-                                    activeTrackColor: Colors.lightGreenAccent,
-                                    activeColor: Colors.green,
-                                  ),
-                                ),
-                                if (taskController.isHeld.value)
-                                  Expanded(
-                                    child: CustomTextFormField(
-                                      width: 200,
-                                      controller:
-                                          taskController.holdReasonController,
-                                      labelText: 'Hold Reason',
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        )
+                        HoldWidget()
                     ],
                   ),
                 ),

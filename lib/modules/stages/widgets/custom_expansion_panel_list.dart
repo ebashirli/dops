@@ -15,9 +15,7 @@ class _CustomExpansionPanelListState extends State<CustomExpansionPanelList> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Container(
-        child: _buildPanel(),
-      ),
+      child: Container(child: _buildPanel()),
     );
   }
 

@@ -8,6 +8,7 @@ import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/task/widgets/task_form.dart';
 import 'package:dops/modules/values/value_model.dart';
+import 'package:dops/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'task_model.dart';
@@ -70,7 +71,7 @@ class TaskController extends GetxService {
     CustomFullScreenDialog.showDialog();
     await _repository.removeModel(id);
     CustomFullScreenDialog.cancelDialog();
-    Get.back();
+    Get.offAndToNamed(Routes.HOME);
   }
 
   @override
@@ -82,7 +83,6 @@ class TaskController extends GetxService {
     nextRevisionMarkController.clear();
     taskNoteController.clear();
     holdReasonController.clear();
-    isHeld.value = false;
     referenceDocumentsList = [];
   }
 
@@ -181,7 +181,7 @@ class TaskController extends GetxService {
               .values
               .first
               .first!
-              .holdContainingReason
+              .hold
           : '';
 
   String getActivityStatus(TaskModel task) {
@@ -196,7 +196,6 @@ class TaskController extends GetxService {
 
   String taskStatusProvider(TaskModel task) {
     if (task.id == null) return '';
-
 
     List<Map<StageModel, List<ValueModel?>>?> valueModelsOfTask =
         stageController.valueModelsByTaskId(task.id!);

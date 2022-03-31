@@ -8,6 +8,9 @@ class ValueController extends GetxService {
   static ValueController instance = Get.find();
 
   RxList<ValueModel?> _documents = RxList<ValueModel?>([]);
+
+  final RxBool containsHold = false.obs;
+
   List<ValueModel?> get documents => _documents;
 
   addNew({required ValueModel model}) async {
@@ -25,6 +28,7 @@ class ValueController extends GetxService {
   @override
   void onInit() {
     super.onInit();
+
     _documents.bindStream(_repository.getAllDocumentsAsStream());
   }
 

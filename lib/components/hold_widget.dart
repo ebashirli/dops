@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class HoldWidget extends StatelessWidget {
-  const HoldWidget({Key? key, this.isContainsHold = false}) : super(key: key);
+  const HoldWidget({
+    Key? key,
+    this.isContainsHold = false,
+  }) : super(key: key);
   final bool isContainsHold;
 
   @override

@@ -2,6 +2,7 @@ import 'package:dops/constants/constant.dart';
 import 'package:dops/core/cache_manager.dart';
 import 'package:dops/modules/staff/staff_model.dart';
 import 'package:dops/modules/staff/staff_repository.dart';
+import 'package:dops/routes/app_pages.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
@@ -45,5 +46,6 @@ class AuthManager extends GetxService with CacheManager {
     await auth.signOut();
     removeStaff();
     removeID();
+    Get.offAndToNamed(Routes.SPLASH);
   }
 }

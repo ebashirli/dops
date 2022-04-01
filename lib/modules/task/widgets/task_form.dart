@@ -1,6 +1,5 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
-import 'package:dops/constants/style.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
@@ -35,48 +34,27 @@ class TaskForm extends StatelessWidget {
             (e) => e!.id == id,
           );
 
-    final bool isStageAssigned = taskModel == null
-        ? false
-        : !stageController
-            .valueModelsByTaskId(taskModel.id!)
-            .map(
-              (e) => e!.values
-                  .map(
-                      (e1) => e1.map((e2) => e2!.submitDateTime).contains(null))
-                  .contains(true),
-            )
-            .contains(true);
-
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.only(
-          topRight: Radius.circular(8),
-          topLeft: Radius.circular(8),
-        ),
-        color: light,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: taskController.formKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          child: Container(
-            width: Get.width * .3,
-            child: Column(
-              children: [
-                Container(
-                  height: Get.width * .14,
-                  child: Column(
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          CustomText(
+            text:
+                '${drawingModel.drawingNumber}${taskModel != null ? '-' + taskModel.revisionMark : ''}',
+            weight: FontWeight.bold,
+          ),
+          SizedBox(height: 10),
+          Form(
+            key: taskController.formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Container(
+              width: Get.width * .3,
+              child: Column(
+                children: [
+                  Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Text(
-                        '${drawingModel.drawingNumber}${taskModel != null ? '-' + taskModel.revisionMark : ''}',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 10),
                       Row(
                         children: [
                           CustomTextFormField(
@@ -95,6 +73,7 @@ class TaskForm extends StatelessWidget {
                           ),
                         ],
                       ),
+                      SizedBox(height: 10),
                       CustomDropdownMenu(
                         showSearchBox: true,
                         isMultiSelectable: true,
@@ -103,44 +82,46 @@ class TaskForm extends StatelessWidget {
                         onChanged: onReferenceDocumentsChanged,
                         selectedItems: taskController.referenceDocumentsList,
                       ),
-                      if (isStageAssigned)
+                      SizedBox(height: 10),
+                      if (stageController.isStageAssigned(taskModel))
                         HoldWidget()
                     ],
                   ),
-                ),
-                SizedBox(height: 10),
-                Row(
-                  children: <Widget>[
-                    if (id != null && !newRev)
-                      ElevatedButton.icon(
-                        onPressed: () => taskController.onDeletePressed(id!),
-                        icon: Icon(Icons.delete),
-                        label: const Text('Delete'),
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            Colors.red,
+                  SizedBox(height: 10),
+                  Row(
+                    children: <Widget>[
+                      if (id != null && !newRev)
+                        ElevatedButton.icon(
+                          onPressed: () =>
+                              taskController.onDeletePressed(taskModel),
+                          icon: Icon(Icons.delete),
+                          label: const Text('Delete'),
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                              Colors.red,
+                            ),
                           ),
                         ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () => Get.back(),
+                        child: const Text('Cancel'),
                       ),
-                    const Spacer(),
-                    ElevatedButton(
-                      onPressed: () => Get.back(),
-                      child: const Text('Cancel'),
-                    ),
-                    SizedBox(width: 10),
-                    ElevatedButton(
-                      onPressed: () => newRev
-                          ? taskController
-                              .onAddNextRevisionPressed(drawingModel.id!)
-                          : taskController.onUpdatePressed(id: id!),
-                      child: Text(newRev ? 'Add' : 'Update'),
-                    ),
-                  ],
-                ),
-              ],
+                      SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () => newRev
+                            ? taskController
+                                .onAddNextRevisionPressed(drawingModel.id!)
+                            : taskController.onUpdatePressed(id: id!),
+                        child: Text(newRev ? 'Add' : 'Update'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

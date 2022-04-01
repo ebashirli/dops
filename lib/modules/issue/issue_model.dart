@@ -1,8 +1,8 @@
 class IssueModel {
   String? id;
-
   int groupNumber;
   DateTime creationDate;
+  String createdBy;
   List<String?> linkedTasks;
   String note;
   List<String?> files;
@@ -13,6 +13,7 @@ class IssueModel {
     this.id,
     required this.groupNumber,
     required this.creationDate,
+    required this.createdBy,
     required this.linkedTasks,
     required this.note,
     required this.files,
@@ -22,9 +23,9 @@ class IssueModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'groupNumber': groupNumber,
       'creationDate': creationDate,
+      'createdBy': createdBy,
       'linkedTasks': linkedTasks,
       'note': note,
       'files': files,
@@ -39,6 +40,7 @@ class IssueModel {
       groupNumber: map['groupNumber'],
       creationDate:
           map['creationDate'] != null ? map['creationDate'].toDate() : null,
+      createdBy: map['createdBy'],
       linkedTasks: List<String?>.from(map['linkedTasks']),
       note: map['note'] ?? '',
       files: List<String>.from(map['files']),

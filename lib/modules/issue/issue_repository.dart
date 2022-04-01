@@ -53,4 +53,12 @@ class IssueRepository {
   addModel(IssueModel data) async {
     await _api.addDocument(data.toMap());
   }
+
+  add(IssueModel data) async {
+    await _api.addDocument(data.toMap());
+  }
+
+  addFields(Map<String, dynamic> map, String id) async {
+    await _api.updateDocument(map, id);
+  }
 }

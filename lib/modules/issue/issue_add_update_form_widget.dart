@@ -109,6 +109,7 @@ class IssueAddUpdateFormWidget extends StatelessWidget {
                           IssueModel model = IssueModel(
                             note: issueController.noteController.text,
                             creationDate: DateTime.now(),
+                            createdBy: staffController.currentUserId,
                             files: issueController.files,
                             linkedTasks: issueController.linkedTaskIds,
                             groupNumber: issueController.nextGroupNumber + 1,

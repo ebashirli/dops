@@ -11,6 +11,8 @@ class ValueController extends GetxService {
 
   final RxBool containsHold = false.obs;
 
+  RxBool loading = true.obs;
+
   List<ValueModel?> get documents => _documents;
 
   addNew({required ValueModel model}) async {
@@ -30,6 +32,9 @@ class ValueController extends GetxService {
     super.onInit();
 
     _documents.bindStream(_repository.getAllDocumentsAsStream());
+    _documents.listen((List<ValueModel?> valueModelList) {
+      if (valueModelList.isNotEmpty) loading.value = false;
+    });
   }
 
   @override

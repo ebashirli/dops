@@ -1,5 +1,6 @@
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
+import 'package:dops/modules/issue/issue_model.dart';
 import 'package:dops/modules/values/value_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,6 +19,24 @@ class ValueTableView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<String> tableColumns = <String>[
+      ...valueTableCommonColumnHeadList.sublist(0, 4),
+      ...stageDetailsList[index]['form fields'],
+      if (stageDetailsList[index]['file names'] != null) 'File Names',
+      if (stageDetailsList[index]['comment'] != null) 'Is Commented',
+      valueTableCommonColumnHeadList[4],
+      if (index == 8) valueTableCommonColumnHeadList[6],
+      valueTableCommonColumnHeadList[5],
+    ];
+    final DataSource dataSource = DataSource(
+      data: getDataSourceData(tableColumns),
+      index: index,
+      stageValueModelsList: stageValueModelsList!,
+    );
+    final columnsWithTotal = ['Weight', 'GAS', 'SFD', 'DTL', 'File Names']
+        .toSet()
+        .intersection(stageDetailsList[index]['form fields'].toSet());
+    final DataGridController _dataGridController = DataGridController();
     return stageValueModelsList == null || stageValueModelsList!.isEmpty
         ? SizedBox.shrink()
         : Obx(
@@ -25,38 +44,6 @@ class ValueTableView extends StatelessWidget {
               if (valueController.documents.isEmpty) {
                 return CircularProgressIndicator();
               } else {
-                final List<String> tableColumns = <String>[
-                  ...valueTableCommonColumnHeadList.sublist(0, 4),
-                  ...stageDetailsList[index]['form fields'],
-                  if (stageDetailsList[index]['file names'] != null)
-                    'File Names',
-                  if (stageDetailsList[index]['comment'] != null)
-                    'Is Commented',
-                  ...valueTableCommonColumnHeadList.sublist(4),
-                ];
-                final DataSource dataSource = DataSource(
-                  data: stageValueModelsList!.map((valueModel) {
-                    late Map<String, dynamic> map = {};
-                    tableColumns.forEach((columHead) {
-                      map[columHead] =
-                          valueModel!.toMap()[ReCase(columHead).camelCase];
-                    });
-                    map['id'] = valueModel!.id;
-                    return map;
-                  }).toList(),
-                  index: index,
-                  stageValueModelsList: stageValueModelsList!,
-                );
-                final columnsWithTotal = [
-                  'Weight',
-                  'GAS',
-                  'SFD',
-                  'DTL',
-                  'File Names'
-                ].toSet().intersection(
-                    stageDetailsList[index]['form fields'].toSet());
-                final DataGridController _dataGridController =
-                    DataGridController();
                 return Column(
                   children: [
                     Divider(),
@@ -103,6 +90,32 @@ class ValueTableView extends StatelessWidget {
           );
   }
 
+  List<Map<String, dynamic>> getDataSourceData(List<String> tableColumns) {
+    return stageValueModelsList!.map((valueModel) {
+      late Map<String, dynamic> map = {};
+      tableColumns.forEach((columHead) {
+        map[columHead] = valueModel!.toMap()[ReCase(columHead).camelCase];
+      });
+      if (tableColumns.contains('Group') &&
+          issueController.documents.isNotEmpty) {
+        List<IssueModel?> issueModelList = issueController.documents
+            .where(
+              (e) =>
+                  e.linkedTasks.contains(stageController.currentTask!.id) &&
+                  e.createdBy == valueModel!.employeeId,
+            )
+            .toList();
+        map['Group'] = issueModelList.isNotEmpty
+            ? issueModelList.first!.groupNumber
+            : null;
+        map['linkingToGroupDateTime'] = valueModel!.linkingToGroupDateTime;
+      }
+
+      map['id'] = valueModel!.id;
+      return map;
+    }).toList();
+  }
+
   List<GridColumn> getColumns(List<String> colNames) {
     return colNames.map(
       (columnName) {
@@ -136,10 +149,10 @@ class ValueTableView extends StatelessWidget {
                                   ? 'Comment'
                                   : columnName == 'HOLD'
                                       ? 'Hold Reason'
-                                      : columnName,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
+                                      : columnName == 'linkingToGroupDateTime'
+                                          ? 'Linking date time'
+                                          : columnName,
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -224,9 +237,11 @@ class DataSource extends DataGridSource {
     final List<String>? fileNames = stageValueModelsList
         .singleWhere((e) => e!.id == row.getCells()[0].value)!
         .fileNames;
+
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>(
         (cell) {
+
           if (cell.columnName == 'File Names') {
             return Center(
               child: fileNames != null
@@ -241,7 +256,9 @@ class DataSource extends DataGridSource {
           } else {
             final cellValue = ['Employee Id', 'Assigned by']
                     .contains(cell.columnName)
-                ? cacheManager.getStaff()!.initial
+                ? staffController.documents
+                    .singleWhere((e) => e.id == cell.value)
+                    .initial
                 : cell.value is DateTime
                     ? '${cell.value.day}/${cell.value.month}/${cell.value.year} ${cell.value.hour}:${cell.value.minute}'
                     : cell.value ?? '';

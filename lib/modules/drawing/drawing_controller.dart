@@ -13,6 +13,8 @@ class DrawingController extends GetxService {
   final _repository = Get.find<DrawingRepository>();
   static DrawingController instance = Get.find();
 
+  RxBool loading = true.obs;
+
   late TextEditingController drawingNumberController,
       nextRevisionMarkController,
       drawingTitleController,
@@ -49,6 +51,9 @@ class DrawingController extends GetxService {
     structureTypeText = '';
 
     _documents.bindStream(_repository.getAllDocumentsAsStream());
+    _documents.listen((List<DrawingModel?> drawingModelList) {
+      if (drawingModelList.isNotEmpty) loading.value = false;
+    });
   }
 
   addNewDrawing({required DrawingModel model}) async {
@@ -90,7 +95,7 @@ class DrawingController extends GetxService {
           .toList();
       if (tasks.isNotEmpty) {
         tasks.forEach((task) {
-          taskController.deleteTask(task!.id!);
+          taskController.deleteTask(task);
         });
       }
     }

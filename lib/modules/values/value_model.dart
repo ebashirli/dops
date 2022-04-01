@@ -7,6 +7,7 @@ class ValueModel {
   DateTime? unassignedBy;
   DateTime? unassignedDateTime;
   DateTime? submitDateTime;
+  DateTime? linkingToGroupDateTime;
   int? phase;
   int? weight;
   int? gas;
@@ -27,6 +28,7 @@ class ValueModel {
     this.unassignedBy,
     this.unassignedDateTime,
     this.submitDateTime,
+    this.linkingToGroupDateTime,
     this.phase,
     this.weight,
     this.gas,
@@ -49,6 +51,8 @@ class ValueModel {
       'isHidden': isHidden,
       'hold': hold != null ? hold : null,
       'submitDateTime': submitDateTime != null ? submitDateTime : null,
+      'linkingToGroupDateTime':
+          linkingToGroupDateTime != null ? linkingToGroupDateTime : null,
       'phase': phase != null ? phase : null,
       'weight': weight != null ? weight : null,
       'gas': gas != null ? gas : null,
@@ -70,6 +74,9 @@ class ValueModel {
           : null,
       submitDateTime:
           map['submitDateTime'] != null ? map['submitDateTime'].toDate() : null,
+      linkingToGroupDateTime: map['linkingToGroupDateTime'] != null
+          ? map['linkingToGroupDateTime'].toDate()
+          : null,
       hold: map['hold'] != null ? map['hold'] : null,
       phase: map['phase'] != null ? map['phase'] : null,
       weight: map['weight'] != null ? map['weight'] : null,

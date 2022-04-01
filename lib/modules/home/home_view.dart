@@ -64,7 +64,18 @@ class HomeView extends GetView<HomeController> {
     return AppBar(
       title: Text(_buildTitleOfPage()),
       actions: [
-        if (staffController.isCoordinator)
+        if (staffController.isCoordinator ||
+            (controller.homeStates == HomeStates.IssueState &&
+                valueController.documents
+                    .where((e) =>-
+                        e!.employeeId == staffController.currentUserId &&
+                        stageController.documents
+                                .singleWhere(
+                                    (element) => element!.id == e.stageId)!
+                                .index ==
+                            8 &&
+                        e.linkingToGroupDateTime == null)
+                    .isNotEmpty))
           Row(
             children: [
               ElevatedButton(

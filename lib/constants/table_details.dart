@@ -74,11 +74,13 @@ Map<String, List<String>> tableColNames = {
   'issue': [
     'id',
     'Group Number',
+    'Created By',
     'Create Date',
     'Linked Tasks',
     'Files',
     'Notes',
-    // 'Submit',
+    'Submit/Submit Date',
+    'Issue/Issue Date',
   ],
 };
 

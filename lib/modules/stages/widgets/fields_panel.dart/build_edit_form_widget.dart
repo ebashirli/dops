@@ -13,39 +13,27 @@ class BuildEditFormWidget extends StatelessWidget {
   @override
   Widget build(_) {
     return Obx(
-      () {
-        if (taskController.documents.isNotEmpty) {
-          TaskModel taskModel = taskController.documents
-              .singleWhere((task) => task!.id == Get.parameters['id'])!;
-
-          DrawingModel drawingModel = drawingController.documents
-              .singleWhere((drawing) => drawing.id == taskModel.parentId);
-
-          drawingController.fillEditingControllers(
-            drawingModel: drawingModel,
-            taskModel: taskModel,
-          );
-          return _buildEditFormWidget(
-            drawingModel: drawingModel,
-            taskModel: taskModel,
-            isCoordinator: staffController.isCoordinator,
-          );
-        } else {
-          return CircularProgressIndicator();
-        }
-      },
+      () => taskController.loading.value
+          ? CircularProgressIndicator()
+          : (stageController.currentTask == null ||
+                  stageController.currentDrawing == null)
+              ? Text('Task not found!')
+              : _buildEditFormWidget(
+                  taskModel: stageController.currentTask!,
+                  drawingModel: stageController.currentDrawing!,
+                ),
     );
   }
 
   Widget _buildEditFormWidget({
-    required DrawingModel drawingModel,
     required TaskModel taskModel,
-    required isCoordinator,
+    required DrawingModel drawingModel,
   }) {
+
     final String fullTaskNumber =
         '${drawingModel.drawingNumber}-${taskModel.revisionMark}';
     return Container(
-      height: 440,
+      height: Get.height * .43,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,

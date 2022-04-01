@@ -24,10 +24,12 @@ class TaskController extends GetxService {
       holdReasonController;
   late List<String> referenceDocumentsList;
   final RxBool isHeld = false.obs;
+  RxBool loading = true.obs;
 
-  RxList<TaskModel> _documents = RxList<TaskModel>([]);
-  List<TaskModel?> get documents =>
-      _documents.where((e) => e.isHidden == false).toList();
+  RxList<TaskModel?> _documents = RxList<TaskModel?>([]);
+  List<TaskModel?> get documents => _documents.isEmpty
+      ? []
+      : _documents.where((e) => e!.isHidden == false).toList();
   List<TaskModel?> get documentsAll => _documents;
 
   @override
@@ -39,6 +41,9 @@ class TaskController extends GetxService {
     referenceDocumentsList = [];
 
     _documents.bindStream(_repository.getAllDocumentsAsStream());
+    _documents.listen((List<TaskModel?> taskModelList) {
+      if (taskModelList.isNotEmpty) loading.value = false;
+    });
   }
 
   Future<String> addNew({required TaskModel model}) async {
@@ -67,11 +72,13 @@ class TaskController extends GetxService {
     Get.back();
   }
 
-  void deleteTask(String id) async {
+  Future<String> deleteTask(TaskModel? taskModel) async {
+    if (taskModel == null) return 'Error';
     CustomFullScreenDialog.showDialog();
-    await _repository.removeModel(id);
+    await _repository.removeModel(taskModel.id!);
     CustomFullScreenDialog.cancelDialog();
     Get.offAndToNamed(Routes.HOME);
+    return 'Done';
   }
 
   @override
@@ -119,7 +126,7 @@ class TaskController extends GetxService {
     Get.defaultDialog(
       barrierDismissible: false,
       radius: 12,
-      titlePadding: EdgeInsets.only(top: 20, bottom: 20),
+      // titlePadding: EdgeInsets.only(top: 20, bottom: 20),
       title: newRev ? 'Add next revision' : 'Update current revision',
       content: TaskForm(
         id: id,
@@ -175,9 +182,9 @@ class TaskController extends GetxService {
 
   String? getHoldReason(TaskModel task) => task.holdReason != null
       ? task.holdReason
-      : stageController.containsHold(task)
+      : stageController.containsHoldFun(task)
           ? stageController
-              .valueModelsByTaskId(task.id!)[7]!
+              .valueModelsByTaskId(task)[7]!
               .values
               .first
               .first!
@@ -189,16 +196,16 @@ class TaskController extends GetxService {
         ? 'Hold'
         : task.id == null
             ? ''
-            : stageController.containsHold(task)
+            : stageController.containsHoldFun(task)
                 ? 'Contains Hold'
                 : 'Live';
   }
 
-  String taskStatusProvider(TaskModel task) {
-    if (task.id == null) return '';
+  String taskStatusProvider(TaskModel? task) {
+    if (task == null || task.id == null) return '';
 
     List<Map<StageModel, List<ValueModel?>>?> valueModelsOfTask =
-        stageController.valueModelsByTaskId(task.id!);
+        stageController.valueModelsByTaskId(task);
 
     if (valueModelsOfTask.isEmpty) return '';
 
@@ -272,29 +279,7 @@ class TaskController extends GetxService {
         taskId: taskId,
         creationDateTime: DateTime.now(),
       );
-      stageController.addNew(model: stage).then((stageId) {
-        TaskModel? taskModel = documents.isEmpty
-            ? null
-            : documents.firstWhere((e) => e!.parentId == parentId,
-                orElse: null);
-        if (taskModel != null) {
-          StageModel firstStageModel = stageController.documents
-              .firstWhere((e) => e!.taskId == taskModel.id)!;
-
-          ValueModel firstValueModel = valueController.documents
-              .firstWhere((e) => e!.stageId == firstStageModel.id)!;
-
-          ValueModel valueModel = ValueModel(
-            stageId: stageId,
-            employeeId: firstValueModel.employeeId,
-            assignedBy: firstValueModel.assignedBy,
-            assignedDateTime: firstValueModel.assignedDateTime,
-            phase: firstValueModel.phase,
-            submitDateTime: firstValueModel.submitDateTime,
-          );
-          valueController.addNew(model: valueModel);
-        }
-      });
+      stageController.addNew(model: stage);
     });
   }
 
@@ -314,18 +299,20 @@ class TaskController extends GetxService {
     updateTaskFields(map: map, id: id);
   }
 
-  void onDeletePressed(String id) {
-    deleteTask(id);
+  void onDeletePressed(TaskModel? taskModel) {
+    deleteTask(taskModel);
     Get.back();
   }
 
   String? get selectedTaskId =>
       homeController.dataGridController.value.selectedRow!.getCells()[0].value;
 
-  TaskModel? get selectedTask => documents.firstWhere(
-        (e) => e!.id == selectedTaskId,
-        orElse: null,
-      );
+  TaskModel? get selectedTask => loading.value
+      ? null
+      : documents.firstWhere(
+          (e) => e!.id == selectedTaskId,
+          orElse: null,
+        );
 
   bool get isTaskCompleted {
     // TODO: Rearrage here

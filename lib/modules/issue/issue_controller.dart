@@ -17,11 +17,6 @@ class IssueController extends GetxService {
 
   late TextEditingController noteController;
 
-  RxBool actionRequiredOrNext = false.obs;
-
-  RxBool sortAscending = false.obs;
-  RxInt sortColumnIndex = 0.obs;
-
   RxList<IssueModel> _documents = RxList<IssueModel>([]);
   List<IssueModel> get documents => _documents;
 
@@ -29,8 +24,8 @@ class IssueController extends GetxService {
 
   final RxList<String?> files = RxList<String?>([]);
 
-  // TODO: change 0 to function
-  int get nextGroupNumber => documents.map((e) => e.groupNumber).reduce(max);
+  int get nextGroupNumber =>
+      documents.isEmpty ? 0 : documents.map((e) => e.groupNumber).reduce(max);
 
   @override
   void onInit() {
@@ -115,10 +110,6 @@ class IssueController extends GetxService {
     );
   }
 
-  void handleChangedRadio(bool? value) {
-    actionRequiredOrNext.value = value!;
-  }
-
   List<Map<String, dynamic>> get getDataForTableView {
     return documents.map((issue) {
       String assignedTasks = '';
@@ -138,6 +129,9 @@ class IssueController extends GetxService {
       Map<String, dynamic> map = {
         'id': issue.id,
         'groupNumber': 'Group Number #${issue.groupNumber}',
+        'createdBy': staffController.documents
+            .singleWhere((e) => e.id == issue.createdBy)
+            .initial,
         'creationDate': issue.creationDate,
         'assignedTasks': assignedTasks,
         'files': issue.files,
@@ -147,5 +141,11 @@ class IssueController extends GetxService {
 
       return map;
     }).toList();
+  }
+
+  addValues({required Map<String, dynamic> map, required String id}) async {
+    CustomFullScreenDialog.showDialog();
+    await _repository.addFields(map, id);
+    CustomFullScreenDialog.cancelDialog();
   }
 }

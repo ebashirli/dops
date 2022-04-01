@@ -13,11 +13,9 @@ class ExpansionPanelBody extends StatelessWidget {
         () => Column(
           children: <Widget>[
             if (staffController.isCoordinator &&
-                stageController.currentTask.holdReason == null)
+                stageController.currentTask!.holdReason == null)
               item.coordinatorForm,
-            if (stageController.isWorkerFormVisible(item) &&
-                stageController.currentTask.holdReason == null)
-              workerForm(item),
+            if (stageController.isWorkerFormVisible(item)) workerForm(item),
             if ([4, 5, 6].contains(item.index))
               TxtButtonForPastCycles(index: item.index),
             item.valueTable,

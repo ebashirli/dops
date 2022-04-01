@@ -1,8 +1,10 @@
+import 'dart:math';
+import 'package:dops/modules/values/value_model.dart';
+
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/stages/widgets/value_table_view_widget.dart';
 import 'package:dops/constants/lists.dart';
-import 'package:dops/modules/stages/widgets/custom_expansion_panel_list.dart';
 import 'package:dops/modules/stages/widgets/expantion_panel_item_model.dart';
 import 'package:dops/modules/stages/widgets/coordinator_form.dart';
 import 'package:dops/modules/task/task_model.dart';
@@ -13,13 +15,12 @@ import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/staff/staff_model.dart';
 import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/stages/stage_repository.dart';
-import 'package:dops/modules/stages/widgets/fields_panel.dart/build_edit_form_widget.dart';
-import 'package:dops/modules/values/value_model.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:recase/recase.dart';
 
 import 'widgets/empoyee_forms/employee_forms.dart';
+import 'package:dops/components/date_time_extension.dart';
 
 class StageController extends GetxService {
   final _repository = Get.find<StageRepository>();
@@ -28,18 +29,38 @@ class StageController extends GetxService {
   RxList<StageModel?> _documents = RxList<StageModel>([]);
   List<StageModel?> get documents => _documents;
 
-  TaskModel get currentTask => taskController.documents
-      .singleWhere((e) => e!.id == Get.parameters['id'])!;
+  RxBool loading = true.obs;
 
-  DrawingModel get currentDrawing =>
-      drawingController.documents.singleWhere((e) => e.id == currentTask.id);
+  TaskModel? get currentTask {
+    if (!taskController.loading.value || taskController.documents.isNotEmpty) {
+      List<TaskModel?> taskModelList = taskController.documents.where((e) {
+        return e!.id == Get.parameters['id'];
+      }).toList();
+      return taskModelList.isEmpty ? null : taskModelList.first;
+    } else {
+      return null;
+    }
+  }
+
+  DrawingModel? get currentDrawing {
+    if (!drawingController.loading.value ||
+        drawingController.documents.isNotEmpty) {
+      List<DrawingModel?> drawingModelList = drawingController.documents
+          .where((e) => e.id == currentTask!.parentId)
+          .toList();
+      return drawingModelList.isEmpty ? null : drawingModelList.first;
+    } else {
+      return null;
+    }
+  }
 
   List<StageModel?> get stagesOfCurrentTask {
-    List<StageModel?> _stagesOfCurrentTask = documents.isNotEmpty
-        ? documents
-            .where((stageModel) => stageModel!.taskId == Get.parameters['id'])
-            .toList()
-        : [];
+    List<StageModel?> _stagesOfCurrentTask =
+        (documents.isNotEmpty || currentTask != null) || !loading.value
+            ? documents
+                .where((stageModel) => stageModel!.taskId == currentTask!.id)
+                .toList()
+            : [];
     if (_stagesOfCurrentTask.isNotEmpty)
       _stagesOfCurrentTask
           .sort((a, b) => a!.creationDateTime.compareTo(b!.creationDateTime));
@@ -48,7 +69,8 @@ class StageController extends GetxService {
 
   int get maxIndex => valueModelsOfCurrentTask.length;
 
-  int get lastIndex => stagesOfCurrentTask.last!.index;
+  int get lastIndex =>
+      stagesOfCurrentTask.isEmpty ? 0 : stagesOfCurrentTask.last!.index;
 
   RxList<StaffModel?> assigningStaffModels = RxList([]);
   List<StaffModel?> get assignedStaffModels =>
@@ -59,27 +81,57 @@ class StageController extends GetxService {
               .singleWhere((element) => element.id == e?.employeeId))
           .toList();
 
-  List<Map<StageModel, List<ValueModel?>>?> get valueModelsOfCurrentTask =>
-      valueModelsByTaskId(currentTask.id!);
+  List<Map<StageModel, List<ValueModel?>>?> get valueModelsOfCurrentTask {
+    return currentTask != null ? valueModelsByTaskId(currentTask!) : [];
+  }
 
-  List<Map<StageModel, List<ValueModel?>>?> valueModelsByTaskId(String taskId) {
+  List<Map<StageModel, List<ValueModel?>>?> valueModelsByTaskId(
+      TaskModel taskModel) {
     if (documents.isEmpty) return [];
-    List<StageModel?> stagesOfTask =
-        documents.where((e) => e!.taskId == taskId).toList();
 
-    stagesOfTask
-        .sort((a, b) => a!.creationDateTime.compareTo(b!.creationDateTime));
+    List<StageModel?> stagesOfTask = loading.value
+        ? []
+        : documents.where((e) => e!.taskId == taskModel.id).toList();
 
-    List<int> indice = stagesOfTask.map((e) => e!.index).toList();
-    indice.sort();
+    if (stagesOfTask.isEmpty) return [];
+
+    ValueModel? firstValueOfFirstTask = null;
+
+    bool isFirstTask =
+        (taskController.loading.value || taskController.documents.isEmpty) ||
+            (taskController.documents
+                    .where((e) => e!.parentId == taskModel.parentId)
+                    .length >
+                0);
+
+    if (!isFirstTask) {
+      TaskModel? firstTaskModel = taskController.documents
+          .where((e) => e!.parentId == taskModel.parentId)
+          .first;
+
+      StageModel? fisrtStageOfFirstTask =
+          (stageController.loading.value || firstTaskModel == null)
+              ? null
+              : documents.firstWhere(
+                  (e) => e!.index == 0 && e.taskId == firstTaskModel.id);
+
+      firstValueOfFirstTask =
+          (valueController.loading.value && fisrtStageOfFirstTask == null)
+              ? null
+              : valueController.documents
+                  .firstWhere((e) => e!.stageId == fisrtStageOfFirstTask!.id);
+    }
     return List.generate(
-      indice.last + 1,
-      (ind) => Map.fromIterable(
-        stagesOfTask.where((e) => e!.index == ind),
-        key: (stageModel) => stageModel!,
-        value: (stageModel) =>
-            valueController.valueModelsByStageId(stageModel.id),
-      ),
+      stagesOfTask.map((e) => e!.index).reduce(max) + 1,
+      (ind) {
+        return Map.fromIterable(
+          stagesOfTask.where((e) => e!.index == ind),
+          key: (stageModel) => stageModel!,
+          value: (stageModel) => (ind == 0 && !isFirstTask)
+              ? [firstValueOfFirstTask]
+              : valueController.valueModelsByStageId(stageModel.id),
+        );
+      },
     );
   }
 
@@ -91,6 +143,17 @@ class StageController extends GetxService {
         return element!.submitDateTime == null;
       }).length ==
       1;
+
+  bool isStageAssigned(TaskModel? taskModel) => taskModel == null
+      ? false
+      : !stageController
+          .valueModelsByTaskId(taskModel)
+          .map(
+            (e) => e!.values
+                .map((e1) => e1.map((e2) => e2!.submitDateTime).contains(null))
+                .contains(true),
+          )
+          .contains(true);
 
   StageModel get lastTaskStage =>
       valueModelsOfCurrentTask[lastIndex]!.keys.last;
@@ -106,11 +169,20 @@ class StageController extends GetxService {
     return valueModelList.isNotEmpty ? valueModelList[0] : null;
   }
 
-  bool isWorkerFormVisible(ExpantionPanelItemModel item) =>
-      valueModelAssignedCurrentUser == null
-          ? false
-          : valueModelAssignedCurrentUser!.submitDateTime == null &&
-              item.index == stageController.lastIndex;
+  bool isWorkerFormVisible(ExpantionPanelItemModel item) {
+    return valueModelAssignedCurrentUser == null
+        ? false
+        : stageController.currentTask!.holdReason != null
+            ? false
+            : item.index != stageController.lastIndex
+                ? false
+                : (item.index == 8 &&
+                        (valueModelAssignedCurrentUser!
+                                .linkingToGroupDateTime !=
+                            null))
+                    ? false
+                    : valueModelAssignedCurrentUser!.submitDateTime == null;
+  }
 
   List<String> get specialFieldNames =>
       stageDetailsList[lastIndex]['form fields'];
@@ -126,51 +198,45 @@ class StageController extends GetxService {
 
   @override
   void onInit() {
+    super.onInit();
+
     _documents.bindStream(_repository.getAllDocumentsAsStream());
+    _documents.listen((List<StageModel?> stageModelList) {
+      if (stageModelList.isNotEmpty) loading.value = false;
+    });
+
     textEditingControllers =
         List<TextEditingController>.generate(5, (_) => TextEditingController());
-    super.onInit();
   }
 
-  Widget buildEditForm() => BuildEditFormWidget();
-  Widget buildPanel() {
-    return Obx(() {
-      final List<Widget> children = documents.isNotEmpty
-          ? [
-              CustomExpansionPanelList(data: generateItems(maxIndex)),
-              SizedBox(height: 200),
-            ]
-          : [CircularProgressIndicator()];
+  List<ExpantionPanelItemModel> generateItems() {
+    return List<ExpantionPanelItemModel>.generate(
+      maxIndex,
+      (int index) {
+        final Widget workerForm = index == 7
+            ? FilingStageForm()
+            : index == 8
+                ? NestingStageForm()
+                : WorkerForm(index: index, visible: lastIndex == index);
+        final Widget coordinatorForm =
+            CoordinatorForm(index: index, visible: lastIndex == index);
+        final Widget valueTableView = ValueTableView(
+          index: index,
+          stageValueModelsList: valueModelsOfCurrentTask[index]![
+              valueModelsOfCurrentTask[index]!.keys.last],
+        );
+        final String headerValue =
+            '${index + 1} | ${stageDetailsList[index]['name']}';
 
-      return Column(children: children);
-    });
-  }
-
-  List<ExpantionPanelItemModel> generateItems(int numberOfItems) {
-    return List<ExpantionPanelItemModel>.generate(numberOfItems, (int index) {
-      final Widget workerForm = index == 7
-          ? FilingStageForm()
-          : index == 8
-              ? NestingStageForm()
-              : WorkerForm(index: index, visible: lastIndex == index);
-      final Widget coordinatorForm =
-          CoordinatorForm(index: index, visible: lastIndex == index);
-      final Widget valueTableView = ValueTableView(
-        index: index,
-        stageValueModelsList: valueModelsOfCurrentTask[index]![
-            valueModelsOfCurrentTask[index]!.keys.last],
-      );
-      final String headerValue =
-          '${index + 1} | ${stageDetailsList[index]['name']}';
-
-      return ExpantionPanelItemModel(
-        headerValue: headerValue,
-        coordinatorForm: coordinatorForm,
-        workerForm: workerForm,
-        valueTable: valueTableView,
-        index: index,
-      );
-    });
+        return ExpantionPanelItemModel(
+          headerValue: headerValue,
+          coordinatorForm: coordinatorForm,
+          workerForm: workerForm,
+          valueTable: valueTableView,
+          index: index,
+        );
+      },
+    );
   }
 
   Future<String> addNew({required StageModel model}) async {
@@ -263,23 +329,28 @@ class StageController extends GetxService {
     assigningStaffModels.value = [];
   }
 
-  bool containsHold(TaskModel taskModel) {
-    return taskModel.id == null || valueModelsByTaskId(taskModel.id!).length < 7
-        ? false
-        : valueModelsByTaskId(taskModel.id!)[7]!
-                .values
-                .first
-                .first!
-                .hold !=
-            null;
+  bool containsHoldFun(TaskModel taskModel) {
+    if (taskModel.id == null) {
+      return false;
+    } else if (valueModelsByTaskId(taskModel).length < 8) {
+      return false;
+    } else {
+      return valueController.loading.value
+          ? false
+          : valueModelsByTaskId(taskModel)[7]!.values.first.isEmpty
+              ? false
+              : valueModelsByTaskId(taskModel)[7]!.values.first.first!.hold !=
+                  null;
+    }
   }
 
   void onSubmitPressed() async {
     Map<String, dynamic> map = {};
 
     for (var i = 0; i < specialFieldNames.length; i++) {
-      map[specialFieldNames[i].toLowerCase()] =
-          int.parse(textEditingControllers[i].text);
+      map[specialFieldNames[i].toLowerCase()] = specialFieldNames[i] == 'HOLD'
+          ? textEditingControllers[i].text
+          : int.parse(textEditingControllers[i].text);
     }
 
     map['isCommented'] = commentStatus.value;
@@ -393,5 +464,22 @@ class StageController extends GetxService {
 
   void onFileCountButtonPressed(fileNames) {
     Get.defaultDialog();
+  }
+
+  String? lastActivityDate(TaskModel taskModel) {
+    final List<ValueModel?> valueModelsList = valueModelsByTaskId(
+        taskModel)[stageController.lastIndex]![stageController.lastTaskStage]!;
+
+    DateTime assignedDateTime = DateTime(0);
+
+    if (valueModelsList.isNotEmpty)
+      assignedDateTime = valueModelsList
+          .map((e) => e!.assignedDateTime)
+          .reduce((a, b) => a.isAfter(b) ? a : b);
+
+    return '${<DateTime>[
+      stageController.lastTaskStage.creationDateTime,
+      assignedDateTime
+    ].reduce((a, b) => a.isAfter(b) ? a : b).toDMYhm()}';
   }
 }

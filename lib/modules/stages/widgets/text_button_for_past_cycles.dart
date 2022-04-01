@@ -27,26 +27,23 @@ class TxtButtonForPastCycles extends StatelessWidget {
 
   void onPressed() => Get.defaultDialog(
         title: 'Values of past cycles',
-        content: PastCycleContent(
-          index: index,
-        ),
+        content: PastCycleContent(index: index),
       );
 }
 
 class PastCycleContent extends StatelessWidget {
   final int index;
 
-  const PastCycleContent({
-    Key? key,
-    required this.index,
-  }) : super(key: key);
+  const PastCycleContent({Key? key, required this.index}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: Get.width,
+      height: Get.height * 0.6,
+      width: Get.width * 0.8,
       child: SingleChildScrollView(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: List.generate(
             stageController.valueModelsOfCurrentTask[index]!.length,
             (int ind) {

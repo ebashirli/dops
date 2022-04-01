@@ -107,25 +107,28 @@ class FilingStageForm extends StatelessWidget {
                     labelText: 'Note',
                     controller: stageController.textEditingControllers.last,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Obx(() {
-                        return Checkbox(
-                          checkColor: Colors.white,
-                          value: isChecked.value,
-                          onChanged: (bool? isCh) => isChecked.value = isCh!,
-                        );
-                      }),
-                      Column(
-                        children: [
-                          SizedBox(height: 6),
-                          Text(
-                            'By clicking this checkbox I confirm that all files\nare attached correctly and below appropriate task',
-                          ),
-                        ],
-                      ),
-                    ],
+                  InkWell(
+                    onTap: () => isChecked.value = !isChecked.value,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Obx(() {
+                          return Checkbox(
+                            checkColor: Colors.white,
+                            value: isChecked.value,
+                            onChanged: (bool? isCh) => isChecked.value = isCh!,
+                          );
+                        }),
+                        Column(
+                          children: [
+                            SizedBox(height: 6),
+                            Text(
+                              'By clicking this checkbox I confirm that all files\nare attached correctly and below appropriate task',
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                   SizedBox(height: 20),
                   Row(

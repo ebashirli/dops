@@ -27,12 +27,17 @@ class IssueController extends GetxService {
   int get nextGroupNumber =>
       documents.isEmpty ? 0 : documents.map((e) => e.groupNumber).reduce(max);
 
+  RxBool loading = true.obs;
+
   @override
   void onInit() {
     super.onInit();
     noteController = TextEditingController();
 
     _documents.bindStream(_repository.getAllDocumentsAsStream());
+    _documents.listen((List<IssueModel?> issueModelList) {
+      if (issueModelList.isNotEmpty) loading.value = false;
+    });
   }
 
   saveDocument({required IssueModel model}) async {
@@ -136,7 +141,8 @@ class IssueController extends GetxService {
         'assignedTasks': assignedTasks,
         'files': issue.files,
         'note': issue.note,
-        // 'submit': ,
+        'submitDate': issue.submitDate,
+        'issueDate': issue.issueDate,
       };
 
       return map;
@@ -148,4 +154,36 @@ class IssueController extends GetxService {
     await _repository.addFields(map, id);
     CustomFullScreenDialog.cancelDialog();
   }
+
+  String? onIssueSubmitPressed(IssueModel issueModel) {
+    if (issueModel.linkedTasks.isEmpty) return 'Error: there is no linked task';
+    issueController.addValues(
+      map: {'submitDate': DateTime.now()},
+      id: issueModel.id!,
+    );
+    for (String? id in issueModel.linkedTasks) {
+      TaskModel? taskModel =
+          taskController.loading.value || taskController.documents.isEmpty
+              ? null
+              : taskController.documents.singleWhere((e) => e!.id == id);
+      if (taskModel == null) return 'Error: task model not found';
+      String valueModelId = stageController
+          .valueModelsByTaskId(taskModel)[8]!
+          .values
+          .first
+          .singleWhere(
+            (e) => e!.employeeId == staffController.currentUserId,
+          )!
+          .id!;
+      valueController.addValues(
+        map: {
+          'submitDateTime': DateTime.now(),
+        },
+        id: valueModelId,
+      );
+    }
+    return 'Done';
+  }
+
+  onSendToDCCPressed(IssueModel issueModel) {}
 }

@@ -67,7 +67,7 @@ class HomeView extends GetView<HomeController> {
         if (staffController.isCoordinator ||
             (controller.homeStates == HomeStates.IssueState &&
                 valueController.documents
-                    .where((e) =>-
+                    .where((e) =>
                         e!.employeeId == staffController.currentUserId &&
                         stageController.documents
                                 .singleWhere(

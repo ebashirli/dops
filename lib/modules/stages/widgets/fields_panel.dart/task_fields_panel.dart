@@ -2,7 +2,6 @@ import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
-import 'package:dops/components/date_time_extension.dart';
 import 'package:get/get.dart';
 
 class TaskUpdateFormWidget extends StatelessWidget {
@@ -12,7 +11,6 @@ class TaskUpdateFormWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     final double totalWidth = Get.width - 120;
     final bool enabled = false;
     taskController.documents
@@ -25,7 +23,7 @@ class TaskUpdateFormWidget extends StatelessWidget {
           children: <Widget>[
             CustomTextFormField(
               enabled: enabled,
-              width: totalWidth * .04,
+              width: totalWidth * .05,
               initialValue: taskModel.revisionMark,
               labelText: 'Revision mark',
             ),
@@ -48,23 +46,35 @@ class TaskUpdateFormWidget extends StatelessWidget {
             ),
             CustomTextFormField(
               enabled: enabled,
-              width: totalWidth * .12,
+              width: totalWidth * .1,
               readOnly: true,
               initialValue: taskModel.changeNumber.toString(),
               labelText: 'ECF Number',
             ),
+            // SizedBox(width: 2),
             CustomTextFormField(
               enabled: enabled,
-              width: totalWidth * .12,
+              width: totalWidth * .08,
               readOnly: true,
               initialValue: taskModel.creationDate!.toDMYhm(),
               labelText: 'Task create date',
             ),
             CustomTextFormField(
               enabled: enabled,
-              width: totalWidth * .16,
+              width: totalWidth * .09,
               readOnly: true,
-              initialValue: stageController.lastActivityDate(taskModel),
+              initialValue: stageController.lastActivityAndStatusDate(
+                taskModel,
+                isStatus: true,
+              ),
+              labelText: 'Status date',
+            ),
+            CustomTextFormField(
+              enabled: enabled,
+              width: totalWidth * .09,
+              readOnly: true,
+              initialValue:
+                  stageController.lastActivityAndStatusDate(taskModel),
               labelText: 'Last activity date',
             ),
             CustomTextFormField(
@@ -89,7 +99,7 @@ class TaskUpdateFormWidget extends StatelessWidget {
           children: <Widget>[
             CustomTextFormField(
               initialValue: taskModel.referenceDocuments.join(', '),
-              width: totalWidth * .445,
+              width: totalWidth * .44,
               enabled: enabled,
               labelText: 'Reference Documents',
             ),

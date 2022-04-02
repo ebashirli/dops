@@ -13,11 +13,11 @@ class StaffModel {
   String jobTitle;
   String email;
   String company;
-  String dateOfBirth;
+  DateTime? dateOfBirth;
   String homeAddress;
-  String startDate;
+  DateTime? startDate;
   String currentPlace;
-  String contractFinishDate;
+  DateTime? contractFinishDate;
   String contact;
   String emergencyContact;
   String emergencyContactName;
@@ -58,11 +58,11 @@ class StaffModel {
       'jobTitle': jobTitle,
       'email': email,
       'company': company,
-      'dateOfBirth': dateOfBirth,
+      'dateOfBirth': dateOfBirth.toString(),
       'homeAddress': homeAddress,
-      'startDate': startDate,
+      'startDate': startDate.toString(),
       'currentPlace': currentPlace,
-      'contractFinishDate': contractFinishDate,
+      'contractFinishDate': contractFinishDate.toString(),
       'contact': contact,
       'emergencyContact': emergencyContact,
       'emergencyContactName': emergencyContactName,
@@ -88,20 +88,20 @@ class StaffModel {
       company: map['company'],
       dateOfBirth: map['dateOfBirth'] != null
           ? map['dateOfBirth'] is Timestamp
-              ? map['dateOfBirth'].toDate().toString()
-              : map['dateOfBirth']
+              ? DateTime.parse(map['dateOfBirth'].toDate().toString())
+              : DateTime.parse(map['dateOfBirth'])
           : null,
       homeAddress: map['homeAddress'],
       startDate: map['startDate'] != null
           ? map['startDate'] is Timestamp
-              ? map['startDate'].toDate().toString()
-              : map['startDate']
+              ? DateTime.parse(map['startDate'].toDate().toString())
+              : DateTime.parse(map['startDate'])
           : null,
       currentPlace: map['currentPlace'],
       contractFinishDate: map['contractFinishDate'] != null
           ? map['contractFinishDate'] is Timestamp
-              ? map['contractFinishDate'].toDate().toString()
-              : map['contractFinishDate']
+              ? DateTime.parse(map['contractFinishDate'].toDate().toString())
+              : DateTime.parse(map['contractFinishDate'])
           : null,
       contact: map['contact'],
       emergencyContact: map['emergencyContact'],

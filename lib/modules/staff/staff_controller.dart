@@ -2,7 +2,6 @@ import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/table_details.dart';
 import 'package:dops/core/cache_manager.dart';
-import 'package:dops/components/date_time_extension.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -149,13 +148,11 @@ class StaffController extends GetxService with CacheManager {
     emergencyContactNameController.text = model.emergencyContactName;
     noteController.text = model.note;
 
-    dateOfBirthController.text =
-        DateTime.parse(model.dateOfBirth).toDayMonthYear();
+    dateOfBirthController.text = model.dateOfBirth!.toDMYhm();
 
-    startDateConroller.text = DateTime.parse(model.startDate).toDayMonthYear();
+    startDateConroller.text = model.startDate!.toDMYhm();
 
-    contractFinishDateController.text =
-        DateTime.parse(model.contractFinishDate).toDayMonthYear();
+    contractFinishDateController.text = model.contractFinishDate!.toDMYhm();
 
     currentPlaceText = model.currentPlace;
     systemDesignationText = model.systemDesignation;
@@ -355,12 +352,14 @@ class StaffController extends GetxService with CacheManager {
                               jobTitle: jobTitleText,
                               email: emailController.text,
                               company: companyText,
-                              dateOfBirth: dateOfBirthController.text,
+                              dateOfBirth:
+                                  DateTime.parse(dateOfBirthController.text),
                               homeAddress: homeAddressController.text,
-                              startDate: startDateConroller.text,
+                              startDate:
+                                  DateTime.parse(startDateConroller.text),
                               currentPlace: currentPlaceText,
-                              contractFinishDate:
-                                  contractFinishDateController.text,
+                              contractFinishDate: DateTime.parse(
+                                  contractFinishDateController.text),
                               contact: contactController.text,
                               emergencyContact: emergencyContactController.text,
                               emergencyContactName:

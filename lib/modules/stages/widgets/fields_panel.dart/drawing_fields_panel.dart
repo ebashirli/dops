@@ -4,7 +4,6 @@ import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/values/value_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:dops/components/date_time_extension.dart';
 
 class DrawingUpdateFormWidget extends StatelessWidget {
   const DrawingUpdateFormWidget({Key? key, required this.drawingModel})

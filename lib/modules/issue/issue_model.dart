@@ -7,6 +7,7 @@ class IssueModel {
   String note;
   List<String?> files;
   DateTime? submitDate;
+  DateTime? issueDate;
   bool isHidden;
 
   IssueModel({
@@ -18,6 +19,7 @@ class IssueModel {
     required this.note,
     required this.files,
     this.submitDate,
+    this.issueDate,
     this.isHidden = false,
   });
 
@@ -30,6 +32,7 @@ class IssueModel {
       'note': note,
       'files': files,
       'submitDate': submitDate,
+      'issueDate': issueDate,
       'isHidden': isHidden,
     };
   }
@@ -45,6 +48,7 @@ class IssueModel {
       note: map['note'] ?? '',
       files: List<String>.from(map['files']),
       submitDate: map['submitDate'] != null ? map['submitDate'].toDate() : null,
+      issueDate: map['issueDate'] != null ? map['issueDate'].toDate() : null,
       isHidden: map['isHidden'] ?? false,
     );
   }

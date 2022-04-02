@@ -1,5 +1,6 @@
 import 'package:dops/components/select_item_snackbar.dart';
 import 'package:dops/constants/constant.dart';
+import 'package:dops/modules/issue/issue_model.dart';
 import 'package:dops/routes/app_pages.dart';
 import 'package:expendable_fab/expendable_fab.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:recase/recase.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../constants/table_details.dart';
+import 'package:dops/components/date_time_extension.dart';
 
 class TableView extends StatelessWidget {
   final controller;
@@ -196,6 +198,9 @@ class DataSource extends DataGridSource {
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>(
         (cell) {
+          if (['submitDate', 'issueDate'].contains(cell.columnName) &&
+              cell.value == null) return provideIssueButtons(cell, row);
+
           if (cell.value != null) {
             void onPressed(String id) =>
                 Get.toNamed(Routes.STAGES, parameters: {'id': id});
@@ -210,6 +215,9 @@ class DataSource extends DataGridSource {
                 taskId = cell.value.substring(indexOfVbar + 1);
               }
             }
+
+            DateTime? dateTimeCellValue = null;
+            if (cell.value is DateTime) dateTimeCellValue = cell.value;
 
             return Container(
               alignment: Alignment.center,
@@ -236,14 +244,13 @@ class DataSource extends DataGridSource {
                                     ? () =>
                                         taskNumberDialog(cell.value, onPressed)
                                     : null,
-                                child: Text('|'
-                                    .allMatches(cell.value)
-                                    .length
-                                    .toString()),
+                                child: Text(
+                                  '|'.allMatches(cell.value).length.toString(),
+                                ),
                               )
                         : Text(
                             cell.value is DateTime
-                                ? '${cell.value.day}/${cell.value.month}/${cell.value.year}'
+                                ? dateTimeCellValue!.toDMYhm()
                                 : cell.value.toString(),
                           ),
               ),
@@ -254,6 +261,48 @@ class DataSource extends DataGridSource {
         },
       ).toList(),
     );
+  }
+
+  Widget provideIssueButtons(DataGridCell<dynamic> cell, DataGridRow row) {
+    String rowId = row.getCells()[0].value;
+    IssueModel? issueModel =
+        issueController.loading.value || issueController.documents.isEmpty
+            ? null
+            : issueController.documents.firstWhere((e) => e.id == rowId);
+    bool isSubmitVisible = issueModel == null
+        ? false
+        : (issueModel.createdBy == staffController.currentUserId) &&
+            (cell.columnName == 'submitDate') &&
+            (issueModel.linkedTasks.isNotEmpty ||
+                issueModel.linkedTasks.isNotEmpty);
+    bool isIssueButtonVisible = issueModel == null
+        ? false
+        : (issueModel.createdBy == staffController.currentUserId) &&
+            cell.columnName == 'issueDate' &&
+            staffController.isCoordinator &&
+            issueModel.submitDate != null &&
+            issueModel.issueDate == null;
+
+    return isSubmitVisible
+        ? Padding(
+            padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
+            child: ElevatedButton(
+              key: Key(row.getCells()[0].value),
+              onPressed: () => issueController.onIssueSubmitPressed(issueModel),
+              child: Text('Submit'),
+            ),
+          )
+        : isIssueButtonVisible
+            ? Padding(
+                padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
+                child: ElevatedButton(
+                  key: Key(row.getCells()[0].value),
+                  onPressed: () =>
+                      issueController.onSendToDCCPressed(issueModel),
+                  child: Text('Send To DCC'),
+                ),
+              )
+            : Text('');
   }
 
   void taskNumberDialog(

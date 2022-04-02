@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import 'package:recase/recase.dart';
 
 import 'widgets/empoyee_forms/employee_forms.dart';
-import 'package:dops/components/date_time_extension.dart';
 
 class StageController extends GetxService {
   final _repository = Get.find<StageRepository>();
@@ -31,28 +30,21 @@ class StageController extends GetxService {
 
   RxBool loading = true.obs;
 
-  TaskModel? get currentTask {
-    if (!taskController.loading.value || taskController.documents.isNotEmpty) {
-      List<TaskModel?> taskModelList = taskController.documents.where((e) {
-        return e!.id == Get.parameters['id'];
-      }).toList();
-      return taskModelList.isEmpty ? null : taskModelList.first;
-    } else {
-      return null;
-    }
-  }
+  TaskModel? get currentTask =>
+      (taskController.loading.value || taskController.documents.isEmpty)
+          ? null
+          : taskController.documents.firstWhere(
+              (e) => e!.id == Get.parameters['id'],
+              orElse: null,
+            );
 
-  DrawingModel? get currentDrawing {
-    if (!drawingController.loading.value ||
-        drawingController.documents.isNotEmpty) {
-      List<DrawingModel?> drawingModelList = drawingController.documents
-          .where((e) => e.id == currentTask!.parentId)
-          .toList();
-      return drawingModelList.isEmpty ? null : drawingModelList.first;
-    } else {
-      return null;
-    }
-  }
+  DrawingModel? get currentDrawing =>
+      (drawingController.loading.value || drawingController.documents.isEmpty)
+          ? null
+          : drawingController.documents.firstWhere(
+              (e) => e.id == currentTask!.parentId,
+              orElse: null,
+            );
 
   List<StageModel?> get stagesOfCurrentTask {
     List<StageModel?> _stagesOfCurrentTask =
@@ -466,20 +458,31 @@ class StageController extends GetxService {
     Get.defaultDialog();
   }
 
-  String? lastActivityDate(TaskModel taskModel) {
-    final List<ValueModel?> valueModelsList = valueModelsByTaskId(
-        taskModel)[stageController.lastIndex]![stageController.lastTaskStage]!;
+  String? lastActivityAndStatusDate(
+    TaskModel taskModel, {
+    bool isStatus = false,
+  }) {
+    final List<ValueModel?> valueModelsOfLastStage =
+        valueModelsByTaskId(taskModel)[lastIndex]![lastTaskStage]!;
 
-    DateTime assignedDateTime = DateTime(0);
-
-    if (valueModelsList.isNotEmpty)
-      assignedDateTime = valueModelsList
-          .map((e) => e!.assignedDateTime)
-          .reduce((a, b) => a.isAfter(b) ? a : b);
-
-    return '${<DateTime>[
-      stageController.lastTaskStage.creationDateTime,
-      assignedDateTime
-    ].reduce((a, b) => a.isAfter(b) ? a : b).toDMYhm()}';
+    if (valueModelsOfLastStage.isEmpty)
+      return lastTaskStage.creationDateTime.toDMYhm();
+    List<DateTime> assignedDateTimes = valueModelsOfLastStage
+        .map<DateTime>((e) => e!.assignedDateTime)
+        .toList();
+    DateTime maxAssignedDateTime = assignedDateTimes.reduce(
+      (a, b) => a.isAfter(b) ? a : b,
+    );
+    DateTime minAssignedDateTime = assignedDateTimes.reduce(
+      (a, b) => a.isAfter(b) ? b : a,
+    );
+    DateTime maxSubmitDateTime = valueModelsOfLastStage
+        .map<DateTime>((e) => e!.submitDateTime ?? DateTime(0))
+        .reduce((a, b) => a.isAfter(b) ? a : b);
+    return isStatus
+        ? minAssignedDateTime.toDMYhm()
+        : [maxAssignedDateTime, maxSubmitDateTime]
+            .reduce((a, b) => a.isAfter(b) ? a : b)
+            .toDMYhm();
   }
 }

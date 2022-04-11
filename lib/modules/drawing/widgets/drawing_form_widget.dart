@@ -6,16 +6,14 @@ import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class DrawingForm extends StatelessWidget {
-  const DrawingForm({
+class DrawingFormWidget extends StatelessWidget {
+  const DrawingFormWidget({
     Key? key,
     required this.dialogWidth,
     this.drawingId,
-    this.taskId,
   }) : super(key: key);
   final double dialogWidth;
   final String? drawingId;
-  final String? taskId;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +53,7 @@ class DrawingForm extends StatelessWidget {
                                       items: activityController.documents,
                                       labelText: 'Activity code',
                                       showSearchBox: true,
-                                      selectedItems: activitiCodeSelectedItem,
+                                      selectedItems: [activitiCodeSelectedItem],
                                       onChanged: onActivityCodeChanged,
                                       itemAsString:
                                           (ActivityModel? activityModel) =>
@@ -243,17 +241,13 @@ class DrawingForm extends StatelessWidget {
   void onModuleNameChanged(value) =>
       drawingController.moduleNameText = value ?? '';
 
-  void onActivityCodeChanged(value) =>
-      drawingController.activityCodeIdText = activityController.documents
-          .singleWhere((e) => e.id == value.first!.id)
-          .id!;
+  void onActivityCodeChanged(value) {
+    ActivityModel? activityModel = activityController.getById(value.first!.id);
+    drawingController.activityCodeIdText =
+        activityModel == null ? '' : activityModel.id!;
+  }
 
-  List<ActivityModel?> get activitiCodeSelectedItem => [
-        drawingId != null
-            ? activityController.documents.singleWhere(
-                (activity) =>
-                    activity.id == drawingController.activityCodeIdText,
-              )
-            : null
-      ];
+  ActivityModel? get activitiCodeSelectedItem => drawingId != null
+      ? activityController.getById(drawingController.activityCodeIdText)
+      : null;
 }

@@ -157,6 +157,7 @@ class FilingStageForm extends StatelessWidget {
     );
   }
 
-  void func(FilePickerResult result, int ind) =>
-      fileNamesList[ind] = result.files.map((file) => file.name).toList();
+  void func(FilePickerResult result, int ind) {
+    fileNamesList[ind] = result.files.map((file) => file.name).toList();
+  }
 }

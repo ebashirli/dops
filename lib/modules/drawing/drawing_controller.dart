@@ -1,9 +1,11 @@
 import 'package:dops/components/custom_widgets.dart';
+import 'package:dops/components/select_item_snackbar.dart';
 import 'package:dops/constants/constant.dart';
-import 'package:dops/modules/drawing/widgets/drawing_form.dart';
+import 'package:dops/modules/drawing/widgets/drawing_form_widget.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:collection/collection.dart';
 
 import 'drawing_model.dart';
 import 'drawing_repository.dart';
@@ -88,6 +90,12 @@ class DrawingController extends GetxService {
     Get.back();
   }
 
+  DrawingModel? getById(String id) {
+    return loading.value || documents.isEmpty
+        ? null
+        : documents.singleWhereOrNull((e) => e.id == id);
+  }
+
   void deleteDrawing(String id) {
     if (taskController.documents.isNotEmpty) {
       final List<TaskModel?> tasks = taskController.documents
@@ -124,8 +132,7 @@ class DrawingController extends GetxService {
     drawingTagList = [];
   }
 
-  void fillEditingControllers(
-      {required DrawingModel drawingModel, TaskModel? taskModel}) {
+  void fillEditingControllers(DrawingModel drawingModel) {
     drawingNumberController.text = drawingModel.drawingNumber;
     drawingTitleController.text = drawingModel.drawingTitle;
     drawingNoteController.text = drawingModel.note;
@@ -138,62 +145,35 @@ class DrawingController extends GetxService {
 
     areaList = drawingModel.area;
     drawingTagList = drawingModel.drawingTag;
-
-    if (taskModel != null) {
-      nextRevisionMarkController.text = taskModel.revisionMark;
-      referenceDocumentsList = taskModel.referenceDocuments;
-    }
   }
 
-  buildAddEdit({String? id}) {
-    late final DrawingModel? drawingModel;
-    late final TaskModel? taskModel;
-
-    String? taskId = null;
-
-    if (taskController.documents.isNotEmpty) {
-      if (taskController.documents.map((e) => e!.parentId).contains(id)) {
-        taskId =
-            taskController.documents.lastWhere((e) => e!.parentId == id)!.id;
-      }
-    }
-
-    if (id != null) {
-      drawingModel = documents.singleWhere((drawings) => drawings.id == id);
-
-      if (taskId != null) {
-        taskModel =
-            taskController.documents.singleWhere((task) => task!.id == taskId);
-      }
-
-      fillEditingControllers(
-        drawingModel: drawingModel,
-        taskModel: taskId != null ? taskModel : null,
-      );
-    } else {
-      clearEditingControllers();
-    }
-
-    final double dialogWidth = Get.width * .5;
-
-    formDialog(
-      drawingId: id,
-      dialogWidth: dialogWidth,
-      taskId: taskId,
-    );
+  buildAddForm() {
+    clearEditingControllers();
+    getDialog();
   }
 
-  void formDialog(
-          {String? drawingId, String? taskId, required double dialogWidth}) =>
-      Get.defaultDialog(
+  buildUpdateForm(String id) {
+    final DrawingModel? drawingModel = getById(id);
+    drawingModel == null
+        ? selectItemSnackbar()
+        : fillEditingControllers(drawingModel);
+
+    getDialog(drawingId: id);
+  }
+
+  void getDialog({String? drawingId, String? taskId}) => Get.defaultDialog(
         barrierDismissible: false,
         radius: 12,
         titlePadding: EdgeInsets.only(top: 20, bottom: 20),
         title: drawingId == null ? 'Add new drawing' : 'Update drawing',
-        content: DrawingForm(
-          dialogWidth: dialogWidth,
+        content: DrawingFormWidget(
+          dialogWidth: Get.width * 0.5,
           drawingId: drawingId,
-          taskId: taskId,
         ),
       );
+
+  drawingModelById(TaskModel? taskModel) => (loading.value || documents.isEmpty)
+      ? null
+      : drawingController.documents
+          .firstWhereOrNull((e) => e.id == taskModel!.parentId);
 }

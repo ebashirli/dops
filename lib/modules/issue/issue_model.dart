@@ -6,7 +6,6 @@ class IssueModel {
   List<String?> linkedTasks;
   String note;
   List<String?> files;
-  DateTime? submitDate;
   DateTime? issueDate;
   bool isHidden;
 
@@ -18,7 +17,6 @@ class IssueModel {
     required this.linkedTasks,
     required this.note,
     required this.files,
-    this.submitDate,
     this.issueDate,
     this.isHidden = false,
   });
@@ -31,7 +29,6 @@ class IssueModel {
       'linkedTasks': linkedTasks,
       'note': note,
       'files': files,
-      'submitDate': submitDate,
       'issueDate': issueDate,
       'isHidden': isHidden,
     };
@@ -47,7 +44,6 @@ class IssueModel {
       linkedTasks: List<String?>.from(map['linkedTasks']),
       note: map['note'] ?? '',
       files: List<String>.from(map['files']),
-      submitDate: map['submitDate'] != null ? map['submitDate'].toDate() : null,
       issueDate: map['issueDate'] != null ? map['issueDate'].toDate() : null,
       isHidden: map['isHidden'] ?? false,
     );

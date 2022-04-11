@@ -13,15 +13,17 @@ class BuildEditFormWidget extends StatelessWidget {
   @override
   Widget build(_) {
     return Obx(
-      () => taskController.loading.value
-          ? CircularProgressIndicator()
-          : (stageController.currentTask == null ||
-                  stageController.currentDrawing == null)
-              ? Text('Task not found!')
-              : _buildEditFormWidget(
-                  taskModel: stageController.currentTask!,
-                  drawingModel: stageController.currentDrawing!,
-                ),
+      () {
+        return taskController.loading.value
+            ? CircularProgressIndicator()
+            : (stageController.currentTask == null ||
+                    stageController.currentDrawing == null)
+                ? Text('Task not found!')
+                : _buildEditFormWidget(
+                    taskModel: stageController.currentTask!,
+                    drawingModel: stageController.currentDrawing!,
+                  );
+      },
     );
   }
 
@@ -29,7 +31,6 @@ class BuildEditFormWidget extends StatelessWidget {
     required TaskModel taskModel,
     required DrawingModel drawingModel,
   }) {
-
     final String fullTaskNumber =
         '${drawingModel.drawingNumber}-${taskModel.revisionMark}';
     return Container(

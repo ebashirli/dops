@@ -116,19 +116,22 @@ class ReferenceDocumentController extends GetxService {
     }
   }
 
-  buildAddEdit({String? id}) {
-    if (id != null) {
-      fillEditingControllers(id);
-    } else {
-      clearEditingControllers();
-    }
+  buildAddForm() {
+    clearEditingControllers();
+    getForm(title: 'Add Reference Document');
+  }
 
+  buildUpdateForm({required String id}) {
+    fillEditingControllers(id);
+    getForm(title: 'Update Reference Document', id: id);
+  }
+
+  getForm({required String title, String? id}) {
     Get.defaultDialog(
       barrierDismissible: false,
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title:
-          id == null ? 'Add Reference Document' : 'Update Reference Document',
+      title: title,
       content: RefDocAddUpdateFormWidget(id: id),
     );
   }

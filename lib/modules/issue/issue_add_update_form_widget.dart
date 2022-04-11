@@ -58,16 +58,7 @@ class IssueAddUpdateFormWidget extends StatelessWidget {
                               ),
                             ),
                             SizedBox(width: 10),
-                            if (id != null)
-                              TextButton(
-                                onPressed: () => filesDialog(issueController
-                                    .documents
-                                    .singleWhere((e) => e.id == id)
-                                    .files),
-                                child: Text(
-                                  '${issueController.documents.singleWhere((e) => e.id == id).files.length}',
-                                ),
-                              ),
+                            if (id != null) filesCountTextButton(id!),
                           ],
                         ),
                       ),
@@ -88,7 +79,7 @@ class IssueAddUpdateFormWidget extends StatelessWidget {
                       if (id != null)
                         ElevatedButton.icon(
                           onPressed: () {
-                            // TODO: deleteStaff(id);
+                            issueController.deleteIssue(id!);
                             Get.back();
                           },
                           icon: Icon(Icons.delete),
@@ -112,12 +103,11 @@ class IssueAddUpdateFormWidget extends StatelessWidget {
                             createdBy: staffController.currentUserId,
                             files: issueController.files,
                             linkedTasks: issueController.linkedTaskIds,
-                            groupNumber: issueController.nextGroupNumber + 1,
+                            groupNumber: issueController.maxGroupNumber + 1,
                           );
                           id == null
                               ? issueController.saveDocument(model: model)
-                              : issueController.updateDocument(
-                                  model: model, id: id!);
+                              : issueController.updateDocument(id!);
                         },
                         child: Text(
                           id != null ? 'Update' : 'Add',
@@ -133,22 +123,22 @@ class IssueAddUpdateFormWidget extends StatelessWidget {
       ),
     );
   }
+
+  TextButton filesCountTextButton(String id) {
+    return TextButton(
+      onPressed: () => filesDialog(getFileNames(id)),
+      child: Text(getFileCounts(id)),
+    );
+  }
+
+  List<String?> getFileNames(String id) {
+    IssueModel? issueModel = issueController.getById(id);
+    return issueModel == null ? [] : issueModel.files;
+  }
+
+  String getFileCounts(String id) {
+    IssueModel? issueModel = issueController.getById(id);
+    List<String?> files = issueModel == null ? [] : issueModel.files;
+    return files.isEmpty ? '0' : files.length.toString();
+  }
 }
-
-
-// CustomDropdownMenuWithModel<TaskModel?>(
-                      //   width: Get.width * .49,
-                      //   isMultiselection: true,
-                      //   onChanged: (value) {
-                      //     issueController.linkedTaskIds.value =
-                      //         value.map((e) => e!.id).toList();
-                      //   },
-                      //   selectedItems: issueController.linkedTaskIds
-                      //       .map((e) => taskController.documents.singleWhere(
-                      //           (TaskModel? taskModel) => taskModel!.id == e))
-                      //       .toList(),
-                      //   items: taskController.documents,
-                      //   itemAsString: (TaskModel? taskModel) =>
-                      //       '${drawingController.documents.singleWhere((e) => e.id == taskModel!.parentId).drawingNumber}-${taskModel!.revisionMark}',
-                      //   labelText: 'Linked Tasks',
-                      // ),

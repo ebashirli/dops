@@ -1,12 +1,16 @@
 import 'dart:math';
+import 'package:collection/collection.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/components/custom_widgets.dart';
+import 'package:dops/components/select_item_snackbar.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/issue/issue_add_update_form_widget.dart';
 import 'package:dops/modules/issue/issue_model.dart';
 import 'package:dops/modules/issue/issue_repository.dart';
+import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/task/task_model.dart';
+import 'package:dops/modules/values/value_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -24,7 +28,7 @@ class IssueController extends GetxService {
 
   final RxList<String?> files = RxList<String?>([]);
 
-  int get nextGroupNumber =>
+  int get maxGroupNumber =>
       documents.isEmpty ? 0 : documents.map((e) => e.groupNumber).reduce(max);
 
   RxBool loading = true.obs;
@@ -47,14 +51,24 @@ class IssueController extends GetxService {
     Get.back();
   }
 
-  updateDocument({required IssueModel model, required String id}) async {
+  updateDocument(String id) async {
     final isValid = formKey.currentState!.validate();
-    if (!isValid) {
-      return;
-    }
+    if (!isValid) return;
     formKey.currentState!.save();
     CustomFullScreenDialog.showDialog();
-    await _repository.updateModel(model, id);
+    IssueModel? issueModel = getById(id);
+    if (issueModel == null) return;
+
+    Map<String, dynamic> map = {
+      if (issueController.noteController.text != issueModel.note)
+        'note': issueController.noteController.text,
+      if (issueController.files != issueModel.files)
+        'files': issueController.files,
+      if (issueController.linkedTaskIds != issueModel.linkedTasks)
+        'linkedTasks': issueController.files,
+    };
+
+    await _repository.updateModel(map, id);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
@@ -97,8 +111,22 @@ class IssueController extends GetxService {
     }
   }
 
-  buildAddEdit({String? id}) {
+  buildAddForm({String? id}) {
+    int groupNumber = issueController.maxGroupNumber;
+
     if (id != null) {
+      IssueModel? issueModel = getById(id);
+
+      if (issueModel == null)
+        return selectItemSnackbar(message: 'Refresh page');
+
+      if (!staffController.isCoordinator &&
+          issueModel.createdBy != staffController.currentUserId) {
+        selectItemSnackbar(
+            message: 'Select a group that created by yourselves');
+        return;
+      }
+      groupNumber = issueModel.groupNumber;
       fillEditingControllers(id);
     } else {
       clearEditingControllers();
@@ -109,8 +137,40 @@ class IssueController extends GetxService {
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
       title: id == null
-          ? 'Add New Group #${issueController.nextGroupNumber + 1}'
-          : 'Update Group #${issueController.documents.singleWhere((e) => e.id == id).groupNumber}',
+          ? 'Add New Group #${groupNumber + 1}'
+          : 'Update Group #$groupNumber}',
+      content: IssueAddUpdateFormWidget(id: id),
+    );
+  }
+
+  buildUpdateForm({String? id}) {
+    int groupNumber = issueController.maxGroupNumber;
+
+    if (id != null) {
+      IssueModel? issueModel = getById(id);
+
+      if (issueModel == null)
+        return selectItemSnackbar(message: 'Refresh page');
+
+      if (!staffController.isCoordinator &&
+          issueModel.createdBy != staffController.currentUserId) {
+        selectItemSnackbar(
+            message: 'Select a group that created by yourselves');
+        return;
+      }
+      groupNumber = issueModel.groupNumber;
+      fillEditingControllers(id);
+    } else {
+      clearEditingControllers();
+    }
+
+    Get.defaultDialog(
+      barrierDismissible: false,
+      radius: 12,
+      titlePadding: EdgeInsets.only(top: 20, bottom: 20),
+      title: id == null
+          ? 'Add New Group #${groupNumber + 1}'
+          : 'Update Group #$groupNumber}',
       content: IssueAddUpdateFormWidget(id: id),
     );
   }
@@ -118,30 +178,27 @@ class IssueController extends GetxService {
   List<Map<String, dynamic>> get getDataForTableView {
     return documents.map((issue) {
       String assignedTasks = '';
-
-      issue.linkedTasks.forEach((taskId) {
-        TaskModel? taskModel =
-            taskController.documents.singleWhere((e) => e!.id == taskId);
-        if (taskModel != null) {
-          final String drawingNumber = drawingController.documents
-              .where((drawing) => drawing.id == taskModel.parentId)
-              .toList()[0]
-              .drawingNumber;
-          assignedTasks += '|${drawingNumber};${taskModel.id!}';
-        }
-      });
+      if (issue.linkedTasks.isNotEmpty)
+        issue.linkedTasks.forEach((String? taskId) {
+          TaskModel? taskModel = taskController.getById(taskId!);
+          if (taskModel != null) {
+            final String drawingNumber = drawingController.documents
+                .where((drawing) => drawing.id == taskModel.parentId)
+                .toList()[0]
+                .drawingNumber;
+            assignedTasks += '|${drawingNumber};${taskModel.id!}';
+          }
+        });
 
       Map<String, dynamic> map = {
         'id': issue.id,
         'groupNumber': 'Group Number #${issue.groupNumber}',
-        'createdBy': staffController.documents
-            .singleWhere((e) => e.id == issue.createdBy)
-            .initial,
+        'createdBy': staffController.getStaffInitialById(issue.createdBy),
         'creationDate': issue.creationDate,
         'assignedTasks': assignedTasks,
         'files': issue.files,
         'note': issue.note,
-        'submitDate': issue.submitDate,
+        'submitDate': getMaxSubmitDate(issue.linkedTasks),
         'issueDate': issue.issueDate,
       };
 
@@ -162,23 +219,22 @@ class IssueController extends GetxService {
       id: issueModel.id!,
     );
     for (String? id in issueModel.linkedTasks) {
-      TaskModel? taskModel =
-          taskController.loading.value || taskController.documents.isEmpty
-              ? null
-              : taskController.documents.singleWhere((e) => e!.id == id);
+      TaskModel? taskModel = taskController.loading.value ||
+              taskController.documents.isEmpty ||
+              id == null
+          ? null
+          : taskController.getById(id);
       if (taskModel == null) return 'Error: task model not found';
+
       String valueModelId = stageController
-          .valueModelsByTaskId(taskModel)[8]!
+          .getStagesAndValueModelsByTask(taskModel)[8]!
           .values
           .first
-          .singleWhere(
-            (e) => e!.employeeId == staffController.currentUserId,
-          )!
+          .singleWhereOrNull(
+              (e) => e!.employeeId == staffController.currentUserId)!
           .id!;
       valueController.addValues(
-        map: {
-          'submitDateTime': DateTime.now(),
-        },
+        map: {'submitDateTime': DateTime.now()},
         id: valueModelId,
       );
     }
@@ -186,4 +242,36 @@ class IssueController extends GetxService {
   }
 
   onSendToDCCPressed(IssueModel issueModel) {}
+
+  DateTime? getMaxSubmitDate(List<String?> linkedTasks) {
+    linkedTasks = taskController.removeDeletedIds(linkedTasks);
+
+    if (linkedTasks.isEmpty) return null;
+
+    List<DateTime?> maxSubmitDateList = linkedTasks.map((String? taskId) {
+      Map<StageModel, List<ValueModel?>>? map =
+          stageController.getStageByTaskAndIndex(
+        taskId: taskId!,
+        index: 8,
+      );
+
+      if (map == null || map.isEmpty) return null;
+      List<ValueModel?> valueList = map.values.first;
+      if (valueList.isEmpty) return null;
+      List<DateTime?> submitDateList =
+          valueList.map((e) => e!.submitDateTime).toList();
+      if (submitDateList.contains(null)) return null;
+      return submitDateList.reduce(
+        (a, b) => a!.isAfter(b!) ? a : b,
+      );
+    }).toList();
+
+    if (maxSubmitDateList.contains(null)) return null;
+
+    return maxSubmitDateList.reduce((v, e) => v!.isAfter(e!) ? v : e);
+  }
+
+  IssueModel? getById(String id) => loading.value || documents.isEmpty
+      ? null
+      : documents.singleWhereOrNull((e) => e.id == id);
 }

@@ -1,5 +1,4 @@
-import 'package:dops/constants/lists.dart';
-import 'package:dropdown_search2/dropdown_search2.dart';
+import 'package:dops/modules/list/widgets/lists_form_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:recase/recase.dart';
 import '../../enum.dart';
@@ -43,84 +42,24 @@ class ListsController extends GetxService {
     newAddedList.removeAt(index);
   }
 
-  buildAddEdit() {
+  buildUpdateForm() {
     Get.defaultDialog(
-        radius: 12,
-        titlePadding: EdgeInsets.only(top: 40, bottom: 20),
-        title: 'Add New List Item',
-        contentPadding: EdgeInsets.only(left: 12, right: 12),
-        content: Container(
-          width: Get.width * .3,
-          child: Column(
-            children: <Widget>[
-              DropdownSearch<String>(
-                showSearchBox: true,
-                mode: Mode.MENU,
-                items: listNames,
-                onChanged: (value) => choosenList.value = value!,
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: textController,
-                decoration: InputDecoration(
-                  isDense: true,
-                  contentPadding: EdgeInsets.only(left: 8, bottom: 4),
-                  alignLabelWithHint: true,
-                  suffix: IconButton(
-                      splashRadius: 16,
-                      onPressed: addNewItem,
-                      icon: Icon(Icons.add)),
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Obx(() {
-                return Wrap(
-                  alignment: WrapAlignment.start,
-                  children: newAddedList
-                      .asMap()
-                      .entries
-                      .map(
-                        (element) => chipContainer(
-                          element.value,
-                          element.key,
-                        ),
-                      )
-                      .toList(),
-                );
-              }),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  ElevatedButton(
-                      onPressed: () {
-                        Get.back();
-                      },
-                      child: const Text('Cancel')),
-                  SizedBox(width: 10),
-                  Obx(() {
-                    return ElevatedButton(
-                      onPressed: newAddedList.isNotEmpty
-                          ? () async {
-                              // if (textController.text.trim().isNotEmpty && choosenList.isNotEmpty)
-                              updateModel(ListsModel.fromMap(map));
-                              newAddedList.value = [];
-                              Get.back();
-                            }
-                          : null,
-                      child: const Text('Done'),
-                    );
-                  }),
-                ],
-              ),
-            ],
-          ),
-        ));
+      radius: 12,
+      titlePadding: EdgeInsets.only(top: 40, bottom: 20),
+      title: 'Add New List Item',
+      contentPadding: EdgeInsets.only(left: 12, right: 12),
+      content: ListsFormWidget(map: map),
+    );
+  }
+
+  buildAddForm() {
+    Get.defaultDialog(
+      radius: 12,
+      titlePadding: EdgeInsets.only(top: 40, bottom: 20),
+      title: 'Add New List Item',
+      contentPadding: EdgeInsets.only(left: 12, right: 12),
+      content: ListsFormWidget(map: map),
+    );
   }
 
   Container chipContainer(Map<String, dynamic> element, index) {

@@ -1,3 +1,5 @@
+// flutter run -d web-server --web-port 8080 --web-hostname 172.30.134.63
+
 import 'package:dops/core/auth_manager.dart';
 import 'package:dops/core/cache_manager.dart';
 import 'package:dops/modules/activity/activity_controller.dart';

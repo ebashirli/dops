@@ -31,13 +31,15 @@ class AuthManager extends GetxService with CacheManager {
         password: password,
       );
       if (auth.currentUser != null) initializeStaffModel();
-    } catch (firebaseAuthException) {}
+    } catch (firebaseAuthException) {
+      print(firebaseAuthException);
+    }
+
     isLoading.value = false;
   }
 
   Future<void> initializeStaffModel() async {
-    logedInStaff.value = staffController.documents
-        .singleWhere((staffModel) => staffModel.id == auth.currentUser!.uid);
+    logedInStaff.value = staffController.getById(auth.currentUser!.uid);
     saveID(auth.currentUser!.uid);
     saveStaff(logedInStaff.value!);
   }

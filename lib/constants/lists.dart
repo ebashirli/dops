@@ -1,5 +1,3 @@
-// flutter run -d web-server --web-port 8080 --web-hostname 172.30.134.63
-
 List<String> get listNames => [
       'Companies',
       'Employee Places',
@@ -22,6 +20,7 @@ List<String> valueTableCommonColumnHeadList = [
   'Employee Id',
   'Assigned date time',
   'Note',
+  'Coordinator Note',
   'Submit date time',
   'linkingToGroupDateTime',
 ];

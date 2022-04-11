@@ -45,9 +45,10 @@ class PastCycleContent extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: List.generate(
-            stageController.valueModelsOfCurrentTask[index]!.length,
+            stageController.stageAndValueModelsOfCurrentTask[index]!.length,
             (int ind) {
-              var list = stageController.valueModelsOfCurrentTask[index]!.keys
+              var list = stageController
+                  .stageAndValueModelsOfCurrentTask[index]!.keys
                   .toList()[ind];
               return Column(
                 children: [
@@ -56,8 +57,9 @@ class PastCycleContent extends StatelessWidget {
                   ValueTableView(
                     index: index,
                     stageValueModelsList: stageController
-                            .valueModelsOfCurrentTask[index]![
-                        stageController.valueModelsOfCurrentTask[index]!.keys
+                            .stageAndValueModelsOfCurrentTask[index]![
+                        stageController
+                            .stageAndValueModelsOfCurrentTask[index]!.keys
                             .toList()[ind]],
                   ),
                 ],

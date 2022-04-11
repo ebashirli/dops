@@ -3,6 +3,7 @@ import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/list/lists_view.dart';
 
 import 'package:flutter/material.dart';
+
 import 'package:get/get.dart';
 
 import 'home_controller.dart';
@@ -64,18 +65,7 @@ class HomeView extends GetView<HomeController> {
     return AppBar(
       title: Text(_buildTitleOfPage()),
       actions: [
-        if (staffController.isCoordinator ||
-            (controller.homeStates == HomeStates.IssueState &&
-                valueController.documents
-                    .where((e) =>
-                        e!.employeeId == staffController.currentUserId &&
-                        stageController.documents
-                                .singleWhere(
-                                    (element) => element!.id == e.stageId)!
-                                .index ==
-                            8 &&
-                        e.linkingToGroupDateTime == null)
-                    .isNotEmpty))
+        if (isAddButtonVisibile)
           Row(
             children: [
               ElevatedButton(
@@ -92,22 +82,27 @@ class HomeView extends GetView<HomeController> {
           ),
         SizedBox(width: 10),
         Center(
-          child: staffController.documents.isNotEmpty
-              ? Text(
-                  staffController.documents
-                      .singleWhere((staff) => staff.id == auth.currentUser!.uid)
-                      .initial,
-                )
+          child: staffController.currentStaff != null
+              ? Text(staffController.currentStaff!.initial)
               : CircularProgressIndicator(),
         ),
         IconButton(
-          onPressed: () {
-            authManager.signOut();
-          },
+          onPressed: () => authManager.signOut(),
           icon: Icon(Icons.logout),
         ),
       ],
     );
+  }
+
+  bool get isAddButtonVisibile {
+    return staffController.isCoordinator ||
+        (controller.homeStates == HomeStates.IssueState &&
+            valueController.documents
+                .where((e) =>
+                    e!.employeeId == staffController.currentUserId &&
+                    stageController.getById(e.stageId)!.index == 8 &&
+                    e.linkingToGroupDateTime == null)
+                .isNotEmpty);
   }
 
   Container _buildDrawer() {
@@ -205,17 +200,17 @@ class HomeView extends GetView<HomeController> {
   _buildAddDatabase() {
     switch (controller.homeStates) {
       case HomeStates.ActivityState:
-        return activityController.buildAddEdit();
+        return activityController.buildAddForm();
       case HomeStates.ReferenceDocumentState:
-        return referenceDocumentController.buildAddEdit();
+        return referenceDocumentController.buildAddForm();
       case HomeStates.StaffState:
-        return staffController.buildAddEdit();
+        return staffController.buildAddForm();
       case HomeStates.TaskState:
-        return drawingController.buildAddEdit();
+        return drawingController.buildAddForm();
       case HomeStates.ListState:
-        return listsController.buildAddEdit();
+        return listsController.buildAddForm();
       case HomeStates.IssueState:
-        return issueController.buildAddEdit();
+        return issueController.buildAddForm();
     }
   }
 }

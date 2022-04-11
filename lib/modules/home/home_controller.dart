@@ -16,19 +16,23 @@ class HomeController extends GetxService {
 
   final Rx<DataGridController> dataGridController = DataGridController().obs;
 
-  void onEditPressed({bool? newRev = false}) {
-    if (dataGridController.value.selectedRow == null) {
+  void onEditPressed() {
+    DataGridRow? selectedRow = dataGridController.value.selectedRow;
+    if (selectedRow == null) {
       selectItemSnackbar();
     } else {
-      String? id = dataGridController.value.selectedRow!.getCells()[0].value;
-      if (id != null && !taskController.isTaskCompleted) {
-        selectItemSnackbar(
-          title: 'Task completion',
-          message: 'Current task has not been completed yet',
-        );
-      } else {
-        taskController.buildAddEdit(id: id, newRev: true);
-      }
+      String? id = selectedRow.getCells()[0].value;
+      (id != null && !taskController.isTaskCompleted)
+          ? selectItemSnackbar(
+              title: 'Task completion',
+              message: 'Current task has not been completed yet',
+            )
+          : taskController.buildAddForm(
+              parentId: selectedRow.getCells()[1].value,
+            );
     }
   }
+
+  String? getSelectedId() =>
+      dataGridController.value.selectedRow!.getCells().first.value;
 }

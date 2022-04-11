@@ -1,8 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
+
+import 'package:get/get.dart';
+
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/issue/issue_model.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class NestingStageForm extends StatelessWidget {
   NestingStageForm({Key? key}) : super(key: key);
@@ -18,15 +21,10 @@ class NestingStageForm extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               CustomDropdownMenuWithModel<IssueModel>(
-                items: issueController.documents
-                    .where((e) => e.createdBy == staffController.currentUserId)
-                    .toList(),
+                items: items,
                 selectedItems: selectedIssueModel,
-                onChanged: (List<IssueModel?> issueModelList) =>
-                    selectedIssueModel.value = issueModelList,
-                itemAsString: (IssueModel? issueModel) => issueModel != null
-                    ? 'Group #${issueModel.groupNumber.toString()}'
-                    : '',
+                onChanged: onChanged,
+                itemAsString: itemAsString,
                 labelText: 'Group Number',
               ),
               SizedBox(width: 20),
@@ -39,29 +37,7 @@ class NestingStageForm extends StatelessWidget {
               ),
               SizedBox(width: 20),
               ElevatedButton(
-                onPressed: () {
-                  String groupId = selectedIssueModel.first!.id!;
-                  List<String?> linkedTasks = issueController.documents
-                      .singleWhere((e) => e.id == groupId)
-                      .linkedTasks;
-
-                  linkedTasks.add(stageController.currentTask!.id);
-                  valueController.addValues(
-                    map: {
-                      'linkingToGroupDateTime': DateTime.now(),
-                      'note': stageController.textEditingControllers.last.text,
-                    },
-                    id: stageController
-                        .valueModelsOfCurrentTask[8]!.values.first
-                        .singleWhere((e) =>
-                            e!.employeeId == staffController.currentUserId)!
-                        .id!,
-                  );
-                  issueController.addValues(
-                    map: {'linkedTasks': linkedTasks},
-                    id: groupId,
-                  );
-                },
+                onPressed: onPressed,
                 child: Text('Link to Group'),
               ),
             ],
@@ -69,5 +45,44 @@ class NestingStageForm extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void onPressed() {
+    String groupId = selectedIssueModel.first!.id!;
+    IssueModel? issueModel = issueController.getById(groupId);
+    List<String?> linkedTasks =
+        issueModel == null ? [] : issueModel.linkedTasks;
+
+    linkedTasks.add(stageController.currentTask!.id);
+    valueController.addValues(
+      map: {
+        'linkingToGroupDateTime': DateTime.now(),
+        'note': stageController.textEditingControllers.last.text,
+      },
+      id: stageController.stageAndValueModelsOfCurrentTask[8]!.values.first
+          .singleWhereOrNull(
+              (e) => e!.employeeId == staffController.currentUserId)!
+          .id!,
+    );
+    issueController.addValues(
+      map: {'linkedTasks': linkedTasks},
+      id: groupId,
+    );
+  }
+
+  String itemAsString(IssueModel? issueModel) =>
+      issueModel != null ? 'Group #${issueModel.groupNumber.toString()}' : '';
+
+  void onChanged(List<IssueModel?> issueModelList) =>
+      selectedIssueModel.value = issueModelList;
+
+  List<IssueModel> get items {
+    return issueController.documents
+        .where(
+          (e) =>
+              e.createdBy == staffController.currentUserId &&
+              e.issueDate == null,
+        )
+        .toList();
   }
 }

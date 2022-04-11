@@ -42,23 +42,16 @@ class IssueRepository {
     );
   }
 
-  removeModel(String id) async {
-    await _api.updateDocument({'isHidden': true}, id);
-  }
+  removeModel(String id) async =>
+      await _api.updateDocument({'isHidden': true}, id);
 
-  updateModel(IssueModel data, String id) async {
-    await _api.updateDocument(data.toMap(), id);
-  }
+  updateModel(Map<String, dynamic> map, String id) async =>
+      await _api.updateDocument(map, id);
 
-  addModel(IssueModel data) async {
-    await _api.addDocument(data.toMap());
-  }
+  addModel(IssueModel data) async => await _api.addDocument(data.toMap());
 
-  add(IssueModel data) async {
-    await _api.addDocument(data.toMap());
-  }
+  add(IssueModel data) async => await _api.addDocument(data.toMap());
 
-  addFields(Map<String, dynamic> map, String id) async {
-    await _api.updateDocument(map, id);
-  }
+  addFields(Map<String, dynamic> map, String id) async =>
+      await _api.updateDocument(map, id);
 }

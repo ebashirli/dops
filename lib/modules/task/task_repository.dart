@@ -29,11 +29,11 @@ class TaskRepository {
             snapshot.data() as Map<String, dynamic>,
             snapshot.id,
           );
-          // if (taskModel.isHidden != true) returnValue.add(taskModel);
           returnValue.add(taskModel);
         },
       );
-      return returnValue;
+      return returnValue
+        ..sort((a, b) => a.creationDate!.compareTo(b.creationDate!));
     });
   }
 

@@ -36,10 +36,9 @@ class LoginView extends GetView<AuthManager> with CacheManager {
                       controller: emailController,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
-                        if (value!.contains('\n')) {
-                          focusNode.requestFocus();
-                        }
-                        return null;
+                        return value!.contains('\n')
+                            ? 'Forbidden charachter'
+                            : null;
                       },
                     ),
                     CustomTextFormField(
@@ -87,7 +86,6 @@ class LoginView extends GetView<AuthManager> with CacheManager {
         content: PasswordChangingForm(),
       );
 
-  Future<void> _login() async {
-    await controller.login(emailController.text, passwordController.text);
-  }
+  Future<void> _login() async =>
+      await controller.login(emailController.text, passwordController.text);
 }

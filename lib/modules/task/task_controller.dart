@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:collection/collection.dart';
 
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/components/select_item_snackbar.dart';
@@ -46,13 +47,40 @@ class TaskController extends GetxService {
     });
   }
 
-  Future<String> addNew({required TaskModel model}) async {
+  addNew(String parentId) {
     CustomFullScreenDialog.showDialog();
-    model.creationDate = DateTime.now();
-    await _repository.add(model).then((value) => model.id = value);
+    int nextChangeNumber = documents.isEmpty
+        ? 0
+        : documents.where((e) => e!.parentId == parentId).isEmpty
+            ? 0
+            : documentsAll.map((e) => e!.changeNumber).reduce(max) + 1;
+
+    TaskModel taskModel = TaskModel(
+      parentId: parentId,
+      referenceDocuments: referenceDocumentsList,
+      revisionMark: nextRevisionMarkController.text,
+      note: taskNoteController.text,
+      changeNumber: nextChangeNumber,
+      creationDate: DateTime.now(),
+    );
+
+    _repository.add(taskModel).then((taskId) {
+      StageModel stage = StageModel(
+        taskId: taskId,
+        creationDateTime: DateTime.now(),
+      );
+      stageController.addNew(model: stage);
+      if (!checkFirstTask(getById(taskId))) {
+        StageModel stage = StageModel(
+          index: 1,
+          taskId: taskId,
+          creationDateTime: DateTime.now(),
+        );
+        stageController.addNew(model: stage);
+      }
+    });
     CustomFullScreenDialog.cancelDialog();
     Get.back();
-    return model.id!;
   }
 
   updateTaskFields({
@@ -93,8 +121,7 @@ class TaskController extends GetxService {
     referenceDocumentsList = [];
   }
 
-  void fillEditingControllers(String id) {
-    TaskModel taskModel = documents.singleWhere((e) => e!.id == id)!;
+  void fillEditingControllers(TaskModel taskModel) {
     nextRevisionMarkController.text = taskModel.revisionMark;
     taskNoteController.text = taskModel.note ?? '';
     holdReasonController.text = taskModel.holdReason ?? '';
@@ -102,24 +129,20 @@ class TaskController extends GetxService {
     isHeld.value = taskModel.holdReason != null;
   }
 
-  buildAddEdit({String? id, bool newRev = false, bool fromStages = false}) {
-    String? drawingId = null;
-    if (!fromStages) {
-      if (homeController.dataGridController.value.selectedRow == null) {
-        selectItemSnackbar();
-      } else {
-        id = homeController.dataGridController.value.selectedRow!
-            .getCells()[0]
-            .value;
-        drawingId = homeController.dataGridController.value.selectedRow!
-            .getCells()[1]
-            .value;
-      }
+  buildAddForm({required String parentId}) {
+    clearEditingControllers();
+    formDialog(drawingId: parentId);
+  }
+
+  buildUpdateForm({required String id}) {
+    final TaskModel? taskModel = getById(id);
+    if (taskModel == null) {
+      selectItemSnackbar();
+    } else {
+      fillEditingControllers(taskModel);
+      formDialog(id: id);
     }
-
-    newRev ? clearEditingControllers() : fillEditingControllers(id!);
-
-    formDialog(id: id, newRev: newRev, drawingId: drawingId);
+    ;
   }
 
   formDialog({String? id, bool newRev = false, String? drawingId}) {
@@ -139,52 +162,55 @@ class TaskController extends GetxService {
   List<Map<String, dynamic>> get getDataForTableView {
     return drawingController.documents.map(
       (drawing) {
-        TaskModel task = TaskModel(
-          id: null,
-          revisionMark: '',
-          referenceDocuments: [],
-          note: '',
-          changeNumber: 0,
-        );
+        List<TaskModel?> tasksOfDrawing = taskModelsByDrawingId(drawing.id);
 
-        if (documents.isNotEmpty) {
-          List<TaskModel?> tasksOfDrawing =
-              documents.where((e) => e!.parentId == drawing.id).toList();
-
-          if (tasksOfDrawing.isNotEmpty) task = tasksOfDrawing.first!;
-        }
+        TaskModel? taskModel =
+            tasksOfDrawing.isNotEmpty ? tasksOfDrawing.last : null;
 
         return {
-          'id': task.id ?? null,
+          'id': taskModel == null ? null : taskModel.id,
           'parentId': drawing.id,
           'priority': getPriorrity(drawing),
           'activityCode': getActivityCode(drawing),
-          'drawingNumber': getDrawingNumber(drawing, task),
-          'revisionMark': task.revisionMark,
+          'drawingNumber':
+              taskModel == null ? null : getDrawingNumber(drawing, taskModel),
+          'revisionMark': taskModel == null ? null : taskModel.revisionMark,
           'drawingTitle': drawing.drawingTitle,
-          'taskStatus': taskStatusProvider(task),
+          'taskStatus': taskStatusProvider(taskModel),
           'drawingTag': drawing.drawingTag,
           'module': drawing.module,
-          'revisionType': getRevTypeAndStatus(task),
+          'revisionType':
+              taskModel == null ? null : getRevTypeAndStatus(taskModel),
           'percentage': 0,
-          'revisionStatus': getRevTypeAndStatus(task, isStatus: true),
-          'hold': getActivityStatus(task),
-          'holdReason': getHoldReason(task),
+          'revisionStatus': taskModel == null
+              ? null
+              : getRevTypeAndStatus(taskModel, isStatus: true),
+          'hold': taskModel == null ? null : getActivityStatus(taskModel),
+          'holdReason': taskModel == null ? null : getHoldReason(taskModel),
           'level': drawing.level,
           'structureType': drawing.structureType,
-          'referenceDocuments': getReferenceDocuments(task),
-          'changeNumber': task.changeNumber == 0 ? '' : task.changeNumber,
-          'taskCreateDate': task.creationDate ?? '',
+          'referenceDocuments':
+              taskModel == null ? null : getReferenceDocuments(taskModel),
+          'changeNumber': getChangeNumber(taskModel),
+          'taskCreateDate': taskModel == null ? null : taskModel.creationDate,
         };
       },
     ).toList();
+  }
+
+  Object? getChangeNumber(TaskModel? taskModel) {
+    return taskModel == null
+        ? null
+        : taskModel.changeNumber == 0
+            ? ''
+            : taskModel.changeNumber;
   }
 
   String? getHoldReason(TaskModel task) => task.holdReason != null
       ? task.holdReason
       : stageController.containsHoldFun(task)
           ? stageController
-              .valueModelsByTaskId(task)[7]!
+              .getStagesAndValueModelsByTask(task)[7]!
               .values
               .first
               .first!
@@ -205,7 +231,7 @@ class TaskController extends GetxService {
     if (task == null || task.id == null) return '';
 
     List<Map<StageModel, List<ValueModel?>>?> valueModelsOfTask =
-        stageController.valueModelsByTaskId(task);
+        stageController.getStagesAndValueModelsByTask(task);
 
     if (valueModelsOfTask.isEmpty) return '';
 
@@ -259,42 +285,22 @@ class TaskController extends GetxService {
         .activityId;
   }
 
-  void onAddNextRevisionPressed(String parentId) {
-    int nextChangeNumber = documents.isEmpty
-        ? 0
-        : documents.where((e) => e!.parentId == parentId).isEmpty
-            ? 0
-            : documentsAll.map((e) => e!.changeNumber).reduce(max) + 1;
-
-    TaskModel newTaskModel = TaskModel(
-      parentId: parentId,
-      referenceDocuments: referenceDocumentsList,
-      revisionMark: nextRevisionMarkController.text,
-      note: taskNoteController.text,
-      changeNumber: nextChangeNumber,
-    );
-
-    addNew(model: newTaskModel).then((taskId) {
-      StageModel stage = StageModel(
-        taskId: taskId,
-        creationDateTime: DateTime.now(),
-      );
-      stageController.addNew(model: stage);
-    });
-  }
-
   void onUpdatePressed({required String id}) {
-    TaskModel taskModel = documents.singleWhere((e) => e!.id == id)!;
-    Map<String, dynamic> map = {
-      if (nextRevisionMarkController.text != taskModel.revisionMark)
-        'revisionMark': nextRevisionMarkController.text,
-      if (taskNoteController.text != taskModel.note)
-        'note': taskNoteController.text,
-      if (holdReasonController.text != taskModel.holdReason || !isHeld.value)
-        'holdReason': isHeld.value ? holdReasonController.text : null,
-      if (referenceDocumentsList != taskModel.referenceDocuments)
-        'referenceDocuments': referenceDocumentsList,
-    };
+    TaskModel? taskModel = getById(id);
+
+    Map<String, dynamic> map = taskModel == null
+        ? {}
+        : {
+            if (nextRevisionMarkController.text != taskModel.revisionMark)
+              'revisionMark': nextRevisionMarkController.text,
+            if (taskNoteController.text != taskModel.note)
+              'note': taskNoteController.text,
+            if (holdReasonController.text != taskModel.holdReason ||
+                !isHeld.value)
+              'holdReason': isHeld.value ? holdReasonController.text : null,
+            if (referenceDocumentsList != taskModel.referenceDocuments)
+              'referenceDocuments': referenceDocumentsList,
+          };
 
     updateTaskFields(map: map, id: id);
   }
@@ -309,24 +315,58 @@ class TaskController extends GetxService {
 
   TaskModel? get selectedTask => loading.value
       ? null
-      : documents.firstWhere(
-          (e) => e!.id == selectedTaskId,
-          orElse: null,
-        );
+      : documents.firstWhereOrNull((e) => e!.id == selectedTaskId);
 
   bool get isTaskCompleted {
     // TODO: Rearrage here
-    final List<Map<StageModel, List<ValueModel?>>?> valueModelsMap =
-        stageController.valueModelsByTaskId(
-      homeController.dataGridController.value.selectedRow!
-          .getCells()
-          .first
-          .value,
-    );
-    return valueModelsMap.length < 6
+    String? taskId = homeController.getSelectedId();
+    TaskModel? taskModel = taskId == null ? null : getById(taskId);
+    final List<Map<StageModel, List<ValueModel?>>?> valueModelList =
+        stageController.getStagesAndValueModelsByTask(taskModel);
+    return valueModelList.length < 1
         ? false
-        : !valueModelsMap.last!.values.last
+        : !valueModelList.last!.values.last
             .map((e) => e!.submitDateTime)
             .contains(null);
+  }
+
+  List<TaskModel?> taskModelsByDrawingId(String? drawingId) =>
+      (loading.value || documents.isEmpty || drawingId == null)
+          ? []
+          : documents.where((e) => e!.parentId == drawingId).toList();
+
+  bool checkFirstTask(TaskModel? taskModel) => (loading.value ||
+          documents.isEmpty ||
+          taskModel == null)
+      ? false
+      : documents.firstWhereOrNull((e) => e!.parentId == taskModel.parentId) ==
+          taskModel;
+
+  TaskModel? getById(String id) {
+    return (loading.value || documents.isEmpty)
+        ? null
+        : documents.singleWhereOrNull((e) => e!.id == id);
+  }
+
+  String? getRevisionMarkById(String taskId) {
+    TaskModel? taskModel = getById(taskId);
+    return taskModel == null ? null : taskModel.revisionMark;
+  }
+
+  String getRevisionMarkWithDash(String taskId) {
+    String? revisionMark = getRevisionMarkById(taskId);
+    return revisionMark == null ? '' : '-' + revisionMark;
+  }
+
+  String taskNumber(String taskNoId, String taskId) {
+    List<String> splitTaskNoId = taskNoId.split(';');
+    return splitTaskNoId.first + getRevisionMarkWithDash(taskId);
+  }
+
+  removeDeletedIds(List<String?> ids) {
+    List<String?> taskIds = (loading.value || documents.isEmpty || ids.isEmpty)
+        ? []
+        : taskController.documents.map((e) => e!.id).toList();
+    return ids.where((id) => taskIds.contains(id)).toList();
   }
 }

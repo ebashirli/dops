@@ -1,8 +1,8 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
-import 'package:dops/modules/values/value_model.dart';
 import 'package:flutter/material.dart';
+
 import 'package:get/get.dart';
 
 class DrawingUpdateFormWidget extends StatelessWidget {
@@ -20,7 +20,8 @@ class DrawingUpdateFormWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             CustomTextFormField(
-              initialValue: selectedActivities,
+              initialValue: activityController
+                  .selectedActivities(drawingModel.activityCodeId),
               enabled: enabled,
               sizeBoxHeight: 0,
               width: totalWidth * .11,
@@ -108,7 +109,8 @@ class DrawingUpdateFormWidget extends StatelessWidget {
                       CustomTextFormField(
                         enabled: enabled,
                         width: (totalWidth * .333) * .3,
-                        initialValue: phaseInitialValue(),
+                        initialValue:
+                            stageController.phaseInitialValue(drawingModel),
                         labelText: 'Tekla Phase',
                       ),
                       SizedBox(width: 10),
@@ -124,8 +126,8 @@ class DrawingUpdateFormWidget extends StatelessWidget {
                         Container(
                           width: (totalWidth * .333) * .3,
                           child: ElevatedButton(
-                            onPressed: () => drawingController.buildAddEdit(
-                                id: drawingModel.id),
+                            onPressed: () => drawingController
+                                .buildUpdateForm(drawingModel.id!),
                             child: Text('Edit'),
                           ),
                         ),
@@ -138,15 +140,6 @@ class DrawingUpdateFormWidget extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  String phaseInitialValue() {
-    final List<ValueModel?> listValueModel =
-        stageController.valueModelsOfCurrentTask.first!.values.first;
-
-    return listValueModel.isEmpty
-        ? ' '
-        : '${listValueModel.first!.phase ?? ""}';
   }
 
   void onUpdatePressed(DrawingModel drawingModel) {
@@ -168,10 +161,6 @@ class DrawingUpdateFormWidget extends StatelessWidget {
       id: drawingModel.id!,
     );
   }
-
-  String? get selectedActivities => activityController.documents
-      .singleWhere((e) => e.id == drawingModel.activityCodeId)
-      .activityId;
 
   void onActivitiesChanged(value) {
     drawingController.activityCodeIdText = activityController.documents

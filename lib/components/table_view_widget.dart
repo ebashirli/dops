@@ -1,6 +1,8 @@
 import 'package:dops/components/select_item_snackbar.dart';
 import 'package:dops/constants/constant.dart';
+import 'package:dops/enum.dart';
 import 'package:dops/modules/issue/issue_model.dart';
+import 'package:dops/modules/values/value_model.dart';
 import 'package:dops/routes/app_pages.dart';
 import 'package:expendable_fab/expendable_fab.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +11,7 @@ import 'package:recase/recase.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../constants/table_details.dart';
 import 'package:dops/components/date_time_extension.dart';
+import 'package:collection/collection.dart';
 
 class TableView extends StatelessWidget {
   final controller;
@@ -24,7 +27,7 @@ class TableView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => isDocumentsEmpty
-      ? CircularProgressIndicator() // TODO: apply timer here after several seconds it indicator turns column heads
+      ? CircularProgressIndicator() // TODO: apply timer here after several seconds that indicator turns column heads
       : Obx(
           () => Scaffold(
             floatingActionButton: baseFab(),
@@ -57,16 +60,26 @@ class TableView extends StatelessWidget {
               : false;
 
   Widget? baseFab() {
-    return !staffController.isCoordinator
-        ? null
-        : tableName == 'task'
+    bool isThereIncompleteIssueCreatedByCurrentUser =
+        homeController.homeStates == HomeStates.IssueState &&
+            issueController.documents
+                .where(
+                  (e) =>
+                      e.issueDate == null &&
+                      e.createdBy == staffController.currentUserId,
+                )
+                .isNotEmpty;
+    return staffController.isCoordinator ||
+            isThereIncompleteIssueCreatedByCurrentUser
+        ? tableName == 'task'
             ? expandableFab()
-            : fab();
+            : fab()
+        : null;
   }
 
   FloatingActionButton fab() {
     return FloatingActionButton(
-      onPressed: onEditPressed,
+      onPressed: () => onUpdatePressed(controller),
       child: const Icon(Icons.edit),
       backgroundColor: Colors.green,
     );
@@ -77,11 +90,11 @@ class TableView extends StatelessWidget {
       distance: 80.0,
       children: [
         ElevatedButton(
-          onPressed: () => onEditPressed(isDrawing: true),
+          onPressed: () => onUpdatePressed(drawingController, cellIndex: 1),
           child: Text('Edit drawing'),
         ),
         ElevatedButton(
-          onPressed: onEditPressed,
+          onPressed: () => onUpdatePressed(controller),
           child: Text('Edit task'),
         ),
       ],
@@ -100,21 +113,19 @@ class TableView extends StatelessWidget {
     }
   }
 
-  void onEditPressed({bool isDrawing = false}) {
-    if (homeController.dataGridController.value.selectedRow == null) {
+  void onUpdatePressed(contr, {int cellIndex = 0}) {
+    DataGridRow? selectedRow =
+        homeController.dataGridController.value.selectedRow;
+    if (selectedRow == null) {
       selectItemSnackbar();
     } else {
-      String? id = homeController.dataGridController.value.selectedRow!
-          .getCells()[isDrawing ? 1 : 0]
-          .value;
+      String? id = selectedRow.getCells()[cellIndex].value;
+      print(id.toString());
 
       id == null
           ? selectItemSnackbar(
-              message: 'Select a drawing with a task to update',
-            )
-          : isDrawing
-              ? drawingController.buildAddEdit(id: id)
-              : controller.buildAddEdit(id: id);
+              message: 'Select a drawing with a task to update')
+          : contr.buildUpdateForm(id: id);
     }
   }
 
@@ -139,7 +150,7 @@ class TableView extends StatelessWidget {
           case 'id':
             return GridColumn(
               columnName: ReCase(colName).camelCase,
-              width: 0,
+              width: 100,
               label: Text(
                 colName,
               ),
@@ -268,20 +279,17 @@ class DataSource extends DataGridSource {
     IssueModel? issueModel =
         issueController.loading.value || issueController.documents.isEmpty
             ? null
-            : issueController.documents.firstWhere((e) => e.id == rowId);
-    bool isSubmitVisible = issueModel == null
-        ? false
-        : (issueModel.createdBy == staffController.currentUserId) &&
-            (cell.columnName == 'submitDate') &&
-            (issueModel.linkedTasks.isNotEmpty ||
-                issueModel.linkedTasks.isNotEmpty);
-    bool isIssueButtonVisible = issueModel == null
-        ? false
-        : (issueModel.createdBy == staffController.currentUserId) &&
-            cell.columnName == 'issueDate' &&
-            staffController.isCoordinator &&
-            issueModel.submitDate != null &&
-            issueModel.issueDate == null;
+            : issueController.documents.firstWhereOrNull((e) => e.id == rowId);
+    if (issueModel == null) return Text('');
+
+    bool isSubmitVisible = (cell.columnName == 'submitDate') &&
+        (issueModel.createdBy == staffController.currentUserId) &&
+        (issueModel.linkedTasks.isNotEmpty || issueModel.files.isNotEmpty);
+
+    bool isIssueButtonVisible = cell.columnName == 'issueDate' &&
+        staffController.isCoordinator &&
+        issueModel.issueDate == null &&
+        areAllValueModelsSubmitted(issueModel.linkedTasks);
 
     return isSubmitVisible
         ? Padding(
@@ -317,11 +325,27 @@ class DataSource extends DataGridSource {
               String taskId = taskNoId.split(';')[1];
               return TextButton(
                 onPressed: () => onPressed(taskId),
-                child: Text(
-                    '${taskNoId.split(';')[0]}-${taskController.documents.singleWhere((e) => e!.id == taskId)!.revisionMark}'),
+                child: Text(taskController.taskNumber(taskNoId, taskId)),
               );
             },
           ).toList(),
         ),
       );
+
+  bool areAllValueModelsSubmitted(List<String?> linkedTasks) {
+    linkedTasks = taskController.removeDeletedIds(linkedTasks);
+    if (linkedTasks.isEmpty) return false;
+
+    return !linkedTasks.map((String? taskId) {
+      List<ValueModel?> valueModelList = stageController
+          .getStageByTaskAndIndex(taskId: taskId!, index: 8)!
+          .values
+          .first;
+      if (valueModelList.isEmpty) return true;
+
+      return valueModelList
+          .map((e) => e!.submitDateTime == null)
+          .contains(true);
+    }).contains(true);
+  }
 }

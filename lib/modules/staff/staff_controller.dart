@@ -2,12 +2,12 @@ import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/table_details.dart';
 import 'package:dops/core/cache_manager.dart';
-import 'package:email_validator/email_validator.dart';
+import 'package:dops/modules/staff/widgets/staff_form_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
-import '../../constants/style.dart';
 import 'staff_model.dart';
 import 'staff_repository.dart';
 
@@ -38,6 +38,7 @@ class StaffController extends GetxService with CacheManager {
 
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
+  RxBool loading = true.obs;
 
   RxList<StaffModel> _documents = RxList<StaffModel>([]);
   List<StaffModel> get documents => _documents;
@@ -71,6 +72,9 @@ class StaffController extends GetxService with CacheManager {
     noteController = TextEditingController();
 
     _documents.bindStream(_repository.getAllDocumentsAsStream());
+    _documents.listen((List<StaffModel?> issueModelList) {
+      if (issueModelList.isNotEmpty) loading.value = false;
+    });
   }
 
   saveDocument({required StaffModel model}) async {
@@ -178,214 +182,23 @@ class StaffController extends GetxService with CacheManager {
     }
   }
 
-  buildAddEdit({String? id}) {
-    if (id != null) {
-      fillEditingControllers(id);
-    } else {
-      clearEditingControllers();
-    }
+  buildAddForm({String? id}) {
+    clearEditingControllers();
+    getForm(title: 'Add staff');
+  }
 
+  buildUpdateForm({required String id}) {
+    fillEditingControllers(id);
+    getForm(title: 'Update staff', id: id);
+  }
+
+  getForm({required String title, String? id}) {
     Get.defaultDialog(
       barrierDismissible: false,
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: id == null ? 'Add staff' : 'Update staff',
-      content: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-            topRight: Radius.circular(8),
-            topLeft: Radius.circular(8),
-          ),
-          color: light, //Color(0xff1E2746),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Form(
-            key: staffFormKey,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            child: Container(
-              width: Get.width * .5,
-              child: Column(
-                children: [
-                  Container(
-                    height: 540,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 10),
-                          CustomTextFormField(
-                            controller: badgeNoController,
-                            labelText: 'Badge No',
-                          ),
-                          CustomTextFormField(
-                            controller: nameController,
-                            labelText: 'Name',
-                          ),
-                          CustomTextFormField(
-                            controller: surnameController,
-                            labelText: 'Surname',
-                          ),
-                          CustomTextFormField(
-                            controller: patronymicController,
-                            labelText: 'Patronymic',
-                          ),
-                          CustomTextFormField(
-                            controller: initialController,
-                            labelText: 'Initial',
-                          ),
-                          CustomDateTimeFormField(
-                            labelText: 'Date of Birth',
-                            initialValue: dateOfBirthController.text,
-                            controller: dateOfBirthController,
-                          ),
-                          CustomDropdownMenu(
-                            labelText: 'Company',
-                            selectedItems: [companyText],
-                            onChanged: (value) {
-                              companyText = value ?? '';
-                            },
-                            items: listsController.document.value.companies!,
-                          ),
-                          CustomDropdownMenu(
-                            labelText: 'System Designation',
-                            selectedItems: [systemDesignationText],
-                            onChanged: (value) {
-                              systemDesignationText = value ?? '';
-                            },
-                            items: listsController
-                                .document.value.systemDesignations!,
-                          ),
-                          CustomDropdownMenu(
-                            labelText: 'Job Title',
-                            selectedItems: [jobTitleText],
-                            onChanged: (value) {
-                              jobTitleText = value ?? '';
-                            },
-                            items: listsController.document.value.jobTitles!,
-                          ),
-                          CustomDateTimeFormField(
-                            labelText: 'Start Date',
-                            initialValue: startDateConroller.text,
-                            controller: startDateConroller,
-                          ),
-                          CustomTextFormField(
-                            controller: emailController,
-                            labelText: 'E-mail',
-                            validator: (value) =>
-                                EmailValidator.validate(value!)
-                                    ? null
-                                    : "Please enter a valid email",
-                          ),
-                          CustomTextFormField(
-                            controller: homeAddressController,
-                            labelText: 'Home Address',
-                          ),
-                          CustomDropdownMenu(
-                            labelText: 'Current place',
-                            selectedItems: [currentPlaceText],
-                            onChanged: (value) {
-                              currentPlaceText = value ?? '';
-                            },
-                            items:
-                                listsController.document.value.employeePlaces!,
-                          ),
-                          CustomDateTimeFormField(
-                            labelText: 'Contract Finish Date',
-                            initialValue: contractFinishDateController.text,
-                            controller: contractFinishDateController,
-                          ),
-                          CustomTextFormField(
-                            controller: contactController,
-                            labelText: 'Contact',
-                            validator: validateMobile,
-                          ),
-                          CustomTextFormField(
-                            controller: emergencyContactController,
-                            labelText: 'Emergency Contact',
-                            validator: validateMobile,
-                          ),
-                          CustomTextFormField(
-                            controller: emergencyContactNameController,
-                            labelText: 'Emergency Contact Name',
-                          ),
-                          CustomTextFormField(
-                            controller: noteController,
-                            labelText: 'Note',
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Container(
-                    child: Row(
-                      children: <Widget>[
-                        if (id != null)
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              deleteStaff(id);
-                              Get.back();
-                            },
-                            icon: Icon(Icons.delete),
-                            label: const Text('Delete'),
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                Colors.red,
-                              ),
-                            ),
-                          ),
-                        const Spacer(),
-                        ElevatedButton(
-                            onPressed: () => Get.back(),
-                            child: const Text('Cancel')),
-                        SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            StaffModel model = StaffModel(
-                              badgeNo: badgeNoController.text,
-                              name: nameController.text,
-                              surname: surnameController.text,
-                              patronymic: patronymicController.text,
-                              initial: initialController.text,
-                              systemDesignation: systemDesignationText,
-                              jobTitle: jobTitleText,
-                              email: emailController.text,
-                              company: companyText,
-                              dateOfBirth:
-                                  DateTime.parse(dateOfBirthController.text),
-                              homeAddress: homeAddressController.text,
-                              startDate:
-                                  DateTime.parse(startDateConroller.text),
-                              currentPlace: currentPlaceText,
-                              contractFinishDate: DateTime.parse(
-                                  contractFinishDateController.text),
-                              contact: contactController.text,
-                              emergencyContact: emergencyContactController.text,
-                              emergencyContactName:
-                                  emergencyContactNameController.text,
-                              note: noteController.text,
-                            );
-                            id == null
-                                ? saveDocument(model: model)
-                                : updateDocument(
-                                    model: model,
-                                    id: id,
-                                  );
-                          },
-                          child: Text(
-                            id != null ? 'Update' : 'Add',
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+      title: title,
+      content: StaffFormWidget(id: id),
     );
   }
 
@@ -426,5 +239,28 @@ class StaffController extends GetxService with CacheManager {
       return 'Contact and emergency contact cannot be same';
     }
     return null;
+  }
+
+  StaffModel? get currentStaff {
+    User? currentUser = auth.currentUser;
+    return currentUser == null ? null : getById(currentUser.uid);
+  }
+
+  String? getCurrentStaffInitial() {
+    return documents.isNotEmpty || currentStaff == null
+        ? null
+        : currentStaff!.initial;
+  }
+
+  StaffModel? getById(String id) {
+    return loading.value || documents.isEmpty
+        ? null
+        : documents.singleWhereOrNull((staff) => staff.id == id);
+  }
+
+  String? getStaffInitialById(String id) {
+    StaffModel? staffModel = getById(id);
+
+    return staffModel == null ? null : staffModel.initial;
   }
 }

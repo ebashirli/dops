@@ -1,4 +1,6 @@
 import 'dart:math';
+import 'package:collection/collection.dart';
+
 import 'package:dops/modules/values/value_model.dart';
 
 import 'package:dops/components/custom_widgets.dart';
@@ -27,24 +29,31 @@ class StageController extends GetxService {
 
   RxList<StageModel?> _documents = RxList<StageModel>([]);
   List<StageModel?> get documents => _documents;
-
   RxBool loading = true.obs;
+  late List<TextEditingController> textEditingControllers;
+  late TextEditingController coordinatorNoteController;
+
+  @override
+  void onInit() {
+    super.onInit();
+
+    _documents.bindStream(_repository.getAllDocumentsAsStream());
+    _documents.listen((List<StageModel?> stageModelList) {
+      if (stageModelList.isNotEmpty) loading.value = false;
+    });
+
+    textEditingControllers =
+        List<TextEditingController>.generate(5, (_) => TextEditingController());
+    coordinatorNoteController = TextEditingController();
+  }
 
   TaskModel? get currentTask =>
-      (taskController.loading.value || taskController.documents.isEmpty)
-          ? null
-          : taskController.documents.firstWhere(
-              (e) => e!.id == Get.parameters['id'],
-              orElse: null,
-            );
+      currentTaskId == null ? null : taskController.getById(currentTaskId!);
+
+  String? get currentTaskId => Get.parameters['id'];
 
   DrawingModel? get currentDrawing =>
-      (drawingController.loading.value || drawingController.documents.isEmpty)
-          ? null
-          : drawingController.documents.firstWhere(
-              (e) => e.id == currentTask!.parentId,
-              orElse: null,
-            );
+      drawingController.drawingModelById(currentTask);
 
   List<StageModel?> get stagesOfCurrentTask {
     List<StageModel?> _stagesOfCurrentTask =
@@ -59,76 +68,115 @@ class StageController extends GetxService {
     return _stagesOfCurrentTask;
   }
 
-  int get maxIndex => valueModelsOfCurrentTask.length;
+  StageModel? getById(String id) {
+    return loading.value || documents.isEmpty
+        ? null
+        : documents.singleWhereOrNull((e) => e!.id == id);
+  }
+
+  int get maxIndex => stageAndValueModelsOfCurrentTask.length;
 
   int get lastIndex =>
       stagesOfCurrentTask.isEmpty ? 0 : stagesOfCurrentTask.last!.index;
 
   RxList<StaffModel?> assigningStaffModels = RxList([]);
   List<StaffModel?> get assignedStaffModels =>
-      valueModelsOfCurrentTask[lastIndex]!
+      stageAndValueModelsOfCurrentTask[lastIndex]!
           .values
           .last
-          .map((e) => staffController.documents
-              .singleWhere((element) => element.id == e?.employeeId))
+          .map<StaffModel?>((e) => staffController.documents
+              .singleWhereOrNull((element) => element.id == e?.employeeId))
           .toList();
 
-  List<Map<StageModel, List<ValueModel?>>?> get valueModelsOfCurrentTask {
-    return currentTask != null ? valueModelsByTaskId(currentTask!) : [];
+  List<Map<StageModel, List<ValueModel?>>?>
+      get stageAndValueModelsOfCurrentTask {
+    return currentTask != null
+        ? getStagesAndValueModelsByTask(currentTask!)
+        : [];
   }
 
-  List<Map<StageModel, List<ValueModel?>>?> valueModelsByTaskId(
-      TaskModel taskModel) {
-    if (documents.isEmpty) return [];
+  Map<StageModel, List<ValueModel?>>? getStageByTaskAndIndex(
+      {required String taskId, required int index}) {
+    TaskModel? taskModel = taskController.getById(taskId);
 
-    List<StageModel?> stagesOfTask = loading.value
-        ? []
-        : documents.where((e) => e!.taskId == taskModel.id).toList();
+    return taskModel == null
+        ? null
+        : getStagesAndValueModelsByTask(taskModel)[index];
+  }
 
+  List<StageModel?> getStagesOfTask(TaskModel? taskModel) =>
+      loading.value || taskModel == null
+          ? []
+          : documents.where((e) => e!.taskId == taskModel.id).toList();
+
+  StageModel? getFirstStageOfFirstTask(TaskModel? taskModel) =>
+      (stageController.loading.value || taskModel == null)
+          ? null
+          : documents.firstWhereOrNull(
+              (e) => e!.index == 0 && e.taskId == taskModel.id);
+
+  List<Map<StageModel, List<ValueModel?>>?> getStagesAndValueModelsByTask(
+      TaskModel? taskModel) {
+    if (documents.isEmpty || taskController.loading.value || taskModel == null)
+      return [];
+
+    List<StageModel?> stagesOfTask = getStagesOfTask(taskModel);
     if (stagesOfTask.isEmpty) return [];
 
-    ValueModel? firstValueOfFirstTask = null;
+    bool isFirstTask = taskController.checkFirstTask(taskModel);
 
-    bool isFirstTask =
-        (taskController.loading.value || taskController.documents.isEmpty) ||
-            (taskController.documents
-                    .where((e) => e!.parentId == taskModel.parentId)
-                    .length >
-                0);
+    ValueModel? firstValueModelOfFirstTask = null;
 
     if (!isFirstTask) {
-      TaskModel? firstTaskModel = taskController.documents
-          .where((e) => e!.parentId == taskModel.parentId)
-          .first;
-
-      StageModel? fisrtStageOfFirstTask =
-          (stageController.loading.value || firstTaskModel == null)
+      TaskModel? firstTaskModel =
+          taskController.loading.value || taskController.documents.isEmpty
               ? null
-              : documents.firstWhere(
-                  (e) => e!.index == 0 && e.taskId == firstTaskModel.id);
-
-      firstValueOfFirstTask =
-          (valueController.loading.value && fisrtStageOfFirstTask == null)
+              : taskController.documents
+                  .firstWhereOrNull((e) => e!.parentId == taskModel.parentId);
+      StageModel? firstStageModel =
+          firstTaskModel == null || documents.isEmpty || loading.value
               ? null
-              : valueController.documents
-                  .firstWhere((e) => e!.stageId == fisrtStageOfFirstTask!.id);
+              : documents.firstWhereOrNull(
+                  (e) => e!.taskId == firstTaskModel.id && e.index == 0);
+      if (valueController.loading.value ||
+          valueController.documents.isEmpty ||
+          firstStageModel == null) {
+        firstValueModelOfFirstTask = null;
+      } else {
+        Iterable<ValueModel?> valueModels = valueController.documents
+            .where((e) => e!.stageId == firstStageModel.id);
+        firstValueModelOfFirstTask =
+            valueModels.isEmpty ? null : valueModels.first;
+      }
     }
     return List.generate(
       stagesOfTask.map((e) => e!.index).reduce(max) + 1,
       (ind) {
-        return Map.fromIterable(
+        return Map<StageModel, List<ValueModel?>>.fromIterable(
           stagesOfTask.where((e) => e!.index == ind),
-          key: (stageModel) => stageModel!,
+          key: (stageModel) => stageModel,
           value: (stageModel) => (ind == 0 && !isFirstTask)
-              ? [firstValueOfFirstTask]
+              ? [firstValueModelOfFirstTask]
               : valueController.valueModelsByStageId(stageModel.id),
         );
       },
     );
   }
 
+  List<ValueModel?> getFirstValueModelOfFirstTask(StageModel? stageModel) {
+    List<ValueModel?> valueModels = valueController.loading.value ||
+            valueController.documents.isEmpty ||
+            stageModel == null
+        ? []
+        : valueController.documents
+            .where((e) => e!.stageId == stageModel.id)
+            .toList();
+
+    return valueModels;
+  }
+
   bool get coordinatorAssigns =>
-      valueModelsOfCurrentTask[lastIndex]!.values.last.isEmpty;
+      stageAndValueModelsOfCurrentTask[lastIndex]!.values.last.isEmpty;
 
   bool get isLastSubmit =>
       lastTaskStageValues.where((element) {
@@ -139,7 +187,7 @@ class StageController extends GetxService {
   bool isStageAssigned(TaskModel? taskModel) => taskModel == null
       ? false
       : !stageController
-          .valueModelsByTaskId(taskModel)
+          .getStagesAndValueModelsByTask(taskModel)
           .map(
             (e) => e!.values
                 .map((e1) => e1.map((e2) => e2!.submitDateTime).contains(null))
@@ -148,10 +196,10 @@ class StageController extends GetxService {
           .contains(true);
 
   StageModel get lastTaskStage =>
-      valueModelsOfCurrentTask[lastIndex]!.keys.last;
+      stageAndValueModelsOfCurrentTask[lastIndex]!.keys.last;
 
   List<ValueModel?> get lastTaskStageValues =>
-      valueModelsOfCurrentTask[lastIndex]!.values.last;
+      stageAndValueModelsOfCurrentTask[lastIndex]!.values.last;
 
   ValueModel? get valueModelAssignedCurrentUser {
     List<ValueModel?> valueModelList = lastTaskStageValues
@@ -179,27 +227,12 @@ class StageController extends GetxService {
   List<String> get specialFieldNames =>
       stageDetailsList[lastIndex]['form fields'];
 
-  late List<TextEditingController> textEditingControllers;
-
   final RxList<String> fileNames = RxList<String>([]);
   final RxBool commentStatus = false.obs;
 
   final RxBool commentCheckbox = false.obs;
 
   final RxInt issueGroup = 0.obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-
-    _documents.bindStream(_repository.getAllDocumentsAsStream());
-    _documents.listen((List<StageModel?> stageModelList) {
-      if (stageModelList.isNotEmpty) loading.value = false;
-    });
-
-    textEditingControllers =
-        List<TextEditingController>.generate(5, (_) => TextEditingController());
-  }
 
   List<ExpantionPanelItemModel> generateItems() {
     return List<ExpantionPanelItemModel>.generate(
@@ -214,8 +247,8 @@ class StageController extends GetxService {
             CoordinatorForm(index: index, visible: lastIndex == index);
         final Widget valueTableView = ValueTableView(
           index: index,
-          stageValueModelsList: valueModelsOfCurrentTask[index]![
-              valueModelsOfCurrentTask[index]!.keys.last],
+          stageValueModelsList: stageAndValueModelsOfCurrentTask[index]![
+              stageAndValueModelsOfCurrentTask[index]!.keys.last],
         );
         final String headerValue =
             '${index + 1} | ${stageDetailsList[index]['name']}';
@@ -249,7 +282,7 @@ class StageController extends GetxService {
     ];
 
     List<ValueModel?> valueModelList =
-        valueModelsOfCurrentTask[index]!.values.last;
+        stageAndValueModelsOfCurrentTask[index]!.values.last;
 
     List<String> specialFieldNames = stageDetailsList[index]['columns']
       ..remove('File Names');
@@ -292,6 +325,7 @@ class StageController extends GetxService {
     ValueModel vm = await ValueModel(
       stageId: lastTaskStage.id!,
       employeeId: '',
+      coordinatorNote: coordinatorNoteController.text,
       assignedBy: auth.currentUser!.uid,
       assignedDateTime: DateTime.now(),
     );
@@ -307,7 +341,7 @@ class StageController extends GetxService {
             (employeeId) => valueController.addValues(
                 map: {'isHidden': true},
                 id: lastTaskStageValues
-                    .singleWhere((ValueModel? valueModel) =>
+                    .singleWhereOrNull((ValueModel? valueModel) =>
                         valueModel!.employeeId == employeeId)!
                     .id!),
           );
@@ -324,14 +358,18 @@ class StageController extends GetxService {
   bool containsHoldFun(TaskModel taskModel) {
     if (taskModel.id == null) {
       return false;
-    } else if (valueModelsByTaskId(taskModel).length < 8) {
+    } else if (getStagesAndValueModelsByTask(taskModel).length < 8) {
       return false;
     } else {
       return valueController.loading.value
           ? false
-          : valueModelsByTaskId(taskModel)[7]!.values.first.isEmpty
+          : getStagesAndValueModelsByTask(taskModel)[7]!.values.first.isEmpty
               ? false
-              : valueModelsByTaskId(taskModel)[7]!.values.first.first!.hold !=
+              : getStagesAndValueModelsByTask(taskModel)[7]!
+                      .values
+                      .first
+                      .first!
+                      .hold !=
                   null;
     }
   }
@@ -390,12 +428,12 @@ class StageController extends GetxService {
 
       if (lastIndex == 4 ||
           ((lastIndex == 6 || lastIndex == 7) && anyComment)) {
-        final List<String?> designerIds = valueModelsOfCurrentTask[1]!
+        final List<String?> designerIds = stageAndValueModelsOfCurrentTask[1]!
             .values
             .last
             .map((e) => e!.employeeId)
             .toList();
-        final List<String?> drafterIds = valueModelsOfCurrentTask[2]!
+        final List<String?> drafterIds = stageAndValueModelsOfCurrentTask[2]!
             .values
             .last
             .map((e) => e!.employeeId)
@@ -407,7 +445,7 @@ class StageController extends GetxService {
           );
         });
       } else if (lastIndex == 5) {
-        final List<String?> checkerIds = valueModelsOfCurrentTask[3]!
+        final List<String?> checkerIds = stageAndValueModelsOfCurrentTask[3]!
             .values
             .last
             .map((e) => e!.employeeId)
@@ -417,10 +455,11 @@ class StageController extends GetxService {
             model: valueModel..employeeId = checkerId,
           );
         });
-      } else if (lastIndex == 6 && valueModelsOfCurrentTask[6]!.length > 1) {
-        final List<String?> reviewerIds = valueModelsOfCurrentTask[6]!
+      } else if (lastIndex == 6 &&
+          stageAndValueModelsOfCurrentTask[6]!.length > 1) {
+        final List<String?> reviewerIds = stageAndValueModelsOfCurrentTask[6]!
             .values
-            .toList()[valueModelsOfCurrentTask[6]!.length - 2]
+            .toList()[stageAndValueModelsOfCurrentTask[6]!.length - 2]
             .map((e) => e!.employeeId)
             .toList();
         reviewerIds.forEach((reviewerId) {
@@ -463,7 +502,7 @@ class StageController extends GetxService {
     bool isStatus = false,
   }) {
     final List<ValueModel?> valueModelsOfLastStage =
-        valueModelsByTaskId(taskModel)[lastIndex]![lastTaskStage]!;
+        getStagesAndValueModelsByTask(taskModel)[lastIndex]![lastTaskStage]!;
 
     if (valueModelsOfLastStage.isEmpty)
       return lastTaskStage.creationDateTime.toDMYhm();
@@ -484,5 +523,55 @@ class StageController extends GetxService {
         : [maxAssignedDateTime, maxSubmitDateTime]
             .reduce((a, b) => a.isAfter(b) ? a : b)
             .toDMYhm();
+  }
+
+  int? precentageProvider(TaskModel taskModel) {
+    if (taskModel.id == null) return null;
+    final List<Map<StageModel, List<ValueModel?>>?> list =
+        getStagesAndValueModelsByTask(taskModel);
+    if (list.isEmpty) return 0;
+
+    // if(Close Out Date)	return 100;
+    // if(Sending to DCC Date)	return 100;
+    // if(Nesting Finish Date)	return 95;
+    // if(Nesting Start Date)	return 87;
+    // if(Preparing Issueish Date)	return 90;
+    // if(Review Finish Date)	return 85;
+    // if(Review Start Date)	return 82;
+    // if(Backcheck Finish Date)	return 80;
+    // if(Backcheck Start Date)	return 77;
+    // if(Backdraft Finish Date)	return 75;
+    // if(Backdraft Start Date)	return 70;
+    // if(Check Finish Date)	return 65;
+    // if(Check Start Date)	return 50;
+    // if(Draft Finish Date)	return 45;
+    // if(Draft Start Date)	return 25;
+    // if(list.length == 4)	return 20;
+    // if(list.length == 3)	return 5;
+    // if(list.length == 2)	return 3;
+    // if(list.length == 1)	return 1;
+    // if(list.length == 0 ) return 0;
+
+    return 0;
+  }
+
+  bool isCoordinatorFormVisible(ExpantionPanelItemModel item) {
+    if (!staffController.isCoordinator) return false;
+    if (currentTask == null) return false;
+    if (currentTask!.holdReason != null) return false;
+    if (item.index == 0 && !taskController.checkFirstTask(currentTask!))
+      return false;
+    return true;
+  }
+
+  String phaseInitialValue(DrawingModel drawingModel) {
+    final List<ValueModel?> listValueModel = stageAndValueModelsOfCurrentTask
+            .isEmpty
+        ? []
+        : stageController.stageAndValueModelsOfCurrentTask.first!.values.first;
+
+    return listValueModel.isEmpty
+        ? ' '
+        : '${listValueModel.first!.phase ?? ""}';
   }
 }

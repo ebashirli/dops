@@ -13,8 +13,6 @@ class TaskUpdateFormWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final double totalWidth = Get.width - 120;
     final bool enabled = false;
-    taskController.documents
-        .sort((a, b) => a!.creationDate!.compareTo(b!.creationDate!));
 
     return Column(
       children: <Widget>[
@@ -114,10 +112,8 @@ class TaskUpdateFormWidget extends StatelessWidget {
               Container(
                 width: (totalWidth * .333) * .3,
                 child: ElevatedButton(
-                  onPressed: () => taskController.buildAddEdit(
-                    id: taskModel.id,
-                    fromStages: true,
-                  ),
+                  onPressed: () =>
+                      taskController.buildUpdateForm(id: taskModel.id!),
                   child: Text('Edit'),
                 ),
               )

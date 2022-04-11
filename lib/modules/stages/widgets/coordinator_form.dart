@@ -1,4 +1,5 @@
 import 'package:dops/components/custom_dropdown_menu_with_model_widget.dart';
+import 'package:dops/components/custom_text_form_field_widget.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
 import 'package:dops/modules/staff/staff_model.dart';
@@ -41,6 +42,12 @@ class _CoordinatorFormState extends State<CoordinatorForm> {
                       labelText: labelText,
                       isMultiselection:
                           [1, 2, 3, 4, 5, 8].contains(widget.index),
+                    ),
+                    const SizedBox(width: 20),
+                    CustomTextFormField(
+                      controller: stageController.coordinatorNoteController,
+                      width: 400,
+                      labelText: 'Note',
                     ),
                     const SizedBox(width: 20),
                     if (stageController.assigningStaffModels.isNotEmpty &&

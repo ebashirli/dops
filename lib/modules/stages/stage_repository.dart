@@ -30,7 +30,10 @@ class StageRepository {
             returnValue.add(StageModel.fromMap(snapshot_data, snapshot.id));
         },
       );
-      return returnValue;
+      return returnValue
+        ..sort(
+          (a, b) => a.creationDateTime.compareTo(b.creationDateTime),
+        );
     });
   }
 

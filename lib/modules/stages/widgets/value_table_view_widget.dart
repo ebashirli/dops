@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:recase/recase.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import 'package:collection/collection.dart';
 
 class ValueTableView extends StatelessWidget {
   final int index;
@@ -25,8 +26,9 @@ class ValueTableView extends StatelessWidget {
       if (stageDetailsList[index]['file names'] != null) 'File Names',
       if (stageDetailsList[index]['comment'] != null) 'Is Commented',
       valueTableCommonColumnHeadList[4],
-      if (index == 8) valueTableCommonColumnHeadList[6],
+      if (index == 8) valueTableCommonColumnHeadList[7],
       valueTableCommonColumnHeadList[5],
+      valueTableCommonColumnHeadList[6],
     ];
     final DataSource dataSource = DataSource(
       data: getDataSourceData(tableColumns),
@@ -54,25 +56,7 @@ class ValueTableView extends StatelessWidget {
                         isScrollbarAlwaysShown: false,
                         source: dataSource,
                         columnWidthMode: ColumnWidthMode.fill,
-                        tableSummaryRows: columnsWithTotal.isEmpty
-                            ? []
-                            : [
-                                GridTableSummaryRow(
-                                  showSummaryInRow: false,
-                                  title: 'Total:',
-                                  titleColumnSpan: 1,
-                                  columns: columnsWithTotal
-                                      .map(
-                                        (columnName) => GridSummaryColumn(
-                                          name: 'Sum',
-                                          columnName: columnName,
-                                          summaryType: GridSummaryType.sum,
-                                        ),
-                                      )
-                                      .toList(),
-                                  position: GridTableSummaryRowPosition.bottom,
-                                ),
-                              ],
+                        tableSummaryRows: getTableSummaryRows(columnsWithTotal),
                         columns: getColumns(tableColumns),
                         gridLinesVisibility: GridLinesVisibility.both,
                         headerGridLinesVisibility: GridLinesVisibility.both,
@@ -88,6 +72,28 @@ class ValueTableView extends StatelessWidget {
               }
             },
           );
+  }
+
+  List<GridTableSummaryRow> getTableSummaryRows(Set<String> columnsWithTotal) {
+    return columnsWithTotal.isEmpty
+        ? []
+        : [
+            GridTableSummaryRow(
+              showSummaryInRow: false,
+              title: 'Total:',
+              titleColumnSpan: 1,
+              columns: columnsWithTotal
+                  .map(
+                    (columnName) => GridSummaryColumn(
+                      name: 'Sum',
+                      columnName: columnName,
+                      summaryType: GridSummaryType.sum,
+                    ),
+                  )
+                  .toList(),
+              position: GridTableSummaryRowPosition.bottom,
+            ),
+          ];
   }
 
   List<Map<String, dynamic>> getDataSourceData(List<String> tableColumns) {
@@ -235,13 +241,12 @@ class DataSource extends DataGridSource {
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     final List<String>? fileNames = stageValueModelsList
-        .singleWhere((e) => e!.id == row.getCells()[0].value)!
+        .singleWhereOrNull((e) => e!.id == row.getCells()[0].value)!
         .fileNames;
 
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>(
         (cell) {
-
           if (cell.columnName == 'File Names') {
             return Center(
               child: fileNames != null
@@ -256,9 +261,7 @@ class DataSource extends DataGridSource {
           } else {
             final cellValue = ['Employee Id', 'Assigned by']
                     .contains(cell.columnName)
-                ? staffController.documents
-                    .singleWhere((e) => e.id == cell.value)
-                    .initial
+                ? staffController.getStaffInitialById(cell.value)
                 : cell.value is DateTime
                     ? '${cell.value.day}/${cell.value.month}/${cell.value.year} ${cell.value.hour}:${cell.value.minute}'
                     : cell.value ?? '';

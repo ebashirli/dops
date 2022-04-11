@@ -65,7 +65,7 @@ class IssueController extends GetxService {
       if (issueController.files != issueModel.files)
         'files': issueController.files,
       if (issueController.linkedTaskIds != issueModel.linkedTasks)
-        'linkedTasks': issueController.files,
+        'linkedTasks': issueController.linkedTaskIds,
     };
 
     await _repository.updateModel(map, id);

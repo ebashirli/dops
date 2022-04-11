@@ -126,8 +126,8 @@ class DrawingUpdateFormWidget extends StatelessWidget {
                         Container(
                           width: (totalWidth * .333) * .3,
                           child: ElevatedButton(
-                            onPressed: () => drawingController
-                                .buildUpdateForm(drawingModel.id!),
+                            onPressed: () => drawingController.buildUpdateForm(
+                                id: drawingModel.id!),
                             child: Text('Edit'),
                           ),
                         ),

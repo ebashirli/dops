@@ -152,8 +152,9 @@ class DrawingController extends GetxService {
     getDialog();
   }
 
-  buildUpdateForm(String id) {
+  buildUpdateForm({required String id}) {
     final DrawingModel? drawingModel = getById(id);
+    print('hello');
     drawingModel == null
         ? selectItemSnackbar()
         : fillEditingControllers(drawingModel);

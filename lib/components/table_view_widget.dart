@@ -79,7 +79,7 @@ class TableView extends StatelessWidget {
 
   FloatingActionButton fab() {
     return FloatingActionButton(
-      onPressed: () => onUpdatePressed(controller),
+      onPressed: () => onUpdatePressed(),
       child: const Icon(Icons.edit),
       backgroundColor: Colors.green,
     );
@@ -90,11 +90,11 @@ class TableView extends StatelessWidget {
       distance: 80.0,
       children: [
         ElevatedButton(
-          onPressed: () => onUpdatePressed(drawingController, cellIndex: 1),
+          onPressed: () => onUpdatePressed(cellIndex: 1),
           child: Text('Edit drawing'),
         ),
         ElevatedButton(
-          onPressed: () => onUpdatePressed(controller),
+          onPressed: () => onUpdatePressed(),
           child: Text('Edit task'),
         ),
       ],
@@ -113,19 +113,16 @@ class TableView extends StatelessWidget {
     }
   }
 
-  void onUpdatePressed(contr, {int cellIndex = 0}) {
+  void onUpdatePressed({int cellIndex = 0}) {
     DataGridRow? selectedRow =
         homeController.dataGridController.value.selectedRow;
     if (selectedRow == null) {
       selectItemSnackbar();
     } else {
       String? id = selectedRow.getCells()[cellIndex].value;
-      print(id.toString());
-
-      id == null
-          ? selectItemSnackbar(
-              message: 'Select a drawing with a task to update')
-          : contr.buildUpdateForm(id: id);
+      cellIndex == 0
+          ? controller.buildUpdateForm(id: id)
+          : drawingController.buildUpdateForm(id: id!);
     }
   }
 

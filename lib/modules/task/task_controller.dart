@@ -134,12 +134,13 @@ class TaskController extends GetxService {
     formDialog(drawingId: parentId);
   }
 
-  buildUpdateForm({required String id}) {
-    final TaskModel? taskModel = getById(id);
-    if (taskModel == null) {
+  buildUpdateForm({required String? id}) {
+    if (id == null) {
       selectItemSnackbar();
     } else {
-      fillEditingControllers(taskModel);
+      final TaskModel? taskModel = getById(id);
+
+      fillEditingControllers(taskModel!);
       formDialog(id: id);
     }
     ;

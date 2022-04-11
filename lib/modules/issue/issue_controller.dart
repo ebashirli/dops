@@ -143,7 +143,7 @@ class IssueController extends GetxService {
     );
   }
 
-  buildUpdateForm({String? id}) {
+  buildUpdateForm({required String? id}) {
     int groupNumber = issueController.maxGroupNumber;
 
     if (id != null) {

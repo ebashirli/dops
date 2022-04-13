@@ -117,3 +117,27 @@ List<Map<String, dynamic>> stageDetailsList = [
     'form fields': <String>[],
   },
 ];
+
+const List<int> percentages = [
+  100,
+  100,
+  95,
+  90,
+  87,
+  87,
+  85,
+  82,
+  80,
+  77,
+  75,
+  70,
+  65,
+  50,
+  45,
+  25,
+  20,
+  5,
+  3,
+  1,
+  0,
+];

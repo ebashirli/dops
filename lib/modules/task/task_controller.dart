@@ -182,7 +182,7 @@ class TaskController extends GetxService {
           'module': drawing.module,
           'revisionType':
               taskModel == null ? null : getRevTypeAndStatus(taskModel),
-          'percentage': 0,
+          'percentage': precentageProvider(taskModel),
           'revisionStatus': taskModel == null
               ? null
               : getRevTypeAndStatus(taskModel, isStatus: true),
@@ -369,5 +369,20 @@ class TaskController extends GetxService {
         ? []
         : taskController.documents.map((e) => e!.id).toList();
     return ids.where((id) => taskIds.contains(id)).toList();
+  }
+
+  String? precentageProvider(TaskModel? taskModel) {
+    if (taskModel == null) return null;
+    final List<Map<StageModel, List<ValueModel?>>?> details =
+        stageController.getStagesAndValueModelsByTask(taskModel);
+    int lastIndex = details.length - 1;
+
+    int perc = lastIndex == -1
+        ? 0
+        : details[lastIndex]!.values.last.isEmpty
+            ? percentages[percentages.length - lastIndex * 2 - 1]
+            : percentages[percentages.length - lastIndex * 2 - 2];
+
+    return '$perc%';
   }
 }

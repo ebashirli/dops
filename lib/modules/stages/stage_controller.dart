@@ -353,6 +353,7 @@ class StageController extends GetxService {
       });
     }
     assigningStaffModels.value = [];
+    coordinatorNoteController.clear();
   }
 
   bool containsHoldFun(TaskModel taskModel) {
@@ -501,8 +502,12 @@ class StageController extends GetxService {
     TaskModel taskModel, {
     bool isStatus = false,
   }) {
+    final List<Map<StageModel, List<ValueModel?>>?> details =
+        getStagesAndValueModelsByTask(taskModel);
+
+    if (details.isEmpty) return null;
     final List<ValueModel?> valueModelsOfLastStage =
-        getStagesAndValueModelsByTask(taskModel)[lastIndex]![lastTaskStage]!;
+        details[lastIndex]![lastTaskStage]!;
 
     if (valueModelsOfLastStage.isEmpty)
       return lastTaskStage.creationDateTime.toDMYhm();
@@ -523,36 +528,6 @@ class StageController extends GetxService {
         : [maxAssignedDateTime, maxSubmitDateTime]
             .reduce((a, b) => a.isAfter(b) ? a : b)
             .toDMYhm();
-  }
-
-  int? precentageProvider(TaskModel taskModel) {
-    if (taskModel.id == null) return null;
-    final List<Map<StageModel, List<ValueModel?>>?> list =
-        getStagesAndValueModelsByTask(taskModel);
-    if (list.isEmpty) return 0;
-
-    // if(Close Out Date)	return 100;
-    // if(Sending to DCC Date)	return 100;
-    // if(Nesting Finish Date)	return 95;
-    // if(Nesting Start Date)	return 87;
-    // if(Preparing Issueish Date)	return 90;
-    // if(Review Finish Date)	return 85;
-    // if(Review Start Date)	return 82;
-    // if(Backcheck Finish Date)	return 80;
-    // if(Backcheck Start Date)	return 77;
-    // if(Backdraft Finish Date)	return 75;
-    // if(Backdraft Start Date)	return 70;
-    // if(Check Finish Date)	return 65;
-    // if(Check Start Date)	return 50;
-    // if(Draft Finish Date)	return 45;
-    // if(Draft Start Date)	return 25;
-    // if(list.length == 4)	return 20;
-    // if(list.length == 3)	return 5;
-    // if(list.length == 2)	return 3;
-    // if(list.length == 1)	return 1;
-    // if(list.length == 0 ) return 0;
-
-    return 0;
   }
 
   bool isCoordinatorFormVisible(ExpantionPanelItemModel item) {

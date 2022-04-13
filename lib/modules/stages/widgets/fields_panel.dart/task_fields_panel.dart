@@ -79,7 +79,7 @@ class TaskUpdateFormWidget extends StatelessWidget {
               enabled: enabled,
               width: totalWidth * .04,
               readOnly: true,
-              initialValue: '40%',
+              initialValue: taskController.precentageProvider(taskModel),
               labelText: 'Completion %',
             ),
             CustomTextFormField(

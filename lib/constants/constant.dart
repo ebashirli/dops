@@ -18,7 +18,7 @@ import 'package:get/get.dart';
 
 AuthManager authManager = AuthManager.instance;
 HomeController homeController = HomeController.instance;
-ReferenceDocumentController referenceDocumentController =
+ReferenceDocumentController refDocController =
     ReferenceDocumentController.instance;
 ActivityController activityController = ActivityController.instance;
 DrawingController drawingController = DrawingController.instance;

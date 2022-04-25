@@ -152,11 +152,11 @@ class StaffController extends GetxService with CacheManager {
     emergencyContactNameController.text = model.emergencyContactName;
     noteController.text = model.note;
 
-    dateOfBirthController.text = model.dateOfBirth!.toDMYhm();
+    dateOfBirthController.text = model.dateOfBirth!.toDMYhmDash();
 
-    startDateConroller.text = model.startDate!.toDMYhm();
+    startDateConroller.text = model.startDate!.toDMYhmDash();
 
-    contractFinishDateController.text = model.contractFinishDate!.toDMYhm();
+    contractFinishDateController.text = model.contractFinishDate!.toDMYhmDash();
 
     currentPlaceText = model.currentPlace;
     systemDesignationText = model.systemDesignation;
@@ -205,21 +205,28 @@ class StaffController extends GetxService with CacheManager {
   List<Map<String, dynamic>> get getDataForTableView {
     List<String> mapPropNames = mapPropNamesGetter('staff');
 
-    return documents.map((staffMember) {
+    return documents.map((staff) {
+      Map<String, dynamic> staffToMap = staff.toMap();
       Map<String, dynamic> map = {};
       mapPropNames.forEach((mapPropName) {
         switch (mapPropName) {
           case 'id':
-            map[mapPropName] = staffMember.id!;
+            map[mapPropName] = staff.id!;
             break;
           case 'isHidden':
             break;
           case 'fullName':
             map[mapPropName] =
-                '${staffMember.name} ${staffMember.surname} ${staffMember.patronymic}';
+                '${staff.name} ${staff.surname} ${staff.patronymic}';
+            break;
+          case 'dateOfBirth':
+          case 'startDate':
+          case 'contractFinishDate':
+            map[mapPropName] =
+                DateTime.parse(staffToMap[mapPropName]).toDayMonthYear();
             break;
           default:
-            map[mapPropName] = staffMember.toMap()[mapPropName];
+            map[mapPropName] = staffToMap[mapPropName];
             break;
         }
       });

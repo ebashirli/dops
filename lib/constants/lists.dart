@@ -20,7 +20,6 @@ List<String> valueTableCommonColumnHeadList = [
   'Employee Id',
   'Assigned date time',
   'Note',
-  'Coordinator Note',
   'Submit date time',
   'linkingToGroupDateTime',
 ];

@@ -23,7 +23,7 @@ class ValueController extends GetxService {
 
   addValues({required Map<String, dynamic> map, required String id}) async {
     CustomFullScreenDialog.showDialog();
-    await _repository.addFields(map, id);
+    await _repository.updateFileds(map, id);
     CustomFullScreenDialog.cancelDialog();
   }
 

@@ -154,7 +154,6 @@ class DrawingController extends GetxService {
 
   buildUpdateForm({required String id}) {
     final DrawingModel? drawingModel = getById(id);
-    print('hello');
     drawingModel == null
         ? selectItemSnackbar()
         : fillEditingControllers(drawingModel);
@@ -173,8 +172,9 @@ class DrawingController extends GetxService {
         ),
       );
 
-  drawingModelById(TaskModel? taskModel) => (loading.value || documents.isEmpty)
-      ? null
-      : drawingController.documents
-          .firstWhereOrNull((e) => e.id == taskModel!.parentId);
+  DrawingModel? drawingModelByTaskModel(TaskModel? taskModel) =>
+      (loading.value || documents.isEmpty)
+          ? null
+          : drawingController.documents
+              .firstWhereOrNull((e) => e.id == taskModel!.parentId);
 }

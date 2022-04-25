@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:dops/components/custom_widgets.dart';
 
 class CustomDateTimeFormField extends StatelessWidget {
   CustomDateTimeFormField({
@@ -7,44 +8,46 @@ class CustomDateTimeFormField extends StatelessWidget {
     required this.labelText,
     required this.controller,
     this.initialValue,
+    this.width = 200,
   }) : super(key: key);
   final String labelText;
   final String? initialValue;
   final TextEditingController controller;
+  final double? width;
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         SizedBox(
-          width: 200,
+          width: width,
           child: TextFormField(
-            validator: (value) {
-              if (value!.isEmpty) {
-                return null;
-              }
-              final components = value.split("/");
-              if (components.length == 3) {
-                final day = int.tryParse(components[0]);
-                final month = int.tryParse(components[1]);
-                final year = int.tryParse(components[2]);
-                if (day != null && month != null && year != null) {
-                  final date = DateTime(year, month, day);
-                  if (date.year == year &&
-                      date.month == month &&
-                      date.day == day) {
-                    return null;
-                  }
-                }
-              }
-              return "Wrong date";
-            },
+            // validator: (value) {
+            //   if (value!.isEmpty) {
+            //     return null;
+            //   }
+            //   final components = value.split("-");
+            //   if (components.length == 3) {
+            //     final day = int.tryParse(components[0]);
+            //     final month = int.tryParse(components[1]);
+            //     final year = int.tryParse(components[2]);
+            //     if (day != null && month != null && year != null) {
+            //       final date = DateTime(year, month, day);
+            //       if (date.year == year &&
+            //           date.month == month &&
+            //           date.day == day) {
+            //         return null;
+            //       }
+            //     }
+            //   }
+            //   return "Wrong date";
+            // },
             controller: controller,
-            inputFormatters: [MaskTextInputFormatter(mask: "##/##/####")],
+            inputFormatters: [MaskTextInputFormatter(mask: "####-##-##")],
             autocorrect: false,
             keyboardType: TextInputType.phone,
             autovalidateMode: AutovalidateMode.always,
             decoration: InputDecoration(
-              hintText: 'dd/mm/yyyy',
+              hintText: 'yyyy-mm-dd',
               hintStyle: const TextStyle(color: Colors.black45),
               errorStyle: const TextStyle(color: Colors.redAccent),
               border: const OutlineInputBorder(),
@@ -58,8 +61,7 @@ class CustomDateTimeFormField extends StatelessWidget {
                     firstDate: DateTime(2010),
                     lastDate: DateTime(2030),
                   );
-                  controller.text =
-                      '${_selectedDate!.day}/${_selectedDate.month}/${_selectedDate.year}';
+                  controller.text = _selectedDate!.toDMYhmDash();
                 },
                 icon: const Icon(Icons.event_note),
               ),

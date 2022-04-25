@@ -8,9 +8,7 @@ import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/issue/issue_add_update_form_widget.dart';
 import 'package:dops/modules/issue/issue_model.dart';
 import 'package:dops/modules/issue/issue_repository.dart';
-import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/task/task_model.dart';
-import 'package:dops/modules/values/value_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -64,7 +62,7 @@ class IssueController extends GetxService {
         'note': issueController.noteController.text,
       if (issueController.files != issueModel.files)
         'files': issueController.files,
-      if (issueController.linkedTaskIds != issueModel.linkedTasks)
+      if (issueController.linkedTaskIds != issueModel.linkedTaskIds)
         'linkedTasks': issueController.linkedTaskIds,
     };
 
@@ -178,8 +176,8 @@ class IssueController extends GetxService {
   List<Map<String, dynamic>> get getDataForTableView {
     return documents.map((issue) {
       String assignedTasks = '';
-      if (issue.linkedTasks.isNotEmpty)
-        issue.linkedTasks.forEach((String? taskId) {
+      if (issue.linkedTaskIds.isNotEmpty)
+        issue.linkedTaskIds.forEach((String? taskId) {
           TaskModel? taskModel = taskController.getById(taskId!);
           if (taskModel != null) {
             final String drawingNumber = drawingController.documents
@@ -198,7 +196,8 @@ class IssueController extends GetxService {
         'assignedTasks': assignedTasks,
         'files': issue.files,
         'note': issue.note,
-        'submitDate': getMaxSubmitDate(issue.linkedTasks),
+        'closeDate': issue.closeDate,
+        // 'submitDate': getMaxSubmitDate(issue.linkedTasks),
         'issueDate': issue.issueDate,
       };
 
@@ -212,66 +211,99 @@ class IssueController extends GetxService {
     CustomFullScreenDialog.cancelDialog();
   }
 
-  String? onIssueSubmitPressed(IssueModel issueModel) {
-    if (issueModel.linkedTasks.isEmpty) return 'Error: there is no linked task';
-    issueController.addValues(
-      map: {'submitDate': DateTime.now()},
-      id: issueModel.id!,
-    );
-    for (String? id in issueModel.linkedTasks) {
-      TaskModel? taskModel = taskController.loading.value ||
-              taskController.documents.isEmpty ||
-              id == null
-          ? null
-          : taskController.getById(id);
-      if (taskModel == null) return 'Error: task model not found';
-
-      String valueModelId = stageController
-          .getStagesAndValueModelsByTask(taskModel)[8]!
-          .values
-          .first
-          .singleWhereOrNull(
-              (e) => e!.employeeId == staffController.currentUserId)!
-          .id!;
-      valueController.addValues(
-        map: {'submitDateTime': DateTime.now()},
-        id: valueModelId,
+  onClosePressed(IssueModel issueModel) {
+    onConfirm() {
+      final DateTime now = DateTime.now();
+      issueController.addValues(
+        map: {
+          'closeDate': now,
+          'closedBy': staffController.currentUserId,
+        },
+        id: issueModel.id!,
       );
+      for (String? taskId in issueModel.linkedTaskIds) {
+        TaskModel? taskModel = taskController.loading.value ||
+                taskController.documents.isEmpty ||
+                taskId == null
+            ? null
+            : taskController.getById(taskId);
+        if (taskModel == null) return 'Error: task model not found';
+
+        String valueModelId = stageController
+            .getStagesAndValueModelsByTask(taskModel)[8]!
+            .values
+            .first
+            .singleWhereOrNull(
+                (e) => e!.employeeId == staffController.currentUserId)!
+            .id!;
+        valueController.addValues(
+          map: {'submitDateTime': now},
+          id: valueModelId,
+        );
+      }
     }
-    return 'Done';
+
+    if (issueModel.linkedTaskIds.isEmpty || issueModel.files.isEmpty) {
+      Get.defaultDialog(
+        title: 'Empty field!',
+        content: Text(
+          'Theres is no linked tasks or files have not been attached.\nIf you want to continue press "Ok" else "Cancel".',
+        ),
+        onCancel: () {},
+        onConfirm: () {
+          onConfirm();
+          Get.back();
+        },
+      );
+    } else {
+      onConfirm();
+    }
   }
 
-  onSendToDCCPressed(IssueModel issueModel) {}
-
-  DateTime? getMaxSubmitDate(List<String?> linkedTasks) {
-    linkedTasks = taskController.removeDeletedIds(linkedTasks);
-
-    if (linkedTasks.isEmpty) return null;
-
-    List<DateTime?> maxSubmitDateList = linkedTasks.map((String? taskId) {
-      Map<StageModel, List<ValueModel?>>? map =
-          stageController.getStageByTaskAndIndex(
-        taskId: taskId!,
-        index: 8,
-      );
-
-      if (map == null || map.isEmpty) return null;
-      List<ValueModel?> valueList = map.values.first;
-      if (valueList.isEmpty) return null;
-      List<DateTime?> submitDateList =
-          valueList.map((e) => e!.submitDateTime).toList();
-      if (submitDateList.contains(null)) return null;
-      return submitDateList.reduce(
-        (a, b) => a!.isAfter(b!) ? a : b,
-      );
-    }).toList();
-
-    if (maxSubmitDateList.contains(null)) return null;
-
-    return maxSubmitDateList.reduce((v, e) => v!.isAfter(e!) ? v : e);
+  void onSendPressed(IssueModel issueModel) {
+    print('Sended');
+    // stageController.addNew(
+    //   model: StageModel(
+    //     index: 10,
+    //     taskId: taskId,
+    //     creationDateTime: creationDateTime,
+    //   ),
+    // );
   }
+
+  // DateTime? getMaxSubmitDate(List<String?> linkedTasks) {
+  //   linkedTasks = taskController.removeDeletedIds(linkedTasks);
+  //   if (linkedTasks.isEmpty) return null;
+  //   List<DateTime?> maxSubmitDateList = linkedTasks.map((String? taskId) {
+  //     Map<StageModel, List<ValueModel?>>? map =
+  //         stageController.getStageByTaskAndIndex(
+  //       taskId: taskId!,
+  //       index: 8,
+  //     );
+  //     if (map == null || map.isEmpty) return null;
+  //     List<ValueModel?> valueList = map.values.first;
+  //     if (valueList.isEmpty) return null;
+  //     List<DateTime?> submitDateList =
+  //         valueList.map((e) => e!.submitDateTime).toList();
+  //     if (submitDateList.contains(null)) return null;
+  //     return submitDateList.reduce(
+  //       (a, b) => a!.isAfter(b!) ? a : b,
+  //     );
+  //   }).toList();
+  //   if (maxSubmitDateList.contains(null)) return null;
+  //   return maxSubmitDateList.reduce((v, e) => v!.isAfter(e!) ? v : e);
+  // }
 
   IssueModel? getById(String id) => loading.value || documents.isEmpty
       ? null
       : documents.singleWhereOrNull((e) => e.id == id);
+
+  List<IssueModel?> issuModelsByTaskId(String taskId) {
+    return documents.isEmpty || loading.value
+        ? []
+        : issueController.documents
+            .where((IssueModel issueModel) =>
+                issueModel.linkedTaskIds.contains(taskId))
+            .toList();
+  }
 }

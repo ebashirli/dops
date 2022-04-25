@@ -79,7 +79,7 @@ Map<String, List<String>> tableColNames = {
     'Linked Tasks',
     'Files',
     'Notes',
-    'Submit/Submit Date',
+    'Close/Close Date',
     'Issue/Issue Date',
   ],
 };

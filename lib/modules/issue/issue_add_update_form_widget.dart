@@ -102,7 +102,7 @@ class IssueAddUpdateFormWidget extends StatelessWidget {
                             creationDate: DateTime.now(),
                             createdBy: staffController.currentUserId,
                             files: issueController.files,
-                            linkedTasks: issueController.linkedTaskIds,
+                            linkedTaskIds: issueController.linkedTaskIds,
                             groupNumber: issueController.maxGroupNumber + 1,
                           );
                           id == null

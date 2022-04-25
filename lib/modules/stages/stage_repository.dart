@@ -45,7 +45,7 @@ class StageRepository {
     await _api.updateDocument(data.toMap(), id);
   }
 
-  updateFields(Map<String, dynamic> map, String id) async {
+  updateFileds(Map<String, dynamic> map, String id) async {
     await _api.updateDocument(map, id);
   }
 

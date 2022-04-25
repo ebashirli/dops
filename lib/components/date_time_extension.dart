@@ -23,7 +23,11 @@ extension DateTimeExtension on DateTime {
     return 'just now';
   }
 
-  String toDayMonthYear() => '$day/$month/$year';
+  String toDayMonthYear() => '${zeroAdder(day)}/${zeroAdder(month)}/$year';
   String toDMYhm() =>
-      '$day/$month/$year ${hour.toString().length == 1 ? "0" : ""}$hour:${minute.toString().length == 1 ? "0" : ""}$minute';
+      '${zeroAdder(day)}/${zeroAdder(month)}/$year ${zeroAdder(hour)}:${zeroAdder(minute)}';
+  String toDMYhmDash() => '$year-${zeroAdder(month)}-${zeroAdder(day)}';
 }
+
+String zeroAdder(int singleInt) =>
+    (singleInt.toString().length == 1 ? "0" : "") + singleInt.toString();

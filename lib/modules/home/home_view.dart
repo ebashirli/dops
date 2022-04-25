@@ -33,7 +33,7 @@ class HomeView extends GetView<HomeController> {
         break;
 
       case HomeStates.ReferenceDocumentState:
-        _controller = referenceDocumentController;
+        _controller = refDocController;
         tableName = 'reference document';
         break;
 
@@ -75,7 +75,7 @@ class HomeView extends GetView<HomeController> {
               SizedBox(width: 10),
               if (homeController.homeStates == HomeStates.TaskState)
                 ElevatedButton(
-                  onPressed: controller.onEditPressed,
+                  onPressed: controller.onAddTaskPressed,
                   child: Text('Add task'),
                 ),
             ],
@@ -202,7 +202,7 @@ class HomeView extends GetView<HomeController> {
       case HomeStates.ActivityState:
         return activityController.buildAddForm();
       case HomeStates.ReferenceDocumentState:
-        return referenceDocumentController.buildAddForm();
+        return refDocController.buildAddForm();
       case HomeStates.StaffState:
         return staffController.buildAddForm();
       case HomeStates.TaskState:

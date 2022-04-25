@@ -50,7 +50,7 @@ class ValueRepository {
     await _api.addDocument(data.toMap());
   }
 
-  addFields(Map<String, dynamic> map, String id) async {
+  updateFileds(Map<String, dynamic> map, String id) async {
     await _api.updateDocument(map, id);
   }
 }

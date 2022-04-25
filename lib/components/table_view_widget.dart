@@ -2,7 +2,6 @@ import 'package:dops/components/select_item_snackbar.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/enum.dart';
 import 'package:dops/modules/issue/issue_model.dart';
-import 'package:dops/modules/values/value_model.dart';
 import 'package:dops/routes/app_pages.dart';
 import 'package:expendable_fab/expendable_fab.dart';
 import 'package:flutter/material.dart';
@@ -26,38 +25,39 @@ class TableView extends StatelessWidget {
   DataSource get dataSource => DataSource(data: controller.getDataForTableView);
 
   @override
-  Widget build(BuildContext context) => isDocumentsEmpty
-      ? CircularProgressIndicator() // TODO: apply timer here after several seconds that indicator turns column heads
-      : Obx(
-          () => Scaffold(
-            floatingActionButton: baseFab(),
-            body: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: SfDataGrid(
-                isScrollbarAlwaysShown: false,
-                source: dataSource,
-                columns: getColumns(tableColNames[tableName]!),
-                gridLinesVisibility: GridLinesVisibility.both,
-                headerGridLinesVisibility: GridLinesVisibility.both,
-                columnWidthMode: ColumnWidthMode.fill,
-                allowSorting: true,
-                rowHeight: 70,
-                controller: homeController.dataGridController.value,
-                selectionMode: SelectionMode.singleDeselect,
-                navigationMode: GridNavigationMode.row,
-                onCellDoubleTap: onCellDoubleTap,
+  Widget build(BuildContext context) {
+    // TODO: apply timer here after several seconds that indicator turns column heads
+    return isDocumentsLoadingOrEmpty
+        ? Center(child: CircularProgressIndicator())
+        : Obx(
+            () => Scaffold(
+              floatingActionButton: baseFab(),
+              body: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: SfDataGrid(
+                  isScrollbarAlwaysShown: false,
+                  source: dataSource,
+                  columns: getColumns(tableColNames[tableName]!),
+                  gridLinesVisibility: GridLinesVisibility.both,
+                  headerGridLinesVisibility: GridLinesVisibility.both,
+                  columnWidthMode: ColumnWidthMode.fill,
+                  allowSorting: true,
+                  rowHeight: 70,
+                  controller: homeController.dataGridController.value,
+                  selectionMode: SelectionMode.singleDeselect,
+                  navigationMode: GridNavigationMode.row,
+                  onCellDoubleTap: onCellDoubleTap,
+                ),
               ),
             ),
-          ),
-        );
+          );
+  }
 
-  bool get isDocumentsEmpty => tableName != 'task'
-      ? controller.documents.isEmpty
-      : drawingController.documents.isEmpty
-          ? true
-          : taskController.documents.isNotEmpty
-              ? stageController.documents.isEmpty
-              : false;
+  bool get isDocumentsLoadingOrEmpty {
+    return tableName == 'task'
+        ? drawingController.loading.value || drawingController.documents.isEmpty
+        : controller.documents.isEmpty;
+  }
 
   Widget? baseFab() {
     bool isThereIncompleteIssueCreatedByCurrentUser =
@@ -206,8 +206,10 @@ class DataSource extends DataGridSource {
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>(
         (cell) {
-          if (['submitDate', 'issueDate'].contains(cell.columnName) &&
-              cell.value == null) return provideIssueButtons(cell, row);
+          if (['closeDate', 'issueDate'].contains(cell.columnName) &&
+              cell.value == null) {
+            return provideIssueButtons(cell, row);
+          }
 
           if (cell.value != null) {
             void onPressed(String id) =>
@@ -252,9 +254,10 @@ class DataSource extends DataGridSource {
                                     ? () =>
                                         taskNumberDialog(cell.value, onPressed)
                                     : null,
-                                child: Text(
-                                  '|'.allMatches(cell.value).length.toString(),
-                                ),
+                                child: Text('|'
+                                    .allMatches(cell.value)
+                                    .length
+                                    .toString()),
                               )
                         : Text(
                             cell.value is DateTime
@@ -272,42 +275,33 @@ class DataSource extends DataGridSource {
   }
 
   Widget provideIssueButtons(DataGridCell<dynamic> cell, DataGridRow row) {
-    String rowId = row.getCells()[0].value;
-    IssueModel? issueModel =
+    final String rowId = row.getCells()[0].value;
+    final IssueModel? issueModel =
         issueController.loading.value || issueController.documents.isEmpty
             ? null
             : issueController.documents.firstWhereOrNull((e) => e.id == rowId);
     if (issueModel == null) return Text('');
 
-    bool isSubmitVisible = (cell.columnName == 'submitDate') &&
+    bool isCloseVisible = (cell.columnName == 'closeDate') &&
         (issueModel.createdBy == staffController.currentUserId) &&
-        (issueModel.linkedTasks.isNotEmpty || issueModel.files.isNotEmpty);
+        (issueModel.linkedTaskIds.isNotEmpty || issueModel.files.isNotEmpty);
 
-    bool isIssueButtonVisible = cell.columnName == 'issueDate' &&
+    bool isSendVisible = cell.columnName == 'issueDate' &&
         staffController.isCoordinator &&
-        issueModel.issueDate == null &&
-        areAllValueModelsSubmitted(issueModel.linkedTasks);
+        areAllGroupsClosed(issueModel.linkedTaskIds);
 
-    return isSubmitVisible
-        ? Padding(
-            padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
-            child: ElevatedButton(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
+      child: isCloseVisible || isSendVisible
+          ? ElevatedButton(
               key: Key(row.getCells()[0].value),
-              onPressed: () => issueController.onIssueSubmitPressed(issueModel),
-              child: Text('Submit'),
-            ),
-          )
-        : isIssueButtonVisible
-            ? Padding(
-                padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
-                child: ElevatedButton(
-                  key: Key(row.getCells()[0].value),
-                  onPressed: () =>
-                      issueController.onSendToDCCPressed(issueModel),
-                  child: Text('Send To DCC'),
-                ),
-              )
-            : Text('');
+              onPressed: () => isSendVisible
+                  ? issueController.onSendPressed(issueModel)
+                  : issueController.onClosePressed(issueModel),
+              child: Text(isSendVisible ? 'Send' : 'Close'),
+            )
+          : Text(''),
+    );
   }
 
   void taskNumberDialog(
@@ -329,20 +323,21 @@ class DataSource extends DataGridSource {
         ),
       );
 
-  bool areAllValueModelsSubmitted(List<String?> linkedTasks) {
-    linkedTasks = taskController.removeDeletedIds(linkedTasks);
-    if (linkedTasks.isEmpty) return false;
+  bool areAllGroupsClosed(List<String?> linkedTaskIds) {
+    if (linkedTaskIds.isEmpty) return true;
+    linkedTaskIds = taskController.removeDeletedIds(linkedTaskIds);
+    if (linkedTaskIds.isEmpty) return false;
 
-    return !linkedTasks.map((String? taskId) {
-      List<ValueModel?> valueModelList = stageController
-          .getStageByTaskAndIndex(taskId: taskId!, index: 8)!
-          .values
-          .first;
-      if (valueModelList.isEmpty) return true;
+    for (String? taskId in linkedTaskIds) {
+      List<IssueModel?> issueModelList =
+          issueController.issuModelsByTaskId(taskId!);
+      if (issueModelList.isEmpty) return false;
 
-      return valueModelList
-          .map((e) => e!.submitDateTime == null)
-          .contains(true);
-    }).contains(true);
+      for (IssueModel? issueModel in issueModelList) {
+        if (issueModel!.closeDate == null) return false;
+      }
+    }
+
+    return true;
   }
 }

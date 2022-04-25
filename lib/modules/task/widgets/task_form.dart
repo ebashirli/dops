@@ -6,20 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class TaskForm extends StatelessWidget {
-  const TaskForm({
-    Key? key,
-    this.id,
-    this.newRev = false,
-    this.drawingId,
-  }) : super(key: key);
+  const TaskForm({Key? key, this.id, this.drawingId}) : super(key: key);
 
   final String? id;
-  final bool newRev;
   final String? drawingId;
 
   @override
   Widget build(BuildContext context) {
-    TaskModel? taskModel = newRev ? null : taskController.getById(id!);
+    TaskModel? taskModel = id == null ? null : taskController.getById(id!);
 
     DrawingModel? drawingModel = drawingController
         .getById(drawingId ?? (taskModel == null ? '' : taskModel.parentId!));
@@ -83,7 +77,7 @@ class TaskForm extends StatelessWidget {
                         SizedBox(height: 10),
                         Row(
                           children: <Widget>[
-                            if (id != null && !newRev)
+                            if (id != null)
                               ElevatedButton.icon(
                                 onPressed: () =>
                                     taskController.onDeletePressed(taskModel),
@@ -103,10 +97,10 @@ class TaskForm extends StatelessWidget {
                             ),
                             SizedBox(width: 10),
                             ElevatedButton(
-                              onPressed: () => newRev
+                              onPressed: () => id == null
                                   ? taskController.addNew(drawingModel.id!)
                                   : taskController.onUpdatePressed(id: id!),
-                              child: Text(newRev ? 'Add' : 'Update'),
+                              child: Text(id == null ? 'Add' : 'Update'),
                             ),
                           ],
                         ),
@@ -130,7 +124,7 @@ class TaskForm extends StatelessWidget {
       taskController.referenceDocumentsList = values;
 
   List<String> itemsReferenceDocuments() {
-    return referenceDocumentController.documents
+    return refDocController.documents
         .map((document) => document.documentNumber)
         .toList();
   }

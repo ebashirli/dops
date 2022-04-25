@@ -129,34 +129,30 @@ class TaskController extends GetxService {
     isHeld.value = taskModel.holdReason != null;
   }
 
-  buildAddForm({required String parentId}) {
+  void buildAddForm({required String parentId}) {
     clearEditingControllers();
     formDialog(drawingId: parentId);
   }
 
-  buildUpdateForm({required String? id}) {
+  void buildUpdateForm({required String? id}) {
     if (id == null) {
       selectItemSnackbar();
     } else {
       final TaskModel? taskModel = getById(id);
+      if (taskModel == null) return;
 
-      fillEditingControllers(taskModel!);
+      fillEditingControllers(taskModel);
       formDialog(id: id);
     }
-    ;
   }
 
-  formDialog({String? id, bool newRev = false, String? drawingId}) {
+  void formDialog({String? id, String? drawingId}) {
     Get.defaultDialog(
       barrierDismissible: false,
       radius: 12,
       // titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: newRev ? 'Add next revision' : 'Update current revision',
-      content: TaskForm(
-        id: id,
-        newRev: newRev,
-        drawingId: drawingId,
-      ),
+      title: id == null ? 'Add next revision' : 'Update current revision',
+      content: TaskForm(id: id, drawingId: drawingId),
     );
   }
 

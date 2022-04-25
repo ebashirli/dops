@@ -6,6 +6,7 @@ class StageModel {
   int reviewerCommentCounter;
   bool isHidden;
   DateTime creationDateTime;
+  String? note;
 
   StageModel({
     this.id,
@@ -15,6 +16,7 @@ class StageModel {
     this.reviewerCommentCounter = 0,
     this.isHidden = false,
     required this.creationDateTime,
+    this.note,
   });
 
   Map<String, dynamic> toMap() {
@@ -24,6 +26,7 @@ class StageModel {
       'checkerCommentCounter': checkerCommentCounter,
       'reviewerCommentCounter': reviewerCommentCounter,
       'creationDateTime': creationDateTime,
+      'note': note != null ? note : null,
       'isHidden': isHidden,
     };
   }
@@ -39,6 +42,7 @@ class StageModel {
       creationDateTime: map['creationDateTime'] != null
           ? map['creationDateTime'].toDate()
           : null,
+      note: map['note'] != null ? map['note'] : null,
     );
   }
 }

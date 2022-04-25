@@ -51,7 +51,7 @@ class NestingStageForm extends StatelessWidget {
     String groupId = selectedIssueModel.first!.id!;
     IssueModel? issueModel = issueController.getById(groupId);
     List<String?> linkedTasks =
-        issueModel == null ? [] : issueModel.linkedTasks;
+        issueModel == null ? [] : issueModel.linkedTaskIds;
 
     linkedTasks.add(stageController.currentTask!.id);
     valueController.addValues(

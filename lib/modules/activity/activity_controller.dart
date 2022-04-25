@@ -105,10 +105,8 @@ class ActivityController extends GetxService {
     activityNameController.text = model.activityName ?? '';
     coefficientController.text = model.coefficient.toString();
     budgetedLaborUnitsController.text = model.budgetedLaborUnits.toString();
-    startDateController.text =
-        '${model.startDate!.day}/${model.startDate!.month}/${model.startDate!.year}';
-    finishDateController.text =
-        '${model.finishDate!.day}/${model.finishDate!.month}/${model.finishDate!.year}';
+    startDateController.text = model.startDate!.toDMYhmDash();
+    finishDateController.text = model.finishDate!.toDMYhmDash();
     moduleNameText = model.moduleName;
   }
 
@@ -144,7 +142,7 @@ class ActivityController extends GetxService {
     Get.defaultDialog(
       barrierDismissible: false,
       radius: 12,
-      titlePadding: EdgeInsets.only(top: 20, bottom: 20),
+      titlePadding: EdgeInsets.only(top: 10),
       title: title,
       content: ActivityFormWidget(id: id),
     );
@@ -187,8 +185,12 @@ class ActivityController extends GetxService {
         'currentPriority':
             (documents.indexOf(activity) + 1) * activity.coefficient,
         'budgetedLaborUnits': activity.budgetedLaborUnits,
-        'startDate': activity.startDate,
-        'finishDate': activity.finishDate,
+        'startDate': activity.startDate == null
+            ? null
+            : activity.startDate!.toDayMonthYear(),
+        'finishDate': activity.finishDate == null
+            ? null
+            : activity.finishDate!.toDayMonthYear(),
         'cumulative': activity.cumulative,
         'assignedTasks': assignedTasks,
       };

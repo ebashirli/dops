@@ -15,7 +15,6 @@ class ValueModel {
   int? dtl;
   String? hold;
   String? note;
-  String? coordinatorNote;
   List<String>? fileNames;
   bool isCommented;
   bool isHidden;
@@ -37,7 +36,6 @@ class ValueModel {
     this.dtl,
     this.hold,
     this.note,
-    this.coordinatorNote,
     this.fileNames,
     this.isCommented = false,
     this.isHidden = false,
@@ -61,7 +59,6 @@ class ValueModel {
       'sfd': sfd != null ? sfd : null,
       'dtl': dtl != null ? dtl : null,
       'note': note != null ? note : null,
-      'coordinatorNote': coordinatorNote != null ? coordinatorNote : null,
       'fileNames': fileNames != null ? fileNames : null,
     };
   }
@@ -87,8 +84,6 @@ class ValueModel {
       sfd: map['sfd'] != null ? map['sfd'] : null,
       dtl: map['dtl'] != null ? map['dtl'] : null,
       note: map['note'] != null ? map['note'] : null,
-      coordinatorNote:
-          map['coordinatorNote'] != null ? map['coordinatorNote'] : null,
       fileNames:
           map['fileNames'] != null ? List<String>.from(map['fileNames']) : null,
       isCommented: map['isCommented'],

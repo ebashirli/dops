@@ -1,8 +1,8 @@
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/style.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
-import 'package:dops/modules/stages/widgets/fields_panel.dart/drawing_fields_panel.dart';
-import 'package:dops/modules/stages/widgets/fields_panel.dart/task_fields_panel.dart';
+import 'package:dops/modules/stages/widgets/fields_panel/drawing_fields_panel.dart';
+import 'package:dops/modules/stages/widgets/fields_panel/task_fields_panel.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -43,6 +43,7 @@ class BuildEditFormWidget extends StatelessWidget {
             'Drawing details of ${drawingModel.drawingNumber}',
             style: kBold18,
           ),
+          SizedBox(height: 10),
           DrawingUpdateFormWidget(drawingModel: drawingModel),
           Text(
             'Task details of $fullTaskNumber',
@@ -55,10 +56,7 @@ class BuildEditFormWidget extends StatelessWidget {
           ),
           SizedBox(height: 20),
           TaskUpdateFormWidget(taskModel: taskModel),
-          Text(
-            'Stages of $fullTaskNumber',
-            style: kBold18,
-          ),
+          Text('Stages of $fullTaskNumber', style: kBold18),
         ],
       ),
     );

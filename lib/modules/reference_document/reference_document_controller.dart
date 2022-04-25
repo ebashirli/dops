@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
-import 'package:dops/modules/reference_document/ref_doc_add_update_form_widget.dart';
+import 'package:dops/modules/reference_document/widgets/ref_doc_add_update_form_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -91,8 +91,7 @@ class ReferenceDocumentController extends GetxService {
     titleController.text = model.title;
     transmittalNumberController.text = model.transmittalNumber;
     actionRequiredOrNext.value = model.actionRequiredOrNext;
-    receiveDateController.text =
-        '${model.receivedDate.day}/${model.receivedDate.month}/${model.receivedDate.year}';
+    receiveDateController.text = model.receivedDate.toDMYhmDash();
     projectText = model.project;
     moduleNameText = model.moduleName;
     referenceTypeText = model.referenceType;
@@ -130,7 +129,7 @@ class ReferenceDocumentController extends GetxService {
     Get.defaultDialog(
       barrierDismissible: false,
       radius: 12,
-      titlePadding: EdgeInsets.only(top: 20, bottom: 20),
+      titlePadding: EdgeInsets.only(top: 20),
       title: title,
       content: RefDocAddUpdateFormWidget(id: id),
     );
@@ -166,7 +165,7 @@ class ReferenceDocumentController extends GetxService {
         'documentNumber': refDoc.documentNumber,
         'title': refDoc.title,
         'transmittalNumber': refDoc.transmittalNumber,
-        'receivedDate': refDoc.receivedDate,
+        'receivedDate': refDoc.receivedDate.toDayMonthYear(),
         'actionRequiredOrNext':
             !refDoc.actionRequiredOrNext ? 'Action required' : 'Next',
         'assignedTasks': assignedTasks,

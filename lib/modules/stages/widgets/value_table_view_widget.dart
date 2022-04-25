@@ -107,7 +107,7 @@ class ValueTableView extends StatelessWidget {
         List<IssueModel?> issueModelList = issueController.documents
             .where(
               (e) =>
-                  e.linkedTasks.contains(stageController.currentTask!.id) &&
+                  e.linkedTaskIds.contains(stageController.currentTask!.id) &&
                   e.createdBy == valueModel!.employeeId,
             )
             .toList();

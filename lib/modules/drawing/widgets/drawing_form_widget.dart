@@ -227,7 +227,7 @@ class DrawingFormWidget extends StatelessWidget {
   }
 
   List<String> itemsReferenceDocuments() {
-    return referenceDocumentController.documents
+    return refDocController.documents
         .map((document) => document.documentNumber)
         .toList();
   }

@@ -3,7 +3,8 @@ class IssueModel {
   int groupNumber;
   DateTime creationDate;
   String createdBy;
-  List<String?> linkedTasks;
+  DateTime? closeDate;
+  List<String?> linkedTaskIds;
   String note;
   List<String?> files;
   DateTime? issueDate;
@@ -14,9 +15,10 @@ class IssueModel {
     required this.groupNumber,
     required this.creationDate,
     required this.createdBy,
-    required this.linkedTasks,
+    required this.linkedTaskIds,
     required this.note,
     required this.files,
+    this.closeDate,
     this.issueDate,
     this.isHidden = false,
   });
@@ -26,7 +28,8 @@ class IssueModel {
       'groupNumber': groupNumber,
       'creationDate': creationDate,
       'createdBy': createdBy,
-      'linkedTasks': linkedTasks,
+      'closeDate': closeDate,
+      'linkedTasks': linkedTaskIds,
       'note': note,
       'files': files,
       'issueDate': issueDate,
@@ -41,7 +44,8 @@ class IssueModel {
       creationDate:
           map['creationDate'] != null ? map['creationDate'].toDate() : null,
       createdBy: map['createdBy'],
-      linkedTasks: List<String?>.from(map['linkedTasks']),
+      closeDate: map['closeDate'] != null ? map['closeDate'].toDate() : null,
+      linkedTaskIds: List<String?>.from(map['linkedTasks']),
       note: map['note'] ?? '',
       files: List<String>.from(map['files']),
       issueDate: map['issueDate'] != null ? map['issueDate'].toDate() : null,

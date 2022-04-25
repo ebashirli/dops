@@ -31,7 +31,7 @@ class StageController extends GetxService {
   List<StageModel?> get documents => _documents;
   RxBool loading = true.obs;
   late List<TextEditingController> textEditingControllers;
-  late TextEditingController coordinatorNoteController;
+  late TextEditingController noteController;
 
   @override
   void onInit() {
@@ -44,7 +44,7 @@ class StageController extends GetxService {
 
     textEditingControllers =
         List<TextEditingController>.generate(5, (_) => TextEditingController());
-    coordinatorNoteController = TextEditingController();
+    noteController = TextEditingController();
   }
 
   TaskModel? get currentTask =>
@@ -53,7 +53,7 @@ class StageController extends GetxService {
   String? get currentTaskId => Get.parameters['id'];
 
   DrawingModel? get currentDrawing =>
-      drawingController.drawingModelById(currentTask);
+      drawingController.drawingModelByTaskModel(currentTask);
 
   List<StageModel?> get stagesOfCurrentTask {
     List<StageModel?> _stagesOfCurrentTask =
@@ -209,6 +209,8 @@ class StageController extends GetxService {
     return valueModelList.isNotEmpty ? valueModelList[0] : null;
   }
 
+  String get labelText => stageDetailsList[lastIndex]['staff job'];
+
   bool isWorkerFormVisible(ExpantionPanelItemModel item) {
     return valueModelAssignedCurrentUser == null
         ? false
@@ -243,8 +245,7 @@ class StageController extends GetxService {
             : index == 8
                 ? NestingStageForm()
                 : WorkerForm(index: index, visible: lastIndex == index);
-        final Widget coordinatorForm =
-            CoordinatorForm(index: index, visible: lastIndex == index);
+        final Widget coordinatorForm = CoordinatorForm();
         final Widget valueTableView = ValueTableView(
           index: index,
           stageValueModelsList: stageAndValueModelsOfCurrentTask[index]![
@@ -312,6 +313,12 @@ class StageController extends GetxService {
     };
   }
 
+  addValues({required Map<String, dynamic> map, required String id}) async {
+    CustomFullScreenDialog.showDialog();
+    await _repository.updateFileds(map, id);
+    CustomFullScreenDialog.cancelDialog();
+  }
+
   void onAssignOrUpdatePressed() async {
     Set<String?> assignedEmployeeIds = lastTaskStageValues.isNotEmpty
         ? lastTaskStageValues
@@ -325,13 +332,11 @@ class StageController extends GetxService {
     ValueModel vm = await ValueModel(
       stageId: lastTaskStage.id!,
       employeeId: '',
-      coordinatorNote: coordinatorNoteController.text,
       assignedBy: auth.currentUser!.uid,
       assignedDateTime: DateTime.now(),
     );
 
     if (assignedEmployeeIds.isEmpty) {
-      // asigning
       assigningEmployeeIds.forEach((employeeId) async {
         vm.employeeId = employeeId;
         valueController.addNew(model: vm);
@@ -352,8 +357,9 @@ class StageController extends GetxService {
         valueController.addNew(model: vm);
       });
     }
+    addValues(map: {'note': noteController.text}, id: lastTaskStage.id!);
+
     assigningStaffModels.value = [];
-    coordinatorNoteController.clear();
   }
 
   bool containsHoldFun(TaskModel taskModel) {
@@ -530,14 +536,14 @@ class StageController extends GetxService {
             .toDMYhm();
   }
 
-  bool isCoordinatorFormVisible(ExpantionPanelItemModel item) {
-    if (!staffController.isCoordinator) return false;
-    if (currentTask == null) return false;
-    if (currentTask!.holdReason != null) return false;
-    if (item.index == 0 && !taskController.checkFirstTask(currentTask!))
-      return false;
-    return true;
-  }
+  bool isCoordinatorFormVisible(ExpantionPanelItemModel item) =>
+      currentTask == null ||
+              lastIndex != item.index ||
+              !staffController.isCoordinator ||
+              currentTask!.holdReason != null ||
+              (item.index == 0 && !taskController.checkFirstTask(currentTask!))
+          ? false
+          : true;
 
   String phaseInitialValue(DrawingModel drawingModel) {
     final List<ValueModel?> listValueModel = stageAndValueModelsOfCurrentTask

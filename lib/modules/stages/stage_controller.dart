@@ -74,6 +74,10 @@ class StageController extends GetxService {
         : documents.singleWhereOrNull((e) => e!.id == id);
   }
 
+  void fillEditingControllers() {
+    noteController.text = lastTaskStage.note ?? '';
+  }
+
   int get maxIndex => stageAndValueModelsOfCurrentTask.length;
 
   int get lastIndex =>

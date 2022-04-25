@@ -47,6 +47,7 @@ class StageRepository {
 
   updateFileds(Map<String, dynamic> map, String id) async {
     await _api.updateDocument(map, id);
+    print('hello drom stage repo: done');
   }
 
   Future<String> add(StageModel data) async {

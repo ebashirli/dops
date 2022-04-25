@@ -16,8 +16,8 @@ class CoordinatorForm extends StatefulWidget {
 class _CoordinatorFormState extends State<CoordinatorForm> {
   @override
   Widget build(BuildContext context) {
-    if (stageController.labelText == 9)
-      return ElevatedButton(onPressed: () {}, child: Text('Done'));
+    stageController.fillEditingControllers();
+
     return Obx(() => Column(
           children: [
             SizedBox(height: 10),
@@ -41,9 +41,11 @@ class _CoordinatorFormState extends State<CoordinatorForm> {
                     labelText: 'Note',
                   ),
                   const SizedBox(width: 20),
-                  if (stageController.assigningStaffModels.isNotEmpty &&
-                      !listEquals(stageController.assignedStaffModels,
-                          stageController.assigningStaffModels))
+                  if ((stageController.assigningStaffModels.isNotEmpty &&
+                          !listEquals(stageController.assignedStaffModels,
+                              stageController.assigningStaffModels)) ||
+                      stageController.lastTaskStage.note !=
+                          stageController.noteController.text)
                     ElevatedButton(
                       onPressed: () {
                         stageController.onAssignOrUpdatePressed();

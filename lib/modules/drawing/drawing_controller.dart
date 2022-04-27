@@ -172,9 +172,8 @@ class DrawingController extends GetxService {
         ),
       );
 
-  DrawingModel? drawingModelByTaskModel(TaskModel? taskModel) =>
-      (loading.value || documents.isEmpty)
-          ? null
-          : drawingController.documents
-              .firstWhereOrNull((e) => e.id == taskModel!.parentId);
+  DrawingModel? drawingModelByTaskModel(String? parentId) => (loading.value ||
+          documents.isEmpty)
+      ? null
+      : drawingController.documents.firstWhereOrNull((e) => e.id == parentId);
 }

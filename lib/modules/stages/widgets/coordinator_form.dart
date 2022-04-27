@@ -50,9 +50,11 @@ class _CoordinatorFormState extends State<CoordinatorForm> {
                       onPressed: () {
                         stageController.onAssignOrUpdatePressed();
                       },
-                      child: Text(stageController.coordinatorAssigns
-                          ? 'Assign'
-                          : 'Update'),
+                      child: Text(
+                        stageController.coordinatorAssigns
+                            ? 'Assign'
+                            : 'Update',
+                      ),
                     )
                 ],
               )

@@ -10,7 +10,9 @@ import 'package:dops/constants/lists.dart';
 import 'package:dops/modules/stages/widgets/expantion_panel_item_model.dart';
 import 'package:dops/modules/stages/widgets/coordinator_form.dart';
 import 'package:dops/modules/task/task_model.dart';
+import 'package:dops/services/file_api/file_api.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import 'package:dops/constants/constant.dart';
@@ -47,13 +49,14 @@ class StageController extends GetxService {
     noteController = TextEditingController();
   }
 
+  String? get currentTaskId => Get.parameters['id'];
+
   TaskModel? get currentTask =>
       currentTaskId == null ? null : taskController.getById(currentTaskId!);
 
-  String? get currentTaskId => Get.parameters['id'];
-
-  DrawingModel? get currentDrawing =>
-      drawingController.drawingModelByTaskModel(currentTask);
+  DrawingModel? get currentDrawing => currentTask == null
+      ? null
+      : drawingController.drawingModelByTaskModel(currentTask!.parentId);
 
   List<StageModel?> get stagesOfCurrentTask {
     List<StageModel?> _stagesOfCurrentTask =
@@ -233,7 +236,8 @@ class StageController extends GetxService {
   List<String> get specialFieldNames =>
       stageDetailsList[lastIndex]['form fields'];
 
-  final RxList<String> fileNames = RxList<String>([]);
+  final RxList<String?> fileNames = RxList<String?>([]);
+  final RxList<PlatformFile?> files = RxList<PlatformFile?>([]);
   final RxBool commentStatus = false.obs;
 
   final RxBool commentCheckbox = false.obs;
@@ -250,6 +254,7 @@ class StageController extends GetxService {
                 ? NestingStageForm()
                 : WorkerForm(index: index, visible: lastIndex == index);
         final Widget coordinatorForm = CoordinatorForm();
+
         final Widget valueTableView = ValueTableView(
           index: index,
           stageValueModelsList: stageAndValueModelsOfCurrentTask[index]![
@@ -399,10 +404,13 @@ class StageController extends GetxService {
     map['fileNames'] = fileNames;
     map['submitDateTime'] = DateTime.now();
 
-    valueController.addValues(
-      map: map,
-      id: valueModelAssignedCurrentUser!.id!,
-    );
+    if (valueModelAssignedCurrentUser == null) return;
+    String? id = valueModelAssignedCurrentUser!.id;
+    if (id == null) return;
+
+    valueController.addValues(map: map, id: id);
+
+    uploadFiles(files: files, id: id);
 
     if (isLastSubmit) {
       bool anyComment = await valueController.documents.any(
@@ -498,9 +506,12 @@ class StageController extends GetxService {
     );
 
     if (result != null) {
-      fun != null
-          ? fun(result)
-          : fileNames.value = result.files.map((file) => file.name).toList();
+      if (fun != null) {
+        fun(result);
+      } else {
+        fileNames.value = result.files.map((file) => file.name).toList();
+        files.value = result.files;
+      }
     }
   }
 
@@ -558,5 +569,35 @@ class StageController extends GetxService {
     return listValueModel.isEmpty
         ? ' '
         : '${listValueModel.first!.phase ?? ""}';
+  }
+
+  void copyToClipBoard(int index) {
+    Clipboard.setData(
+      ClipboardData(
+        text: '$basePath\\$currentTaskId\\${index}',
+      ),
+    );
+  }
+
+  download(int index) {
+    if (stageAndValueModelsOfCurrentTask.isEmpty ||
+        stageAndValueModelsOfCurrentTask.length < index) return;
+
+    final Map<StageModel, List<ValueModel?>>? stageAndValueModels =
+        stageAndValueModelsOfCurrentTask[index - 1];
+    if (stageAndValueModels == null) return;
+
+    final StageModel lastStageModel = stageAndValueModels.keys.last;
+
+    final List<ValueModel?>? valueModelList =
+        stageAndValueModels[lastStageModel];
+
+    if (valueModelList == null || valueModelList.isEmpty) return;
+
+    List<String?> ids = valueModelList.map((e) => e!.id).toList();
+
+    if (ids.isEmpty) return;
+
+    return dowloadFiles(ids);
   }
 }

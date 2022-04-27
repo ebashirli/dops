@@ -3,10 +3,10 @@ import 'package:dops/modules/stages/widgets/value_table_view_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class TxtButtonForPastCycles extends StatelessWidget {
+class PastCycles extends StatelessWidget {
   final int index;
 
-  const TxtButtonForPastCycles({
+  const PastCycles({
     Key? key,
     required this.index,
   }) : super(key: key);
@@ -17,6 +17,7 @@ class TxtButtonForPastCycles extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         TextButton(
+          key: Key('Cycles$index'),
           child: Text('Values of past cycles'),
           onPressed: onPressed,
         ),

@@ -1,5 +1,6 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:file_picker/src/file_picker_result.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -35,6 +36,21 @@ class FilingStageForm extends StatelessWidget {
     <String>[],
     <String>[],
     <String>[],
+  ]);
+
+  final RxList<List<PlatformFile?>> filesList = RxList(<List<PlatformFile?>>[
+    <PlatformFile?>[],
+    <PlatformFile?>[],
+    <PlatformFile?>[],
+    <PlatformFile?>[],
+    <PlatformFile?>[],
+    <PlatformFile?>[],
+    <PlatformFile?>[],
+    <PlatformFile?>[],
+    <PlatformFile?>[],
+    <PlatformFile?>[],
+    <PlatformFile?>[],
+    <PlatformFile?>[],
   ]);
 
   final RxBool isChecked = false.obs;
@@ -84,7 +100,10 @@ class FilingStageForm extends StatelessWidget {
                     Column(
                       children: [
                         TextButton(
-                          onPressed: () => filesDialog(fileNamesList[ind]),
+                          onPressed: () => filesDialog(
+                            fileNamesList[ind],
+                            files: filesList[ind],
+                          ),
                           child:
                               Obx(() => Text('${fileNamesList[ind].length}')),
                         ),
@@ -141,6 +160,8 @@ class FilingStageForm extends StatelessWidget {
                               : () {
                                   stageController.fileNames.value =
                                       fileNamesList.reduce((a, b) => a + b);
+                                  stageController.files.value =
+                                      filesList.reduce((a, b) => a + b);
                                   stageController.onSubmitPressed();
                                 },
                           child: Text('Submit'),
@@ -159,5 +180,6 @@ class FilingStageForm extends StatelessWidget {
 
   void func(FilePickerResult result, int ind) {
     fileNamesList[ind] = result.files.map((file) => file.name).toList();
+    filesList[ind] = result.files.toList();
   }
 }

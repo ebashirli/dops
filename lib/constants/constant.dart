@@ -12,6 +12,7 @@ import 'package:dops/modules/staff/staff_controller.dart';
 import 'package:dops/modules/stages/stage_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
 import 'package:dops/modules/values/value_controller.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -31,7 +32,7 @@ ValueController valueController = ValueController.instance;
 FirebaseAuth auth = FirebaseAuth.instance;
 CacheManager cacheManager = CacheManager.instance;
 
-void filesDialog(List<String?> fileNames) {
+void filesDialog(List<String?> fileNames, {List<PlatformFile?>? files}) {
   Get.defaultDialog(
     title: 'Files',
     content: Column(
@@ -57,3 +58,6 @@ void filesDialog(List<String?> fileNames) {
     ),
   );
 }
+
+const String baseUrl = 'http://172.30.134.63:5000/';
+const String basePath = 'P:\\Ismayil Bashirli\\Elvin Bashirli\\DOPS';

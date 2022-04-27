@@ -26,9 +26,9 @@ class ValueTableView extends StatelessWidget {
       if (stageDetailsList[index]['file names'] != null) 'File Names',
       if (stageDetailsList[index]['comment'] != null) 'Is Commented',
       valueTableCommonColumnHeadList[4],
-      if (index == 8) valueTableCommonColumnHeadList[7],
+      if (index == 8) valueTableCommonColumnHeadList[6],
       valueTableCommonColumnHeadList[5],
-      valueTableCommonColumnHeadList[6],
+      if (index == 8) valueTableCommonColumnHeadList[7],
     ];
     final DataSource dataSource = DataSource(
       data: getDataSourceData(tableColumns),
@@ -97,7 +97,7 @@ class ValueTableView extends StatelessWidget {
   }
 
   List<Map<String, dynamic>> getDataSourceData(List<String> tableColumns) {
-    return stageValueModelsList!.map((valueModel) {
+    return stageValueModelsList!.map((ValueModel? valueModel) {
       late Map<String, dynamic> map = {};
       tableColumns.forEach((columHead) {
         map[columHead] = valueModel!.toMap()[ReCase(columHead).camelCase];
@@ -115,6 +115,7 @@ class ValueTableView extends StatelessWidget {
             ? issueModelList.first!.groupNumber
             : null;
         map['linkingToGroupDateTime'] = valueModel!.linkingToGroupDateTime;
+        map['sentDate'] = null;
       }
 
       map['id'] = valueModel!.id;
@@ -157,7 +158,9 @@ class ValueTableView extends StatelessWidget {
                                       ? 'Hold Reason'
                                       : columnName == 'linkingToGroupDateTime'
                                           ? 'Linking date time'
-                                          : columnName,
+                                          : columnName == 'sentDate'
+                                              ? 'Sent Date'
+                                              : columnName,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),

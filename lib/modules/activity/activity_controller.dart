@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
-import 'package:dops/modules/activity/widgets/activiti_form_widget.dart';
+import 'package:dops/modules/activity/widgets/activity_form_widget.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

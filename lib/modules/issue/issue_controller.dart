@@ -9,6 +9,7 @@ import 'package:dops/modules/issue/issue_add_update_form_widget.dart';
 import 'package:dops/modules/issue/issue_model.dart';
 import 'package:dops/modules/issue/issue_repository.dart';
 import 'package:dops/modules/task/task_model.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -24,7 +25,8 @@ class IssueController extends GetxService {
 
   final RxList<String?> linkedTaskIds = RxList<String?>([]);
 
-  final RxList<String?> files = RxList<String?>([]);
+  final RxList<String?> fileNames = RxList<String?>([]);
+  final RxList<PlatformFile?> files = RxList<PlatformFile?>([]);
 
   int get maxGroupNumber =>
       documents.isEmpty ? 0 : documents.map((e) => e.groupNumber).reduce(max);
@@ -60,8 +62,8 @@ class IssueController extends GetxService {
     Map<String, dynamic> map = {
       if (issueController.noteController.text != issueModel.note)
         'note': issueController.noteController.text,
-      if (issueController.files != issueModel.files)
-        'files': issueController.files,
+      if (issueController.fileNames != issueModel.files)
+        'files': issueController.fileNames,
       if (issueController.linkedTaskIds != issueModel.linkedTaskIds)
         'linkedTasks': issueController.linkedTaskIds,
     };

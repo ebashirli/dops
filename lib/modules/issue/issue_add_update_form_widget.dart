@@ -42,19 +42,9 @@ class IssueAddUpdateFormWidget extends StatelessWidget {
                         () => Row(
                           children: [
                             ElevatedButton(
-                              onPressed: () =>
-                                  stageController.onFileButtonPressed(
-                                allowMultiple: true,
-                                fun: (FilePickerResult result) {
-                                  issueController.files.value = result.files
-                                      .map((file) => file.name)
-                                      .toList();
-                                },
-                              ),
+                              onPressed: onFilesPressed,
                               child: Center(
-                                child: Text(
-                                  'Files (${issueController.files.length})',
-                                ),
+                                child: Text(filesNumber),
                               ),
                             ),
                             SizedBox(width: 10),
@@ -78,40 +68,20 @@ class IssueAddUpdateFormWidget extends StatelessWidget {
                     children: <Widget>[
                       if (id != null)
                         ElevatedButton.icon(
-                          onPressed: () {
-                            issueController.deleteIssue(id!);
-                            Get.back();
-                          },
-                          icon: Icon(Icons.delete),
+                          onPressed: onDeletePressed,
+                          icon: const Icon(Icons.delete),
                           label: const Text('Delete'),
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.red,
-                            ),
-                          ),
+                          style: deleteStyle(),
                         ),
                       const Spacer(),
                       ElevatedButton(
-                          onPressed: () => Get.back(),
-                          child: const Text('Cancel')),
+                        onPressed: onCancelPressed,
+                        child: const Text('Cancel'),
+                      ),
                       SizedBox(width: 10),
                       ElevatedButton(
-                        onPressed: () {
-                          IssueModel model = IssueModel(
-                            note: issueController.noteController.text,
-                            creationDate: DateTime.now(),
-                            createdBy: staffController.currentUserId,
-                            files: issueController.files,
-                            linkedTaskIds: issueController.linkedTaskIds,
-                            groupNumber: issueController.maxGroupNumber + 1,
-                          );
-                          id == null
-                              ? issueController.saveDocument(model: model)
-                              : issueController.updateDocument(id!);
-                        },
-                        child: Text(
-                          id != null ? 'Update' : 'Add',
-                        ),
+                        onPressed: onAddUpdatePressed,
+                        child: Text(addOrUpdate()),
                       ),
                     ],
                   ),
@@ -122,6 +92,52 @@ class IssueAddUpdateFormWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String get filesNumber => 'Files (${issueController.fileNames.length})';
+
+  ButtonStyle deleteStyle() {
+    return ButtonStyle(
+      backgroundColor: MaterialStateProperty.all<Color>(
+        Colors.red,
+      ),
+    );
+  }
+
+  void onCancelPressed() => Get.back();
+
+  String addOrUpdate() => id != null ? 'Update' : 'Add';
+
+  void onAddUpdatePressed() {
+    IssueModel model = IssueModel(
+      note: issueController.noteController.text,
+      creationDate: DateTime.now(),
+      createdBy: staffController.currentUserId,
+      files: issueController.fileNames,
+      linkedTaskIds: issueController.linkedTaskIds,
+      groupNumber: issueController.maxGroupNumber + 1,
+    );
+    id == null
+        ? issueController.saveDocument(model: model)
+        : issueController.updateDocument(id!);
+  }
+
+  void onDeletePressed() {
+    issueController.deleteIssue(id!);
+    Get.back();
+  }
+
+  void onFilesPressed() {
+    stageController.onFileButtonPressed(
+      allowMultiple: true,
+      fun: fun,
+    );
+  }
+
+  void fun(FilePickerResult result) {
+    issueController.fileNames.value =
+        result.files.map((file) => file.name).toList();
+    issueController.files.value = result.files;
   }
 
   TextButton filesCountTextButton(String id) {

@@ -15,9 +15,24 @@ class ExpansionPanelBody extends StatelessWidget {
             children: <Widget>[
               if (stageController.isCoordinatorFormVisible(item))
                 item.coordinatorForm,
+              if ([3, 4, 5, 6, 7, 8].contains(item.index))
+                Row(
+                  children: <Widget>[
+                    TextButton(
+                      key: Key('Download${item.index}'),
+                      onPressed: () => stageController.download(item.index),
+                      child: Text('Get files'),
+                    ),
+                    TextButton(
+                      key: Key('Copy${item.index}'),
+                      onPressed: () =>
+                          stageController.copyToClipBoard(item.index - 1),
+                      child: Text('Copy address'),
+                    ),
+                  ],
+                ),
               if (stageController.isWorkerFormVisible(item)) workerForm(item),
-              if ([4, 5, 6].contains(item.index))
-                TxtButtonForPastCycles(index: item.index),
+              if ([4, 5, 6].contains(item.index)) PastCycles(index: item.index),
               item.valueTable,
             ],
           );

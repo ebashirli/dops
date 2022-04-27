@@ -34,7 +34,7 @@ class BuildEditFormWidget extends StatelessWidget {
     final String fullTaskNumber =
         '${drawingModel.drawingNumber}-${taskModel.revisionMark}';
     return Container(
-      height: Get.height * .43,
+      height: Get.height * .47,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -43,7 +43,7 @@ class BuildEditFormWidget extends StatelessWidget {
             'Drawing details of ${drawingModel.drawingNumber}',
             style: kBold18,
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 20),
           DrawingUpdateFormWidget(drawingModel: drawingModel),
           Text(
             'Task details of $fullTaskNumber',
@@ -56,7 +56,9 @@ class BuildEditFormWidget extends StatelessWidget {
           ),
           SizedBox(height: 20),
           TaskUpdateFormWidget(taskModel: taskModel),
+          SizedBox(height: 10),
           Text('Stages of $fullTaskNumber', style: kBold18),
+          SizedBox(height: 10),
         ],
       ),
     );

@@ -22,6 +22,7 @@ List<String> valueTableCommonColumnHeadList = [
   'Note',
   'Submit date time',
   'linkingToGroupDateTime',
+  'sentDate'
 ];
 
 List<Map<String, dynamic>> stageDetailsList = [

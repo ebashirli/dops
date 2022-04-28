@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/activity/widgets/activity_form_widget.dart';
+import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -152,26 +153,39 @@ class ActivityController extends GetxService {
     return documents.map((activity) {
       String assignedTasks = '';
 
-      List<String?> drawingIdsOfActivity = drawingController.documents
-          .where((drawing) =>
-              drawing.isHidden == false &&
-              drawing.activityCodeId == activity.id)
-          .map((drawing) => drawing.id)
-          .toList();
+      List<String?> drawingIdsOfActivity = [];
 
-      List<TaskModel?> taskIdsOfDrawings = taskController.documents
-          .where((task) => task != null
-              ? drawingIdsOfActivity.contains(task.parentId)
-              : false)
-          .toList();
+      if (drawingController.documents.isNotEmpty ||
+          !drawingController.loading.value) {
+        Iterable<DrawingModel?> drawingsOfActivity = drawingController.documents
+            .where(
+                (e) => e!.isHidden == false && e.activityCodeId == activity.id);
+
+        drawingIdsOfActivity = drawingsOfActivity.isEmpty
+            ? []
+            : drawingsOfActivity.map((e) => e!.id).toList();
+      }
+
+      List<TaskModel?> taskIdsOfDrawings = (taskController
+                  .documents.isNotEmpty ||
+              !taskController.loading.value)
+          ? []
+          : taskController.documents
+              .where((task) => drawingIdsOfActivity.contains(task!.parentId))
+              .toList();
 
       taskIdsOfDrawings.forEach((task) {
         if (task != null) {
-          final String drawingNumber = drawingController.documents
-              .where((drawing) => drawing.id == task.parentId)
-              .toList()[0]
-              .drawingNumber;
-          assignedTasks += '|${drawingNumber};${task.id!}';
+          DrawingModel? drawingModel = drawingController.loading.value ||
+                  drawingController.documents.isEmpty
+              ? null
+              : drawingController.documents
+                  .firstWhereOrNull((e) => e!.id == task.parentId);
+          final String? drawingNumber =
+              drawingModel == null ? null : drawingModel.drawingNumber;
+          if (drawingNumber != null) {
+            assignedTasks += '|${drawingNumber};${task.id!}';
+          }
         }
       });
 

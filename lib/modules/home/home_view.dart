@@ -50,6 +50,11 @@ class HomeView extends GetView<HomeController> {
         tableName = 'task';
         break;
 
+      case HomeStates.HomeState:
+        _controller = taskController;
+        tableName = 'task';
+        break;
+
       case HomeStates.IssueState:
         _controller = issueController;
         tableName = 'issue';
@@ -68,16 +73,13 @@ class HomeView extends GetView<HomeController> {
         if (isAddButtonVisibile)
           Row(
             children: [
-              ElevatedButton(
-                onPressed: () => _buildAddDatabase(),
-                child: Text('Add ${_buildTitleOfPage(isForTitle: false)}'),
-              ),
-              SizedBox(width: 10),
-              if (homeController.homeStates == HomeStates.TaskState)
+              if (homeController.homeStates != HomeStates.HomeState)
                 ElevatedButton(
-                  onPressed: controller.onAddTaskPressed,
-                  child: Text('Add task'),
+                  onPressed: () => _buildAddDatabase(),
+                  child: Text('Add ${_buildTitleOfPage(isForTitle: false)}'),
                 ),
+              SizedBox(width: 10),
+              if (homeController.homeStates == HomeStates.TaskState) AddTaskEB()
             ],
           ),
         SizedBox(width: 10),
@@ -117,7 +119,7 @@ class HomeView extends GetView<HomeController> {
             icon: Icon(Icons.list_alt),
             label: const Text('Home'),
             onPressed: () {
-              controller.homeStates = HomeStates.TaskState;
+              controller.homeStates = HomeStates.HomeState;
               Get.back();
             },
           ),
@@ -192,6 +194,8 @@ class HomeView extends GetView<HomeController> {
         return isForTitle ? 'Staff' : 'employee';
       case HomeStates.TaskState:
         return isForTitle ? 'Drawings' : 'drawing';
+      case HomeStates.HomeState:
+        return isForTitle ? 'My Tasks' : 'my tasks';
       case HomeStates.IssueState:
         return isForTitle ? 'Issue' : 'issue';
     }
@@ -207,10 +211,26 @@ class HomeView extends GetView<HomeController> {
         return staffController.buildAddForm();
       case HomeStates.TaskState:
         return drawingController.buildAddForm();
+      case HomeStates.HomeState:
+        return;
       case HomeStates.ListState:
         return listsController.buildAddForm();
       case HomeStates.IssueState:
         return issueController.buildAddForm();
     }
+  }
+}
+
+class AddTaskEB extends StatelessWidget {
+  const AddTaskEB({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: taskController.onAddPressed,
+      child: Text('Add task'),
+    );
   }
 }

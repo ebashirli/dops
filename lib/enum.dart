@@ -1,4 +1,5 @@
 enum HomeStates {
+  HomeState,
   ActivityState,
   ReferenceDocumentState,
   ListState,

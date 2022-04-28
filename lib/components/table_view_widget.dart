@@ -181,11 +181,11 @@ class TableView extends StatelessWidget {
 List<DataGridRow> _data = [];
 
 class DataSource extends DataGridSource {
-  DataSource({required List<Map<String, dynamic>> data}) {
+  DataSource({required List<Map<String, dynamic>?> data}) {
     _data = data.map<DataGridRow>(
       (map) {
         return DataGridRow(
-          cells: map.entries.map(
+          cells: map!.entries.map(
             (entry) {
               return DataGridCell<dynamic>(
                 columnName: entry.key,

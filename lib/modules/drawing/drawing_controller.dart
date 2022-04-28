@@ -32,8 +32,8 @@ class DrawingController extends GetxService {
       functionalAreaText,
       structureTypeText;
 
-  RxList<DrawingModel> _documents = RxList<DrawingModel>([]);
-  List<DrawingModel> get documents => _documents;
+  RxList<DrawingModel?> _documents = RxList<DrawingModel>([]);
+  List<DrawingModel?> get documents => _documents;
 
   @override
   void onInit() {
@@ -82,8 +82,7 @@ class DrawingController extends GetxService {
     //update
     CustomFullScreenDialog.showDialog();
     updatedModel.drawingCreateDate = documents
-        .where((document) => document.id == id)
-        .toList()[0]
+        .firstWhere((document) => document!.id == id)!
         .drawingCreateDate;
     await _repository.updateModel(updatedModel, id);
     CustomFullScreenDialog.cancelDialog();
@@ -93,7 +92,7 @@ class DrawingController extends GetxService {
   DrawingModel? getById(String id) {
     return loading.value || documents.isEmpty
         ? null
-        : documents.singleWhereOrNull((e) => e.id == id);
+        : documents.singleWhereOrNull((e) => e!.id == id);
   }
 
   void deleteDrawing(String id) {
@@ -175,5 +174,5 @@ class DrawingController extends GetxService {
   DrawingModel? drawingModelByTaskModel(String? parentId) => (loading.value ||
           documents.isEmpty)
       ? null
-      : drawingController.documents.firstWhereOrNull((e) => e.id == parentId);
+      : drawingController.documents.firstWhereOrNull((e) => e!.id == parentId);
 }

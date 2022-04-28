@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/components/select_item_snackbar.dart';
 import 'package:dops/constants/constant.dart';
+import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/issue/issue_add_update_form_widget.dart';
 import 'package:dops/modules/issue/issue_model.dart';
 import 'package:dops/modules/issue/issue_repository.dart';
@@ -182,11 +183,13 @@ class IssueController extends GetxService {
         issue.linkedTaskIds.forEach((String? taskId) {
           TaskModel? taskModel = taskController.getById(taskId!);
           if (taskModel != null) {
-            final String drawingNumber = drawingController.documents
-                .where((drawing) => drawing.id == taskModel.parentId)
-                .toList()[0]
-                .drawingNumber;
-            assignedTasks += '|${drawingNumber};${taskModel.id!}';
+            final DrawingModel? drawingModel = drawingController.documents
+                .firstWhere((drawing) => drawing!.id == taskModel.parentId);
+            final String? drawingNumber =
+                drawingModel != null ? drawingModel.drawingNumber : null;
+            if (drawingNumber != null) {
+              assignedTasks += '|${drawingNumber};${taskModel.id!}';
+            }
           }
         });
 

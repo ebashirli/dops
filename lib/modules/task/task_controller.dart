@@ -5,6 +5,7 @@ import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/components/select_item_snackbar.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
+import 'package:dops/enum.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/task/widgets/task_form.dart';
@@ -12,6 +13,7 @@ import 'package:dops/modules/values/value_model.dart';
 import 'package:dops/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'task_model.dart';
 import 'task_repository.dart';
 
@@ -156,43 +158,93 @@ class TaskController extends GetxService {
     );
   }
 
-  List<Map<String, dynamic>> get getDataForTableView {
-    return drawingController.documents.map(
-      (drawing) {
-        List<TaskModel?> tasksOfDrawing = taskModelsByDrawingId(drawing.id);
+  List<Map<String, dynamic>?> get getDataForTableView {
+    List<DrawingModel?> drawingDocuments = [];
 
-        TaskModel? taskModel =
-            tasksOfDrawing.isNotEmpty ? tasksOfDrawing.last : null;
+    if (homeController.homeStates != HomeStates.HomeState) {
+      drawingDocuments =
+          drawingController.loading.value ? [] : drawingController.documents;
+    } else {
+      final List<ValueModel?> valueModels =
+          valueController.loading.value ? [] : valueController.documents;
 
-        return {
-          'id': taskModel == null ? null : taskModel.id,
-          'parentId': drawing.id,
-          'priority': getPriorrity(drawing),
-          'activityCode': getActivityCode(drawing),
-          'drawingNumber':
-              taskModel == null ? null : getDrawingNumber(drawing, taskModel),
-          'revisionMark': taskModel == null ? null : taskModel.revisionMark,
-          'drawingTitle': drawing.drawingTitle,
-          'taskStatus': taskStatusProvider(taskModel),
-          'drawingTag': drawing.drawingTag,
-          'module': drawing.module,
-          'revisionType':
-              taskModel == null ? null : getRevTypeAndStatus(taskModel),
-          'percentage': precentageProvider(taskModel),
-          'revisionStatus': taskModel == null
-              ? null
-              : getRevTypeAndStatus(taskModel, isStatus: true),
-          'hold': taskModel == null ? null : getActivityStatus(taskModel),
-          'holdReason': taskModel == null ? null : getHoldReason(taskModel),
-          'level': drawing.level,
-          'structureType': drawing.structureType,
-          'referenceDocuments':
-              taskModel == null ? null : getReferenceDocuments(taskModel),
-          'changeNumber': getChangeNumber(taskModel),
-          'taskCreateDate': taskModel == null ? null : taskModel.creationDate,
-        };
-      },
-    ).toList();
+      final Iterable<ValueModel?> currentUserValueModels = valueModels.isEmpty
+          ? Iterable.empty()
+          : valueModels
+              .where((e) => e!.employeeId == staffController.currentUserId);
+
+      Iterable<String?> stageIds = currentUserValueModels.isEmpty
+          ? Iterable.empty()
+          : currentUserValueModels.map((e) => e!.stageId);
+
+      final Iterable<StageModel?> stageModels = stageController.loading.value ||
+              stageController.documents.isEmpty
+          ? Iterable.empty()
+          : stageController.documents.where((e) => stageIds.contains(e!.id));
+
+      Iterable<String?> taskids = stageModels.isEmpty
+          ? Iterable.empty()
+          : stageModels.map((e) => e!.taskId);
+
+      List<TaskModel?> taskModels = taskids.isEmpty ||
+              taskController.loading.value ||
+              taskController.documents.isEmpty
+          ? []
+          : taskController.documents
+              .where((e) => taskids.contains(e!.id))
+              .toList();
+      Iterable<String?> parentIds =
+          taskModels.isEmpty ? [] : taskModels.map((e) => e!.parentId);
+
+      drawingDocuments = parentIds.isEmpty ||
+              drawingController.loading.value ||
+              drawingController.documents.isEmpty
+          ? []
+          : drawingController.documents
+              .where((e) => parentIds.contains(e!.id))
+              .toList();
+    }
+    return drawingDocuments.isEmpty
+        ? []
+        : drawingDocuments.map(
+            (e) {
+              List<TaskModel?> tasksOfDrawing = taskModelsByDrawingId(e!.id);
+
+              TaskModel? taskModel =
+                  tasksOfDrawing.isNotEmpty ? tasksOfDrawing.last : null;
+
+              return {
+                'id': taskModel == null ? null : taskModel.id,
+                'parentId': e.id,
+                'priority': getPriorrity(e),
+                'activityCode': getActivityCode(e),
+                'drawingNumber':
+                    taskModel == null ? null : getDrawingNumber(e, taskModel),
+                'revisionMark':
+                    taskModel == null ? null : taskModel.revisionMark,
+                'drawingTitle': e.drawingTitle,
+                'taskStatus': taskStatusProvider(taskModel),
+                'drawingTag': e.drawingTag,
+                'module': e.module,
+                'revisionType':
+                    taskModel == null ? null : getRevTypeAndStatus(taskModel),
+                'percentage': precentageProvider(taskModel),
+                'revisionStatus': taskModel == null
+                    ? null
+                    : getRevTypeAndStatus(taskModel, isStatus: true),
+                'hold': taskModel == null ? null : getActivityStatus(taskModel),
+                'holdReason':
+                    taskModel == null ? null : getHoldReason(taskModel),
+                'level': e.level,
+                'structureType': e.structureType,
+                'referenceDocuments':
+                    taskModel == null ? null : getReferenceDocuments(taskModel),
+                'changeNumber': getChangeNumber(taskModel),
+                'taskCreateDate':
+                    taskModel == null ? null : taskModel.creationDate,
+              };
+            },
+          ).toList();
   }
 
   Object? getChangeNumber(TaskModel? taskModel) {
@@ -280,6 +332,24 @@ class TaskController extends GetxService {
         .where((activity) => activity.id == drawing.activityCodeId)
         .toList()[0]
         .activityId;
+  }
+
+  void onAddPressed() {
+    DataGridRow? selectedRow =
+        homeController.dataGridController.value.selectedRow;
+    if (selectedRow == null) {
+      selectItemSnackbar();
+    } else {
+      String? taskId = selectedRow.getCells()[0].value;
+      String drawingId = selectedRow.getCells()[1].value;
+
+      (taskId != null && !isTaskCompleted)
+          ? selectItemSnackbar(
+              title: 'Task completion',
+              message: 'Current task has not been completed yet',
+            )
+          : buildAddForm(parentId: drawingId);
+    }
   }
 
   void onUpdatePressed({required String id}) {

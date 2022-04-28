@@ -143,18 +143,24 @@ class ReferenceDocumentController extends GetxService {
     return documents.map((refDoc) {
       String assignedTasks = '';
 
-      if (taskController.documents.isNotEmpty) {
-        taskController.documents.forEach((task) {
-          List<DrawingModel> drawing = drawingController.documents
-              .where((drawing) => drawing.id == task!.parentId)
-              .toList();
-          if (drawing.isNotEmpty) {
-            final String drawingNumber = drawing[0].drawingNumber;
+      if (!taskController.loading.value ||
+          taskController.documents.isNotEmpty) {
+        taskController.documents.forEach(
+          (task) {
+            DrawingModel? drawingModel = drawingController.loading.value ||
+                    drawingController.documents.isEmpty
+                ? null
+                : drawingController.documents
+                    .firstWhere((e) => e!.id == task!.parentId);
 
-            if (task!.referenceDocuments.contains(refDoc.documentNumber))
+            final String? drawingNumber =
+                drawingModel == null ? null : drawingModel.drawingNumber;
+
+            if (task!.referenceDocuments.contains(refDoc.documentNumber)) {
               assignedTasks += '|${drawingNumber};${task.id}';
-          }
-        });
+            }
+          },
+        );
       }
 
       Map<String, dynamic> map = {

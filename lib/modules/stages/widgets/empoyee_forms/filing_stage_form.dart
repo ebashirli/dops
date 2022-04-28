@@ -1,7 +1,6 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:file_picker/src/file_picker_result.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -23,35 +22,40 @@ class FilingStageForm extends StatelessWidget {
     ['3D file export - .ifc', 'ifc'],
   ];
 
-  final RxList<List<String>> fileNamesList = RxList(<List<String>>[
-    <String>[],
-    <String>[],
-    <String>[],
-    <String>[],
-    <String>[],
-    <String>[],
-    <String>[],
-    <String>[],
-    <String>[],
-    <String>[],
-    <String>[],
-    <String>[],
-  ]);
+  final RxList<List<String>> fileNamesList =
+      RxList.generate(12, (_) => <String>[]);
 
-  final RxList<List<PlatformFile?>> filesList = RxList(<List<PlatformFile?>>[
-    <PlatformFile?>[],
-    <PlatformFile?>[],
-    <PlatformFile?>[],
-    <PlatformFile?>[],
-    <PlatformFile?>[],
-    <PlatformFile?>[],
-    <PlatformFile?>[],
-    <PlatformFile?>[],
-    <PlatformFile?>[],
-    <PlatformFile?>[],
-    <PlatformFile?>[],
-    <PlatformFile?>[],
-  ]);
+  final RxList<List<PlatformFile?>> filesList =
+      RxList.generate(12, (_) => <PlatformFile?>[]);
+
+  // final RxList<List<String>> fileNamesList = RxList(<List<String>>[
+  //   <String>[],
+  //   <String>[],
+  //   <String>[],
+  //   <String>[],
+  //   <String>[],
+  //   <String>[],
+  //   <String>[],
+  //   <String>[],
+  //   <String>[],
+  //   <String>[],
+  //   <String>[],
+  //   <String>[],
+  // ]);
+  // final RxList<List<PlatformFile?>> filesList = RxList(<List<PlatformFile?>>[
+  //   <PlatformFile?>[],
+  //   <PlatformFile?>[],
+  //   <PlatformFile?>[],
+  //   <PlatformFile?>[],
+  //   <PlatformFile?>[],
+  //   <PlatformFile?>[],
+  //   <PlatformFile?>[],
+  //   <PlatformFile?>[],
+  //   <PlatformFile?>[],
+  //   <PlatformFile?>[],
+  //   <PlatformFile?>[],
+  //   <PlatformFile?>[],
+  // ]);
 
   final RxBool isChecked = false.obs;
 

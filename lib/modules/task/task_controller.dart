@@ -176,9 +176,29 @@ class TaskController extends GetxService {
                   e.employeeId == staffController.currentUserId,
             );
 
-      Iterable<String?> stageIds = currentUserValueModels.isEmpty
-          ? Iterable.empty()
-          : currentUserValueModels.map((e) => e!.stageId);
+      List<String?> stageIds = currentUserValueModels.isEmpty
+          ? []
+          : currentUserValueModels.map((e) => e!.stageId).toList();
+
+      if (staffController.isCoordinator) {
+        Iterable<String?> stageIdOfValueModels =
+            valueController.loading.value || valueController.documents.isEmpty
+                ? Iterable.empty()
+                : valueController.documents.map((e) => e!.stageId);
+
+        Iterable<StageModel?> stageModelsWithoutValueModels =
+            stageController.loading.value || stageController.documents.isEmpty
+                ? Iterable.empty()
+                : stageController.documents
+                    .where((e) => !stageIdOfValueModels.contains(e!.id));
+
+        Iterable<String?> stageIdsWithoutValueModels =
+            stageModelsWithoutValueModels.isEmpty
+                ? Iterable.empty()
+                : stageModelsWithoutValueModels.map((e) => e!.id);
+
+        stageIds.addAll(stageIdsWithoutValueModels);
+      }
 
       final Iterable<StageModel?> stageModels = stageController.loading.value ||
               stageController.documents.isEmpty

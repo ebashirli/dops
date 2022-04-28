@@ -79,7 +79,8 @@ class HomeView extends GetView<HomeController> {
                   child: Text('Add ${_buildTitleOfPage(isForTitle: false)}'),
                 ),
               SizedBox(width: 10),
-              if (homeController.homeStates == HomeStates.TaskState) AddTaskEB()
+              if (homeController.homeStates == HomeStates.TaskState)
+                AddTaskElButton()
             ],
           ),
         SizedBox(width: 10),
@@ -231,8 +232,8 @@ class HomeView extends GetView<HomeController> {
   }
 }
 
-class AddTaskEB extends StatelessWidget {
-  const AddTaskEB({
+class AddTaskElButton extends StatelessWidget {
+  const AddTaskElButton({
     Key? key,
   }) : super(key: key);
 

@@ -170,8 +170,11 @@ class TaskController extends GetxService {
 
       final Iterable<ValueModel?> currentUserValueModels = valueModels.isEmpty
           ? Iterable.empty()
-          : valueModels
-              .where((e) => e!.employeeId == staffController.currentUserId);
+          : valueModels.where(
+              (e) =>
+                  e!.submitDateTime == null &&
+                  e.employeeId == staffController.currentUserId,
+            );
 
       Iterable<String?> stageIds = currentUserValueModels.isEmpty
           ? Iterable.empty()

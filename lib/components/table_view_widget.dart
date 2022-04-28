@@ -147,7 +147,7 @@ class TableView extends StatelessWidget {
           case 'id':
             return GridColumn(
               columnName: ReCase(colName).camelCase,
-              width: 100,
+              width: 0,
               label: Text(
                 colName,
               ),

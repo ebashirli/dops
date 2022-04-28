@@ -133,15 +133,20 @@ class HomeView extends GetView<HomeController> {
             },
           ),
           SizedBox(height: 10),
-          TextButton.icon(
-            icon: Icon(Icons.local_activity),
-            label: const Text('Lists'),
-            onPressed: () {
-              controller.homeStates = HomeStates.ListState;
-              Get.back();
-            },
-          ),
-          SizedBox(height: 10),
+          if (staffController.isCoordinator)
+            Column(
+              children: [
+                TextButton.icon(
+                  icon: Icon(Icons.local_activity),
+                  label: const Text('Lists'),
+                  onPressed: () {
+                    controller.homeStates = HomeStates.ListState;
+                    Get.back();
+                  },
+                ),
+                SizedBox(height: 10),
+              ],
+            ),
           TextButton.icon(
             icon: Icon(Icons.add),
             label: const Text('Activities'),
@@ -151,15 +156,20 @@ class HomeView extends GetView<HomeController> {
             },
           ),
           SizedBox(height: 10),
-          TextButton.icon(
-            icon: Icon(Icons.people),
-            label: const Text('Staff'),
-            onPressed: () {
-              controller.homeStates = HomeStates.StaffState;
-              Get.back();
-            },
-          ),
-          SizedBox(height: 10),
+          if (staffController.isCoordinator)
+            Column(
+              children: [
+                TextButton.icon(
+                  icon: Icon(Icons.people),
+                  label: const Text('Staff'),
+                  onPressed: () {
+                    controller.homeStates = HomeStates.StaffState;
+                    Get.back();
+                  },
+                ),
+                SizedBox(height: 10),
+              ],
+            ),
           TextButton.icon(
             icon: Icon(Icons.task),
             label: const Text('Drawings'),

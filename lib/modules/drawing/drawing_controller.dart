@@ -58,7 +58,7 @@ class DrawingController extends GetxService {
     });
   }
 
-  addNewDrawing({required DrawingModel model}) async {
+  add({required DrawingModel model}) async {
     final isValid = drawingFormKey.currentState!.validate();
     if (!isValid) {
       return;
@@ -71,8 +71,7 @@ class DrawingController extends GetxService {
     Get.back();
   }
 
-  updateDrawing(
-      {required DrawingModel updatedModel, required String id}) async {
+  update({required DrawingModel updatedModel, required String id}) async {
     // TODO: move following line to Add/update button if it is relevant
     final isValid = drawingFormKey.currentState!.validate();
     if (!isValid) {
@@ -82,7 +81,7 @@ class DrawingController extends GetxService {
     //update
     CustomFullScreenDialog.showDialog();
     updatedModel.drawingCreateDate = documents
-        .firstWhere((document) => document!.id == id)!
+        .firstWhereOrNull((document) => document!.id == id)!
         .drawingCreateDate;
     await _repo.updateModel(updatedModel, id);
     CustomFullScreenDialog.cancelDialog();
@@ -175,4 +174,13 @@ class DrawingController extends GetxService {
           documents.isEmpty)
       ? null
       : drawingController.documents.firstWhereOrNull((e) => e!.id == parentId);
+
+  List<DrawingModel?> get drawingModelsAssignedCU =>
+      taskController.parentIdsAssignedCU.isEmpty ||
+              loading.value ||
+              documents.isEmpty
+          ? []
+          : documents
+              .where((e) => taskController.parentIdsAssignedCU.contains(e!.id))
+              .toList();
 }

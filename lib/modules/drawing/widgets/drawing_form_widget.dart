@@ -66,47 +66,57 @@ class DrawingFormWidget extends StatelessWidget {
                                   drawingController.drawingNumberController,
                               labelText: 'Drawing Number',
                             ),
-                            CustomDropdownMenu(
-                              width: dialogWidth * .16,
-                              labelText: 'Module name',
-                              selectedItems: [drawingController.moduleNameText],
-                              onChanged: onModuleNameChanged,
-                              items: listsController.document.modules!,
-                            ),
-                            CustomDropdownMenu(
-                              width: dialogWidth * .325,
-                              showSearchBox: true,
-                              isMultiSelectable: true,
-                              labelText: 'Area',
-                              items: listsController.document.areas!,
-                              onChanged: onAreaChanged,
-                              selectedItems: drawingController.areaList,
-                            ),
+                            Obx(() {
+                              return CustomDropdownMenu(
+                                width: dialogWidth * .16,
+                                labelText: 'Module name',
+                                selectedItems: [
+                                  drawingController.moduleNameText
+                                ],
+                                onChanged: onModuleNameChanged,
+                                items: listsController.document.modules!,
+                              );
+                            }),
+                            Obx(() {
+                              return CustomDropdownMenu(
+                                width: dialogWidth * .325,
+                                showSearchBox: true,
+                                isMultiSelectable: true,
+                                labelText: 'Area',
+                                items: listsController.document.areas!,
+                                onChanged: onAreaChanged,
+                                selectedItems: drawingController.areaList,
+                              );
+                            }),
                           ],
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            CustomDropdownMenu(
-                              width: dialogWidth * .50,
-                              showSearchBox: true,
-                              labelText: 'Level',
-                              selectedItems: [drawingController.levelText],
-                              onChanged: (value) {
-                                drawingController.levelText = value ?? '';
-                              },
-                              items: listsController.document.levels!,
-                            ),
-                            CustomDropdownMenu(
-                              width: dialogWidth * .49,
-                              showSearchBox: true,
-                              labelText: 'Structure Type',
-                              selectedItems: [
-                                drawingController.structureTypeText
-                              ],
-                              onChanged: onStructureTypeChanged,
-                              items: listsController.document.structureTypes!,
-                            ),
+                            Obx(() {
+                              return CustomDropdownMenu(
+                                width: dialogWidth * .50,
+                                showSearchBox: true,
+                                labelText: 'Level',
+                                selectedItems: [drawingController.levelText],
+                                onChanged: (value) {
+                                  drawingController.levelText = value ?? '';
+                                },
+                                items: listsController.document.levels!,
+                              );
+                            }),
+                            Obx(() {
+                              return CustomDropdownMenu(
+                                width: dialogWidth * .49,
+                                showSearchBox: true,
+                                labelText: 'Structure Type',
+                                selectedItems: [
+                                  drawingController.structureTypeText
+                                ],
+                                onChanged: onStructureTypeChanged,
+                                items: listsController.document.structureTypes!,
+                              );
+                            }),
                           ],
                         ),
                         Row(
@@ -141,17 +151,20 @@ class DrawingFormWidget extends StatelessWidget {
                                   drawingController.drawingNoteController,
                               labelText: 'Note',
                             ),
-                            CustomDropdownMenu(
-                              width: dialogWidth * .49,
-                              showSearchBox: true,
-                              labelText: 'Functional Area',
-                              selectedItems: [
-                                drawingController.functionalAreaText
-                              ],
-                              onChanged: (value) => drawingController
-                                  .functionalAreaText = value ?? '',
-                              items: listsController.document.functionalAreas!,
-                            ),
+                            Obx(() {
+                              return CustomDropdownMenu(
+                                width: dialogWidth * .49,
+                                showSearchBox: true,
+                                labelText: 'Functional Area',
+                                selectedItems: [
+                                  drawingController.functionalAreaText
+                                ],
+                                onChanged: (value) => drawingController
+                                    .functionalAreaText = value ?? '',
+                                items:
+                                    listsController.document.functionalAreas!,
+                              );
+                            }),
                           ],
                         ),
                         SizedBox(height: 20.0)
@@ -215,8 +228,8 @@ class DrawingFormWidget extends StatelessWidget {
     );
 
     drawingId == null
-        ? drawingController.addNewDrawing(model: revisedOrNewDrawing)
-        : drawingController.updateDrawing(
+        ? drawingController.add(model: revisedOrNewDrawing)
+        : drawingController.update(
             updatedModel: revisedOrNewDrawing, id: drawingId!);
   }
 

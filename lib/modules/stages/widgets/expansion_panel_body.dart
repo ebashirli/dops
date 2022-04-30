@@ -11,10 +11,28 @@ class ExpansionPanelBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Obx(
         () {
+          String? coordinatorNote =
+              stageController.getCoordinatorNoteByindex(item.index);
           return Column(
             children: <Widget>[
-              if (stageController.isCoordinatorFormVisible(item))
-                item.coordinatorForm,
+              stageController.isCoordinatorFormVisible(item)
+                  ? item.coordinatorForm
+                  : coordinatorNote == null
+                      ? SizedBox()
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SizedBox(width: 10),
+                            Text(
+                              "Coordinator note: ",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                            Text(coordinatorNote),
+                          ],
+                        ),
               if ([3, 4, 5, 6, 7, 8].contains(item.index))
                 Row(
                   children: <Widget>[

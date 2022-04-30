@@ -7,7 +7,6 @@ class ListsModel {
   List<dynamic>? modules;
   List<dynamic>? projects;
   List<dynamic>? referenceTypes;
-  List<dynamic>? statuses;
   List<dynamic>? structureTypes;
   List<dynamic>? systemDesignations;
   List<dynamic>? functionalAreas;
@@ -23,7 +22,6 @@ class ListsModel {
     this.modules,
     this.projects,
     this.referenceTypes,
-    this.statuses,
     this.structureTypes,
     this.systemDesignations,
     this.functionalAreas,
@@ -40,7 +38,6 @@ class ListsModel {
       'modules': modules,
       'projects': projects,
       'referenceTypes': referenceTypes,
-      'statuses': statuses,
       'structureTypes': structureTypes,
       'systemDesignations': systemDesignations,
       'functionalAreas': functionalAreas,
@@ -59,7 +56,6 @@ class ListsModel {
       modules: map['modules'],
       projects: map['projects'],
       referenceTypes: map['referenceTypes'],
-      statuses: map['statuses'],
       structureTypes: map['structureTypes'],
       systemDesignations: map['systemDesignations'],
       functionalAreas: map['functionalAreas'],

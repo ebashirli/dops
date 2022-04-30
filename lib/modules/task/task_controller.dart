@@ -158,6 +158,24 @@ class TaskController extends GetxService {
     );
   }
 
+  List<TaskModel?> get taskModelsAssignedCU =>
+      stageController.taskIdsAsignedCU.isEmpty ||
+              loading.value ||
+              documents.isEmpty
+          ? []
+          : taskController.documents
+              .where((e) => stageController.taskIdsAsignedCU.contains(e!.id))
+              .toList();
+
+  List<String?> get parentIdsAssignedCU => taskModelsAssignedCU.isEmpty
+      ? []
+      : taskModelsAssignedCU.map((e) => e!.parentId).toList();
+
+  TaskModel? getLastTaskByParentId(String? id) {
+    if (id == null || loading.value || documents.isEmpty) return null;
+    return documents.lastWhereOrNull((e) => e!.parentId == id);
+  }
+
   List<Map<String, dynamic>?> get getDataForTableView {
     List<DrawingModel?> drawingDocuments = [];
 
@@ -165,68 +183,15 @@ class TaskController extends GetxService {
       drawingDocuments =
           drawingController.loading.value ? [] : drawingController.documents;
     } else {
-      final List<ValueModel?> valueModels =
-          valueController.loading.value ? [] : valueController.documents;
-
-      final Iterable<ValueModel?> currentUserValueModels = valueModels.isEmpty
-          ? Iterable.empty()
-          : valueModels.where(
-              (e) =>
-                  e!.submitDateTime == null &&
-                  e.employeeId == staffController.currentUserId,
-            );
-
-      Set<String?> stageIds = currentUserValueModels.isEmpty
-          ? {}
-          : currentUserValueModels.map((e) => e!.stageId).toList().toSet();
-
-      if (staffController.isCoordinator) {
-        Iterable<String?> stageIdsOfValueModels =
-            valueController.loading.value || valueController.documents.isEmpty
-                ? Iterable.empty()
-                : valueController.documents.map((e) => e!.stageId);
-
-        Iterable<StageModel?> stageModelsWithoutValueModels =
-            stageController.loading.value || stageController.documents.isEmpty
-                ? Iterable.empty()
-                : stageController.documents.where((e) =>
-                    e!.index != 0 && !stageIdsOfValueModels.contains(e.id));
-
-        Iterable<String?> stageIdsWithoutValueModels =
-            stageModelsWithoutValueModels.isEmpty
-                ? Iterable.empty()
-                : stageModelsWithoutValueModels.map((e) => e!.id);
-
-        stageIds.addAll(stageIdsWithoutValueModels);
+      drawingDocuments = drawingController.drawingModelsAssignedCU;
+      if (staffController.isCoordinator && drawingDocuments.isNotEmpty) {
+        drawingDocuments = drawingDocuments.where((e) {
+          TaskModel? taskModel = getLastTaskByParentId(e!.id);
+          return checkIfTaskStatusAwaits(taskModel) ?? false;
+        }).toList();
       }
-
-      final Iterable<StageModel?> stageModels = stageController.loading.value ||
-              stageController.documents.isEmpty
-          ? Iterable.empty()
-          : stageController.documents.where((e) => stageIds.contains(e!.id));
-
-      Set<String?> taskids =
-          stageModels.isEmpty ? {} : stageModels.map((e) => e!.taskId).toSet();
-
-      List<TaskModel?> taskModels = taskids.isEmpty ||
-              taskController.loading.value ||
-              taskController.documents.isEmpty
-          ? []
-          : taskController.documents
-              .where((e) => taskids.contains(e!.id))
-              .toList();
-
-      Iterable<String?> parentIds =
-          taskModels.isEmpty ? [] : taskModels.map((e) => e!.parentId);
-
-      drawingDocuments = parentIds.isEmpty ||
-              drawingController.loading.value ||
-              drawingController.documents.isEmpty
-          ? []
-          : drawingController.documents
-              .where((e) => parentIds.contains(e!.id))
-              .toList();
     }
+    late Map<String, dynamic> map;
     return drawingDocuments.isEmpty
         ? []
         : drawingDocuments.map(
@@ -235,14 +200,12 @@ class TaskController extends GetxService {
 
               TaskModel? taskModel =
                   tasksOfDrawing.isNotEmpty ? tasksOfDrawing.last : null;
-
-              return {
+              map = {
                 'id': taskModel == null ? null : taskModel.id,
                 'parentId': e.id,
                 'priority': getPriorrity(e),
                 'activityCode': getActivityCode(e),
-                'drawingNumber':
-                    taskModel == null ? null : getDrawingNumber(e, taskModel),
+                'drawingNumber': getDrawingNumber(e, taskModel),
                 'revisionMark':
                     taskModel == null ? null : taskModel.revisionMark,
                 'drawingTitle': e.drawingTitle,
@@ -266,6 +229,7 @@ class TaskController extends GetxService {
                 'taskCreateDate':
                     taskModel == null ? null : taskModel.creationDate,
               };
+              return map;
             },
           ).toList();
   }
@@ -299,24 +263,48 @@ class TaskController extends GetxService {
                 : 'Live';
   }
 
-  String taskStatusProvider(TaskModel? task) {
-    if (task == null || task.id == null) return '';
-
+  List<StageModel?> getStageModelsOnLastIndex(TaskModel? task) {
     List<Map<StageModel, List<ValueModel?>>?> valueModelsOfTask =
         stageController.getStagesAndValueModelsByTask(task);
-
-    if (valueModelsOfTask.isEmpty) return '';
 
     List<StageModel> stageModelsOnLastIndex =
         valueModelsOfTask.last!.keys.toList();
     stageModelsOnLastIndex.sort(
       (a, b) => a.creationDateTime.compareTo(b.creationDateTime),
     );
+    return stageModelsOnLastIndex;
+  }
+
+  bool? checkIfTaskStatusAwaits(TaskModel? task) {
+    if (task == null || task.id == null) return null;
+
+    List<Map<StageModel, List<ValueModel?>>?> valueModelsOfTask =
+        stageController.getStagesAndValueModelsByTask(task);
+
+    if (valueModelsOfTask.isEmpty) return null;
+
+    List<StageModel?> stageModelsOnLastIndex = getStageModelsOnLastIndex(task);
+
+    return valueModelsOfTask.last![stageModelsOnLastIndex.last]!.isEmpty;
+  }
+
+  String? getStageName(TaskModel? task) {
+    List<StageModel?> stageModelsOnLastIndex = getStageModelsOnLastIndex(task);
+    if (stageModelsOnLastIndex.isEmpty) return null;
+
     final String stageName =
-        stageDetailsList[stageModelsOnLastIndex.last.index]['name'];
-    return valueModelsOfTask.last![stageModelsOnLastIndex.last]!.isEmpty
-        ? 'Awaits $stageName'
-        : stageName;
+        stageDetailsList[stageModelsOnLastIndex.last!.index]['name'];
+    return stageName;
+  }
+
+  String taskStatusProvider(TaskModel? task) {
+    bool? isTaskStatusAwaits = checkIfTaskStatusAwaits(task);
+    String stageName = getStageName(task) ?? '';
+    return isTaskStatusAwaits == null
+        ? ''
+        : isTaskStatusAwaits
+            ? 'Awaits $stageName'
+            : stageName;
   }
 
   String? getRevTypeAndStatus(TaskModel task, {bool isStatus = false}) {
@@ -337,8 +325,11 @@ class TaskController extends GetxService {
             : 'Revision';
   }
 
-  String getDrawingNumber(DrawingModel drawing, TaskModel task) =>
-      '${drawing.drawingNumber}|${task.id}';
+  String getDrawingNumber(DrawingModel drawing, TaskModel? task) {
+    return task == null
+        ? drawing.drawingNumber
+        : '${drawing.drawingNumber}|${task.id}';
+  }
 
   String getReferenceDocuments(TaskModel task) =>
       '${task.referenceDocuments.join(';')}';

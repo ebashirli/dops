@@ -5,6 +5,7 @@ import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/reference_document/widgets/ref_doc_add_update_form_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:collection/collection.dart';
 
 import 'reference_document_model.dart';
 import 'reference_document_repository.dart';
@@ -151,7 +152,7 @@ class ReferenceDocumentController extends GetxService {
                     drawingController.documents.isEmpty
                 ? null
                 : drawingController.documents
-                    .firstWhere((e) => e!.id == task!.parentId);
+                    .firstWhereOrNull((e) => e!.id == task!.parentId);
 
             final String? drawingNumber =
                 drawingModel == null ? null : drawingModel.drawingNumber;

@@ -1,4 +1,4 @@
-import 'package:dops/components/custom_widgets.dart';
+// import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/stages/widgets/custom_expansion_panel_list.dart';
 import 'package:dops/modules/stages/widgets/fields_panel/build_edit_form_widget.dart';
@@ -10,7 +10,7 @@ class StageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: stageViewAppBar(),
-        floatingActionButton: CustomExpendableFab(),
+        // floatingActionButton: CustomExpendableFab(),
         body: Padding(
           padding: const EdgeInsets.fromLTRB(50, 20, 50, 20),
           child: SingleChildScrollView(

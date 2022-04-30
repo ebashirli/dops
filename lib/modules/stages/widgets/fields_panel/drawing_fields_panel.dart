@@ -156,7 +156,7 @@ class DrawingUpdateFormWidget extends StatelessWidget {
       functionalArea: drawingController.functionalAreaText,
     );
 
-    drawingController.updateDrawing(
+    drawingController.update(
       updatedModel: revisedOrNewModel,
       id: drawingModel.id!,
     );

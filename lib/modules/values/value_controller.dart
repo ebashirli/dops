@@ -1,3 +1,4 @@
+import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/values/value_model.dart';
 import 'package:dops/modules/values/values_repository.dart';
 import 'package:get/get.dart';
@@ -45,4 +46,31 @@ class ValueController extends GetxService {
   List<ValueModel?> valueModelsByStageId(String stageId) => documents.isNotEmpty
       ? documents.where((e) => e!.stageId == stageId).toList()
       : [];
+
+  List<ValueModel?> get valueModelsAssignedCurrentUser {
+    return loading.value || documents.isEmpty
+        ? []
+        : documents
+            .where(
+              (e) =>
+                  e!.submitDateTime == null &&
+                  e.employeeId == staffController.currentUserId,
+            )
+            .toList();
+  }
+
+  Set<String?> get parentIds => loading.value || documents.isEmpty
+      ? {}
+      : documents.map((e) => e!.stageId).toSet();
+
+  bool checkIfParentIdsContains(String id) => !parentIds.contains(id);
+
+  Set<String?> get stageIdsOfVmsAssignedCurrentUser {
+    return valueModelsAssignedCurrentUser.isEmpty
+        ? {}
+        : valueModelsAssignedCurrentUser.map((e) => e!.stageId).toSet();
+  }
+
+  bool checkIfStageModelAssignedCUById(String id) =>
+      stageIdsOfVmsAssignedCurrentUser.contains(id);
 }

@@ -31,8 +31,8 @@ class _CoordinatorFormState extends State<CoordinatorForm> {
                     onChanged: onChanged,
                     itemAsString: itemAsString,
                     labelText: stageController.labelText,
-                    isMultiSelectable:
-                        [1, 2, 3, 4, 5, 8].contains(stageController.labelText),
+                    isMultiSelectable: [1, 2, 3, 4, 5, 8]
+                        .contains(stageController.indexOfLast),
                   ),
                   const SizedBox(width: 20),
                   CustomTextFormField(

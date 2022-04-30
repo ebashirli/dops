@@ -184,7 +184,8 @@ class IssueController extends GetxService {
           TaskModel? taskModel = taskController.getById(taskId!);
           if (taskModel != null) {
             final DrawingModel? drawingModel = drawingController.documents
-                .firstWhere((drawing) => drawing!.id == taskModel.parentId);
+                .firstWhereOrNull(
+                    (drawing) => drawing!.id == taskModel.parentId);
             final String? drawingNumber =
                 drawingModel != null ? drawingModel.drawingNumber : null;
             if (drawingNumber != null) {

@@ -6,7 +6,6 @@ List<String> get listNames => [
       'Modules',
       'Projects',
       'Reference Types',
-      'Statuses',
       'Structure Types',
       'System Designations',
       'Functional Areas',

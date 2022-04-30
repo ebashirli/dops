@@ -224,6 +224,9 @@ class DataSource extends DataGridSource {
               if (indexOfVbar != -1) {
                 textDrawingNumber = Text(cell.value.substring(0, indexOfVbar));
                 taskId = cell.value.substring(indexOfVbar + 1);
+              } else {
+                textDrawingNumber = Text(cell.value);
+                taskId == null;
               }
             }
 
@@ -244,12 +247,12 @@ class DataSource extends DataGridSource {
                     : (cell.columnName == 'assignedTasks' ||
                             cell.columnName == 'drawingNumber')
                         ? cell.columnName == 'drawingNumber'
-                            ? taskId != 'null'
-                                ? TextButton(
-                                    onPressed: () => onPressed(taskId!),
-                                    child: textDrawingNumber,
-                                  )
-                                : textDrawingNumber
+                            ? TextButton(
+                                onPressed: taskId == null
+                                    ? null
+                                    : () => onPressed(taskId!),
+                                child: textDrawingNumber,
+                              )
                             : TextButton(
                                 onPressed: '|'.allMatches(cell.value).isNotEmpty
                                     ? () =>

@@ -13,7 +13,7 @@ import 'activity_repository.dart';
 
 class ActivityController extends GetxService {
   final GlobalKey<FormState> activityFormKey = GlobalKey<FormState>();
-  final _repository = Get.find<ActivityRepository>();
+  final _repo = Get.find<ActivityRepository>();
 
   static ActivityController instance = Get.find();
 
@@ -41,7 +41,7 @@ class ActivityController extends GetxService {
     budgetedLaborUnitsController = TextEditingController();
     startDateController = TextEditingController();
     finishDateController = TextEditingController();
-    _documents.bindStream(_repository.getAllActivitiesAsStream());
+    _documents.bindStream(_repo.getAllActivitiesAsStream());
     _documents.listen((List<ActivityModel?> taskModelList) {
       if (taskModelList.isNotEmpty) loading.value = false;
     });
@@ -69,19 +69,19 @@ class ActivityController extends GetxService {
     activityFormKey.currentState!.save();
     //update
     CustomFullScreenDialog.showDialog();
-    await _repository.updateModel(model, id);
+    await _repo.updateModel(model, id);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
   saveDocument({required ActivityModel model}) async {
     CustomFullScreenDialog.showDialog();
-    await _repository.addModel(model);
+    await _repo.addModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
-  void deleteActivity(String id) => _repository.removeModel(id);
+  void deleteActivity(String id) => _repo.removeModel(id);
 
   @override
   void onReady() {

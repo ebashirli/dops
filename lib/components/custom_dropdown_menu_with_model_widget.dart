@@ -6,7 +6,7 @@ class CustomDropdownMenuWithModel<T> extends StatelessWidget {
   final void Function(List<T?>) onChanged;
   final String Function(T?) itemAsString;
   final List<T?> selectedItems;
-  final bool isMultiselection;
+  final bool isMultiSelectable;
   final String labelText;
   final bool showSearchBox;
   final Widget Function(BuildContext)? clearButtonBuilder;
@@ -22,7 +22,7 @@ class CustomDropdownMenuWithModel<T> extends StatelessWidget {
     required this.onChanged,
     required this.itemAsString,
     required this.labelText,
-    this.isMultiselection = false,
+    this.isMultiSelectable = false,
     this.showSearchBox = true,
     this.showClearButton = false,
     this.clearButtonBuilder,
@@ -36,7 +36,7 @@ class CustomDropdownMenuWithModel<T> extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      child: !isMultiselection
+      child: !isMultiSelectable
           ? DropdownSearch<T>(
               enabled: enabled,
               selectedItem: selectedItems.isNotEmpty ? selectedItems[0] : null,

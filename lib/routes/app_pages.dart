@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../bindings/bindings.dart';
 import '../modules/home/home_view.dart';
-import '../modules/login/login_view.dart';
+import '../modules/login/auth_view.dart';
 import '../modules/stages/stage_view.dart';
 import '../unknown_route_page.dart';
 

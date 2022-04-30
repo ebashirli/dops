@@ -1,6 +1,6 @@
 // flutter run -d web-server --web-port 8080 --web-hostname 172.30.134.63
 
-import 'package:dops/core/auth_manager.dart';
+import 'package:dops/modules/login/auth_controller.dart';
 import 'package:dops/core/cache_manager.dart';
 import 'package:dops/modules/activity/activity_controller.dart';
 import 'package:dops/modules/drawing/drawing_controller.dart';
@@ -12,10 +12,7 @@ import 'package:dops/modules/staff/staff_controller.dart';
 import 'package:dops/modules/stages/stage_controller.dart';
 import 'package:dops/modules/task/task_controller.dart';
 import 'package:dops/modules/values/value_controller.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 AuthManager authManager = AuthManager.instance;
 HomeController homeController = HomeController.instance;
@@ -31,33 +28,6 @@ StageController stageController = StageController.instance;
 ValueController valueController = ValueController.instance;
 FirebaseAuth auth = FirebaseAuth.instance;
 CacheManager cacheManager = CacheManager.instance;
-
-void filesDialog(List<String?> fileNames, {List<PlatformFile?>? files}) {
-  Get.defaultDialog(
-    title: 'Files',
-    content: Column(
-      children: [
-        ...fileNames
-            .map<Widget>(
-              (String? fileName) => TextButton(
-                onPressed: () {},
-                child: Text(fileName!),
-              ),
-            )
-            .toList(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            TextButton(
-              onPressed: () {},
-              child: Text('Download All'),
-            ),
-          ],
-        )
-      ],
-    ),
-  );
-}
 
 const String baseUrl = 'http://172.30.134.63:5000/';
 const String basePath = 'P:\\Ismayil Bashirli\\Elvin Bashirli\\DOPS';

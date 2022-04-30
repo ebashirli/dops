@@ -11,7 +11,7 @@ import 'reference_document_repository.dart';
 
 class ReferenceDocumentController extends GetxService {
   final GlobalKey<FormState> referenceDocumentFormKey = GlobalKey<FormState>();
-  final _repository = Get.find<ReferenceDocumentRepository>();
+  final _repo = Get.find<ReferenceDocumentRepository>();
   static ReferenceDocumentController instance = Get.find();
 
   late TextEditingController documentNumberController,
@@ -39,12 +39,12 @@ class ReferenceDocumentController extends GetxService {
     transmittalNumberController = TextEditingController();
     receiveDateController = TextEditingController();
 
-    _documents.bindStream(_repository.getAllDocumentsAsStream());
+    _documents.bindStream(_repo.getAllDocumentsAsStream());
   }
 
   saveDocument({required ReferenceDocumentModel model}) async {
     CustomFullScreenDialog.showDialog();
-    await _repository.addModel(model);
+    await _repo.addModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
@@ -59,13 +59,13 @@ class ReferenceDocumentController extends GetxService {
     }
     referenceDocumentFormKey.currentState!.save();
     CustomFullScreenDialog.showDialog();
-    await _repository.updateModel(model, id);
+    await _repo.updateModel(model, id);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
   void deleteReferenceDocument(String id) {
-    _repository.removeModel(id);
+    _repo.removeModel(id);
   }
 
   @override

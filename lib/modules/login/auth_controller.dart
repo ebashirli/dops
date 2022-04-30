@@ -11,7 +11,6 @@ class AuthManager extends GetxService with CacheManager {
   RxBool isLoading = false.obs;
   final staffRepository = Get.find<StaffRepository>();
   Rx<StaffModel?> logedInStaff = Rxn<StaffModel>();
-  UserCredential? userCredential;
 
   Future<UserCredential?> register(String email, password) async {
     try {
@@ -19,7 +18,9 @@ class AuthManager extends GetxService with CacheManager {
         email: email,
         password: password,
       );
-    } catch (firebaseAuthException) {}
+    } catch (firebaseAuthException) {
+      print(firebaseAuthException.toString());
+    }
     return null;
   }
 

@@ -7,29 +7,40 @@ import 'lists_repository.dart';
 import 'package:get/get.dart';
 
 class ListsController extends GetxService {
-  ListsRepository _repository = Get.find<ListsRepository>();
+  ListsRepository _repo = Get.find<ListsRepository>();
   static ListsController instance = Get.find();
-  late Rx<ListsModel> document;
+
+  Rx<ListsModel> _documents = ListsModel().obs;
+  ListsModel get document => _documents.value;
+
+  late Map<String, dynamic> map;
+
+  RxBool loading = true.obs;
+
   Rx<States> state = States.Loading.obs;
   RxString choosenList = 'Companies'.obs;
   final textController = TextEditingController();
-  late Map<String, dynamic> map;
   RxList<Map<String, dynamic>> newAddedList = <Map<String, dynamic>>[].obs;
 
   @override
   void onInit() {
     super.onInit();
-    document = ListsModel().obs;
-    map = document.value.toMap();
-    document.bindStream(_repository.getModelAsStream());
+    map = document.toMap();
+    _documents.bindStream(_repo.getModelAsStream());
+    _documents.listen((ListsModel? listsModel) {
+      if (listsModel == null) loading.value = false;
+      map = listsModel!.toMap();
+    });
+
+    // _repo.chunckUpload();
   }
 
   Future<void> updateModel(ListsModel model) async {
-    await _repository.updateDropdownSourcesModel(model);
+    await _repo.updateListModel(model);
   }
 
   addNewItem() {
-    map = document.value.toMap();
+    map = document.toMap();
     map[ReCase(choosenList.value).camelCase] =
         map[ReCase(choosenList.value).camelCase]..add(textController.text);
     newAddedList.add({choosenList.value: textController.text});
@@ -40,16 +51,6 @@ class ListsController extends GetxService {
     map[ReCase(element.keys.first).camelCase] =
         map[ReCase(element.keys.first).camelCase]..remove(element.values.first);
     newAddedList.removeAt(index);
-  }
-
-  buildUpdateForm() {
-    Get.defaultDialog(
-      radius: 12,
-      titlePadding: EdgeInsets.only(top: 40, bottom: 20),
-      title: 'Add New List Item',
-      contentPadding: EdgeInsets.only(left: 12, right: 12),
-      content: ListsFormWidget(map: map),
-    );
   }
 
   buildAddForm() {

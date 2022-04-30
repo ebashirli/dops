@@ -26,7 +26,7 @@ import 'package:recase/recase.dart';
 import 'widgets/empoyee_forms/employee_forms.dart';
 
 class StageController extends GetxService {
-  final _repository = Get.find<StageRepository>();
+  final _repo = Get.find<StageRepository>();
   static StageController instance = Get.find();
 
   RxList<StageModel?> _documents = RxList<StageModel>([]);
@@ -39,7 +39,7 @@ class StageController extends GetxService {
   void onInit() {
     super.onInit();
 
-    _documents.bindStream(_repository.getAllDocumentsAsStream());
+    _documents.bindStream(_repo.getAllDocumentsAsStream());
     _documents.listen((List<StageModel?> stageModelList) {
       if (stageModelList.isNotEmpty) loading.value = false;
     });
@@ -277,7 +277,7 @@ class StageController extends GetxService {
   Future<String> addNew({required StageModel model}) async {
     CustomFullScreenDialog.showDialog();
     model.creationDateTime = DateTime.now();
-    await _repository.add(model).then((value) => model.id = value);
+    await _repo.add(model).then((value) => model.id = value);
     CustomFullScreenDialog.cancelDialog();
     return model.id!;
   }
@@ -324,7 +324,7 @@ class StageController extends GetxService {
 
   addValues({required Map<String, dynamic> map, required String id}) async {
     CustomFullScreenDialog.showDialog();
-    await _repository.updateFileds(map, id);
+    await _repo.updateFileds(map, id);
     CustomFullScreenDialog.cancelDialog();
   }
 
@@ -574,7 +574,7 @@ class StageController extends GetxService {
   void copyToClipBoard(int index) {
     Clipboard.setData(
       ClipboardData(
-        text: '$basePath\\$currentTaskId\\${index}',
+        text: '$basePath\\',
       ),
     );
   }

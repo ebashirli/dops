@@ -37,7 +37,7 @@ Map<String, List<String>> tableColNames = {
     'Initial',
     'System Designation',
     'Job Title',
-    'E-mail',
+    'Email',
     'Company',
     'Date of Birth',
     'Home Address',

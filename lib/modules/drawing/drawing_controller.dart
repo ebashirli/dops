@@ -12,7 +12,7 @@ import 'drawing_repository.dart';
 
 class DrawingController extends GetxService {
   final GlobalKey<FormState> drawingFormKey = GlobalKey<FormState>();
-  final _repository = Get.find<DrawingRepository>();
+  final _repo = Get.find<DrawingRepository>();
   static DrawingController instance = Get.find();
 
   RxBool loading = true.obs;
@@ -23,8 +23,8 @@ class DrawingController extends GetxService {
       drawingNoteController;
 
   late List<String> areaList;
-  late List<String> drawingTagList;
-  late List<String> referenceDocumentsList;
+  late List<String?> drawingTagList;
+  late List<String?> referenceDocumentsList;
 
   late String activityCodeIdText,
       moduleNameText,
@@ -52,7 +52,7 @@ class DrawingController extends GetxService {
     functionalAreaText = '';
     structureTypeText = '';
 
-    _documents.bindStream(_repository.getAllDocumentsAsStream());
+    _documents.bindStream(_repo.getAllDocumentsAsStream());
     _documents.listen((List<DrawingModel?> drawingModelList) {
       if (drawingModelList.isNotEmpty) loading.value = false;
     });
@@ -66,7 +66,7 @@ class DrawingController extends GetxService {
 
     CustomFullScreenDialog.showDialog();
     model.drawingCreateDate = DateTime.now();
-    await _repository.addModel(model);
+    await _repo.addModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
@@ -84,7 +84,7 @@ class DrawingController extends GetxService {
     updatedModel.drawingCreateDate = documents
         .firstWhere((document) => document!.id == id)!
         .drawingCreateDate;
-    await _repository.updateModel(updatedModel, id);
+    await _repo.updateModel(updatedModel, id);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
@@ -107,7 +107,7 @@ class DrawingController extends GetxService {
       }
     }
 
-    _repository.removeModel(id);
+    _repo.removeModel(id);
   }
 
   @override

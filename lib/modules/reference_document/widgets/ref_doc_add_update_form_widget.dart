@@ -49,7 +49,7 @@ class RefDocAddUpdateFormWidget extends StatelessWidget {
                             onChanged: (value) {
                               refDocController.projectText = value ?? '';
                             },
-                            items: listsController.document.value.projects!,
+                            items: listsController.document.projects!,
                           ),
                           CustomDropdownMenu(
                             width: width,
@@ -59,7 +59,7 @@ class RefDocAddUpdateFormWidget extends StatelessWidget {
                             onChanged: (value) {
                               refDocController.moduleNameText = value ?? '';
                             },
-                            items: listsController.document.value.modules!,
+                            items: listsController.document.modules!,
                           ),
                           CustomDropdownMenu(
                             width: width,
@@ -69,8 +69,7 @@ class RefDocAddUpdateFormWidget extends StatelessWidget {
                             onChanged: (value) {
                               refDocController.referenceTypeText = value ?? '';
                             },
-                            items:
-                                listsController.document.value.referenceTypes!,
+                            items: listsController.document.referenceTypes!,
                           ),
                         ],
                       ),
@@ -208,7 +207,7 @@ class RefDocAddUpdateFormWidget extends StatelessWidget {
                           title: refDocController.titleController.text,
                           transmittalNumber:
                               refDocController.transmittalNumberController.text,
-                          receivedDate: DateFormat('dd/MM/yyyy').parse(
+                          receivedDate: DateFormat('y-M-d').parse(
                               refDocController.receiveDateController.text),
                           actionRequiredOrNext:
                               refDocController.actionRequiredOrNext.value,

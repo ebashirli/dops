@@ -16,7 +16,7 @@ import 'package:get/get.dart';
 
 class IssueController extends GetxService {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  final _repository = Get.find<IssueRepository>();
+  final _repo = Get.find<IssueRepository>();
   static IssueController instance = Get.find();
 
   late TextEditingController noteController;
@@ -39,7 +39,7 @@ class IssueController extends GetxService {
     super.onInit();
     noteController = TextEditingController();
 
-    _documents.bindStream(_repository.getAllDocumentsAsStream());
+    _documents.bindStream(_repo.getAllDocumentsAsStream());
     _documents.listen((List<IssueModel?> issueModelList) {
       if (issueModelList.isNotEmpty) loading.value = false;
     });
@@ -47,7 +47,7 @@ class IssueController extends GetxService {
 
   saveDocument({required IssueModel model}) async {
     CustomFullScreenDialog.showDialog();
-    await _repository.addModel(model);
+    await _repo.addModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
@@ -69,13 +69,13 @@ class IssueController extends GetxService {
         'linkedTasks': issueController.linkedTaskIds,
     };
 
-    await _repository.updateModel(map, id);
+    await _repo.updateModel(map, id);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
   void deleteIssue(String id) {
-    _repository.removeModel(id);
+    _repo.removeModel(id);
   }
 
   @override
@@ -212,7 +212,7 @@ class IssueController extends GetxService {
 
   addValues({required Map<String, dynamic> map, required String id}) async {
     CustomFullScreenDialog.showDialog();
-    await _repository.addFields(map, id);
+    await _repo.addFields(map, id);
     CustomFullScreenDialog.cancelDialog();
   }
 

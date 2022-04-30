@@ -54,7 +54,7 @@ class StaffRepository {
     await _api.addDocument(data.toMap());
   }
 
-  addModelWithId(StaffModel data, String docId) async {
+  addWithId(StaffModel data, String docId) async {
     await _api.addDocumentWithId(data.toMap(), docId);
   }
 }

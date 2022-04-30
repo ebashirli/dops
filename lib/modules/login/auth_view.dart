@@ -1,5 +1,5 @@
 import 'package:dops/components/custom_widgets.dart';
-import 'package:dops/core/auth_manager.dart';
+import 'package:dops/modules/login/auth_controller.dart';
 import 'package:dops/core/cache_manager.dart';
 import 'package:dops/modules/login/widgets/password_changing_form.dart';
 import 'package:flutter/material.dart';

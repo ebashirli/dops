@@ -13,6 +13,7 @@ class ListsModel {
   List<dynamic>? functionalAreas;
   List<dynamic>? areas;
   List<dynamic>? drawingTags;
+
   ListsModel({
     this.id = 'list',
     this.companies,

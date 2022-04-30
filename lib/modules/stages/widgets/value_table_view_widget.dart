@@ -1,3 +1,4 @@
+import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
 import 'package:dops/modules/issue/issue_model.dart';
@@ -243,9 +244,16 @@ class DataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
-    final List<String>? fileNames = stageValueModelsList
-        .singleWhereOrNull((e) => e!.id == row.getCells()[0].value)!
-        .fileNames;
+    final List<String>? fileNames = stageValueModelsList.isNotEmpty
+        ? stageValueModelsList
+            .singleWhereOrNull(
+                (ValueModel? e) => e!.id == row.getCells()[0].value)!
+            .fileNames
+        : null;
+    final String? valueModelId = row.getCells()[0].value;
+    final List<String?> valueModelIds = stageValueModelsList.isEmpty
+        ? []
+        : stageValueModelsList.map((e) => e!.id).toList();
 
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>(
@@ -254,8 +262,13 @@ class DataSource extends DataGridSource {
             return Center(
               child: fileNames != null
                   ? TextButton(
+                      key: Key('Files' + valueModelId!),
                       onPressed: cell.value.isNotEmpty
-                          ? () => filesDialog(cell.value)
+                          ? () => filesDialog(
+                                cell.value,
+                                valueModelId: valueModelId,
+                                valueModelIds: valueModelIds,
+                              )
                           : null,
                       child: Text(cell.value.length.toString()),
                     )

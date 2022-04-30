@@ -23,12 +23,12 @@ class ExpansionPanelBody extends StatelessWidget {
                       onPressed: () => stageController.download(item.index),
                       child: Text('Get files'),
                     ),
-                    TextButton(
-                      key: Key('Copy${item.index}'),
-                      onPressed: () =>
-                          stageController.copyToClipBoard(item.index - 1),
-                      child: Text('Copy address'),
-                    ),
+                    // TextButton(
+                    //   key: Key('Copy${item.index}'),
+                    //   onPressed: () =>
+                    //       stageController.copyToClipBoard(item.index - 1),
+                    //   child: Text('Copy address'),
+                    // ),
                   ],
                 ),
               if (stageController.isWorkerFormVisible(item)) workerForm(item),

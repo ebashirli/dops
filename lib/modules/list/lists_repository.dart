@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dops/constants/lists.dart';
 import 'package:dops/services/firebase_service/firebase_storage_service.dart';
 import 'lists_model.dart';
 import 'package:get/get.dart';
@@ -8,7 +9,8 @@ class ListsRepository {
 
   Future<ListsModel> getModel() async {
     QuerySnapshot result = await _api.getData();
-    ListsModel model = ListsModel.fromMap(result.docs.first.data() as Map<String, dynamic>);
+    ListsModel model =
+        ListsModel.fromMap(result.docs.first.data() as Map<String, dynamic>);
     return model;
   }
 
@@ -30,11 +32,13 @@ class ListsRepository {
     );
   }
 
-  Future<void> updateDropdownSourcesModel(ListsModel data) async {
+  Future<void> updateListModel(ListsModel data) async {
     await _api.updateDocument(data.toMap(), data.id);
   }
 
-  // addDropdownSourcesModel(DropdownSourcesModel data) async {
-  //   await _api.addDocument(data.toMap());
-  // }
+  void chunckUpload() {
+    dropDownMenuLists.forEach((key, value) {
+      _api.updateDocument({key: value}, 'list');
+    });
+  }
 }

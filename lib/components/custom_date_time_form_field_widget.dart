@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:dops/components/custom_widgets.dart';
 
 class CustomDateTimeFormField extends StatelessWidget {
   CustomDateTimeFormField({
@@ -51,20 +50,20 @@ class CustomDateTimeFormField extends StatelessWidget {
               hintStyle: const TextStyle(color: Colors.black45),
               errorStyle: const TextStyle(color: Colors.redAccent),
               border: const OutlineInputBorder(),
-              suffixIcon: IconButton(
-                onPressed: () async {
-                  final DateTime? _selectedDate = await showDatePicker(
-                    context: context,
-                    initialDatePickerMode: DatePickerMode.day,
-                    initialDate: DateTime.now(),
-                    initialEntryMode: DatePickerEntryMode.calendar,
-                    firstDate: DateTime(2010),
-                    lastDate: DateTime(2030),
-                  );
-                  controller.text = _selectedDate!.toDMYhmDash();
-                },
-                icon: const Icon(Icons.event_note),
-              ),
+              // suffixIcon: IconButton(
+              //   onPressed: () async {
+              //     final DateTime? _selectedDate = await showDatePicker(
+              //       context: context,
+              //       initialDatePickerMode: DatePickerMode.day,
+              //       initialDate: DateTime.now(),
+              //       initialEntryMode: DatePickerEntryMode.calendar,
+              //       firstDate: DateTime(0),
+              //       lastDate: DateTime(2500),
+              //     );
+              //     controller.text = _selectedDate!.toDMYhmDash();
+              //   },
+              //   icon: const Icon(Icons.event_note),
+              // ),
               labelText: labelText,
             ),
           ),

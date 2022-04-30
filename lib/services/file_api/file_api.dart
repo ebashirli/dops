@@ -48,3 +48,9 @@ dowloadFiles(List<String?> ids) async {
       .post(uri, body: jsonEncode({'ids': ids}))
       .then((_) => html.window.location.href = url);
 }
+
+dowloadFile({required String id, required String name}) async {
+  final String url = baseUrl + 'download/$id/$name';
+
+  return html.window.location.href = url;
+}

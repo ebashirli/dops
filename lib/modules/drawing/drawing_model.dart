@@ -6,7 +6,7 @@ class DrawingModel {
   String module;
   String level;
   List<String> area;
-  List<String> drawingTag;
+  List<String?> drawingTag;
   String functionalArea;
   String structureType;
   String note;

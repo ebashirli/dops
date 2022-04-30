@@ -13,7 +13,7 @@ import 'staff_repository.dart';
 
 class StaffController extends GetxService with CacheManager {
   final GlobalKey<FormState> staffFormKey = GlobalKey<FormState>();
-  final _repository = Get.find<StaffRepository>();
+  final _repo = Get.find<StaffRepository>();
   static StaffController instance = Get.find();
 
   late TextEditingController badgeNoController,
@@ -71,22 +71,22 @@ class StaffController extends GetxService with CacheManager {
     emergencyContactNameController = TextEditingController();
     noteController = TextEditingController();
 
-    _documents.bindStream(_repository.getAllDocumentsAsStream());
+    _documents.bindStream(_repo.getAllDocumentsAsStream());
     _documents.listen((List<StaffModel?> issueModelList) {
       if (issueModelList.isNotEmpty) loading.value = false;
     });
   }
 
-  saveDocument({required StaffModel model}) async {
+  add({required StaffModel model}) async {
     CustomFullScreenDialog.showDialog();
     UserCredential? userCredential =
         await authManager.register(model.email, "123456");
-    await _repository.addModelWithId(model, userCredential!.user!.uid);
+    await _repo.addWithId(model, userCredential!.user!.uid);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
-  updateDocument({
+  update({
     required StaffModel model,
     required String id,
   }) async {
@@ -97,7 +97,7 @@ class StaffController extends GetxService with CacheManager {
     staffFormKey.currentState!.save();
     //update
     CustomFullScreenDialog.showDialog();
-    await _repository.updateModel(model, id);
+    await _repo.updateModel(model, id);
 
     // ignore: unnecessary_null_comparison
     CustomFullScreenDialog.cancelDialog();
@@ -105,7 +105,7 @@ class StaffController extends GetxService with CacheManager {
   }
 
   void deleteStaff(String id) {
-    _repository.removeModel(id);
+    _repo.removeModel(id);
   }
 
   @override
@@ -206,7 +206,7 @@ class StaffController extends GetxService with CacheManager {
     List<String> mapPropNames = mapPropNamesGetter('staff');
 
     return documents.map((staff) {
-      Map<String, dynamic> staffToMap = staff.toMap();
+      Map<String, dynamic> staffMap = staff.toMap();
       Map<String, dynamic> map = {};
       mapPropNames.forEach((mapPropName) {
         switch (mapPropName) {
@@ -223,10 +223,10 @@ class StaffController extends GetxService with CacheManager {
           case 'startDate':
           case 'contractFinishDate':
             map[mapPropName] =
-                DateTime.parse(staffToMap[mapPropName]).toDayMonthYear();
+                DateTime.parse(staffMap[mapPropName]).toDayMonthYear();
             break;
           default:
-            map[mapPropName] = staffToMap[mapPropName];
+            map[mapPropName] = staffMap[mapPropName];
             break;
         }
       });

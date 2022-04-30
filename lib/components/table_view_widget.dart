@@ -9,8 +9,9 @@ import 'package:get/get.dart';
 import 'package:recase/recase.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../constants/table_details.dart';
-import 'package:dops/components/date_time_extension.dart';
 import 'package:collection/collection.dart';
+
+import 'custom_widgets.dart';
 
 class TableView extends StatelessWidget {
   final controller;

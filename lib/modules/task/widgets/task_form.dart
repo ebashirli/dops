@@ -5,8 +5,9 @@ import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class TaskForm extends StatelessWidget {
-  const TaskForm({Key? key, this.id, this.drawingId}) : super(key: key);
+class TaskAddUpdateForm extends StatelessWidget {
+  const TaskAddUpdateForm({Key? key, this.id, this.drawingId})
+      : super(key: key);
 
   final String? id;
   final String? drawingId;
@@ -114,10 +115,12 @@ class TaskForm extends StatelessWidget {
   }
 
   String getTaskNumber(DrawingModel drawingModel, TaskModel? taskModel) {
-    String revisionmark = taskModel == null
-        ? ''
-        : taskController.getRevisionMarkWithDash(taskModel.id!);
-    return drawingModel.drawingNumber + revisionmark;
+    String? revisionMark = taskModel == null
+        ? taskController.getRevisionMarkWithDash(parentId: drawingModel.id)
+        : taskController.getRevisionMarkWithDash(taskId: taskModel.id!);
+    return (revisionMark == null ? '' : 'Current Rev.: ') +
+        drawingModel.drawingNumber +
+        (revisionMark ?? '-no revison yet');
   }
 
   void onReferenceDocumentsChanged(values) =>

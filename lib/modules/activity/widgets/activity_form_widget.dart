@@ -54,7 +54,7 @@ class ActivityFormWidget extends StatelessWidget {
                               activityController.moduleNameText = value ?? '';
                             },
                             selectedItems: [activityController.moduleNameText!],
-                            items: listsController.document.value.modules!,
+                            items: listsController.document.modules!,
                             sizeBoxHeight: sizeBoxHeight,
                           ),
                           CustomDateTimeFormField(
@@ -146,9 +146,9 @@ class ActivityFormWidget extends StatelessWidget {
                               activityController.coefficientController.text),
                           budgetedLaborUnits: double.parse(activityController
                               .budgetedLaborUnitsController.text),
-                          startDate: DateFormat('dd/MM/yyyy').parse(
+                          startDate: DateFormat('y-M-d').parse(
                               activityController.startDateController.text),
-                          finishDate: DateFormat('dd/MM/yyyy').parse(
+                          finishDate: DateFormat('y-M-d').parse(
                               activityController.finishDateController.text),
                         );
                         id == null

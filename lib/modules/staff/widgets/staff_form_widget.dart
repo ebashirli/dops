@@ -83,7 +83,7 @@ class StaffFormWidget extends StatelessWidget {
                             selectedItems: [staffController.companyText],
                             onChanged: (value) =>
                                 staffController.companyText = value ?? '',
-                            items: listsController.document.value.companies!,
+                            items: listsController.document.companies!,
                             sizeBoxHeight: sizeBoxHeight,
                           ),
                           CustomTextFormField(
@@ -102,8 +102,7 @@ class StaffFormWidget extends StatelessWidget {
                               staffController.systemDesignationText =
                                   value ?? '';
                             },
-                            items: listsController
-                                .document.value.systemDesignations!,
+                            items: listsController.document.systemDesignations!,
                             sizeBoxHeight: sizeBoxHeight,
                           ),
                           CustomDropdownMenu(
@@ -113,7 +112,7 @@ class StaffFormWidget extends StatelessWidget {
                             onChanged: (value) {
                               staffController.jobTitleText = value ?? '';
                             },
-                            items: listsController.document.value.jobTitles!,
+                            items: listsController.document.jobTitles!,
                             sizeBoxHeight: sizeBoxHeight,
                           ),
                           CustomDateTimeFormField(
@@ -183,8 +182,7 @@ class StaffFormWidget extends StatelessWidget {
                             onChanged: (value) {
                               staffController.currentPlaceText = value ?? '';
                             },
-                            items:
-                                listsController.document.value.employeePlaces!,
+                            items: listsController.document.employeePlaces!,
                             sizeBoxHeight: sizeBoxHeight,
                           ),
                           CustomTextFormField(
@@ -251,8 +249,8 @@ class StaffFormWidget extends StatelessWidget {
                         note: staffController.noteController.text,
                       );
                       id == null
-                          ? staffController.saveDocument(model: model)
-                          : staffController.updateDocument(
+                          ? staffController.add(model: model)
+                          : staffController.update(
                               model: model,
                               id: id!,
                             );

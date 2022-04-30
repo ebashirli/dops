@@ -19,7 +19,7 @@ import 'task_repository.dart';
 
 class TaskController extends GetxService {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  final _repository = Get.find<TaskRepository>();
+  final _repo = Get.find<TaskRepository>();
   static TaskController instance = Get.find();
 
   late TextEditingController nextRevisionMarkController,
@@ -43,7 +43,7 @@ class TaskController extends GetxService {
     holdReasonController = TextEditingController();
     referenceDocumentsList = [];
 
-    _documents.bindStream(_repository.getAllDocumentsAsStream());
+    _documents.bindStream(_repo.getAllDocumentsAsStream());
     _documents.listen((List<TaskModel?> taskModelList) {
       if (taskModelList.isNotEmpty) loading.value = false;
     });
@@ -66,7 +66,7 @@ class TaskController extends GetxService {
       creationDate: DateTime.now(),
     );
 
-    _repository.add(taskModel).then((taskId) {
+    _repo.add(taskModel).then((taskId) {
       StageModel stage = StageModel(
         taskId: taskId,
         creationDateTime: DateTime.now(),
@@ -97,7 +97,7 @@ class TaskController extends GetxService {
 
     taskController.formKey.currentState!.save();
     CustomFullScreenDialog.showDialog();
-    await _repository.updateFields(map, id);
+    await _repo.updateFields(map, id);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
@@ -105,7 +105,7 @@ class TaskController extends GetxService {
   Future<String> deleteTask(TaskModel? taskModel) async {
     if (taskModel == null) return 'Error';
     CustomFullScreenDialog.showDialog();
-    await _repository.removeModel(taskModel.id!);
+    await _repo.removeModel(taskModel.id!);
     CustomFullScreenDialog.cancelDialog();
     Get.offAndToNamed(Routes.HOME);
     return 'Done';
@@ -154,7 +154,7 @@ class TaskController extends GetxService {
       radius: 12,
       // titlePadding: EdgeInsets.only(top: 20, bottom: 20),
       title: id == null ? 'Add next revision' : 'Update current revision',
-      content: TaskForm(id: id, drawingId: drawingId),
+      content: TaskAddUpdateForm(id: id, drawingId: drawingId),
     );
   }
 
@@ -176,12 +176,12 @@ class TaskController extends GetxService {
                   e.employeeId == staffController.currentUserId,
             );
 
-      List<String?> stageIds = currentUserValueModels.isEmpty
-          ? []
-          : currentUserValueModels.map((e) => e!.stageId).toList();
+      Set<String?> stageIds = currentUserValueModels.isEmpty
+          ? {}
+          : currentUserValueModels.map((e) => e!.stageId).toList().toSet();
 
       if (staffController.isCoordinator) {
-        Iterable<String?> stageIdOfValueModels =
+        Iterable<String?> stageIdsOfValueModels =
             valueController.loading.value || valueController.documents.isEmpty
                 ? Iterable.empty()
                 : valueController.documents.map((e) => e!.stageId);
@@ -189,8 +189,8 @@ class TaskController extends GetxService {
         Iterable<StageModel?> stageModelsWithoutValueModels =
             stageController.loading.value || stageController.documents.isEmpty
                 ? Iterable.empty()
-                : stageController.documents
-                    .where((e) => !stageIdOfValueModels.contains(e!.id));
+                : stageController.documents.where((e) =>
+                    e!.index != 0 && !stageIdsOfValueModels.contains(e.id));
 
         Iterable<String?> stageIdsWithoutValueModels =
             stageModelsWithoutValueModels.isEmpty
@@ -205,9 +205,8 @@ class TaskController extends GetxService {
           ? Iterable.empty()
           : stageController.documents.where((e) => stageIds.contains(e!.id));
 
-      Iterable<String?> taskids = stageModels.isEmpty
-          ? Iterable.empty()
-          : stageModels.map((e) => e!.taskId);
+      Set<String?> taskids =
+          stageModels.isEmpty ? {} : stageModels.map((e) => e!.taskId).toSet();
 
       List<TaskModel?> taskModels = taskids.isEmpty ||
               taskController.loading.value ||
@@ -216,6 +215,7 @@ class TaskController extends GetxService {
           : taskController.documents
               .where((e) => taskids.contains(e!.id))
               .toList();
+
       Iterable<String?> parentIds =
           taskModels.isEmpty ? [] : taskModels.map((e) => e!.parentId);
 
@@ -438,19 +438,37 @@ class TaskController extends GetxService {
         : documents.singleWhereOrNull((e) => e!.id == id);
   }
 
-  String? getRevisionMarkById(String taskId) {
-    TaskModel? taskModel = getById(taskId);
-    return taskModel == null ? null : taskModel.revisionMark;
+  String? getRevisionMarkById({String? taskId, String? parentId}) {
+    final TaskModel? taskModel = getById(taskId ?? '');
+    TaskModel? lastTaskModel = null;
+
+    if (parentId != null && documents.isNotEmpty) {
+      lastTaskModel = loading.value || documents.isEmpty
+          ? null
+          : documents.lastWhereOrNull((e) => e!.parentId == parentId);
+    }
+
+    final String? revisionmark = taskModel == null
+        ? [parentId, lastTaskModel].contains(null)
+            ? null
+            : lastTaskModel!.revisionMark
+        : taskModel.revisionMark;
+
+    return revisionmark;
   }
 
-  String getRevisionMarkWithDash(String taskId) {
-    String? revisionMark = getRevisionMarkById(taskId);
-    return revisionMark == null ? '' : '-' + revisionMark;
+  String? getRevisionMarkWithDash({String? taskId, String? parentId}) {
+    String? revisionMark = getRevisionMarkById(
+      taskId: taskId,
+      parentId: parentId,
+    );
+    return revisionMark == null ? null : '-' + revisionMark;
   }
 
   String taskNumber(String taskNoId, String taskId) {
     List<String> splitTaskNoId = taskNoId.split(';');
-    return splitTaskNoId.first + getRevisionMarkWithDash(taskId);
+    return splitTaskNoId.first +
+        (getRevisionMarkWithDash(taskId: taskId) ?? '');
   }
 
   removeDeletedIds(List<String?> ids) {

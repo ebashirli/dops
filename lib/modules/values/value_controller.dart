@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../../components/custom_widgets.dart';
 
 class ValueController extends GetxService {
-  final _repository = Get.find<ValueRepository>();
+  final _repo = Get.find<ValueRepository>();
   static ValueController instance = Get.find();
 
   RxList<ValueModel?> _documents = RxList<ValueModel?>([]);
@@ -17,13 +17,13 @@ class ValueController extends GetxService {
 
   addNew({required ValueModel model}) async {
     CustomFullScreenDialog.showDialog();
-    await _repository.add(model);
+    await _repo.add(model);
     CustomFullScreenDialog.cancelDialog();
   }
 
   addValues({required Map<String, dynamic> map, required String id}) async {
     CustomFullScreenDialog.showDialog();
-    await _repository.updateFileds(map, id);
+    await _repo.updateFileds(map, id);
     CustomFullScreenDialog.cancelDialog();
   }
 
@@ -31,7 +31,7 @@ class ValueController extends GetxService {
   void onInit() {
     super.onInit();
 
-    _documents.bindStream(_repository.getAllDocumentsAsStream());
+    _documents.bindStream(_repo.getAllDocumentsAsStream());
     _documents.listen((List<ValueModel?> valueModelList) {
       if (valueModelList.isNotEmpty) loading.value = false;
     });

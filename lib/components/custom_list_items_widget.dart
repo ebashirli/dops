@@ -88,20 +88,24 @@ class CustomListItems extends StatelessWidget {
                                     height: 20,
                                     child: GestureDetector(
                                       onTap: () {
-                                        listsController.map = listsController
-                                            .document.value
-                                            .toMap();
+                                        listsController.map =
+                                            listsController.document.toMap();
                                         listsController.map[
                                                 ReCase(lstName!).camelCase] =
                                             listsController
                                                 .map[ReCase(lstName!).camelCase]
                                               ..remove(lst![index]);
                                         listsController.updateModel(
-                                            ListsModel.fromMap(
-                                                listsController.map));
+                                          ListsModel.fromMap(
+                                            listsController.map,
+                                          ),
+                                        );
                                       },
-                                      child: Icon(Icons.close,
-                                          size: 16, color: Colors.red),
+                                      child: Icon(
+                                        Icons.close,
+                                        size: 16,
+                                        color: Colors.red,
+                                      ),
                                     ))
                               ],
                             ),

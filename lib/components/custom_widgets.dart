@@ -8,5 +8,5 @@ export 'custom_text_widget.dart';
 export 'custom_dropdown_menu_with_model_widget.dart';
 export 'custom_expendable_fab_widget.dart';
 export 'hold_widget.dart';
-export 'date_time_extension.dart';
+export 'extentions.dart';
 export 'file_dialog.dart';

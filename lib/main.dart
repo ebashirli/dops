@@ -26,6 +26,7 @@ import 'package:dops/services/firebase_service/firebase_storage_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:url_strategy/url_strategy.dart';
 
 Future<void> main() async {
@@ -64,6 +65,10 @@ class MyCustomScrollBehavior extends MaterialScrollBehavior {
 
 @override
 Future<void> initServices() async {
+  await GetStorage.init();
+
+  await Get.putAsync<CacheManager>(() async => await CacheManager());
+
   await Get.putAsync<StorageService>(
     () async => await FirebaseStorageService('activities'),
     tag: 'activities',
@@ -154,8 +159,6 @@ Future<void> initServices() async {
   await Get.putAsync<ValueController>(() async => await ValueController());
 
   await Get.putAsync<IssueController>(() async => await IssueController());
-
-  await Get.putAsync<CacheManager>(() async => await CacheManager());
 }
 
 

@@ -1,9 +1,9 @@
 import 'package:dops/components/custom_widgets.dart';
-import 'package:dops/core/cache_manager.dart';
+import 'package:dops/constants/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class PasswordChangingForm extends StatelessWidget with CacheManager {
+class PasswordChangingForm extends StatelessWidget {
   PasswordChangingForm({Key? key}) : super(key: key);
 
   final TextEditingController emailController = TextEditingController();
@@ -58,7 +58,7 @@ class PasswordChangingForm extends StatelessWidget with CacheManager {
             width: Get.width * 0.1,
             child: ElevatedButton(
                 onPressed: () async {
-                  saveEmail(emailController.text);
+                  cacheManager.saveEmail(emailController.text);
                 },
                 child: const Text('Submit')),
           )

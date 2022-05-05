@@ -1,13 +1,23 @@
+import 'package:dops/constants/constant.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import '../../enum.dart';
 import 'package:get/get.dart';
 
 class HomeController extends GetxService {
-  Rx<HomeStates> _homeStates = HomeStates.HomeState.obs;
   static HomeController instance = Get.find();
+  final Rx<HomeStates?> _homeStates = HomeStates.MyTasksState.obs;
 
-  HomeStates get homeStates => _homeStates.value;
+  @override
+  Future<void> onInit() async {
+    super.onInit();
+
+    _homeStates.value = HomeStates.values
+        .firstWhere((e) => e.toString() == cacheManager.getHomeState());
+  }
+
+  HomeStates get homeStates => _homeStates.value ?? HomeStates.MyTasksState;
+
   set homeStates(HomeStates homeState) {
     _homeStates.value = homeState;
   }

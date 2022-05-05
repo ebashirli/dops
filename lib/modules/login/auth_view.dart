@@ -1,19 +1,19 @@
 import 'package:dops/components/custom_widgets.dart';
+import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/login/auth_controller.dart';
-import 'package:dops/core/cache_manager.dart';
 import 'package:dops/modules/login/widgets/password_changing_form.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class LoginView extends GetView<AuthManager> with CacheManager {
+class LoginView extends GetView<AuthManager> {
   LoginView({Key? key}) : super(key: key);
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final focusNode = FocusNode();
   @override
   Widget build(BuildContext context) {
-    emailController.text = getEmail() ?? '';
-    passwordController.text = getPassword() ?? '';
+    emailController.text = cacheManager.getEmail() ?? '';
+    passwordController.text = cacheManager.getPassword() ?? '';
     return Scaffold(
       body: Center(
         child: Container(
@@ -66,8 +66,9 @@ class LoginView extends GetView<AuthManager> with CacheManager {
                           child: ElevatedButton(
                               onPressed: () async {
                                 _login();
-                                savePassword(passwordController.text);
-                                saveEmail(emailController.text);
+                                cacheManager
+                                    .savePassword(passwordController.text);
+                                cacheManager.saveEmail(emailController.text);
                               },
                               child: const Text('Sign in')),
                         ),

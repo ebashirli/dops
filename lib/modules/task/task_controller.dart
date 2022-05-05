@@ -6,6 +6,7 @@ import 'package:dops/components/select_item_snackbar.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
 import 'package:dops/enum.dart';
+import 'package:dops/modules/activity/activity_model.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/task/widgets/task_form.dart';
@@ -179,7 +180,7 @@ class TaskController extends GetxService {
   List<Map<String, dynamic>?> get getDataForTableView {
     List<DrawingModel?> drawingDocuments = [];
 
-    if (homeController.homeStates != HomeStates.HomeState) {
+    if (homeController.homeStates != HomeStates.MyTasksState) {
       drawingDocuments =
           drawingController.loading.value ? [] : drawingController.documents;
     } else {
@@ -203,7 +204,7 @@ class TaskController extends GetxService {
               map = {
                 'id': taskModel == null ? null : taskModel.id,
                 'parentId': e.id,
-                'priority': getPriorrity(e),
+                'priority': activityController.getPriority(e),
                 'activityCode': getActivityCode(e),
                 'drawingNumber': getDrawingNumber(e, taskModel),
                 'revisionMark':
@@ -263,14 +264,14 @@ class TaskController extends GetxService {
                 : 'Live';
   }
 
-  List<StageModel?> getStageModelsOnLastIndex(TaskModel? task) {
+  List<StageModel?> getStageModelsOnLastIndexByTask(TaskModel? task) {
     List<Map<StageModel, List<ValueModel?>>?> valueModelsOfTask =
         stageController.getStagesAndValueModelsByTask(task);
 
-    List<StageModel> stageModelsOnLastIndex =
-        valueModelsOfTask.last!.keys.toList();
+    List<StageModel?> stageModelsOnLastIndex =
+        valueModelsOfTask.isEmpty ? [] : valueModelsOfTask.last!.keys.toList();
     stageModelsOnLastIndex.sort(
-      (a, b) => a.creationDateTime.compareTo(b.creationDateTime),
+      (a, b) => a!.creationDateTime.compareTo(b!.creationDateTime),
     );
     return stageModelsOnLastIndex;
   }
@@ -283,17 +284,22 @@ class TaskController extends GetxService {
 
     if (valueModelsOfTask.isEmpty) return null;
 
-    List<StageModel?> stageModelsOnLastIndex = getStageModelsOnLastIndex(task);
+    List<StageModel?> stageModelsOnLastIndex =
+        getStageModelsOnLastIndexByTask(task);
 
     return valueModelsOfTask.last![stageModelsOnLastIndex.last]!.isEmpty;
   }
 
   String? getStageName(TaskModel? task) {
-    List<StageModel?> stageModelsOnLastIndex = getStageModelsOnLastIndex(task);
+    List<StageModel?> stageModelsOnLastIndex =
+        getStageModelsOnLastIndexByTask(task);
+
     if (stageModelsOnLastIndex.isEmpty) return null;
 
-    final String stageName =
-        stageDetailsList[stageModelsOnLastIndex.last!.index]['name'];
+    int index = stageModelsOnLastIndex.last!.index;
+
+    final String stageName = stageDetailsList[index]['name'];
+
     return stageName;
   }
 
@@ -334,18 +340,11 @@ class TaskController extends GetxService {
   String getReferenceDocuments(TaskModel task) =>
       '${task.referenceDocuments.join(';')}';
 
-  int getPriorrity(DrawingModel drawing) {
-    return activityController.documents.indexOf(activityController.documents
-            .where((activity) => activity.id == drawing.activityCodeId)
-            .toList()[0]) +
-        1;
-  }
-
   String? getActivityCode(DrawingModel drawing) {
-    return activityController.documents
-        .where((activity) => activity.id == drawing.activityCodeId)
-        .toList()[0]
-        .activityId;
+    ActivityModel? activityModel =
+        activityController.getById(drawing.activityCodeId);
+
+    return activityModel == null ? null : activityModel.activityId;
   }
 
   void onAddPressed() {

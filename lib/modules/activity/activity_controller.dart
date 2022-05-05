@@ -29,8 +29,8 @@ class ActivityController extends GetxService {
 
   String? moduleNameText = '';
 
-  RxList<ActivityModel> _documents = RxList<ActivityModel>([]);
-  List<ActivityModel> get documents => _documents;
+  RxList<ActivityModel?> _documents = RxList<ActivityModel>([]);
+  List<ActivityModel?> get documents => _documents;
 
   @override
   void onInit() async {
@@ -98,17 +98,15 @@ class ActivityController extends GetxService {
     moduleNameText = '';
   }
 
-  void fillEditingControllers(String id) {
-    final ActivityModel model =
-        documents.where((document) => document.id == id).toList()[0];
-
-    activityIdController.text = model.activityId ?? '';
-    activityNameController.text = model.activityName ?? '';
-    coefficientController.text = model.coefficient.toString();
-    budgetedLaborUnitsController.text = model.budgetedLaborUnits.toString();
-    startDateController.text = model.startDate!.toDMYhmDash();
-    finishDateController.text = model.finishDate!.toDMYhmDash();
-    moduleNameText = model.moduleName;
+  void fillEditingControllers(ActivityModel activityModel) {
+    activityIdController.text = activityModel.activityId ?? '';
+    activityNameController.text = activityModel.activityName ?? '';
+    coefficientController.text = activityModel.coefficient.toString();
+    budgetedLaborUnitsController.text =
+        activityModel.budgetedLaborUnits.toString();
+    startDateController.text = activityModel.startDate!.toDMYhmDash();
+    finishDateController.text = activityModel.finishDate!.toDMYhmDash();
+    moduleNameText = activityModel.moduleName;
   }
 
   whenCompleted() {
@@ -135,7 +133,13 @@ class ActivityController extends GetxService {
   }
 
   buildUpdateForm({required String id}) {
-    fillEditingControllers(id);
+    final ActivityModel? activityModel = loading.value || documents.isEmpty
+        ? null
+        : documents.firstWhereOrNull((e) => e!.id == id);
+
+    if (activityModel == null) return;
+
+    fillEditingControllers(activityModel);
     getDialog(title: 'Update', id: id);
   }
 
@@ -149,76 +153,85 @@ class ActivityController extends GetxService {
     );
   }
 
-  List<Map<String, dynamic>> get getDataForTableView {
-    return documents.map((activity) {
-      String assignedTasks = '';
+  List<Map<String, dynamic>?> get getDataForTableView {
+    return loading.value || documents.isEmpty
+        ? []
+        : documents.map((activity) {
+            String assignedTasks = '';
 
-      List<String?> drawingIdsOfActivity = [];
+            List<String?> drawingIdsOfActivity = [];
 
-      if (drawingController.documents.isNotEmpty ||
-          !drawingController.loading.value) {
-        Iterable<DrawingModel?> drawingsOfActivity = drawingController.documents
-            .where(
-                (e) => e!.isHidden == false && e.activityCodeId == activity.id);
+            if (drawingController.documents.isNotEmpty ||
+                !drawingController.loading.value) {
+              Iterable<DrawingModel?> drawingsOfActivity =
+                  drawingController.documents.where((e) =>
+                      e!.isHidden == false && e.activityCodeId == activity!.id);
 
-        drawingIdsOfActivity = drawingsOfActivity.isEmpty
-            ? []
-            : drawingsOfActivity.map((e) => e!.id).toList();
-      }
+              drawingIdsOfActivity = drawingsOfActivity.isEmpty
+                  ? []
+                  : drawingsOfActivity.map((e) => e!.id).toList();
+            }
 
-      List<TaskModel?> taskIdsOfDrawings = (taskController
-                  .documents.isNotEmpty ||
-              !taskController.loading.value)
-          ? []
-          : taskController.documents
-              .where((task) => drawingIdsOfActivity.contains(task!.parentId))
-              .toList();
+            List<TaskModel?> taskIdsOfDrawings = (taskController
+                        .documents.isNotEmpty ||
+                    !taskController.loading.value)
+                ? []
+                : taskController.documents
+                    .where(
+                        (task) => drawingIdsOfActivity.contains(task!.parentId))
+                    .toList();
 
-      taskIdsOfDrawings.forEach((task) {
-        if (task != null) {
-          DrawingModel? drawingModel = drawingController.loading.value ||
-                  drawingController.documents.isEmpty
-              ? null
-              : drawingController.documents
-                  .firstWhereOrNull((e) => e!.id == task.parentId);
-          final String? drawingNumber =
-              drawingModel == null ? null : drawingModel.drawingNumber;
-          if (drawingNumber != null) {
-            assignedTasks += '|${drawingNumber};${task.id!}';
-          }
-        }
-      });
+            taskIdsOfDrawings.forEach((task) {
+              if (task != null) {
+                DrawingModel? drawingModel = drawingController.loading.value ||
+                        drawingController.documents.isEmpty
+                    ? null
+                    : drawingController.documents
+                        .firstWhereOrNull((e) => e!.id == task.parentId);
+                final String? drawingNumber =
+                    drawingModel == null ? null : drawingModel.drawingNumber;
+                if (drawingNumber != null) {
+                  assignedTasks += '|${drawingNumber};${task.id!}';
+                }
+              }
+            });
 
-      return <String, dynamic>{
-        'id': activity.id,
-        'activityId': activity.activityId,
-        'activityName': activity.activityName,
-        'moduleName': activity.moduleName,
-        'priority': documents.indexOf(activity) + 1,
-        'coefficient': activity.coefficient,
-        'currentPriority':
-            (documents.indexOf(activity) + 1) * activity.coefficient,
-        'budgetedLaborUnits': activity.budgetedLaborUnits,
-        'startDate': activity.startDate == null
-            ? null
-            : activity.startDate!.toDayMonthYear(),
-        'finishDate': activity.finishDate == null
-            ? null
-            : activity.finishDate!.toDayMonthYear(),
-        'cumulative': activity.cumulative,
-        'assignedTasks': assignedTasks,
-      };
-    }).toList();
+            return <String, dynamic>{
+              'id': activity!.id,
+              'activityId': activity.activityId,
+              'activityName': activity.activityName,
+              'moduleName': activity.moduleName,
+              'priority': documents.indexOf(activity) + 1,
+              'coefficient': activity.coefficient,
+              'currentPriority':
+                  (documents.indexOf(activity) + 1) * activity.coefficient,
+              'budgetedLaborUnits': activity.budgetedLaborUnits,
+              'startDate': activity.startDate == null
+                  ? null
+                  : activity.startDate!.toDayMonthYear(),
+              'finishDate': activity.finishDate == null
+                  ? null
+                  : activity.finishDate!.toDayMonthYear(),
+              'cumulative': activity.cumulative,
+              'assignedTasks': assignedTasks,
+            };
+          }).toList();
   }
 
   ActivityModel? getById(String id) {
     return loading.value || documents.isEmpty
         ? null
-        : documents.singleWhereOrNull((e) => e.id == id);
+        : documents.singleWhereOrNull((e) => e!.id == id);
   }
 
   String? selectedActivities(String activityCodeId) {
     ActivityModel? activityModel = getById(activityCodeId);
     return activityModel == null ? null : activityModel.activityId;
+  }
+
+  int getPriority(DrawingModel drawing) {
+    ActivityModel? activityModel = getById(drawing.activityCodeId);
+    int priority = documents.indexOf(activityModel) + 1;
+    return priority;
   }
 }

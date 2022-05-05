@@ -23,11 +23,15 @@ extension DateTimeExtension on DateTime {
     return 'just now';
   }
 
-  String toDayMonthYear() => '${zeroAdder(day)}/${zeroAdder(month)}/$year';
+  String toDayMonthYear() => '${_zeroAdder(day)}/${_zeroAdder(month)}/$year';
   String toDMYhm() =>
-      '${zeroAdder(day)}/${zeroAdder(month)}/$year ${zeroAdder(hour)}:${zeroAdder(minute)}';
-  String toDMYhmDash() => '$year-${zeroAdder(month)}-${zeroAdder(day)}';
+      '${_zeroAdder(day)}/${_zeroAdder(month)}/$year ${_zeroAdder(hour)}:${_zeroAdder(minute)}';
+  String toDMYhmDash() => '$year-${_zeroAdder(month)}-${_zeroAdder(day)}';
 }
 
-String zeroAdder(int singleInt) =>
+String _zeroAdder(int singleInt) =>
     (singleInt.toString().length == 1 ? "0" : "") + singleInt.toString();
+
+extension StringExtension on String {
+  get p => print(this);
+}

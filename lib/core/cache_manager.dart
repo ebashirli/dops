@@ -1,8 +1,10 @@
+import 'package:dops/components/extentions.dart';
+import 'package:dops/enum.dart';
 import 'package:dops/modules/staff/staff_model.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
-class CacheManager {
+class CacheManager extends GetxService {
   static final CacheManager instance = Get.find();
   final box = GetStorage();
 
@@ -44,6 +46,16 @@ class CacheManager {
 
   Future<void> removeID() async =>
       await box.remove(CacheManagerKey.ID.toString());
+
+  Future<void> saveHomeState(HomeStates homeState) async {
+    await box.write(CacheManagerKey.HOMESTATE.toString(), homeState.toString());
+  }
+
+  String? getHomeState() {
+    box.read(CacheManagerKey.HOMESTATE.toString()).toString().p;
+
+    return box.read(CacheManagerKey.HOMESTATE.toString());
+  }
 }
 
-enum CacheManagerKey { EMAIL, PASSWORD, STAFF, ID }
+enum CacheManagerKey { EMAIL, PASSWORD, STAFF, ID, HOMESTATE }

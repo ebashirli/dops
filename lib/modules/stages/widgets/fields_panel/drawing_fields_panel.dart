@@ -1,5 +1,6 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
+import 'package:dops/modules/activity/activity_model.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:flutter/material.dart';
 
@@ -162,10 +163,10 @@ class DrawingUpdateFormWidget extends StatelessWidget {
     );
   }
 
-  void onActivitiesChanged(value) {
-    drawingController.activityCodeIdText = activityController.documents
-        .where((activity) => activity.activityId == value)
-        .toList()[0]
-        .id!;
+  void onActivitiesChanged(activityId) {
+    ActivityModel? activityModel = activityController.getById(activityId);
+
+    drawingController.activityCodeIdText =
+        activityModel == null ? "" : activityModel.id!;
   }
 }

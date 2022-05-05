@@ -50,7 +50,7 @@ class HomeView extends GetView<HomeController> {
         tableName = 'task';
         break;
 
-      case HomeStates.HomeState:
+      case HomeStates.MyTasksState:
         _controller = taskController;
         tableName = 'task';
         break;
@@ -73,7 +73,7 @@ class HomeView extends GetView<HomeController> {
         if (isAddButtonVisibile)
           Row(
             children: [
-              if (homeController.homeStates != HomeStates.HomeState)
+              if (homeController.homeStates != HomeStates.MyTasksState)
                 ElevatedButton(
                   onPressed: () => _buildAddDatabase(),
                   child: Text('Add ${_buildTitleOfPage(isForTitle: false)}'),
@@ -118,9 +118,10 @@ class HomeView extends GetView<HomeController> {
         children: <Widget>[
           TextButton.icon(
             icon: Icon(Icons.list_alt),
-            label: const Text('Home'),
+            label: const Text('My Tasks'),
             onPressed: () {
-              controller.homeStates = HomeStates.HomeState;
+              controller.homeStates = HomeStates.MyTasksState;
+              cacheManager.saveHomeState(HomeStates.MyTasksState);
               Get.back();
             },
           ),
@@ -130,6 +131,7 @@ class HomeView extends GetView<HomeController> {
             label: const Text('Reference Documents'),
             onPressed: () {
               controller.homeStates = HomeStates.ReferenceDocumentState;
+              cacheManager.saveHomeState(HomeStates.ReferenceDocumentState);
               Get.back();
             },
           ),
@@ -142,6 +144,7 @@ class HomeView extends GetView<HomeController> {
                   label: const Text('Lists'),
                   onPressed: () {
                     controller.homeStates = HomeStates.ListState;
+                    cacheManager.saveHomeState(HomeStates.ListState);
                     Get.back();
                   },
                 ),
@@ -153,6 +156,7 @@ class HomeView extends GetView<HomeController> {
             label: const Text('Activities'),
             onPressed: () {
               controller.homeStates = HomeStates.ActivityState;
+              cacheManager.saveHomeState(HomeStates.ActivityState);
               Get.back();
             },
           ),
@@ -165,6 +169,7 @@ class HomeView extends GetView<HomeController> {
                   label: const Text('Staff'),
                   onPressed: () {
                     controller.homeStates = HomeStates.StaffState;
+                    cacheManager.saveHomeState(HomeStates.StaffState);
                     Get.back();
                   },
                 ),
@@ -176,6 +181,7 @@ class HomeView extends GetView<HomeController> {
             label: const Text('Drawings'),
             onPressed: () {
               controller.homeStates = HomeStates.TaskState;
+              cacheManager.saveHomeState(HomeStates.TaskState);
               Get.back();
             },
           ),
@@ -185,6 +191,7 @@ class HomeView extends GetView<HomeController> {
             label: const Text('Issues'),
             onPressed: () {
               controller.homeStates = HomeStates.IssueState;
+              cacheManager.saveHomeState(HomeStates.IssueState);
               Get.back();
             },
           ),
@@ -205,7 +212,7 @@ class HomeView extends GetView<HomeController> {
         return isForTitle ? 'Staff' : 'employee';
       case HomeStates.TaskState:
         return isForTitle ? 'Drawings' : 'drawing';
-      case HomeStates.HomeState:
+      case HomeStates.MyTasksState:
         return isForTitle ? 'My Tasks' : 'my tasks';
       case HomeStates.IssueState:
         return isForTitle ? 'Issue' : 'issue';
@@ -222,7 +229,7 @@ class HomeView extends GetView<HomeController> {
         return staffController.buildAddForm();
       case HomeStates.TaskState:
         return drawingController.buildAddForm();
-      case HomeStates.HomeState:
+      case HomeStates.MyTasksState:
         return;
       case HomeStates.ListState:
         return listsController.buildAddForm();

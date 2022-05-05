@@ -50,7 +50,7 @@ class DrawingFormWidget extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            CustomDropdownMenuWithModel<ActivityModel>(
+                            CustomDropdownMenuWithModel<ActivityModel?>(
                               width: dialogWidth * .185,
                               items: activityController.documents,
                               labelText: 'Activity code',

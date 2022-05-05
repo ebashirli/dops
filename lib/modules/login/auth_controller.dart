@@ -1,12 +1,11 @@
 import 'package:dops/constants/constant.dart';
-import 'package:dops/core/cache_manager.dart';
 import 'package:dops/modules/staff/staff_model.dart';
 import 'package:dops/modules/staff/staff_repository.dart';
 import 'package:dops/routes/app_pages.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 
-class AuthManager extends GetxService with CacheManager {
+class AuthManager extends GetxService {
   static final AuthManager instance = Get.find();
   RxBool isLoading = false.obs;
   final staffRepository = Get.find<StaffRepository>();
@@ -41,14 +40,14 @@ class AuthManager extends GetxService with CacheManager {
 
   Future<void> initializeStaffModel() async {
     logedInStaff.value = staffController.getById(auth.currentUser!.uid);
-    saveID(auth.currentUser!.uid);
-    saveStaff(logedInStaff.value!);
+    cacheManager.saveID(auth.currentUser!.uid);
+    cacheManager.saveStaff(logedInStaff.value!);
   }
 
   void signOut() async {
     await auth.signOut();
-    removeStaff();
-    removeID();
+    cacheManager.removeStaff();
+    cacheManager.removeID();
     Get.offAndToNamed(Routes.SPLASH);
   }
 }

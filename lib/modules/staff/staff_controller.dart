@@ -1,7 +1,6 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/table_details.dart';
-import 'package:dops/core/cache_manager.dart';
 import 'package:dops/modules/staff/widgets/staff_form_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +10,7 @@ import 'package:get/get.dart';
 import 'staff_model.dart';
 import 'staff_repository.dart';
 
-class StaffController extends GetxService with CacheManager {
+class StaffController extends GetxService {
   final GlobalKey<FormState> staffFormKey = GlobalKey<FormState>();
   final _repo = Get.find<StaffRepository>();
   static StaffController instance = Get.find();
@@ -43,8 +42,8 @@ class StaffController extends GetxService with CacheManager {
   RxList<StaffModel> _documents = RxList<StaffModel>([]);
   List<StaffModel> get documents => _documents;
 
-  bool get isCoordinator => getStaff() != null
-      ? getStaff()!.systemDesignation == 'Coordinator'
+  bool get isCoordinator => cacheManager.getStaff() != null
+      ? cacheManager.getStaff()!.systemDesignation == 'Coordinator'
       : false;
 
   String get currentUserId => auth.currentUser!.uid;

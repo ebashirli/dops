@@ -649,7 +649,7 @@ class StageController extends GetxService {
     return dowloadFiles(ids: ids);
   }
 
-  List<StageModel?> get stageModelsAssignedCurrentUser {
+  List<StageModel?> get stageModelsAssignedCU {
     return loading.value || documents.isEmpty
         ? []
         : documents
@@ -658,10 +658,29 @@ class StageController extends GetxService {
             .toList();
   }
 
+  List<StageModel?> get stageModelsNotAssignedYet {
+    return loading.value || documents.isEmpty
+        ? []
+        : documents.where((e) {
+            return e!.index != 0
+                ? !valueController.checkIfStageModelAssignedCUById(e.id!)
+                : getStagesAndValueModelsByTask(
+                            taskController.getById(e.taskId))
+                        .length <
+                    1;
+          }).toList();
+  }
+
   Set<String?> get taskIdsAsignedCU {
-    return stageModelsAssignedCurrentUser.isEmpty
+    return stageModelsAssignedCU.isEmpty
         ? {}
-        : stageModelsAssignedCurrentUser.map((e) => e!.taskId).toSet();
+        : stageModelsAssignedCU.map((e) => e!.taskId).toSet();
+  }
+
+  Set<String?> get taskIdsNotAsignedYet {
+    return stageModelsNotAssignedYet.isEmpty
+        ? {}
+        : stageModelsNotAssignedYet.map((e) => e!.taskId).toSet();
   }
 
   List<StageModel?> get stageModelsWithoutValueModels {

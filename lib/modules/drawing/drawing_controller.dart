@@ -175,12 +175,23 @@ class DrawingController extends GetxService {
       ? null
       : drawingController.documents.firstWhereOrNull((e) => e!.id == parentId);
 
-  List<DrawingModel?> get drawingModelsAssignedCU =>
-      taskController.parentIdsAssignedCU.isEmpty ||
-              loading.value ||
-              documents.isEmpty
-          ? []
-          : documents
-              .where((e) => taskController.parentIdsAssignedCU.contains(e!.id))
-              .toList();
+  List<DrawingModel?> get drawingModelsAssignedCU {
+    return taskController.parentIdsAssignedCU.isEmpty ||
+            loading.value ||
+            documents.isEmpty
+        ? []
+        : documents
+            .where((e) => taskController.parentIdsAssignedCU.contains(e!.id))
+            .toList();
+  }
+
+  List<DrawingModel?> get drawingModelsNotAssignedYet {
+    return taskController.parentIdsNotAssignedYet.isEmpty ||
+            loading.value ||
+            documents.isEmpty
+        ? []
+        : taskController.parentIdsNotAssignedYet
+            .map((e) => getById(e!))
+            .toList();
+  }
 }

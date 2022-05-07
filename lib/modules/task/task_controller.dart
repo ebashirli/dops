@@ -164,13 +164,22 @@ class TaskController extends GetxService {
               loading.value ||
               documents.isEmpty
           ? []
-          : taskController.documents
-              .where((e) => stageController.taskIdsAsignedCU.contains(e!.id))
-              .toList();
+          : stageController.taskIdsAsignedCU.map((e) => getById(e!)).toList();
+
+  List<TaskModel?> get taskModelsNotAssignedYet =>
+      stageController.taskIdsNotAsignedYet.isEmpty ||
+              loading.value ||
+              documents.isEmpty
+          ? []
+          : stageController.taskIdsAsignedCU.map((e) => getById(e!)).toList();
 
   List<String?> get parentIdsAssignedCU => taskModelsAssignedCU.isEmpty
       ? []
       : taskModelsAssignedCU.map((e) => e!.parentId).toList();
+
+  List<String?> get parentIdsNotAssignedYet => taskModelsNotAssignedYet.isEmpty
+      ? []
+      : taskModelsNotAssignedYet.map((e) => e!.parentId).toList();
 
   TaskModel? getLastTaskByParentId(String? id) {
     if (id == null || loading.value || documents.isEmpty) return null;
@@ -182,12 +191,8 @@ class TaskController extends GetxService {
 
     if (homeController.homeState == HomeStates.MyTasksState) {
       drawingDocuments = drawingController.drawingModelsAssignedCU;
-      if (staffController.isCoordinator && drawingDocuments.isNotEmpty) {
-        drawingDocuments = drawingDocuments
-            .where((e) =>
-                checkIfTaskStatusAwaits(getLastTaskByParentId(e!.id)) ?? false)
-            .toList();
-      }
+      if (staffController.isCoordinator)
+        drawingDocuments += drawingController.drawingModelsNotAssignedYet;
     } else {
       drawingDocuments =
           drawingController.loading.value ? [] : drawingController.documents;

@@ -47,7 +47,7 @@ class ValueController extends GetxService {
       ? documents.where((e) => e!.stageId == stageId).toList()
       : [];
 
-  List<ValueModel?> get valueModelsAssignedCurrentUser {
+  List<ValueModel?> get valueModelsAssignedCU {
     return loading.value || documents.isEmpty
         ? []
         : documents
@@ -66,9 +66,9 @@ class ValueController extends GetxService {
   bool checkIfParentIdsContains(String id) => !parentIds.contains(id);
 
   Set<String?> get stageIdsOfVmsAssignedCurrentUser {
-    return valueModelsAssignedCurrentUser.isEmpty
+    return valueModelsAssignedCU.isEmpty
         ? {}
-        : valueModelsAssignedCurrentUser.map((e) => e!.stageId).toSet();
+        : valueModelsAssignedCU.map((e) => e!.stageId).toSet();
   }
 
   bool checkIfStageModelAssignedCUById(String id) =>

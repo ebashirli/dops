@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
-class DrawingUpdateFormWidget extends StatelessWidget {
-  const DrawingUpdateFormWidget({Key? key, required this.drawingModel})
+class DrawingFieldsWidget extends StatelessWidget {
+  const DrawingFieldsWidget({Key? key, required this.drawingModel})
       : super(key: key);
   final DrawingModel drawingModel;
 

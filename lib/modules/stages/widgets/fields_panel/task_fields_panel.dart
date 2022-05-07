@@ -4,9 +4,8 @@ import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class TaskUpdateFormWidget extends StatelessWidget {
-  const TaskUpdateFormWidget({Key? key, required this.taskModel})
-      : super(key: key);
+class TaskFieldsWidget extends StatelessWidget {
+  const TaskFieldsWidget({Key? key, required this.taskModel}) : super(key: key);
   final TaskModel taskModel;
 
   @override

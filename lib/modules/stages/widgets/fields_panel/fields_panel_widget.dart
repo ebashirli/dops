@@ -7,8 +7,8 @@ import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class BuildEditFormWidget extends StatelessWidget {
-  const BuildEditFormWidget({Key? key}) : super(key: key);
+class FieldsPanelWidget extends StatelessWidget {
+  const FieldsPanelWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(_) {
@@ -44,7 +44,7 @@ class BuildEditFormWidget extends StatelessWidget {
             style: kBold18,
           ),
           SizedBox(height: 20),
-          DrawingUpdateFormWidget(drawingModel: drawingModel),
+          DrawingFieldsWidget(drawingModel: drawingModel),
           Text(
             'Task details of $fullTaskNumber',
             style: kBold18,
@@ -55,7 +55,7 @@ class BuildEditFormWidget extends StatelessWidget {
             children: stageIndicators(),
           ),
           SizedBox(height: 20),
-          TaskUpdateFormWidget(taskModel: taskModel),
+          TaskFieldsWidget(taskModel: taskModel),
           SizedBox(height: 10),
           Text('Stages of $fullTaskNumber', style: kBold18),
           SizedBox(height: 10),

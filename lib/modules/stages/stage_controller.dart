@@ -415,12 +415,16 @@ class StageController extends GetxService {
 
     for (var i = 0; i < specialFieldNames.length; i++) {
       map[specialFieldNames[i].toLowerCase()] = specialFieldNames[i] == 'HOLD'
-          ? textEditingControllers[i].text
+          ? textEditingControllers[i].text == ""
+              ? null
+              : textEditingControllers[i].text
           : int.parse(textEditingControllers[i].text);
     }
 
     map['isCommented'] = commentStatus.value;
-    map['note'] = textEditingControllers.last.text;
+    map['note'] = textEditingControllers.last.text == ''
+        ? null
+        : textEditingControllers.last.text;
     map['submitDateTime'] = DateTime.now();
 
     if (lastTaskStage.index == 7) {

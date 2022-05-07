@@ -17,7 +17,7 @@ class ExpansionPanelBody extends StatelessWidget {
             children: <Widget>[
               stageController.isCoordinatorFormVisible(item)
                   ? item.coordinatorForm
-                  : coordinatorNote == null
+                  : coordinatorNote == null || coordinatorNote == ''
                       ? SizedBox()
                       : Row(
                           mainAxisAlignment: MainAxisAlignment.start,

@@ -9,6 +9,7 @@ void filesDialog(
   int? index,
   String? valueModelId,
   List<String?>? valueModelIds,
+  String? filingFolder,
 }) {
   Get.defaultDialog(
     title: 'Files',
@@ -19,25 +20,33 @@ void filesDialog(
               (String? fileName) => TextButton(
                 onPressed: () {
                   if (![valueModelId, fileName].contains(null))
-                    dowloadFile(id: valueModelId!, name: fileName!);
+                    dowloadFile(
+                      id: valueModelId!,
+                      name: fileName!,
+                      filingFolder: filingFolder,
+                    );
                 },
                 child: Text(fileName!),
               ),
             )
             .toList(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            TextButton(
-              onPressed: () {
-                if (valueModelIds != null || valueModelIds!.isNotEmpty) {
-                  dowloadFiles(valueModelIds);
-                }
-              },
-              child: Text('Download All'),
-            ),
-          ],
-        )
+        if (fileNames.length > 1)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              TextButton(
+                onPressed: (valueModelIds == null)
+                    ? null
+                    : valueModelIds.isEmpty
+                        ? null
+                        : () => dowloadFiles(
+                              ids: valueModelIds,
+                              filingFolder: filingFolder,
+                            ),
+                child: Text('Download All'),
+              ),
+            ],
+          ),
       ],
     ),
   );

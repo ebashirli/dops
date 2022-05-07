@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:collection/collection.dart';
+import 'package:dops/modules/stages/widgets/worker_forms/worker_forms.dart';
 
 import 'package:dops/modules/values/value_model.dart';
 
@@ -22,8 +23,6 @@ import 'package:dops/modules/stages/stage_repository.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:recase/recase.dart';
-
-import 'widgets/empoyee_forms/employee_forms.dart';
 
 class StageController extends GetxService {
   final _repo = Get.find<StageRepository>();
@@ -219,25 +218,40 @@ class StageController extends GetxService {
   String get labelText => stageDetailsList[indexOfLast]['staff job'];
 
   bool isWorkerFormVisible(ExpantionPanelItemModel item) {
-    return valueModelAssignedCurrentUser == null
-        ? false
-        : stageController.currentTask!.holdReason != null
+    return (item.index == 7 &&
+            stageAndValueModelsOfCurrentTask[7]!.values.first.isNotEmpty)
+        ? true
+        : valueModelAssignedCurrentUser == null
             ? false
-            : item.index != stageController.indexOfLast
+            : stageController.currentTask!.holdReason != null
                 ? false
-                : (item.index == 8 &&
-                        (valueModelAssignedCurrentUser!
-                                .linkingToGroupDateTime !=
-                            null))
+                : item.index != stageController.indexOfLast
                     ? false
-                    : valueModelAssignedCurrentUser!.submitDateTime == null;
+                    : (item.index == 8 &&
+                            (valueModelAssignedCurrentUser!
+                                    .linkingToGroupDateTime !=
+                                null))
+                        ? false
+                        : valueModelAssignedCurrentUser!.submitDateTime == null;
   }
 
   List<String> get specialFieldNames =>
       stageDetailsList[indexOfLast]['form fields'];
 
-  final RxList<String?> fileNames = RxList<String?>([]);
   final RxList<PlatformFile?> files = RxList<PlatformFile?>([]);
+
+  final RxList<FilingFiles> filingFiles = filingTypes
+      .map(
+        (e) => FilingFiles(
+          name: e[0],
+          extention: e[1],
+          dbName: e[2],
+          files: RxList<PlatformFile?>(<PlatformFile?>[]),
+        ),
+      )
+      .toList()
+      .obs;
+
   final RxBool commentStatus = false.obs;
 
   final RxBool commentCheckbox = false.obs;
@@ -249,10 +263,16 @@ class StageController extends GetxService {
       maxIndex,
       (int index) {
         final Widget workerForm = index == 7
-            ? FilingStageForm()
+            ? FilingStageWorkerForm(
+                valueModel: stageAndValueModelsOfCurrentTask[7]!
+                    .values
+                    .first
+                    .firstWhereOrNull((element) => true),
+              )
             : index == 8
                 ? NestingStageForm()
                 : WorkerForm(index: index, visible: indexOfLast == index);
+
         final Widget coordinatorForm = CoordinatorForm();
 
         final Widget valueTableView = ValueTableView(
@@ -401,8 +421,16 @@ class StageController extends GetxService {
 
     map['isCommented'] = commentStatus.value;
     map['note'] = textEditingControllers.last.text;
-    map['fileNames'] = fileNames;
     map['submitDateTime'] = DateTime.now();
+
+    if (lastTaskStage.index == 7) {
+      filingFiles.forEach((e) {
+        if (e.files.isNotEmpty)
+          map[e.dbName] = e.files.map((PlatformFile? file) => file!.name);
+      });
+    } else {
+      map['fileNames'] = files.isEmpty ? null : files.map((e) => e!.name);
+    }
 
     if (valueModelAssignedCurrentUser == null) return;
     String? id = valueModelAssignedCurrentUser!.id;
@@ -410,7 +438,17 @@ class StageController extends GetxService {
 
     valueController.addValues(map: map, id: id);
 
-    uploadFiles(files: files, id: id);
+    if (lastTaskStage.index != 7) {
+      uploadFiles(files: files, id: id);
+    } else {
+      filingFiles.forEach(
+        (e) => uploadFiles(
+          files: e.files,
+          id: id,
+          folder: e.name,
+        ),
+      );
+    }
 
     if (isLastSubmit) {
       bool anyComment = await valueController.documents.any(
@@ -489,7 +527,8 @@ class StageController extends GetxService {
       }
     }
     textEditingControllers.forEach((e) => e.clear());
-    fileNames.value = [];
+    // fileNames.value = [];
+    files.value = [];
     commentStatus.value = false;
     commentCheckbox.value = false;
   }
@@ -509,7 +548,7 @@ class StageController extends GetxService {
       if (fun != null) {
         fun(result);
       } else {
-        fileNames.value = result.files.map((file) => file.name).toList();
+        // fileNames.value = result.files.map((file) => file.name).toList();
         files.value = result.files;
       }
     }
@@ -581,25 +620,21 @@ class StageController extends GetxService {
 
   download(int index) {
     if (stagesOfCurrentTask.isEmpty) return;
-    int length = stagesOfCurrentTask.length;
-    if (length < 4) return;
 
-    StageModel? previousStageModel = stagesOfCurrentTask[length - 2];
+    StageModel? stageModel =
+        stagesOfCurrentTask.lastWhereOrNull((e) => e!.index == index);
+
+    if (stageModel == null) return;
+
+    int indexOfstageModel = stagesOfCurrentTask.indexOf(stageModel);
+
+    if (indexOfstageModel == -1) return;
+
+    StageModel? previousStageModel = stagesOfCurrentTask[indexOfstageModel - 1];
+
     if (previousStageModel == null) return;
     List<ValueModel?>? valueModelList = stageAndValueModelsOfCurrentTask[
         previousStageModel.index]![previousStageModel];
-
-    // if (stageAndValueModelsOfCurrentTask.isEmpty ||
-    //     stageAndValueModelsOfCurrentTask.length < index) return;
-
-    // final Map<StageModel, List<ValueModel?>>? stageAndValueModels =
-    //     stageAndValueModelsOfCurrentTask[index - 1];
-    // if (stageAndValueModels == null) return;
-
-    // final StageModel lastStageModel = stageAndValueModels.keys.last;
-
-    // final List<ValueModel?>? valueModelList =
-    //     stageAndValueModels[lastStageModel];
 
     if (valueModelList == null || valueModelList.isEmpty) return;
 
@@ -607,30 +642,54 @@ class StageController extends GetxService {
 
     if (ids.isEmpty) return;
 
-    return dowloadFiles(ids);
+    return dowloadFiles(ids: ids);
   }
 
-  List<StageModel?> get stageModelsAssignedCurrentUser => loading.value ||
-          documents.isEmpty
-      ? []
-      : documents
-          .where((e) => valueController.checkIfStageModelAssignedCUById(e!.id!))
-          .toList();
+  List<StageModel?> get stageModelsAssignedCurrentUser {
+    return loading.value || documents.isEmpty
+        ? []
+        : documents
+            .where(
+                (e) => valueController.checkIfStageModelAssignedCUById(e!.id!))
+            .toList();
+  }
 
-  Set<String?> get taskIdsAsignedCU => stageModelsAssignedCurrentUser.isEmpty
-      ? {}
-      : stageModelsAssignedCurrentUser.map((e) => e!.taskId).toSet();
+  Set<String?> get taskIdsAsignedCU {
+    return stageModelsAssignedCurrentUser.isEmpty
+        ? {}
+        : stageModelsAssignedCurrentUser.map((e) => e!.taskId).toSet();
+  }
 
-  List<StageModel?> get stageModelsWithoutValueModels =>
-      loading.value || documents.isEmpty
-          ? []
-          : documents
-              .where((e) => valueController.checkIfParentIdsContains(e!.id!))
-              .toList();
+  List<StageModel?> get stageModelsWithoutValueModels {
+    return loading.value || documents.isEmpty
+        ? []
+        : documents
+            .where((e) => valueController.checkIfParentIdsContains(e!.id!))
+            .toList();
+  }
 
   String? getCoordinatorNoteByindex(int index) {
     return stageAndValueModelsOfCurrentTask.length <= index
         ? null
         : stageAndValueModelsOfCurrentTask[index]!.keys.last.note;
   }
+}
+
+class FilingFiles {
+  String name;
+  String extention;
+  String dbName;
+  RxList<PlatformFile?> files;
+  RxList<String?> _fileNames = RxList<String?>(<String?>[]);
+  FilingFiles({
+    required this.name,
+    required this.extention,
+    required this.dbName,
+    required this.files,
+  });
+
+  List<String?> get fileNames =>
+      files.isNotEmpty ? files.map((e) => e!.name).toList() : _fileNames.value;
+
+  set fileNames(List<String?> fns) => _fileNames.value = fns;
 }

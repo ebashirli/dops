@@ -4,7 +4,7 @@ class ValueModel {
   String? employeeId;
   String assignedBy;
   DateTime assignedDateTime;
-  DateTime? unassignedBy;
+  String? unassignedBy;
   DateTime? unassignedDateTime;
   DateTime? submitDateTime;
   DateTime? linkingToGroupDateTime;
@@ -15,9 +15,22 @@ class ValueModel {
   int? dtl;
   String? hold;
   String? note;
-  List<String>? fileNames;
   bool isCommented;
   bool isHidden;
+  List<String?>? fileNames;
+  // filing files
+  List<String?>? gaddwg;
+  List<String?>? gadpdf;
+  List<String?>? addwg;
+  List<String?>? adpdf;
+  List<String?>? spddwg;
+  List<String?>? spdpdf;
+  List<String?>? weldReport;
+  List<String?>? mtoReport;
+  List<String?>? drawingList;
+  List<String?>? weldIndex;
+  List<String?>? exptdwg;
+  List<String?>? exptifc;
 
   ValueModel({
     this.id,
@@ -36,9 +49,21 @@ class ValueModel {
     this.dtl,
     this.hold,
     this.note,
-    this.fileNames,
     this.isCommented = false,
     this.isHidden = false,
+    this.fileNames,
+    this.gaddwg,
+    this.gadpdf,
+    this.addwg,
+    this.adpdf,
+    this.spddwg,
+    this.spdpdf,
+    this.weldReport,
+    this.mtoReport,
+    this.drawingList,
+    this.weldIndex,
+    this.exptdwg,
+    this.exptifc,
   });
 
   Map<String, dynamic> toMap() {
@@ -49,17 +74,33 @@ class ValueModel {
       'assignedDateTime': assignedDateTime,
       'isCommented': isCommented,
       'isHidden': isHidden,
-      'hold': hold != null ? hold : null,
+      if (hold != null) 'hold': hold != null ? hold : null,
       'submitDateTime': submitDateTime != null ? submitDateTime : null,
-      'linkingToGroupDateTime':
-          linkingToGroupDateTime != null ? linkingToGroupDateTime : null,
-      'phase': phase != null ? phase : null,
-      'weight': weight != null ? weight : null,
-      'gas': gas != null ? gas : null,
-      'sfd': sfd != null ? sfd : null,
-      'dtl': dtl != null ? dtl : null,
-      'note': note != null ? note : null,
-      'fileNames': fileNames != null ? fileNames : null,
+      if (linkingToGroupDateTime != null)
+        'linkingToGroupDateTime':
+            linkingToGroupDateTime != null ? linkingToGroupDateTime : null,
+      if (unassignedBy != null) 'unassignedBy': unassignedBy,
+      if (unassignedDateTime != null) 'unassignedDateTime': unassignedDateTime,
+      if (phase != null) 'phase': phase,
+      if (weight != null) 'weight': weight,
+      if (gas != null) 'gas': gas,
+      if (sfd != null) 'sfd': sfd,
+      if (dtl != null) 'dtl': dtl,
+      if (note != null) 'note': note,
+      if (fileNames != null) 'fileNames': fileNames,
+      // filing files
+      if (gaddwg != null) 'gaddwg': gaddwg,
+      if (gadpdf != null) 'gadpdf': gadpdf,
+      if (addwg != null) 'addwg': addwg,
+      if (adpdf != null) 'adpdf': adpdf,
+      if (spddwg != null) 'spddwg': spddwg,
+      if (spdpdf != null) 'spdpdf': spdpdf,
+      if (weldReport != null) 'weldReport': weldReport,
+      if (mtoReport != null) 'mtoReport': mtoReport,
+      if (drawingList != null) 'drawingList': drawingList,
+      if (weldIndex != null) 'weldIndex': weldIndex,
+      if (exptdwg != null) 'exptdwg': exptdwg,
+      if (exptifc != null) 'exptifc': exptifc,
     };
   }
 
@@ -70,6 +111,10 @@ class ValueModel {
       employeeId: map['employeeId'],
       assignedBy: map['assignedBy'],
       assignedDateTime: map['assignedDateTime'] != null
+          ? map['assignedDateTime'].toDate()
+          : null,
+      unassignedBy: map['unassignedBy'],
+      unassignedDateTime: map['unassignedDateTime'] != null
           ? map['assignedDateTime'].toDate()
           : null,
       submitDateTime:
@@ -88,6 +133,27 @@ class ValueModel {
           map['fileNames'] != null ? List<String>.from(map['fileNames']) : null,
       isCommented: map['isCommented'],
       isHidden: map['isHidden'],
+      // filing files
+      gaddwg: map['gaddwg'] != null ? List<String>.from(map['gaddwg']) : null,
+      gadpdf: map['gadpdf'] != null ? List<String>.from(map['gadpdf']) : null,
+      addwg: map['addwg'] != null ? List<String>.from(map['addwg']) : null,
+      adpdf: map['adpdf'] != null ? List<String>.from(map['adpdf']) : null,
+      spddwg: map['spddwg'] != null ? List<String>.from(map['spddwg']) : null,
+      spdpdf: map['spdpdf'] != null ? List<String>.from(map['spdpdf']) : null,
+      weldReport: map['weldReport'] != null
+          ? List<String>.from(map['weldReport'])
+          : null,
+      mtoReport:
+          map['mtoReport'] != null ? List<String>.from(map['mtoReport']) : null,
+      drawingList: map['drawingList'] != null
+          ? List<String>.from(map['drawingList'])
+          : null,
+      weldIndex:
+          map['weldIndex'] != null ? List<String>.from(map['weldIndex']) : null,
+      exptdwg:
+          map['exptdwg'] != null ? List<String>.from(map['exptdwg']) : null,
+      exptifc:
+          map['exptifc'] != null ? List<String>.from(map['exptifc']) : null,
     );
   }
 }

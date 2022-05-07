@@ -8,17 +8,19 @@ import 'package:dops/constants/constant.dart';
 Future<String?> uploadFiles({
   required List<PlatformFile?> files,
   required String id,
+  String? folder,
 }) async {
   if (files.isEmpty) return null;
   try {
-    final String url = baseUrl + 'upload/$id';
+    final String url =
+        baseUrl + 'upload/$id' + (folder == null ? '' : '/?folder=$folder');
 
     final Uri uri = Uri.parse(url);
     final http.MultipartRequest request = http.MultipartRequest("POST", uri);
     files.forEach((file) {
       request.files.add(
         http.MultipartFile.fromBytes(
-          "files",
+          'files',
           List<int>.from(file!.bytes!.toList()),
           contentType: MediaType('application', file.extension!),
           filename: file.name,
@@ -39,8 +41,13 @@ Future<String?> uploadFiles({
   }
 }
 
-dowloadFiles(List<String?> ids) async {
-  final String url = baseUrl + 'download';
+dowloadFiles({
+  required List<String?> ids,
+  String? filingFolder,
+}) async {
+  final String url = baseUrl +
+      'download' +
+      (filingFolder == null ? '' : '/?folder=$filingFolder');
 
   final Uri uri = Uri.parse(url);
 
@@ -49,8 +56,14 @@ dowloadFiles(List<String?> ids) async {
       .then((_) => html.window.location.href = url);
 }
 
-dowloadFile({required String id, required String name}) async {
-  final String url = baseUrl + 'download/$id/$name';
+dowloadFile({
+  required String id,
+  required String name,
+  String? filingFolder,
+}) async {
+  final String url = baseUrl +
+      'download/$id/$name' +
+      (filingFolder == null ? '' : '/?folder=$filingFolder');
 
   return html.window.location.href = url;
 }

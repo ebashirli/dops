@@ -244,7 +244,7 @@ class DataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
-    final List<String>? fileNames = stageValueModelsList.isNotEmpty
+    final List<String?>? fileNames = stageValueModelsList.isNotEmpty
         ? stageValueModelsList
             .singleWhereOrNull(
                 (ValueModel? e) => e!.id == row.getCells()[0].value)!
@@ -258,6 +258,9 @@ class DataSource extends DataGridSource {
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>(
         (cell) {
+          DateTime? dateTimeCellValue = null;
+          if (cell.value is DateTime) dateTimeCellValue = cell.value;
+
           if (cell.columnName == 'File Names') {
             return Center(
               child: fileNames != null
@@ -279,7 +282,8 @@ class DataSource extends DataGridSource {
                     .contains(cell.columnName)
                 ? staffController.getStaffInitialById(cell.value)
                 : cell.value is DateTime
-                    ? '${cell.value.day}/${cell.value.month}/${cell.value.year} ${cell.value.hour}:${cell.value.minute}'
+                    ? dateTimeCellValue!
+                        .toDMYhm() //'${cell.value.day}/${cell.value.month}/${cell.value.year} ${cell.value.hour}:${cell.value.minute}'
                     : cell.value ?? '';
             return Container(
               alignment: Alignment.center,

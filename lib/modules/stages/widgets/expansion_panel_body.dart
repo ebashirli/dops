@@ -33,7 +33,7 @@ class ExpansionPanelBody extends StatelessWidget {
                             Text(coordinatorNote),
                           ],
                         ),
-              if ([3, 4, 5, 6, 7, 8].contains(item.index))
+              if ([3, 4, 5, 6].contains(item.index))
                 Row(
                   children: <Widget>[
                     TextButton(

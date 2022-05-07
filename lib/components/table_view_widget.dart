@@ -62,7 +62,7 @@ class TableView extends StatelessWidget {
 
   Widget? baseFab() {
     bool isThereIncompleteIssueCreatedByCurrentUser =
-        homeController.homeStates == HomeStates.IssueState &&
+        homeController.homeState == HomeStates.IssueState &&
             issueController.documents
                 .where(
                   (e) =>

@@ -1,5 +1,6 @@
 import 'package:dops/constants/constant.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import 'package:collection/collection.dart';
 
 import '../../enum.dart';
 import 'package:get/get.dart';
@@ -12,13 +13,14 @@ class HomeController extends GetxService {
   Future<void> onInit() async {
     super.onInit();
 
-    _homeStates.value = HomeStates.values
-        .firstWhere((e) => e.toString() == cacheManager.getHomeState());
+    _homeStates.value = HomeStates.values.firstWhereOrNull(
+            (e) => e.toString() == cacheManager.getHomeState()) ??
+        HomeStates.MyTasksState;
   }
 
-  HomeStates get homeStates => _homeStates.value ?? HomeStates.MyTasksState;
+  HomeStates get homeState => _homeStates.value ?? HomeStates.MyTasksState;
 
-  set homeStates(HomeStates homeState) {
+  set homeState(HomeStates homeState) {
     _homeStates.value = homeState;
   }
 

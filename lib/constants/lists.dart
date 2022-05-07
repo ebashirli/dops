@@ -83,7 +83,6 @@ List<Map<String, dynamic>> stageDetailsList = [
     'name': 'Filing',
     'staff job': 'Filing resp. person',
     'form fields': <String>['HOLD'],
-    'file names': true,
     'files': {
       'columns': ['File', 'Mark', 'Quantity'],
       'rowsIds': [
@@ -266,3 +265,66 @@ Map<String, List<String?>> dropDownMenuLists = {
   ],
   'systemDesignations': []
 };
+
+final List<List<String>> filingTypes = [
+  [
+    'General Arrangement Drawing - .dwg',
+    'dwg',
+    'gaddwg',
+  ],
+  [
+    'General Arrangement Drawing - .pdf',
+    'pdf',
+    'gadpdf',
+  ],
+  [
+    'Assembly Drawings - .dwg',
+    'dwg',
+    'addwg',
+  ],
+  [
+    'Assembly Drawings - .pdf',
+    'pdf',
+    'adpdf',
+  ],
+  [
+    'Single Part Drawings - .dwg',
+    'dwg',
+    'spddwg',
+  ],
+  [
+    'Single Part Drawings - .pdf',
+    'pdf',
+    'spdpdf',
+  ],
+  [
+    'Weld Report - .csv',
+    'csv',
+    'weldReport',
+  ],
+  [
+    'MTO Report - .csv',
+    'csv',
+    'mtoReport',
+  ],
+  [
+    'Drawing List - .csv',
+    'csv',
+    'drawingList',
+  ],
+  [
+    'Weld Index - .pdf',
+    'pdf',
+    'weldIndex',
+  ],
+  [
+    '3D file export - .dwg',
+    'dwg',
+    'exptdwg',
+  ],
+  [
+    '3D file export - .ifc',
+    'ifc',
+    'exptifc',
+  ],
+];

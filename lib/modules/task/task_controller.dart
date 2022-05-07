@@ -180,17 +180,17 @@ class TaskController extends GetxService {
   List<Map<String, dynamic>?> get getDataForTableView {
     List<DrawingModel?> drawingDocuments = [];
 
-    if (homeController.homeStates != HomeStates.MyTasksState) {
-      drawingDocuments =
-          drawingController.loading.value ? [] : drawingController.documents;
-    } else {
+    if (homeController.homeState == HomeStates.MyTasksState) {
       drawingDocuments = drawingController.drawingModelsAssignedCU;
       if (staffController.isCoordinator && drawingDocuments.isNotEmpty) {
-        drawingDocuments = drawingDocuments.where((e) {
-          TaskModel? taskModel = getLastTaskByParentId(e!.id);
-          return checkIfTaskStatusAwaits(taskModel) ?? false;
-        }).toList();
+        drawingDocuments = drawingDocuments
+            .where((e) =>
+                checkIfTaskStatusAwaits(getLastTaskByParentId(e!.id)) ?? false)
+            .toList();
       }
+    } else {
+      drawingDocuments =
+          drawingController.loading.value ? [] : drawingController.documents;
     }
     late Map<String, dynamic> map;
     return drawingDocuments.isEmpty

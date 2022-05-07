@@ -51,11 +51,7 @@ class CacheManager extends GetxService {
     await box.write(CacheManagerKey.HOMESTATE.toString(), homeState.toString());
   }
 
-  String? getHomeState() {
-    box.read(CacheManagerKey.HOMESTATE.toString()).toString().p;
-
-    return box.read(CacheManagerKey.HOMESTATE.toString());
-  }
+  String? getHomeState() => box.read(CacheManagerKey.HOMESTATE.toString());
 }
 
 enum CacheManagerKey { EMAIL, PASSWORD, STAFF, ID, HOMESTATE }

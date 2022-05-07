@@ -36,7 +36,7 @@ class WorkerForm extends StatelessWidget {
                       onPressed: () => stageController.onFileButtonPressed(),
                       child: Center(
                         child: Text(
-                          'Files (${stageController.fileNames.length})',
+                          'Files (${stageController.files.length})',
                         ),
                       ),
                     ),

@@ -26,7 +26,7 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget _buildBody() {
-    switch (controller.homeStates) {
+    switch (controller.homeState) {
       case HomeStates.ActivityState:
         _controller = activityController;
         tableName = 'activity';
@@ -73,13 +73,13 @@ class HomeView extends GetView<HomeController> {
         if (isAddButtonVisibile)
           Row(
             children: [
-              if (homeController.homeStates != HomeStates.MyTasksState)
+              if (homeController.homeState != HomeStates.MyTasksState)
                 ElevatedButton(
                   onPressed: () => _buildAddDatabase(),
                   child: Text('Add ${_buildTitleOfPage(isForTitle: false)}'),
                 ),
               SizedBox(width: 10),
-              if (homeController.homeStates == HomeStates.TaskState)
+              if (homeController.homeState == HomeStates.TaskState)
                 AddTaskElButton()
             ],
           ),
@@ -99,7 +99,7 @@ class HomeView extends GetView<HomeController> {
 
   bool get isAddButtonVisibile {
     return staffController.isCoordinator ||
-        (controller.homeStates == HomeStates.IssueState &&
+        (controller.homeState == HomeStates.IssueState &&
             valueController.documents
                 .where((e) =>
                     e!.employeeId == staffController.currentUserId &&
@@ -120,7 +120,7 @@ class HomeView extends GetView<HomeController> {
             icon: Icon(Icons.list_alt),
             label: const Text('My Tasks'),
             onPressed: () {
-              controller.homeStates = HomeStates.MyTasksState;
+              controller.homeState = HomeStates.MyTasksState;
               cacheManager.saveHomeState(HomeStates.MyTasksState);
               Get.back();
             },
@@ -130,7 +130,7 @@ class HomeView extends GetView<HomeController> {
             icon: Icon(Icons.golf_course),
             label: const Text('Reference Documents'),
             onPressed: () {
-              controller.homeStates = HomeStates.ReferenceDocumentState;
+              controller.homeState = HomeStates.ReferenceDocumentState;
               cacheManager.saveHomeState(HomeStates.ReferenceDocumentState);
               Get.back();
             },
@@ -143,7 +143,7 @@ class HomeView extends GetView<HomeController> {
                   icon: Icon(Icons.local_activity),
                   label: const Text('Lists'),
                   onPressed: () {
-                    controller.homeStates = HomeStates.ListState;
+                    controller.homeState = HomeStates.ListState;
                     cacheManager.saveHomeState(HomeStates.ListState);
                     Get.back();
                   },
@@ -155,7 +155,7 @@ class HomeView extends GetView<HomeController> {
             icon: Icon(Icons.add),
             label: const Text('Activities'),
             onPressed: () {
-              controller.homeStates = HomeStates.ActivityState;
+              controller.homeState = HomeStates.ActivityState;
               cacheManager.saveHomeState(HomeStates.ActivityState);
               Get.back();
             },
@@ -168,7 +168,7 @@ class HomeView extends GetView<HomeController> {
                   icon: Icon(Icons.people),
                   label: const Text('Staff'),
                   onPressed: () {
-                    controller.homeStates = HomeStates.StaffState;
+                    controller.homeState = HomeStates.StaffState;
                     cacheManager.saveHomeState(HomeStates.StaffState);
                     Get.back();
                   },
@@ -180,7 +180,7 @@ class HomeView extends GetView<HomeController> {
             icon: Icon(Icons.task),
             label: const Text('Drawings'),
             onPressed: () {
-              controller.homeStates = HomeStates.TaskState;
+              controller.homeState = HomeStates.TaskState;
               cacheManager.saveHomeState(HomeStates.TaskState);
               Get.back();
             },
@@ -190,7 +190,7 @@ class HomeView extends GetView<HomeController> {
             icon: Icon(Icons.print),
             label: const Text('Issues'),
             onPressed: () {
-              controller.homeStates = HomeStates.IssueState;
+              controller.homeState = HomeStates.IssueState;
               cacheManager.saveHomeState(HomeStates.IssueState);
               Get.back();
             },
@@ -201,7 +201,7 @@ class HomeView extends GetView<HomeController> {
   }
 
   String _buildTitleOfPage({bool isForTitle = true}) {
-    switch (controller.homeStates) {
+    switch (controller.homeState) {
       case HomeStates.ActivityState:
         return isForTitle ? 'Activity Code' : 'activity code';
       case HomeStates.ReferenceDocumentState:
@@ -220,7 +220,7 @@ class HomeView extends GetView<HomeController> {
   }
 
   _buildAddDatabase() {
-    switch (controller.homeStates) {
+    switch (controller.homeState) {
       case HomeStates.ActivityState:
         return activityController.buildAddForm();
       case HomeStates.ReferenceDocumentState:

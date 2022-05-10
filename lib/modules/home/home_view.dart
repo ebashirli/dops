@@ -1,3 +1,4 @@
+import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/components/table_view_widget.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/list/lists_view.dart';
@@ -63,7 +64,7 @@ class HomeView extends GetView<HomeController> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      title: Text(_buildTitleOfPage()),
+      title: CustomText(_buildTitleOfPage()),
       actions: [
         if (isAddButtonVisibile)
           Row(
@@ -81,7 +82,7 @@ class HomeView extends GetView<HomeController> {
         SizedBox(width: 10),
         Center(
           child: staffController.currentStaff != null
-              ? Text(staffController.currentStaff!.initial)
+              ? CustomText(staffController.currentStaff!.initial)
               : CircularProgressIndicator(),
         ),
         IconButton(

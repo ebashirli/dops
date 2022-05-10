@@ -17,6 +17,7 @@ class DrawingFieldsWidget extends StatelessWidget {
     return drawingModel == null
         ? CircularProgressIndicator()
         : Column(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -91,7 +92,7 @@ class DrawingFieldsWidget extends StatelessWidget {
                     initialValue: drawingModel!.note,
                     enabled: enabled,
                     width: totalWidth * .333,
-                    maxLines: 5,
+                    maxLines: 3,
                     labelText: 'Note',
                   ),
                   Column(

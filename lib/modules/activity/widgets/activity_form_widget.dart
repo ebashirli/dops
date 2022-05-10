@@ -28,93 +28,103 @@ class ActivityFormWidget extends StatelessWidget {
           width: Get.width * 0.25,
           child: Column(
             children: [
-              SizedBox(height: 10),
               SizedBox(
-                height: Get.height * .2,
                 child: SingleChildScrollView(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          SizedBox(height: 10),
-                          CustomTextFormField(
-                            width: width,
-                            controller: activityController.activityIdController,
-                            labelText: tableColNames['activity']![1],
-                            sizeBoxHeight: sizeBoxHeight,
-                          ),
-                          CustomDropdownMenu(
-                            width: width,
-                            labelText: 'Module name',
-                            onChanged: (value) {
-                              activityController.moduleNameText = value ?? '';
-                            },
-                            selectedItems: [activityController.moduleNameText!],
-                            items: listsController.document.modules!,
-                            sizeBoxHeight: sizeBoxHeight,
-                          ),
-                          CustomDateTimeFormField(
-                            width: width,
-                            initialValue:
-                                activityController.startDateController.text,
-                            labelText: tableColNames['activity']![8],
-                            controller: activityController.startDateController,
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SizedBox(height: 10),
-                          CustomTextFormField(
-                            width: width,
-                            controller:
-                                activityController.activityNameController,
-                            labelText: tableColNames['activity']![2],
-                            sizeBoxHeight: sizeBoxHeight,
-                          ),
-                          SizedBox(
-                            width: width,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                CustomTextFormField(
-                                  width: 80,
-                                  isNumber: true,
-                                  controller:
-                                      activityController.coefficientController,
-                                  labelText: tableColNames['activity']![5],
-                                  sizeBoxHeight: sizeBoxHeight,
-                                ),
-                                CustomTextFormField(
-                                  width: 100,
-                                  isNumber: true,
-                                  controller: activityController
-                                      .budgetedLaborUnitsController,
-                                  labelText: tableColNames['activity']![7],
-                                  sizeBoxHeight: sizeBoxHeight,
-                                ),
-                              ],
+                      SizedBox(
+                        height: 140,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            CustomTextFormField(
+                              width: width,
+                              controller:
+                                  activityController.activityIdController,
+                              labelText: tableColNames['activity']![1],
+                              sizeBoxHeight: sizeBoxHeight,
                             ),
-                          ),
-                          CustomDateTimeFormField(
-                            width: width,
-                            initialValue:
-                                activityController.finishDateController.text,
-                            labelText: tableColNames['activity']![9],
-                            controller: activityController.finishDateController,
-                          ),
-                        ],
+                            CustomDropdownMenuWithModel<String>(
+                              width: width,
+                              labelText: 'Module name',
+                              itemAsString: (e) => e!,
+                              onChanged: (value) {
+                                activityController.moduleNameText =
+                                    value.toString();
+                              },
+                              selectedItems: [
+                                activityController.moduleNameText!
+                              ],
+                              items: listsController.document.modules!
+                                  .map((e) => e.toString())
+                                  .toList(),
+                            ),
+                            CustomDateTimeFormField(
+                              width: width,
+                              initialValue:
+                                  activityController.startDateController.text,
+                              labelText: tableColNames['activity']![8],
+                              controller:
+                                  activityController.startDateController,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 140,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CustomTextFormField(
+                              width: width,
+                              controller:
+                                  activityController.activityNameController,
+                              labelText: tableColNames['activity']![2],
+                              sizeBoxHeight: sizeBoxHeight,
+                            ),
+                            SizedBox(
+                              width: width,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  CustomTextFormField(
+                                    width: 80,
+                                    isNumber: true,
+                                    controller: activityController
+                                        .coefficientController,
+                                    labelText: tableColNames['activity']![5],
+                                  ),
+                                  CustomTextFormField(
+                                    width: 100,
+                                    isNumber: true,
+                                    controller: activityController
+                                        .budgetedLaborUnitsController,
+                                    labelText: tableColNames['activity']![7],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            CustomDateTimeFormField(
+                              width: width,
+                              initialValue:
+                                  activityController.finishDateController.text,
+                              labelText: tableColNames['activity']![9],
+                              controller:
+                                  activityController.finishDateController,
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
+              SizedBox(height: 10),
               Container(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

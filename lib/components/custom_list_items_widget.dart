@@ -1,3 +1,4 @@
+import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/list/lists_model.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,7 @@ class CustomListItems extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  CustomText(
                     lstName!,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -43,7 +44,7 @@ class CustomListItems extends StatelessWidget {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.black26),
                     ),
-                    child: Text(
+                    child: CustomText(
                       lst![0] == 'No Data' ? '0' : lst!.length.toString(),
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
@@ -55,7 +56,7 @@ class CustomListItems extends StatelessWidget {
             lst![0] == 'No Data'
                 ? Expanded(
                     child: Center(
-                      child: const Text(
+                      child: const CustomText(
                         'No Data',
                         style: TextStyle(
                           color: Colors.red,
@@ -82,7 +83,7 @@ class CustomListItems extends StatelessWidget {
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.only(left: 8.0),
-                                  child: Text('${lst![index]}'),
+                                  child: CustomText('${lst![index]}'),
                                 ),
                                 SizedBox(
                                     height: 20,

@@ -67,3 +67,24 @@ dowloadFile({
 
   return html.window.location.href = url;
 }
+
+Future<http.Response> sendEmail({
+  required String drawingNo,
+  required String filingId,
+  required List<String?> nestingIds,
+  required String email,
+  String? note,
+}) async {
+  final String url = baseUrl + 'sendemail';
+  final Uri uri = Uri.parse(url);
+  return await http.post(
+    uri,
+    body: jsonEncode({
+      'drawingNo': drawingNo,
+      'filingId': filingId,
+      'nestingIds': nestingIds,
+      'email': email,
+      'note': note,
+    }),
+  );
+}

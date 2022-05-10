@@ -12,7 +12,6 @@ class RefDocAddUpdateFormWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double width = Get.width * .4 * .3;
-    final double sizeBoxHeight = Get.width * .01;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(
@@ -28,152 +27,155 @@ class RefDocAddUpdateFormWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 10),
-              SizedBox(
-                height: Get.height * .225,
-                child: SingleChildScrollView(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          SizedBox(height: 10),
-                          CustomDropdownMenu(
-                            width: width,
-                            sizeBoxHeight: sizeBoxHeight,
-                            labelText: 'Project',
-                            selectedItems: [refDocController.projectText],
-                            onChanged: (value) {
-                              refDocController.projectText = value ?? '';
-                            },
-                            items: listsController.document.projects!,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  SizedBox(
+                    height: 140,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        CustomDropdownMenuWithModel<String>(
+                          width: width,
+                          labelText: 'Project',
+                          selectedItems: [refDocController.projectText],
+                          onChanged: (value) {
+                            refDocController.projectText = value.toString();
+                          },
+                          itemAsString: (e) => e!,
+                          items: listsController.document.projects!
+                              .map((e) => e.toString())
+                              .toList(),
+                        ),
+                        CustomDropdownMenuWithModel<String>(
+                          width: width,
+                          labelText: 'Module name',
+                          selectedItems: [refDocController.moduleNameText],
+                          onChanged: (value) {
+                            refDocController.moduleNameText = value.toString();
+                          },
+                          itemAsString: (e) => e!,
+                          items: listsController.document.modules!
+                              .map((e) => e.toString())
+                              .toList(),
+                        ),
+                        CustomDropdownMenuWithModel<String>(
+                          width: width,
+                          itemAsString: (e) => e!,
+                          labelText: 'Reference Type',
+                          selectedItems: [refDocController.referenceTypeText],
+                          onChanged: (value) {
+                            refDocController.referenceTypeText =
+                                value.toString();
+                          },
+                          items: listsController.document.referenceTypes!
+                              .map((e) => e.toString())
+                              .toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 140,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        SizedBox(
+                          width: width * 2,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CustomTextFormField(
+                                width: width * 1.4,
+                                controller:
+                                    refDocController.documentNumberController,
+                                labelText: 'Document number',
+                              ),
+                              CustomTextFormField(
+                                width: width * .55,
+                                controller: refDocController
+                                    .transmittalNumberController,
+                                labelText: 'Transmittal number',
+                              ),
+                            ],
                           ),
-                          CustomDropdownMenu(
-                            width: width,
-                            sizeBoxHeight: sizeBoxHeight,
-                            labelText: 'Module name',
-                            selectedItems: [refDocController.moduleNameText],
-                            onChanged: (value) {
-                              refDocController.moduleNameText = value ?? '';
-                            },
-                            items: listsController.document.modules!,
-                          ),
-                          CustomDropdownMenu(
-                            width: width,
-                            sizeBoxHeight: sizeBoxHeight,
-                            labelText: 'Reference Type',
-                            selectedItems: [refDocController.referenceTypeText],
-                            onChanged: (value) {
-                              refDocController.referenceTypeText = value ?? '';
-                            },
-                            items: listsController.document.referenceTypes!,
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          SizedBox(height: 10),
-                          SizedBox(
-                            width: width * 2,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                CustomTextFormField(
-                                  width: width * 1.4,
-                                  sizeBoxHeight: sizeBoxHeight,
-                                  controller:
-                                      refDocController.documentNumberController,
-                                  labelText: 'Document number',
-                                ),
-                                CustomTextFormField(
-                                  width: width * .55,
-                                  sizeBoxHeight: sizeBoxHeight,
-                                  controller: refDocController
-                                      .transmittalNumberController,
-                                  labelText: 'Transmittal number',
-                                ),
-                              ],
-                            ),
-                          ),
-                          CustomTextFormField(
-                            width: width * 2,
-                            sizeBoxHeight: sizeBoxHeight,
-                            controller: refDocController.titleController,
-                            labelText: 'Title',
-                          ),
-                          SizedBox(
-                            width: width * 2,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                CustomDateTimeFormField(
-                                  width: width * .715,
-                                  labelText: 'Received date',
-                                  initialValue: refDocController
-                                      .receiveDateController.text,
-                                  controller:
-                                      refDocController.receiveDateController,
-                                ),
-                                SizedBox(
-                                  width: width * 1.28,
-                                  child: Obx(
-                                    () => Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () => refDocController
-                                              .handleChangedRadio(false),
-                                          child: Row(
-                                            children: [
-                                              Radio<bool>(
-                                                value: false,
-                                                groupValue: refDocController
-                                                    .actionRequiredOrNext.value,
-                                                onChanged: (bool? value) {
-                                                  refDocController
-                                                      .actionRequiredOrNext
-                                                      .value = value!;
-                                                },
-                                              ),
-                                              const Text('Action Required'),
-                                            ],
-                                          ),
+                        ),
+                        CustomTextFormField(
+                          width: width * 2,
+                          controller: refDocController.titleController,
+                          labelText: 'Title',
+                        ),
+                        SizedBox(
+                          width: width * 2,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CustomDateTimeFormField(
+                                width: width * .715,
+                                labelText: 'Received date',
+                                initialValue:
+                                    refDocController.receiveDateController.text,
+                                controller:
+                                    refDocController.receiveDateController,
+                              ),
+                              SizedBox(
+                                width: width * 1.28,
+                                child: Obx(
+                                  () => Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () => refDocController
+                                            .handleChangedRadio(false),
+                                        child: Row(
+                                          children: [
+                                            Radio<bool>(
+                                              value: false,
+                                              groupValue: refDocController
+                                                  .actionRequiredOrNext.value,
+                                              onChanged: (bool? value) {
+                                                refDocController
+                                                    .actionRequiredOrNext
+                                                    .value = value!;
+                                              },
+                                            ),
+                                            const CustomText('Action Required'),
+                                          ],
                                         ),
-                                        GestureDetector(
-                                          onTap: () => refDocController
-                                              .handleChangedRadio(true),
-                                          child: Row(
-                                            children: [
-                                              Radio<bool>(
-                                                value: true,
-                                                groupValue: refDocController
-                                                    .actionRequiredOrNext.value,
-                                                onChanged: refDocController
-                                                    .handleChangedRadio,
-                                              ),
-                                              const Text('Next')
-                                            ],
-                                          ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () => refDocController
+                                            .handleChangedRadio(true),
+                                        child: Row(
+                                          children: [
+                                            Radio<bool>(
+                                              value: true,
+                                              groupValue: refDocController
+                                                  .actionRequiredOrNext.value,
+                                              onChanged: refDocController
+                                                  .handleChangedRadio,
+                                            ),
+                                            const CustomText('Next')
+                                          ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
               ),
+              SizedBox(height: 10),
               Container(
                 child: Row(
                   children: <Widget>[
@@ -193,8 +195,9 @@ class RefDocAddUpdateFormWidget extends StatelessWidget {
                       ),
                     const Spacer(),
                     ElevatedButton(
-                        onPressed: () => Get.back(),
-                        child: const Text('Cancel')),
+                      onPressed: () => Get.back(),
+                      child: const Text('Cancel'),
+                    ),
                     SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: () {
@@ -216,11 +219,11 @@ class RefDocAddUpdateFormWidget extends StatelessWidget {
                         id == null
                             ? refDocController.saveDocument(model: model)
                             : refDocController.updateDocument(
-                                model: model, id: id!);
+                                model: model,
+                                id: id!,
+                              );
                       },
-                      child: Text(
-                        id != null ? 'Update' : 'Add',
-                      ),
+                      child: Text(id != null ? 'Update' : 'Add'),
                     ),
                   ],
                 ),

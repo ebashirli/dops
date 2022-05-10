@@ -27,7 +27,7 @@ class CustomDropdownMenuWithModel<T> extends StatelessWidget {
     this.showClearButton = false,
     this.clearButtonBuilder,
     this.width = 350,
-    this.height = 50,
+    this.height = 30,
     this.enabled = true,
   }) : super(key: key);
 
@@ -38,14 +38,17 @@ class CustomDropdownMenuWithModel<T> extends StatelessWidget {
       height: height,
       child: !isMultiSelectable
           ? DropdownSearch<T>(
+              dropdownButtonSplashRadius: 10,
               enabled: enabled,
               selectedItem: selectedItems.isNotEmpty ? selectedItems[0] : null,
               items: items,
               itemAsString: itemAsString,
               mode: Mode.MENU,
               dropdownSearchDecoration: InputDecoration(
+                hoverColor: Colors.transparent,
+                isDense: true,
                 labelText: labelText,
-                contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
+                contentPadding: EdgeInsets.fromLTRB(10, 2, 10, 2),
                 border: OutlineInputBorder(),
               ),
               showSearchBox: true,
@@ -56,14 +59,17 @@ class CustomDropdownMenuWithModel<T> extends StatelessWidget {
               showClearButton: showClearButton,
             )
           : DropdownSearch<T?>.multiSelection(
+              dropdownButtonSplashRadius: 10,
               enabled: enabled,
               selectedItems: selectedItems,
               items: items,
               itemAsString: itemAsString,
               mode: Mode.MENU,
               dropdownSearchDecoration: InputDecoration(
+                hoverColor: Colors.transparent,
+                isDense: true,
                 labelText: labelText,
-                contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
+                contentPadding: EdgeInsets.fromLTRB(10, 2, 10, 2),
                 border: OutlineInputBorder(),
               ),
               showSearchBox: true,

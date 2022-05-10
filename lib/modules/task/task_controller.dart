@@ -191,13 +191,19 @@ class TaskController extends GetxService {
 
     if (homeController.homeState == HomeStates.MyTasksState) {
       drawingDocuments = drawingController.drawingModelsAssignedCU;
-      if (staffController.isCoordinator)
-        drawingDocuments += drawingController.drawingModelsNotAssignedYet;
+      if (staffController.isCoordinator) {
+        drawingDocuments = [
+          ...drawingDocuments,
+          ...drawingController.drawingModelsNotAssignedYet
+        ].toSet().toList();
+      }
     } else {
       drawingDocuments =
           drawingController.loading.value ? [] : drawingController.documents;
     }
+
     late Map<String, dynamic> map;
+
     return drawingDocuments.isEmpty
         ? []
         : drawingDocuments.map(

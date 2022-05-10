@@ -1,3 +1,4 @@
+import 'package:dops/components/custom_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,11 +12,11 @@ class CustomSnackBar {
     Get.snackbar(title, message,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: backgroundColor,
-        titleText: Text(
+        titleText: CustomText(
           title,
           style: TextStyle(fontSize: 16),
         ),
-        messageText: Text(
+        messageText: CustomText(
           message,
           style: TextStyle(fontSize: 16),
         ),

@@ -1,3 +1,4 @@
+import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/stages/widgets/value_table_view_widget.dart';
 import 'package:flutter/material.dart';
@@ -53,7 +54,7 @@ class PastCycleContent extends StatelessWidget {
                   .toList()[ind];
               return Column(
                 children: [
-                  Text(
+                  CustomText(
                       '${list.index + 1} - ${list.checkerCommentCounter} - ${list.reviewerCommentCounter}'),
                   ValueTableView(
                     index: index,

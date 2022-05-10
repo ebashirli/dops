@@ -57,10 +57,10 @@ class PasswordChangingForm extends StatelessWidget {
             height: 45,
             width: Get.width * 0.1,
             child: ElevatedButton(
-                onPressed: () async {
-                  cacheManager.saveEmail(emailController.text);
-                },
-                child: const Text('Submit')),
+              onPressed: () async =>
+                  cacheManager.saveEmail(emailController.text),
+              child: const Text('Submit'),
+            ),
           )
         ],
       ),

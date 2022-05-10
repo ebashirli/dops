@@ -1,3 +1,4 @@
+import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/stages/widgets/expantion_panel_item_model.dart';
 import 'package:dops/modules/stages/widgets/text_button_for_past_cycles.dart';
@@ -23,14 +24,14 @@ class ExpansionPanelBody extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             SizedBox(width: 10),
-                            Text(
+                            CustomText(
                               "Coordinator note: ",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
                               ),
                             ),
-                            Text(coordinatorNote),
+                            CustomText(coordinatorNote),
                           ],
                         ),
               if ([3, 4, 5, 6].contains(item.index))

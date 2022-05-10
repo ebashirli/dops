@@ -1,4 +1,5 @@
 // import 'package:dops/components/custom_widgets.dart';
+import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/stages/widgets/custom_expansion_panel_list.dart';
 import 'package:dops/modules/stages/widgets/fields_panel/fields_panel_widget.dart';
@@ -12,13 +13,13 @@ class StageView extends StatelessWidget {
         appBar: stageViewAppBar(),
         // floatingActionButton: CustomExpendableFab(),
         body: Padding(
-          padding: const EdgeInsets.fromLTRB(50, 20, 50, 20),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                FieldsPanelWidget(),
-                SizedBox(height: 10),
-                Center(
+          padding: const EdgeInsets.fromLTRB(50, 10, 50, 20),
+          child: Column(
+            children: [
+              FieldsPanelWidget(),
+              SizedBox(
+                height: Get.height * .54,
+                child: Center(
                   child: Obx(() {
                     return stageController.loading.value ||
                             stageController.documents.isEmpty
@@ -28,8 +29,8 @@ class StageView extends StatelessWidget {
                           );
                   }),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );
@@ -41,7 +42,7 @@ class StageView extends StatelessWidget {
         icon: Icon(Icons.home),
       ),
       actions: [
-        Center(child: Text(cacheManager.getStaff()!.initial)),
+        Center(child: CustomText(cacheManager.getStaff()!.initial)),
         IconButton(
           onPressed: () {
             authManager.signOut();

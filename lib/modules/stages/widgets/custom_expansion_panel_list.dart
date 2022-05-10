@@ -1,3 +1,4 @@
+import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/modules/stages/widgets/expantion_panel_item_model.dart';
 import 'package:dops/modules/stages/widgets/expansion_panel_body.dart';
 import 'package:flutter/material.dart';
@@ -14,14 +15,13 @@ class CustomExpansionPanelList extends StatefulWidget {
 class _CustomExpansionPanelListState extends State<CustomExpansionPanelList> {
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return SingleChildScrollView(
+        child: Column(
       children: [
-        SingleChildScrollView(
-          child: Container(child: _buildPanel()),
-        ),
-        SizedBox(height: 200),
+        Container(child: _buildPanel()),
+        SizedBox(height: 500),
       ],
-    );
+    ));
   }
 
   Widget _buildPanel() {
@@ -35,9 +35,7 @@ class _CustomExpansionPanelListState extends State<CustomExpansionPanelList> {
         return ExpansionPanel(
           canTapOnHeader: true,
           headerBuilder: (BuildContext context, bool isExpanded) {
-            return ListTile(
-              title: Center(child: Text(item.headerValue)),
-            );
+            return ListTile(title: Center(child: CustomText(item.headerValue)));
           },
           body: ExpansionPanelBody(item: item),
           isExpanded: item.isExpanded,

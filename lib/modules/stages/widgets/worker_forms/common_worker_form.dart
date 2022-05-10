@@ -33,15 +33,12 @@ class CommonWorkerForm extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () => stageController.onFileButtonPressed(),
                     child: Center(
-                      child: Text(
-                        'Files (${stageController.files.length})',
-                      ),
-                    ),
+                        child: Text('Files (${stageController.files.length})')),
                   ),
                 if (stageDetailsList[index]['comment'] != null)
-                  CustomDropdownMenu(
-                    bottomPadding: 0,
-                    sizeBoxHeight: 0,
+                  CustomDropdownMenuWithModel<String>(
+                    labelText: 'Comment',
+                    itemAsString: (e) => e!,
                     width: 140,
                     onChanged: (value) =>
                         stageController.commentStatus.value = (value == 'With'),

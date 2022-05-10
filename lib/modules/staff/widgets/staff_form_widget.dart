@@ -12,7 +12,6 @@ class StaffFormWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double width = Get.width * .4 * .3;
-    final double sizeBoxHeight = Get.width * .01;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(
@@ -27,41 +26,37 @@ class StaffFormWidget extends StatelessWidget {
           width: Get.width * .4,
           child: Column(
             children: [
-              SizedBox(
-                height: Get.height * .425,
-                child: SingleChildScrollView(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
+              SingleChildScrollView(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    SizedBox(
+                      height: 200,
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          SizedBox(height: 10),
                           CustomTextFormField(
                             width: width,
                             controller: staffController.nameController,
                             labelText: 'Name',
-                            sizeBoxHeight: sizeBoxHeight,
                           ),
                           CustomTextFormField(
                             width: width,
                             controller: staffController.surnameController,
                             labelText: 'Surname',
-                            sizeBoxHeight: sizeBoxHeight,
                           ),
                           CustomTextFormField(
                             width: width,
                             controller: staffController.patronymicController,
                             labelText: 'Patronymic',
-                            sizeBoxHeight: sizeBoxHeight,
                           ),
                           CustomTextFormField(
                             width: width,
                             controller: staffController.initialController,
                             labelText: 'Initial',
-                            sizeBoxHeight: sizeBoxHeight,
                           ),
                           CustomDateTimeFormField(
                             width: width,
@@ -72,48 +67,52 @@ class StaffFormWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      Column(
+                    ),
+                    SizedBox(
+                      height: 240,
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
-                          SizedBox(height: 10),
-                          CustomDropdownMenu(
+                          CustomDropdownMenuWithModel<String>(
+                            itemAsString: (e) => e!,
                             width: width,
                             labelText: 'Company',
                             selectedItems: [staffController.companyText],
                             onChanged: (value) =>
-                                staffController.companyText = value ?? '',
-                            items: listsController.document.companies!,
-                            sizeBoxHeight: sizeBoxHeight,
+                                staffController.companyText = value.first!,
+                            items: listsController.document.companies!
+                                .map((e) => e.toString())
+                                .toList(),
                           ),
                           CustomTextFormField(
                             width: width,
                             controller: staffController.badgeNoController,
                             labelText: 'Badge No',
-                            sizeBoxHeight: sizeBoxHeight,
                           ),
-                          CustomDropdownMenu(
+                          CustomDropdownMenuWithModel<String>(
                             width: width,
                             labelText: 'System Designation',
+                            itemAsString: (e) => e!,
                             selectedItems: [
                               staffController.systemDesignationText
                             ],
-                            onChanged: (value) {
-                              staffController.systemDesignationText =
-                                  value ?? '';
-                            },
-                            items: listsController.document.systemDesignations!,
-                            sizeBoxHeight: sizeBoxHeight,
+                            onChanged: (value) => staffController
+                                .systemDesignationText = value.first.toString(),
+                            items: listsController.document.systemDesignations!
+                                .map((e) => e.toString())
+                                .toList(),
                           ),
-                          CustomDropdownMenu(
+                          CustomDropdownMenuWithModel<String>(
+                            itemAsString: (e) => e!,
                             width: width,
                             labelText: 'Job Title',
                             selectedItems: [staffController.jobTitleText],
-                            onChanged: (value) {
-                              staffController.jobTitleText = value ?? '';
-                            },
-                            items: listsController.document.jobTitles!,
-                            sizeBoxHeight: sizeBoxHeight,
+                            onChanged: (value) =>
+                                staffController.jobTitleText = value.first!,
+                            items: listsController.document.jobTitles!
+                                .map((e) => e.toString())
+                                .toList(),
                           ),
                           CustomDateTimeFormField(
                             width: width,
@@ -132,11 +131,13 @@ class StaffFormWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      Column(
+                    ),
+                    SizedBox(
+                      height: 400,
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          SizedBox(height: 10),
                           CustomTextFormField(
                             width: width,
                             controller: staffController.emailController,
@@ -145,14 +146,12 @@ class StaffFormWidget extends StatelessWidget {
                                 EmailValidator.validate(value!)
                                     ? null
                                     : "Please enter a valid email",
-                            sizeBoxHeight: sizeBoxHeight,
                           ),
                           CustomTextFormField(
                             width: width,
                             controller: staffController.contactController,
                             labelText: 'Contact',
                             validator: staffController.validateMobile,
-                            sizeBoxHeight: sizeBoxHeight,
                           ),
                           CustomTextFormField(
                             width: width,
@@ -160,42 +159,39 @@ class StaffFormWidget extends StatelessWidget {
                                 staffController.emergencyContactController,
                             labelText: 'Emergency Contact',
                             validator: staffController.validateMobile,
-                            sizeBoxHeight: sizeBoxHeight,
                           ),
                           CustomTextFormField(
                             width: width,
                             controller:
                                 staffController.emergencyContactNameController,
                             labelText: 'Emergency Contact Name',
-                            sizeBoxHeight: sizeBoxHeight,
                           ),
                           CustomTextFormField(
                             width: width,
                             controller: staffController.homeAddressController,
                             labelText: 'Home Address',
-                            sizeBoxHeight: sizeBoxHeight,
                           ),
-                          CustomDropdownMenu(
+                          CustomDropdownMenuWithModel<String>(
+                            itemAsString: (e) => e!,
                             width: width,
                             labelText: 'Current place',
                             selectedItems: [staffController.currentPlaceText],
-                            onChanged: (value) {
-                              staffController.currentPlaceText = value ?? '';
-                            },
-                            items: listsController.document.employeePlaces!,
-                            sizeBoxHeight: sizeBoxHeight,
+                            onChanged: (value) =>
+                                staffController.currentPlaceText = value.first!,
+                            items: listsController.document.employeePlaces!
+                                .map((e) => e.toString())
+                                .toList(),
                           ),
                           CustomTextFormField(
                             width: width,
                             maxLines: 3,
                             controller: staffController.noteController,
                             labelText: 'Note',
-                            sizeBoxHeight: sizeBoxHeight,
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(height: 10),
@@ -217,10 +213,14 @@ class StaffFormWidget extends StatelessWidget {
                     ),
                   const Spacer(),
                   ElevatedButton(
-                      onPressed: () => Get.back(), child: const Text('Cancel')),
+                    onPressed: () => Get.back(),
+                    child: const Text('Cancel'),
+                  ),
                   SizedBox(width: 10),
                   ElevatedButton(
                     onPressed: () {
+                      print(staffController.contractFinishDateController.text
+                          .toString());
                       StaffModel model = StaffModel(
                         badgeNo: staffController.badgeNoController.text,
                         name: staffController.nameController.text,
@@ -239,8 +239,12 @@ class StaffFormWidget extends StatelessWidget {
                         startDate: DateTime.parse(
                             staffController.startDateConroller.text),
                         currentPlace: staffController.currentPlaceText,
-                        contractFinishDate: DateTime.parse(
-                            staffController.contractFinishDateController.text),
+                        contractFinishDate:
+                            staffController.contractFinishDateController.text ==
+                                    ''
+                                ? null
+                                : DateTime.parse(staffController
+                                    .contractFinishDateController.text),
                         contact: staffController.contactController.text,
                         emergencyContact:
                             staffController.emergencyContactController.text,
@@ -255,9 +259,7 @@ class StaffFormWidget extends StatelessWidget {
                               id: id!,
                             );
                     },
-                    child: Text(
-                      id != null ? 'Update' : 'Add',
-                    ),
+                    child: Text(id != null ? 'Update' : 'Add'),
                   ),
                 ],
               )

@@ -46,6 +46,8 @@ class CustomDateTimeFormField extends StatelessWidget {
             keyboardType: TextInputType.phone,
             autovalidateMode: AutovalidateMode.always,
             decoration: InputDecoration(
+              contentPadding: EdgeInsets.all(10),
+              isDense: true,
               hintText: 'yyyy-mm-dd',
               hintStyle: const TextStyle(color: Colors.black45),
               errorStyle: const TextStyle(color: Colors.redAccent),
@@ -68,7 +70,6 @@ class CustomDateTimeFormField extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(height: 10),
       ],
     );
   }

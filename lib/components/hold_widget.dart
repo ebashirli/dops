@@ -18,7 +18,7 @@ class HoldWidget extends StatelessWidget {
         children: [
           Column(
             children: [
-              Text(
+              CustomText(
                 isContainsHold
                     ? valueController.containsHold.value
                         ? 'No Hold'

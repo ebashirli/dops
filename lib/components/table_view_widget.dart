@@ -136,7 +136,7 @@ class TableView extends StatelessWidget {
             return GridColumn(
               columnName: ReCase(colName).camelCase,
               width: 0,
-              label: Text(
+              label: CustomText(
                 colName,
               ),
             );
@@ -150,7 +150,7 @@ class TableView extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(
+                    child: CustomText(
                       colName,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -245,7 +245,7 @@ class DataSource extends DataGridSource {
                                     .length
                                     .toString()),
                               )
-                        : Text(
+                        : CustomText(
                             cell.value is DateTime
                                 ? dateTimeCellValue!.toDMYhm()
                                 : cell.value.toString(),
@@ -253,7 +253,7 @@ class DataSource extends DataGridSource {
               ),
             );
           } else {
-            return Text('');
+            return CustomText('');
           }
         },
       ).toList(),
@@ -272,7 +272,7 @@ class DataSource extends DataGridSource {
               String taskId = taskNoId.split(';')[1];
               return TextButton(
                 onPressed: () => onPressed(taskId),
-                child: Text(taskController.taskNumber(taskNoId, taskId)),
+                child: CustomText(taskController.taskNumber(taskNoId, taskId)),
               );
             },
           ).toList(),

@@ -63,10 +63,9 @@ class ListsFormWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               ElevatedButton(
-                  onPressed: () {
-                    Get.back();
-                  },
-                  child: const Text('Cancel')),
+                onPressed: () => Get.back(),
+                child: const Text('Cancel'),
+              ),
               SizedBox(width: 10),
               Obx(() {
                 return ElevatedButton(

@@ -1,3 +1,4 @@
+import 'package:dops/components/custom_widgets.dart';
 import 'package:flutter/material.dart';
 
 class UnknownRoutePage extends StatelessWidget {
@@ -10,11 +11,11 @@ class UnknownRoutePage extends StatelessWidget {
           child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          const CustomText(
             '404',
             style: TextStyle(fontSize: 34),
           ),
-          const Text('Page not found')
+          const CustomText('Page not found')
         ],
       )),
     );

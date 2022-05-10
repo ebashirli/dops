@@ -1,3 +1,4 @@
+import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/modules/list/widgets/lists_form_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:recase/recase.dart';
@@ -80,7 +81,7 @@ class ListsController extends GetxService {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(
+              CustomText(
                 element.keys.first.toString(),
                 style: TextStyle(
                     color: Colors.black,
@@ -88,7 +89,7 @@ class ListsController extends GetxService {
                     fontWeight: FontWeight.w600),
               ),
               SizedBox(height: 4),
-              Text(element.values.first.toString(),
+              CustomText(element.values.first.toString(),
                   style: TextStyle(color: Colors.black, fontSize: 14)),
             ],
           ),

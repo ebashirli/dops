@@ -115,7 +115,7 @@ class ValueTableView extends StatelessWidget {
             return GridColumn(
               columnName: columnName,
               width: 0,
-              label: Text(
+              label: CustomText(
                 columnName,
               ),
             );
@@ -130,7 +130,7 @@ class ValueTableView extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(
+                    child: CustomText(
                       columnName == 'Employee Id'
                           ? 'Employee'
                           : columnName == 'File Names'
@@ -213,7 +213,7 @@ class DataSource extends DataGridSource {
         : Container(
             padding: const EdgeInsets.all(15.0),
             child: Center(
-                child: Text(
+                child: CustomText(
               summaryValue,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
@@ -269,7 +269,7 @@ class DataSource extends DataGridSource {
               alignment: Alignment.center,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text(cellValue.toString()),
+                child: CustomText(cellValue.toString()),
               ),
             );
           }

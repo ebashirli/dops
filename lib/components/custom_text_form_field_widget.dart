@@ -75,6 +75,7 @@ class CustomTextFormField extends StatelessWidget {
                       ),
                     ],
                     decoration: InputDecoration(
+                      isDense: true,
                       labelText: labelText,
                       contentPadding: EdgeInsets.all(contentPadding!),
                       icon: icon,
@@ -96,11 +97,11 @@ class CustomTextFormField extends StatelessWidget {
                     readOnly: readOnly,
                     maxLines: maxLines,
                     decoration: InputDecoration(
+                      isDense: true,
                       contentPadding: EdgeInsets.all(contentPadding!),
                       labelText: labelText,
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                          borderRadius: BorderRadius.circular(4)),
                     ),
                     controller: controller,
                     validator: validator,

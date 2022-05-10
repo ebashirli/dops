@@ -1,3 +1,4 @@
+import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/style.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
@@ -18,8 +19,8 @@ class FieldsPanelWidget extends StatelessWidget {
             ? CircularProgressIndicator()
             : (stageController.currentTask == null ||
                     stageController.currentDrawing == null)
-                ? Text('Task not found!')
-                : _buildEditFormWidget(
+                ? CustomText('Task not found!')
+                : _buildFieldPanelsWidget(
                     taskModel: stageController.currentTask!,
                     drawingModel: stageController.currentDrawing!,
                   );
@@ -27,38 +28,48 @@ class FieldsPanelWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildEditFormWidget({
+  Widget _buildFieldPanelsWidget({
     required TaskModel taskModel,
     required DrawingModel drawingModel,
   }) {
     final String fullTaskNumber =
         '${drawingModel.drawingNumber}-${taskModel.revisionMark}';
-    return Container(
-      height: Get.height * .47,
+    return SizedBox(
+      height: Get.height * .37,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
+          CustomText(
             'Drawing details of ${drawingModel.drawingNumber}',
             style: kBold18,
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 10),
           DrawingFieldsWidget(drawingModel: drawingModel),
-          Text(
-            'Task details of $fullTaskNumber',
-            style: kBold18,
+          Divider(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CustomText(
+                'Task details of $fullTaskNumber',
+                style: kBold18,
+              ),
+              TextButton(
+                onPressed: () {},
+                child: Text('Other revisions'),
+              ),
+            ],
           ),
+          SizedBox(height: 16),
+          TaskFieldsWidget(taskModel: taskModel),
+          Divider(),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: stageIndicators(),
           ),
-          SizedBox(height: 20),
-          TaskFieldsWidget(taskModel: taskModel),
-          SizedBox(height: 10),
-          Text('Stages of $fullTaskNumber', style: kBold18),
-          SizedBox(height: 10),
+          Divider(),
+          CustomText('Stages of $fullTaskNumber', style: kBold18),
         ],
       ),
     );
@@ -67,21 +78,23 @@ class FieldsPanelWidget extends StatelessWidget {
   List<Widget> stageIndicators() {
     return List.generate(
       10,
-      (index) => Row(
-        children: [
-          Container(
-            height: 20,
-            width: (Get.width - 280) / 10,
-            color: index < stageController.maxIndex
-                ? index == stageController.indexOfLast
-                    ? Colors.green
-                    : Colors.yellow
-                : Colors.grey,
-            child: Center(child: Text('${index + 1}')),
-          ),
-          Container(width: 2),
-        ],
-      ),
+      (index) {
+        return Row(
+          children: [
+            Container(
+              height: 20,
+              width: (Get.width - 280) / 10,
+              color: index < stageController.maxIndex
+                  ? index == stageController.indexOfLast
+                      ? Colors.green
+                      : Colors.yellow
+                  : Colors.grey,
+              child: Center(child: CustomText('${index + 1}')),
+            ),
+            Container(width: 2),
+          ],
+        );
+      },
     );
   }
 }

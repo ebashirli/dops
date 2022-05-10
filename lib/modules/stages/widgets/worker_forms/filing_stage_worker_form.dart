@@ -39,7 +39,7 @@ class FilingStageWorkerForm extends StatelessWidget {
                           children: [
                             SizedBox(
                               width: 250,
-                              child: Text(
+                              child: CustomText(
                                   '${stageController.filingFiles[ind].name}'),
                             ),
                             SizedBox(width: 20),
@@ -61,10 +61,8 @@ class FilingStageWorkerForm extends StatelessWidget {
                                                 .files
                                                 .value = result.files.toList();
                                           }),
-                                  child: Center(
-                                    child: Text(
-                                        'Files (${stageController.filingFiles[ind].files.length})'),
-                                  ),
+                                  child: Text(
+                                      'Files (${stageController.filingFiles[ind].files.length})'),
                                 ),
                               ),
                             SizedBox(width: 20),
@@ -142,7 +140,7 @@ class FilingStageWorkerForm extends StatelessWidget {
                                 Column(
                                   children: [
                                     SizedBox(height: 6),
-                                    Text(
+                                    CustomText(
                                       'By clicking this checkbox I confirm that all files\nare attached correctly and below appropriate task',
                                     ),
                                   ],
@@ -156,14 +154,12 @@ class FilingStageWorkerForm extends StatelessWidget {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Obx(() {
-                                  return ElevatedButton(
-                                    onPressed: !isChecked.value
-                                        ? null
-                                        : stageController.onSubmitPressed,
-                                    child: Text('Submit'),
-                                  );
-                                }),
+                                Obx(() => ElevatedButton(
+                                      onPressed: !isChecked.value
+                                          ? null
+                                          : stageController.onSubmitPressed,
+                                      child: Text('Submit'),
+                                    )),
                                 SizedBox(width: 100),
                               ],
                             ),

@@ -1,6 +1,5 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
-import 'package:dops/constants/style.dart';
 import 'package:dops/modules/activity/activity_model.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:flutter/material.dart';
@@ -29,179 +28,171 @@ class DrawingFormWidget extends StatelessWidget {
           topRight: Radius.circular(8),
           topLeft: Radius.circular(8),
         ),
-        color: light,
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: drawingController.drawingFormKey,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          child: SizedBox(
-            width: dialogWidth,
-            child: Column(
-              children: [
-                SizedBox(
-                  height: 320,
-                  child: SizedBox(
-                    height: 320,
-                    child: Column(
+      child: Form(
+        key: drawingController.drawingFormKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        child: SizedBox(
+          width: dialogWidth,
+          child: Column(
+            children: [
+              SizedBox(
+                height: 160,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            CustomDropdownMenuWithModel<ActivityModel?>(
-                              width: dialogWidth * .185,
-                              items: activityController.documents,
-                              labelText: 'Activity code',
-                              showSearchBox: true,
-                              selectedItems: [activitiCodeSelectedItem],
-                              onChanged: onActivityCodeChanged,
-                              itemAsString: (ActivityModel? activityModel) =>
-                                  activityModel!.activityId!,
-                            ),
-                            CustomTextFormField(
-                              width: dialogWidth * .305,
-                              controller:
-                                  drawingController.drawingNumberController,
-                              labelText: 'Drawing Number',
-                            ),
-                            Obx(() {
-                              return CustomDropdownMenu(
-                                width: dialogWidth * .16,
-                                labelText: 'Module name',
-                                selectedItems: [
-                                  drawingController.moduleNameText
-                                ],
-                                onChanged: onModuleNameChanged,
-                                items: listsController.document.modules!,
-                              );
-                            }),
-                            Obx(() {
-                              return CustomDropdownMenu(
-                                width: dialogWidth * .325,
-                                showSearchBox: true,
-                                isMultiSelectable: true,
-                                labelText: 'Area',
-                                items: listsController.document.areas!,
-                                onChanged: onAreaChanged,
-                                selectedItems: drawingController.areaList,
-                              );
-                            }),
-                          ],
+                        CustomDropdownMenuWithModel<ActivityModel?>(
+                          width: dialogWidth * .185,
+                          items: activityController.documents,
+                          labelText: 'Activity code',
+                          showSearchBox: true,
+                          selectedItems: [activitiCodeSelectedItem],
+                          onChanged: onActivityCodeChanged,
+                          itemAsString: (ActivityModel? activityModel) =>
+                              activityModel!.activityId!,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Obx(() {
-                              return CustomDropdownMenu(
-                                width: dialogWidth * .50,
-                                showSearchBox: true,
-                                labelText: 'Level',
-                                selectedItems: [drawingController.levelText],
-                                onChanged: (value) {
-                                  drawingController.levelText = value ?? '';
-                                },
-                                items: listsController.document.levels!,
-                              );
-                            }),
-                            Obx(() {
-                              return CustomDropdownMenu(
-                                width: dialogWidth * .49,
-                                showSearchBox: true,
-                                labelText: 'Structure Type',
-                                selectedItems: [
-                                  drawingController.structureTypeText
-                                ],
-                                onChanged: onStructureTypeChanged,
-                                items: listsController.document.structureTypes!,
-                              );
-                            }),
-                          ],
+                        CustomTextFormField(
+                          width: dialogWidth * .305,
+                          controller: drawingController.drawingNumberController,
+                          labelText: 'Drawing Number',
                         ),
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            CustomTextFormField(
-                              controller:
-                                  drawingController.drawingTitleController,
-                              labelText: 'Drawing Title',
-                              width: dialogWidth * .7,
-                            ),
-                            CustomDropdownMenuWithModel<String?>(
+                        Obx(() => CustomDropdownMenuWithModel<String>(
+                              itemAsString: (e) => e!,
+                              width: dialogWidth * .16,
+                              labelText: 'Module name',
+                              selectedItems: [drawingController.moduleNameText],
+                              onChanged: onModuleNameChanged,
+                              items: listsController.document.modules!
+                                  .map((e) => e.toString())
+                                  .toList(),
+                            )),
+                        Obx(() => CustomDropdownMenuWithModel<String>(
+                              itemAsString: (e) => e!,
+                              width: dialogWidth * .325,
                               showSearchBox: true,
                               isMultiSelectable: true,
-                              labelText: 'Drawing tags',
-                              items: drawingTagItems,
-                              onChanged: (values) =>
-                                  drawingController.drawingTagList = values,
-                              selectedItems: drawingController.drawingTagList,
-                              itemAsString: (v) => v.toString(),
-                              width: dialogWidth * .29,
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            CustomTextFormField(
-                              width: dialogWidth * .5,
-                              controller:
-                                  drawingController.drawingNoteController,
-                              labelText: 'Note',
-                            ),
-                            Obx(() {
-                              return CustomDropdownMenu(
-                                width: dialogWidth * .49,
-                                showSearchBox: true,
-                                labelText: 'Functional Area',
-                                selectedItems: [
-                                  drawingController.functionalAreaText
-                                ],
-                                onChanged: (value) => drawingController
-                                    .functionalAreaText = value ?? '',
-                                items:
-                                    listsController.document.functionalAreas!,
-                              );
-                            }),
-                          ],
-                        ),
-                        SizedBox(height: 20.0)
+                              labelText: 'Area',
+                              items: listsController.document.areas!
+                                  .map((e) => e.toString())
+                                  .toList(),
+                              onChanged: onAreaChanged,
+                              selectedItems: drawingController.areaList,
+                            )),
                       ],
                     ),
-                  ),
-                ),
-                SizedBox(height: 10),
-                Row(
-                  children: <Widget>[
-                    if (drawingId != null)
-                      ElevatedButton.icon(
-                        onPressed: onDeletePressed,
-                        icon: Icon(Icons.delete),
-                        label: const Text('Delete'),
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                            Colors.red,
-                          ),
-                        ),
-                      ),
-                    const Spacer(),
-                    ElevatedButton(
-                      onPressed: () => Get.back(),
-                      child: const Text('Cancel'),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Obx(() => CustomDropdownMenuWithModel<String>(
+                              width: dialogWidth * .50,
+                              itemAsString: (e) => e!,
+                              showSearchBox: true,
+                              labelText: 'Level',
+                              selectedItems: [drawingController.levelText],
+                              onChanged: (value) => staffController
+                                  .jobTitleText = value.toString(),
+                              items: listsController.document.levels!
+                                  .map((e) => e.toString())
+                                  .toList(),
+                            )),
+                        Obx(() => CustomDropdownMenuWithModel<String>(
+                              width: dialogWidth * .49,
+                              itemAsString: (e) => e!,
+                              showSearchBox: true,
+                              labelText: 'Structure Type',
+                              selectedItems: [
+                                drawingController.structureTypeText
+                              ],
+                              onChanged: onStructureTypeChanged,
+                              items: listsController.document.structureTypes!
+                                  .map((e) => e.toString())
+                                  .toList(),
+                            )),
+                      ],
                     ),
-                    SizedBox(width: 10),
-                    ElevatedButton(
-                      onPressed: onUpdateAddPressed,
-                      child: Text(
-                        drawingId != null ? 'Update' : 'Add',
-                      ),
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CustomTextFormField(
+                          controller: drawingController.drawingTitleController,
+                          labelText: 'Drawing Title',
+                          width: dialogWidth * .7,
+                        ),
+                        CustomDropdownMenuWithModel<String?>(
+                          showSearchBox: true,
+                          isMultiSelectable: true,
+                          labelText: 'Drawing tags',
+                          items: drawingTagItems,
+                          onChanged: (values) =>
+                              drawingController.drawingTagList = values,
+                          selectedItems: drawingController.drawingTagList,
+                          itemAsString: (v) => v.toString(),
+                          width: dialogWidth * .29,
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        CustomTextFormField(
+                          width: dialogWidth * .5,
+                          controller: drawingController.drawingNoteController,
+                          labelText: 'Note',
+                        ),
+                        Obx(() {
+                          return CustomDropdownMenuWithModel<String>(
+                            width: dialogWidth * .49,
+                            itemAsString: (e) => e!,
+                            showSearchBox: true,
+                            labelText: 'Functional Area',
+                            selectedItems: [
+                              drawingController.functionalAreaText
+                            ],
+                            onChanged: (value) =>
+                                staffController.jobTitleText = value.toString(),
+                            items: listsController.document.modules!
+                                .map((e) => e.toString())
+                                .toList(),
+                          );
+                        }),
+                      ],
                     ),
                   ],
-                )
-              ],
-            ),
+                ),
+              ),
+              SizedBox(height: 10),
+              Row(
+                children: <Widget>[
+                  if (drawingId != null)
+                    ElevatedButton.icon(
+                      onPressed: onDeletePressed,
+                      icon: Icon(Icons.delete),
+                      label: const Text('Delete'),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                          Colors.red,
+                        ),
+                      ),
+                    ),
+                  const Spacer(),
+                  ElevatedButton(
+                    onPressed: () => Get.back(),
+                    child: const Text('Cancel'),
+                  ),
+                  SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: onUpdateAddPressed,
+                    child: Text(
+                      drawingId != null ? 'Update' : 'Add',
+                    ),
+                  ),
+                ],
+              )
+            ],
           ),
         ),
       ),

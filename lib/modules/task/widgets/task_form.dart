@@ -20,14 +20,14 @@ class TaskAddUpdateForm extends StatelessWidget {
         .getById(drawingId ?? (taskModel == null ? '' : taskModel.parentId!));
 
     return drawingModel == null
-        ? Text('Drawing not found')
+        ? CustomText('Drawing not found')
         : Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 CustomText(
-                  text: getTaskNumber(drawingModel, taskModel),
+                  getTaskNumber(drawingModel, taskModel),
                   weight: FontWeight.bold,
                 ),
                 SizedBox(height: 10),
@@ -61,7 +61,8 @@ class TaskAddUpdateForm extends StatelessWidget {
                               ],
                             ),
                             SizedBox(height: 10),
-                            CustomDropdownMenu(
+                            CustomDropdownMenuWithModel<String>(
+                              itemAsString: (e) => e!,
                               showSearchBox: true,
                               isMultiSelectable: true,
                               labelText: 'Reference Documents',

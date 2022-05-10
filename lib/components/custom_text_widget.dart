@@ -5,23 +5,28 @@ class CustomText extends StatelessWidget {
   final double? size;
   final Color? color;
   final FontWeight? weight;
+  final TextStyle? style;
 
-  const CustomText({
-    Key? key,
-    required this.text,
-    this.size,
-    this.color,
-    this.weight,
-  }) : super(key: key);
+  const CustomText(this.text,
+      {Key? key, this.size, this.color, this.weight, this.style})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(
-          fontSize: size ?? 16,
-          color: color ?? Colors.black,
-          fontWeight: weight ?? FontWeight.normal),
+    return Container(
+      child: Theme(
+        data: ThemeData(
+          textSelectionTheme: const TextSelectionThemeData(
+            cursorColor: Colors.yellow,
+            selectionColor: Colors.green,
+            selectionHandleColor: Colors.blue,
+          ),
+        ),
+        child: SelectableText(
+          text,
+          style: style,
+        ),
+      ),
     );
   }
 }

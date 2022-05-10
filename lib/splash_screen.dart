@@ -1,3 +1,4 @@
+import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/home/home_view.dart';
 import 'package:dops/modules/login/auth_view.dart';
@@ -46,7 +47,8 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Scaffold errorView(AsyncSnapshot<Object?> snapshot) {
-    return Scaffold(body: Center(child: Text('Error: ${snapshot.error}')));
+    return Scaffold(
+        body: Center(child: CustomText('Error: ${snapshot.error}')));
   }
 
   Scaffold _waiting() {
@@ -61,14 +63,14 @@ class _SplashScreenState extends State<SplashScreen> {
               child: CircularProgressIndicator(),
               // child: Image.asset('images/azfen_logo.png'),
             ),
-            const Text(
+            const CustomText(
               'AZFEN J.V',
               style: TextStyle(fontSize: 20),
             ),
             SizedBox(
               height: 5,
             ),
-            const Text(
+            const CustomText(
               'Drawing Office Department',
               style: TextStyle(fontSize: 14),
             )

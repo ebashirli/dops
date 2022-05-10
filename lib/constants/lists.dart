@@ -20,8 +20,6 @@ List<String> valueTableCommonColumnHeadList = [
   'Assigned date time',
   'Note',
   'Submit date time',
-  'linkingToGroupDateTime',
-  'sentDate'
 ];
 
 List<Map<String, dynamic>> stageDetailsList = [
@@ -106,13 +104,14 @@ List<Map<String, dynamic>> stageDetailsList = [
     'name': 'Nesting',
     'get files': 'Original Files',
     'staff job': 'Nesting Draftsman',
-    'form fields': <String>['Group'],
+    'file names': true,
+    'form fields': <String>[],
   },
   // 9
   {
     'name': 'Issuing',
     'staff job': 'Coordinator',
-    'form fields': <String>[],
+    'form fields': <String>['transmittal'],
   },
 ];
 

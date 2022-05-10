@@ -51,7 +51,7 @@ class TaskFieldsWidget extends StatelessWidget {
             // SizedBox(width: 2),
             CustomTextFormField(
               enabled: enabled,
-              width: totalWidth * .08,
+              width: totalWidth * .09,
               readOnly: true,
               initialValue: taskModel.creationDate!.toDMYhm(),
               labelText: 'Task create date',

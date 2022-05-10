@@ -5,7 +5,6 @@ import 'package:dops/core/cache_manager.dart';
 import 'package:dops/modules/activity/activity_controller.dart';
 import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/home/home_controller.dart';
-import 'package:dops/modules/issue/issue_controller.dart';
 import 'package:dops/modules/list/lists_controller.dart';
 import 'package:dops/modules/reference_document/reference_document_controller.dart';
 import 'package:dops/modules/staff/staff_controller.dart';
@@ -21,7 +20,6 @@ ReferenceDocumentController refDocController =
 ActivityController activityController = ActivityController.instance;
 DrawingController drawingController = DrawingController.instance;
 TaskController taskController = TaskController.instance;
-IssueController issueController = IssueController.instance;
 ListsController listsController = ListsController.instance;
 StaffController staffController = StaffController.instance;
 StageController stageController = StageController.instance;

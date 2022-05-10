@@ -1,7 +1,6 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
-import 'package:dops/modules/issue/issue_model.dart';
 import 'package:dops/modules/values/value_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -27,9 +26,7 @@ class ValueTableView extends StatelessWidget {
       if (stageDetailsList[index]['file names'] != null) 'File Names',
       if (stageDetailsList[index]['comment'] != null) 'Is Commented',
       valueTableCommonColumnHeadList[4],
-      if (index == 8) valueTableCommonColumnHeadList[6],
       valueTableCommonColumnHeadList[5],
-      if (index == 8) valueTableCommonColumnHeadList[7],
     ];
     final DataSource dataSource = DataSource(
       data: getDataSourceData(tableColumns),
@@ -103,21 +100,6 @@ class ValueTableView extends StatelessWidget {
       tableColumns.forEach((columHead) {
         map[columHead] = valueModel!.toMap()[ReCase(columHead).camelCase];
       });
-      if (tableColumns.contains('Group') &&
-          issueController.documents.isNotEmpty) {
-        List<IssueModel?> issueModelList = issueController.documents
-            .where(
-              (e) =>
-                  e.linkedTaskIds.contains(stageController.currentTask!.id) &&
-                  e.createdBy == valueModel!.employeeId,
-            )
-            .toList();
-        map['Group'] = issueModelList.isNotEmpty
-            ? issueModelList.first!.groupNumber
-            : null;
-        map['linkingToGroupDateTime'] = valueModel!.linkingToGroupDateTime;
-        map['sentDate'] = null;
-      }
 
       map['id'] = valueModel!.id;
       return map;
@@ -157,11 +139,9 @@ class ValueTableView extends StatelessWidget {
                                   ? 'Comment'
                                   : columnName == 'HOLD'
                                       ? 'Hold Reason'
-                                      : columnName == 'linkingToGroupDateTime'
-                                          ? 'Linking date time'
-                                          : columnName == 'sentDate'
-                                              ? 'Sent Date'
-                                              : columnName,
+                                      : columnName == 'transmittal'
+                                          ? 'Transmittal number'
+                                          : columnName,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),

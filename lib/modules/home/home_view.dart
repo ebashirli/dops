@@ -54,11 +54,6 @@ class HomeView extends GetView<HomeController> {
         _controller = taskController;
         tableName = 'task';
         break;
-
-      case HomeStates.IssueState:
-        _controller = issueController;
-        tableName = 'issue';
-        break;
     }
     return TableView(
       controller: _controller,
@@ -99,12 +94,9 @@ class HomeView extends GetView<HomeController> {
 
   bool get isAddButtonVisibile {
     return staffController.isCoordinator ||
-        (controller.homeState == HomeStates.IssueState &&
+        (controller.homeState ==
             valueController.documents
-                .where((e) =>
-                    e!.employeeId == staffController.currentUserId &&
-                    stageController.getById(e.stageId)!.index == 8 &&
-                    e.linkingToGroupDateTime == null)
+                .where((e) => e!.employeeId == staffController.currentUserId)
                 .isNotEmpty);
   }
 
@@ -186,15 +178,6 @@ class HomeView extends GetView<HomeController> {
             },
           ),
           SizedBox(height: 10),
-          TextButton.icon(
-            icon: Icon(Icons.print),
-            label: const Text('Issues'),
-            onPressed: () {
-              controller.homeState = HomeStates.IssueState;
-              cacheManager.saveHomeState(HomeStates.IssueState);
-              Get.back();
-            },
-          ),
         ],
       ),
     );
@@ -214,8 +197,6 @@ class HomeView extends GetView<HomeController> {
         return isForTitle ? 'Drawings' : 'drawing';
       case HomeStates.MyTasksState:
         return isForTitle ? 'My Tasks' : 'my tasks';
-      case HomeStates.IssueState:
-        return isForTitle ? 'Issue' : 'issue';
     }
   }
 
@@ -233,8 +214,6 @@ class HomeView extends GetView<HomeController> {
         return;
       case HomeStates.ListState:
         return listsController.buildAddForm();
-      case HomeStates.IssueState:
-        return issueController.buildAddForm();
     }
   }
 }

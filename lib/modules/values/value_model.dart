@@ -7,13 +7,13 @@ class ValueModel {
   String? unassignedBy;
   DateTime? unassignedDateTime;
   DateTime? submitDateTime;
-  DateTime? linkingToGroupDateTime;
   int? phase;
   int? weight;
   int? gas;
   int? sfd;
   int? dtl;
   String? hold;
+  String? transmittal;
   String? note;
   bool isCommented;
   bool isHidden;
@@ -41,13 +41,13 @@ class ValueModel {
     this.unassignedBy,
     this.unassignedDateTime,
     this.submitDateTime,
-    this.linkingToGroupDateTime,
     this.phase,
     this.weight,
     this.gas,
     this.sfd,
     this.dtl,
     this.hold,
+    this.transmittal,
     this.note,
     this.isCommented = false,
     this.isHidden = false,
@@ -74,11 +74,10 @@ class ValueModel {
       'assignedDateTime': assignedDateTime,
       'isCommented': isCommented,
       'isHidden': isHidden,
-      if (hold != null) 'hold': hold != null ? hold : null,
       'submitDateTime': submitDateTime != null ? submitDateTime : null,
-      if (linkingToGroupDateTime != null)
-        'linkingToGroupDateTime':
-            linkingToGroupDateTime != null ? linkingToGroupDateTime : null,
+      if (hold != null) 'hold': hold != null ? hold : null,
+      if (transmittal != null)
+        'transmittal': transmittal != null ? transmittal : null,
       if (unassignedBy != null) 'unassignedBy': unassignedBy,
       if (unassignedDateTime != null) 'unassignedDateTime': unassignedDateTime,
       if (phase != null) 'phase': phase,
@@ -119,10 +118,8 @@ class ValueModel {
           : null,
       submitDateTime:
           map['submitDateTime'] != null ? map['submitDateTime'].toDate() : null,
-      linkingToGroupDateTime: map['linkingToGroupDateTime'] != null
-          ? map['linkingToGroupDateTime'].toDate()
-          : null,
       hold: map['hold'] != null ? map['hold'] : null,
+      transmittal: map['transmittal'] != null ? map['transmittal'] : null,
       phase: map['phase'] != null ? map['phase'] : null,
       weight: map['weight'] != null ? map['weight'] : null,
       gas: map['gas'] != null ? map['gas'] : null,

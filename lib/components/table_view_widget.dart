@@ -1,7 +1,5 @@
 import 'package:dops/components/select_item_snackbar.dart';
 import 'package:dops/constants/constant.dart';
-import 'package:dops/enum.dart';
-import 'package:dops/modules/issue/issue_model.dart';
 import 'package:dops/routes/app_pages.dart';
 import 'package:expendable_fab/expendable_fab.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:recase/recase.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../constants/table_details.dart';
-import 'package:collection/collection.dart';
 
 import 'custom_widgets.dart';
 
@@ -61,17 +58,7 @@ class TableView extends StatelessWidget {
   }
 
   Widget? baseFab() {
-    bool isThereIncompleteIssueCreatedByCurrentUser =
-        homeController.homeState == HomeStates.IssueState &&
-            issueController.documents
-                .where(
-                  (e) =>
-                      e.issueDate == null &&
-                      e.createdBy == staffController.currentUserId,
-                )
-                .isNotEmpty;
-    return staffController.isCoordinator ||
-            isThereIncompleteIssueCreatedByCurrentUser
+    return staffController.isCoordinator
         ? tableName == 'task'
             ? expandableFab()
             : fab()
@@ -207,11 +194,6 @@ class DataSource extends DataGridSource {
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>(
         (cell) {
-          if (['closeDate', 'issueDate'].contains(cell.columnName) &&
-              cell.value == null) {
-            return provideIssueButtons(cell, row);
-          }
-
           if (cell.value != null) {
             void onPressed(String id) =>
                 Get.toNamed(Routes.STAGES, parameters: {'id': id});
@@ -278,36 +260,6 @@ class DataSource extends DataGridSource {
     );
   }
 
-  Widget provideIssueButtons(DataGridCell<dynamic> cell, DataGridRow row) {
-    final String rowId = row.getCells()[0].value;
-    final IssueModel? issueModel =
-        issueController.loading.value || issueController.documents.isEmpty
-            ? null
-            : issueController.documents.firstWhereOrNull((e) => e.id == rowId);
-    if (issueModel == null) return Text('');
-
-    bool isCloseVisible = (cell.columnName == 'closeDate') &&
-        (issueModel.createdBy == staffController.currentUserId) &&
-        (issueModel.linkedTaskIds.isNotEmpty || issueModel.files.isNotEmpty);
-
-    bool isSendVisible = cell.columnName == 'issueDate' &&
-        staffController.isCoordinator &&
-        areAllGroupsClosed(issueModel.linkedTaskIds);
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(40, 20, 40, 20),
-      child: isCloseVisible || isSendVisible
-          ? ElevatedButton(
-              key: Key(row.getCells()[0].value),
-              onPressed: () => isSendVisible
-                  ? issueController.onSendPressed(issueModel)
-                  : issueController.onClosePressed(issueModel),
-              child: Text(isSendVisible ? 'Send' : 'Close'),
-            )
-          : Text(''),
-    );
-  }
-
   void taskNumberDialog(
     String cellValue,
     void onPressed(String id),
@@ -326,22 +278,4 @@ class DataSource extends DataGridSource {
           ).toList(),
         ),
       );
-
-  bool areAllGroupsClosed(List<String?> linkedTaskIds) {
-    if (linkedTaskIds.isEmpty) return true;
-    linkedTaskIds = taskController.removeDeletedIds(linkedTaskIds);
-    if (linkedTaskIds.isEmpty) return false;
-
-    for (String? taskId in linkedTaskIds) {
-      List<IssueModel?> issueModelList =
-          issueController.issuModelsByTaskId(taskId!);
-      if (issueModelList.isEmpty) return false;
-
-      for (IssueModel? issueModel in issueModelList) {
-        if (issueModel!.closeDate == null) return false;
-      }
-    }
-
-    return true;
-  }
 }

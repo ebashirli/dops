@@ -26,6 +26,7 @@ dependencies:
   http: ^0.13.4
   get: ^4.3.8
   get_storage: ^2.0.3
+  quick_notify: ^0.2.1
 
 dev_dependencies:
   flutter_test:

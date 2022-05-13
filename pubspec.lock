@@ -309,7 +309,7 @@ packages:
       name: plugin_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.2"
+    version: "2.1.2"
   process:
     dependency: transitive
     description:
@@ -317,6 +317,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.2.4"
+  quick_notify:
+    dependency: "direct main"
+    description:
+      name: quick_notify
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.1"
   recase:
     dependency: "direct main"
     description:

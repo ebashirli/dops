@@ -62,7 +62,8 @@ class StaffModel {
       'homeAddress': homeAddress,
       'startDate': startDate.toString(),
       'currentPlace': currentPlace,
-      'contractFinishDate': contractFinishDate.toString(),
+      'contractFinishDate':
+          contractFinishDate == null ? null : contractFinishDate.toString(),
       'contact': contact,
       'emergencyContact': emergencyContact,
       'emergencyContactName': emergencyContactName,

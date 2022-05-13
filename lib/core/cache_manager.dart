@@ -52,6 +52,24 @@ class CacheManager extends GetxService {
   }
 
   String? getHomeState() => box.read(CacheManagerKey.HOMESTATE.toString());
+
+  Future<void> saveValueModelIds(List<String?> valueModelIds) async =>
+      await box.write(CacheManagerKey.VALUEMODELIDS.toString(), valueModelIds);
+
+  List getValueModelIds() {
+    List? valueModelIds = box.read(CacheManagerKey.VALUEMODELIDS.toString());
+    return valueModelIds ?? [];
+  }
+
+  Future<void> removevalueModelIds() async =>
+      await box.remove(CacheManagerKey.VALUEMODELIDS.toString());
 }
 
-enum CacheManagerKey { EMAIL, PASSWORD, STAFF, ID, HOMESTATE }
+enum CacheManagerKey {
+  EMAIL,
+  PASSWORD,
+  STAFF,
+  ID,
+  HOMESTATE,
+  VALUEMODELIDS,
+}

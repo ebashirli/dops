@@ -1,7 +1,10 @@
 import 'package:dops/constants/constant.dart';
+import 'package:dops/constants/lists.dart';
+import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/values/value_model.dart';
 import 'package:dops/modules/values/values_repository.dart';
 import 'package:get/get.dart';
+import 'package:quick_notify/quick_notify.dart';
 import '../../components/custom_widgets.dart';
 
 class ValueController extends GetxService {
@@ -35,6 +38,25 @@ class ValueController extends GetxService {
     _documents.bindStream(_repo.getAllDocumentsAsStream());
     _documents.listen((List<ValueModel?> valueModelList) {
       if (valueModelList.isNotEmpty) loading.value = false;
+
+      Set<String?> valueModelIdsAssignedCU =
+          loading.value ? {} : valueModelsAssignedCU.map((e) => e!.id).toSet();
+
+      List a = cacheManager.getValueModelIds();
+
+      Set<String?> oldValueModelIdsAssignedCU =
+          a.isNotEmpty ? a.map((e) => e.toString()).toSet() : {};
+
+      valueModelIdsAssignedCU
+          .difference(oldValueModelIdsAssignedCU)
+          .forEach((e) {
+        if (e != null) {
+          getNotificationContent(e);
+        }
+      });
+
+      cacheManager.saveValueModelIds(valueModelIdsAssignedCU.toList());
+      // cacheManager.removevalueModelIds();
     });
   }
 
@@ -42,6 +64,9 @@ class ValueController extends GetxService {
   void onReady() {
     super.onReady();
   }
+
+  ValueModel? getById(String id) =>
+      documents.firstWhere((e) => e == null ? false : e.id == id);
 
   List<ValueModel?> valueModelsByStageId(String stageId) => documents.isNotEmpty
       ? documents.where((e) => e!.stageId == stageId).toList()
@@ -73,4 +98,21 @@ class ValueController extends GetxService {
 
   bool checkIfStageModelAssignedCUById(String id) =>
       stageIdsOfVmsAssignedCurrentUser.contains(id);
+
+  void getNotificationContent(String id) {
+    ValueModel? valueModel = getById(id);
+    if (valueModel != null) {
+      StageModel? stageModel = stageController.getById(valueModel.stageId);
+      if (stageModel != null) {
+        int index = stageModel.index;
+        String job = stageDetailsList[index]['staff job'];
+        job = job.substring(0, job.length - 1);
+
+        QuickNotify.notify(
+          title: stageDetailsList[index]['name'],
+          content: "You are assigned as $job.",
+        );
+      }
+    }
+  }
 }

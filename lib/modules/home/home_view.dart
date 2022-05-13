@@ -6,6 +6,7 @@ import 'package:dops/modules/list/lists_view.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:quick_notify/quick_notify.dart';
 
 import 'home_controller.dart';
 import '../../enum.dart';
@@ -17,6 +18,7 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
+    requestNotificationPermission();
     return Obx(() {
       return Scaffold(
         drawer: _buildDrawer(),
@@ -231,4 +233,8 @@ class AddTaskElButton extends StatelessWidget {
       child: Text('Add task'),
     );
   }
+}
+
+requestNotificationPermission() async {
+  await QuickNotify.requestPermission();
 }

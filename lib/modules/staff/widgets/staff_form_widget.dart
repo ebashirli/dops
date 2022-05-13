@@ -240,8 +240,7 @@ class StaffFormWidget extends StatelessWidget {
                             staffController.startDateConroller.text),
                         currentPlace: staffController.currentPlaceText,
                         contractFinishDate:
-                            staffController.contractFinishDateController.text ==
-                                    ''
+                            staffController.contractFinishDateController.text.isEmpty
                                 ? null
                                 : DateTime.parse(staffController
                                     .contractFinishDateController.text),

@@ -82,11 +82,11 @@ class HomeView extends GetView<HomeController> {
             ],
           ),
         SizedBox(width: 10),
-        Center(
-          child: staffController.currentStaff != null
-              ? CustomText(staffController.currentStaff!.initial)
-              : CircularProgressIndicator(),
-        ),
+        Obx(() => Center(
+              child: staffController.currentStaff == null
+                  ? CircularProgressIndicator()
+                  : CustomText(staffController.currentStaff!.initial),
+            )),
         IconButton(
           onPressed: () => authManager.signOut(),
           icon: Icon(Icons.logout),

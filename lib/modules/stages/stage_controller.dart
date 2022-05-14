@@ -398,7 +398,6 @@ class StageController extends GetxService {
         valueController.addNew(model: vm);
       });
     }
-    print(lastTaskStage.id!);
     addValues(
       map: {
         'note': noteController.text,

@@ -42,6 +42,9 @@ class StaffController extends GetxService {
   RxList<StaffModel> _documents = RxList<StaffModel>([]);
   List<StaffModel> get documents => _documents;
 
+  Rx<StaffModel?> _currentStaff = Rx(cacheManager.getStaff());
+  StaffModel? get currentStaff => _currentStaff.value;
+
   bool get isCoordinator => cacheManager.getStaff() != null
       ? cacheManager.getStaff()!.systemDesignation == 'Coordinator'
       : false;
@@ -71,8 +74,10 @@ class StaffController extends GetxService {
     noteController = TextEditingController();
 
     _documents.bindStream(_repo.getAllDocumentsAsStream());
-    _documents.listen((List<StaffModel?> issueModelList) {
-      if (issueModelList.isNotEmpty) loading.value = false;
+    _documents.listen((List<StaffModel?> staffModelList) {
+      if (staffModelList.isNotEmpty) {
+        loading.value = false;
+      }
     });
   }
 
@@ -155,7 +160,9 @@ class StaffController extends GetxService {
 
     startDateConroller.text = model.startDate!.toDMYhmDash();
 
-    contractFinishDateController.text = model.contractFinishDate!.toDMYhmDash();
+    contractFinishDateController.text = model.contractFinishDate == null
+        ? ''
+        : model.contractFinishDate!.toDMYhmDash();
 
     currentPlaceText = model.currentPlace;
     systemDesignationText = model.systemDesignation;
@@ -221,8 +228,9 @@ class StaffController extends GetxService {
           case 'dateOfBirth':
           case 'startDate':
           case 'contractFinishDate':
-            map[mapPropName] =
-                DateTime.parse(staffMap[mapPropName]).toDayMonthYear();
+            map[mapPropName] = staffMap[mapPropName] == null
+                ? null
+                : DateTime.parse(staffMap[mapPropName]).toDayMonthYear();
             break;
           default:
             map[mapPropName] = staffMap[mapPropName];
@@ -245,11 +253,6 @@ class StaffController extends GetxService {
       return 'Contact and emergency contact cannot be same';
     }
     return null;
-  }
-
-  StaffModel? get currentStaff {
-    User? currentUser = auth.currentUser;
-    return currentUser == null ? null : getById(currentUser.uid);
   }
 
   String? getCurrentStaffInitial() {

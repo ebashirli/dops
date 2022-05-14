@@ -12,25 +12,25 @@ class StageView extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
         appBar: stageViewAppBar(),
         // floatingActionButton: CustomExpendableFab(),
-        body: Padding(
-          padding: const EdgeInsets.fromLTRB(50, 10, 50, 20),
-          child: Column(
-            children: [
-              FieldsPanelWidget(),
-              SizedBox(
-                height: Get.height * .54,
-                child: Center(
-                  child: Obx(() {
-                    return stageController.loading.value ||
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(50, 10, 50, 0),
+            child: Column(
+              children: [
+                FieldsPanelWidget(),
+                SizedBox(
+                  height: Get.height * .468,
+                  child: Center(
+                    child: Obx(() => stageController.loading.value ||
                             stageController.documents.isEmpty
                         ? CircularProgressIndicator()
                         : CustomExpansionPanelList(
                             data: stageController.generateItems(),
-                          );
-                  }),
+                          )),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );

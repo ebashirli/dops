@@ -219,8 +219,6 @@ class StaffFormWidget extends StatelessWidget {
                   SizedBox(width: 10),
                   ElevatedButton(
                     onPressed: () {
-                      print(staffController.contractFinishDateController.text
-                          .toString());
                       StaffModel model = StaffModel(
                         badgeNo: staffController.badgeNoController.text,
                         name: staffController.nameController.text,
@@ -239,11 +237,11 @@ class StaffFormWidget extends StatelessWidget {
                         startDate: DateTime.parse(
                             staffController.startDateConroller.text),
                         currentPlace: staffController.currentPlaceText,
-                        contractFinishDate:
-                            staffController.contractFinishDateController.text.isEmpty
-                                ? null
-                                : DateTime.parse(staffController
-                                    .contractFinishDateController.text),
+                        contractFinishDate: staffController
+                                .contractFinishDateController.text.isEmpty
+                            ? null
+                            : DateTime.parse(staffController
+                                .contractFinishDateController.text),
                         contact: staffController.contactController.text,
                         emergencyContact:
                             staffController.emergencyContactController.text,

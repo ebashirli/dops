@@ -25,7 +25,8 @@ class TableView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: apply timer here after several seconds that indicator turns column heads
-    return isDocumentsLoadingOrEmpty
+
+    return Obx(() => isDocumentsLoadingOrEmpty
         ? Center(child: CircularProgressIndicator())
         : Obx(
             () => Scaffold(
@@ -48,13 +49,13 @@ class TableView extends StatelessWidget {
                 ),
               ),
             ),
-          );
+          ));
   }
 
   bool get isDocumentsLoadingOrEmpty {
     return tableName == 'task'
         ? drawingController.loading.value || drawingController.documents.isEmpty
-        : controller.documents.isEmpty;
+        : controller.loading.value || controller.documents.isEmpty;
   }
 
   Widget? baseFab() {

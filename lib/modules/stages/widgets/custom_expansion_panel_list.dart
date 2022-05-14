@@ -16,12 +16,13 @@ class _CustomExpansionPanelListState extends State<CustomExpansionPanelList> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-        child: Column(
-      children: [
-        Container(child: _buildPanel()),
-        SizedBox(height: 500),
-      ],
-    ));
+      child: Column(
+        children: [
+          Container(child: _buildPanel()),
+          SizedBox(height: 500),
+        ],
+      ),
+    );
   }
 
   Widget _buildPanel() {

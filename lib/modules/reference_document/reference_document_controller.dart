@@ -5,7 +5,6 @@ import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/reference_document/widgets/ref_doc_add_update_form_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:collection/collection.dart';
 
 import 'reference_document_model.dart';
 import 'reference_document_repository.dart';
@@ -31,6 +30,7 @@ class ReferenceDocumentController extends GetxService {
   RxList<ReferenceDocumentModel> _documents =
       RxList<ReferenceDocumentModel>([]);
   List<ReferenceDocumentModel> get documents => _documents;
+  RxBool loading = true.obs;
 
   @override
   void onInit() {
@@ -41,6 +41,11 @@ class ReferenceDocumentController extends GetxService {
     receiveDateController = TextEditingController();
 
     _documents.bindStream(_repo.getAllDocumentsAsStream());
+    _documents.listen((List<ReferenceDocumentModel?> refDocList) {
+      if (refDocList.isNotEmpty) {
+        loading.value = false;
+      }
+    });
   }
 
   saveDocument({required ReferenceDocumentModel model}) async {

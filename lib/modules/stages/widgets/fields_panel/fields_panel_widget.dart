@@ -35,7 +35,7 @@ class FieldsPanelWidget extends StatelessWidget {
     final String fullTaskNumber =
         '${drawingModel.drawingNumber}-${taskModel.revisionMark}';
     return SizedBox(
-      height: Get.height * .37,
+      height: Get.height * .43,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,

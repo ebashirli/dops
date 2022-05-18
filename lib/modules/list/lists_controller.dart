@@ -1,4 +1,6 @@
 import 'package:dops/components/custom_widgets.dart';
+import 'package:dops/constants/constant.dart';
+import 'package:dops/models/base_table_view_controller.dart';
 import 'package:dops/modules/list/widgets/lists_form_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:recase/recase.dart';
@@ -7,7 +9,7 @@ import 'lists_model.dart';
 import 'lists_repository.dart';
 import 'package:get/get.dart';
 
-class ListsController extends GetxService {
+class ListsController extends BaseViewController {
   ListsRepository _repo = Get.find<ListsRepository>();
   static ListsController instance = Get.find();
 
@@ -16,7 +18,8 @@ class ListsController extends GetxService {
 
   late Map<String, dynamic> map;
 
-  RxBool loading = true.obs;
+  RxBool _loading = true.obs;
+  bool get loading => _loading.value;
 
   Rx<States> state = States.Loading.obs;
   RxString choosenList = 'Companies'.obs;
@@ -29,7 +32,7 @@ class ListsController extends GetxService {
     map = document.toMap();
     _documents.bindStream(_repo.getModelAsStream());
     _documents.listen((ListsModel? listsModel) {
-      if (listsModel == null) loading.value = false;
+      if (listsModel == null) _loading.value = false;
       map = listsModel!.toMap();
     });
 
@@ -54,12 +57,10 @@ class ListsController extends GetxService {
     newAddedList.removeAt(index);
   }
 
-  buildAddForm() {
-    Get.defaultDialog(
-      radius: 12,
-      titlePadding: EdgeInsets.only(top: 40, bottom: 20),
+  @override
+  buildAddForm({String? parentId}) {
+    homeController.getDialog(
       title: 'Add New List Item',
-      contentPadding: EdgeInsets.only(left: 12, right: 12),
       content: ListsFormWidget(map: map),
     );
   }
@@ -105,4 +106,13 @@ class ListsController extends GetxService {
       ),
     );
   }
+
+  @override
+  void buildUpdateForm({required String id}) {}
+
+  @override
+  List get documents => throw UnimplementedError();
+
+  @override
+  List<Map<String, dynamic>?> get tableData => throw UnimplementedError();
 }

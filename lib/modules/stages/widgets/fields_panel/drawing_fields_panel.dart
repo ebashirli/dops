@@ -1,173 +1,162 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
-import 'package:dops/modules/activity/activity_model.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
+import 'package:dops/modules/stages/widgets/fields_panel/custom_flex_text_field.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
 
 class DrawingFieldsWidget extends StatelessWidget {
-  const DrawingFieldsWidget({Key? key, this.drawingModel}) : super(key: key);
-  final DrawingModel? drawingModel;
+  const DrawingFieldsWidget({
+    Key? key,
+    required this.drawingModel,
+  }) : super(key: key);
+  final DrawingModel drawingModel;
 
   @override
   Widget build(BuildContext context) {
-    final double totalWidth = Get.width - 120;
-    final bool enabled = false;
-    return drawingModel == null
-        ? CircularProgressIndicator()
-        : Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
+    final bool readOnly = true;
+
+    return Row(
+      children: <Widget>[
+        Flexible(
+          flex: 66,
+          child: Column(
+            children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  CustomTextFormField(
-                    initialValue: activityController
-                        .selectedActivities(drawingModel!.activityCodeId),
-                    enabled: enabled,
-                    sizeBoxHeight: 0,
-                    width: totalWidth * .11,
+                  FlexTextWidget(
+                    flex: 10,
                     labelText: 'Activity code',
+                    initialValue: activityController
+                        .selectedActivities(drawingModel.activityCodeId),
                   ),
-                  CustomTextFormField(
-                    initialValue: drawingModel!.drawingNumber,
-                    enabled: enabled,
-                    sizeBoxHeight: 0,
-                    width: totalWidth * .22,
+                  Flexible(child: SizedBox()),
+                  FlexTextWidget(
+                    flex: 20,
+                    initialValue: drawingModel.drawingNumber,
                     labelText: 'Drawing Number',
                   ),
-                  CustomTextFormField(
-                    initialValue: drawingModel!.module,
-                    enabled: enabled,
-                    width: totalWidth * .11,
-                    sizeBoxHeight: 0,
+                ],
+              ),
+              SizedBox(height: 10),
+              CustomTextFormField(
+                initialValue: drawingModel.drawingTitle,
+                readOnly: readOnly,
+                labelText: 'Drawing Title',
+                maxLines: 1,
+              ),
+              SizedBox(height: 10),
+              CustomTextFormField(
+                initialValue: drawingModel.drawingTag.join(', '),
+                readOnly: readOnly,
+                labelText: 'Drawing Tags',
+              ),
+            ],
+          ),
+        ),
+        SizedBox(width: Get.width * .01),
+        Flexible(
+          flex: 66,
+          child: Column(
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  FlexTextWidget(
+                    flex: 10,
+                    initialValue: drawingModel.module,
                     labelText: 'Module name',
                   ),
-                  CustomTextFormField(
-                    initialValue: drawingModel!.level,
-                    enabled: enabled,
-                    width: totalWidth * .21,
-                    sizeBoxHeight: 0,
+                  Flexible(child: SizedBox()),
+                  FlexTextWidget(
+                    initialValue: drawingModel.level,
                     labelText: 'Level',
-                  ),
-                  CustomTextFormField(
-                    initialValue: drawingModel!.structureType,
-                    enabled: enabled,
-                    width: totalWidth * .21,
-                    sizeBoxHeight: 0,
-                    labelText: 'Structure Type',
-                  ),
-                  CustomTextFormField(
-                    initialValue: drawingModel!.area.join(', '),
-                    enabled: enabled,
-                    width: totalWidth * .14,
-                    sizeBoxHeight: 0,
-                    labelText: 'Area',
+                    flex: 20,
                   ),
                 ],
+              ),
+              SizedBox(height: 10),
+              CustomTextFormField(
+                initialValue:
+                    drawingModel.note.isEmpty ? ' ' : drawingModel.note,
+                readOnly: readOnly,
+                maxLines: 1,
+                labelText: 'Note',
               ),
               SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      CustomTextFormField(
-                        initialValue: drawingModel!.drawingTitle,
-                        enabled: enabled,
-                        width: totalWidth * .334,
-                        labelText: 'Drawing Title',
-                      ),
-                      SizedBox(height: 12),
-                      CustomTextFormField(
-                        initialValue: drawingModel!.drawingTag.join(', '),
-                        enabled: enabled,
-                        width: totalWidth * .334,
-                        labelText: 'Drawing Tags',
-                      ),
-                    ],
+                  FlexTextWidget(
+                    flex: 10,
+                    controller: TextEditingController()
+                      ..text = stageController.phaseInitialValue == null
+                          ? ' '
+                          : '${stageController.phaseInitialValue}',
+                    labelText: 'Tekla Phase',
                   ),
-                  CustomTextFormField(
-                    initialValue: drawingModel!.note,
-                    enabled: enabled,
-                    width: totalWidth * .333,
-                    maxLines: 3,
-                    labelText: 'Note',
+                  Flexible(child: SizedBox()),
+                  FlexTextWidget(
+                    flex: 20,
+                    initialValue:
+                        '${drawingModel.drawingCreateDate!.toDMYhm()}',
+                    labelText: 'Drawing create date',
                   ),
-                  Column(
-                    children: <Widget>[
-                      CustomTextFormField(
-                        initialValue: drawingModel!.functionalArea,
-                        enabled: enabled,
-                        width: totalWidth * .333,
-                        labelText: 'Functional Area',
-                      ),
-                      SizedBox(height: 12),
-                      SizedBox(
-                        width: totalWidth * .333,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: <Widget>[
-                            CustomTextFormField(
-                              enabled: enabled,
-                              width: (totalWidth * .333) * .3,
-                              initialValue: stageController.phaseInitialValue(),
-                              labelText: 'Tekla Phase',
-                            ),
-                            SizedBox(width: 10),
-                            CustomTextFormField(
-                              enabled: enabled,
-                              width: (totalWidth * .333) * .3,
-                              initialValue:
-                                  '${drawingModel!.drawingCreateDate!.toDMYhm()}',
-                              labelText: 'Drawing create date',
-                            ),
-                            Expanded(child: SizedBox(width: 10)),
-                            if (staffController.isCoordinator)
-                              Container(
-                                width: (totalWidth * .333) * .3,
-                                child: ElevatedButton(
-                                  onPressed: () => drawingController
-                                      .buildUpdateForm(id: drawingModel!.id!),
-                                  child: Text('Edit'),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
+                ],
+              )
+            ],
+          ),
+        ),
+        SizedBox(width: Get.width * .01),
+        Flexible(
+          flex: 66,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  FlexTextWidget(
+                    initialValue: drawingModel.structureType,
+                    labelText: 'Structure Type',
+                    flex: 20,
+                  ),
+                  Flexible(child: SizedBox()),
+                  FlexTextWidget(
+                    initialValue: drawingModel.area.join(', '),
+                    labelText: 'Area',
+                    flex: 10,
                   ),
                 ],
               ),
+              SizedBox(height: 10),
+              CustomTextFormField(
+                initialValue: drawingModel.functionalArea,
+                readOnly: readOnly,
+                labelText: 'Functional Area',
+              ),
+              SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  SizedBox(height: 34),
+                  if (staffController.isCoordinator)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () => drawingController.buildUpdateForm(
+                              id: drawingModel.id!),
+                          child: Text('Edit'),
+                        ),
+                      ],
+                    ),
+                ],
+              )
             ],
-          );
-  }
-
-  void onUpdatePressed(DrawingModel drawingModel) {
-    DrawingModel revisedOrNewModel = DrawingModel(
-      activityCodeId: drawingController.activityCodeIdText,
-      drawingNumber: drawingController.drawingNumberController.text,
-      drawingTitle: drawingController.drawingTitleController.text,
-      level: drawingController.levelText,
-      module: drawingController.moduleNameText,
-      structureType: drawingController.structureTypeText,
-      note: drawingController.drawingNoteController.text,
-      area: drawingController.areaList,
-      drawingTag: drawingController.drawingTagList,
-      functionalArea: drawingController.functionalAreaText,
+          ),
+        ),
+      ],
     );
-
-    drawingController.update(
-      updatedModel: revisedOrNewModel,
-      id: drawingModel.id!,
-    );
-  }
-
-  void onActivitiesChanged(activityId) {
-    ActivityModel? activityModel = activityController.getById(activityId);
-
-    drawingController.activityCodeIdText =
-        activityModel == null ? "" : activityModel.id!;
   }
 }

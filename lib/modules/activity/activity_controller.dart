@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
+import 'package:dops/models/base_table_view_controller.dart';
 import 'package:dops/modules/activity/widgets/activity_form_widget.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/task/task_model.dart';
@@ -11,7 +12,7 @@ import 'package:collection/collection.dart';
 import 'activity_model.dart';
 import 'activity_repository.dart';
 
-class ActivityController extends GetxService {
+class ActivityController extends BaseViewController {
   final GlobalKey<FormState> activityFormKey = GlobalKey<FormState>();
   final _repo = Get.find<ActivityRepository>();
 
@@ -25,11 +26,15 @@ class ActivityController extends GetxService {
       finishDateController;
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
-  RxBool loading = true.obs;
+
+  RxBool _loading = true.obs;
+  @override
+  bool get loading => _loading.value;
 
   String? moduleNameText = '';
 
   RxList<ActivityModel?> _documents = RxList<ActivityModel>([]);
+  @override
   List<ActivityModel?> get documents => _documents;
 
   @override
@@ -43,29 +48,19 @@ class ActivityController extends GetxService {
     finishDateController = TextEditingController();
     _documents.bindStream(_repo.getAllActivitiesAsStream());
     _documents.listen((List<ActivityModel?> taskModelList) {
-      if (taskModelList.isNotEmpty) loading.value = false;
+      if (taskModelList.isNotEmpty) _loading.value = false;
     });
   }
 
-  String? validateName(String value) {
-    if (value.isEmpty) {
-      return "Name can not be empty";
-    }
-    return null;
-  }
+  String? validateName(String value) =>
+      value.isEmpty ? "Name can not be empty" : null;
 
-  String? validateAddress(String value) {
-    if (value.isEmpty) {
-      return "Address can not be empty";
-    }
-    return null;
-  }
+  String? validateAddress(String value) =>
+      value.isEmpty ? "Address can not be empty" : null;
 
   updateDocument({required ActivityModel model, required String id}) async {
     final isValid = activityFormKey.currentState!.validate();
-    if (!isValid) {
-      return;
-    }
+    if (!isValid) return;
     activityFormKey.currentState!.save();
     //update
     CustomFullScreenDialog.showDialog();
@@ -84,9 +79,7 @@ class ActivityController extends GetxService {
   void deleteActivity(String id) => _repo.removeModel(id);
 
   @override
-  void onReady() {
-    super.onReady();
-  }
+  void onReady() => super.onReady();
 
   void clearEditingControllers() {
     activityIdController.clear();
@@ -116,45 +109,42 @@ class ActivityController extends GetxService {
   }
 
   catchError(FirebaseException error) {
-    {
-      CustomFullScreenDialog.cancelDialog();
-      CustomSnackBar.showSnackBar(
-        context: Get.context,
-        title: "Error",
-        message: "${error.message.toString()}",
-        backgroundColor: Colors.red,
-      );
-    }
+    CustomFullScreenDialog.cancelDialog();
+    CustomSnackBar.showSnackBar(
+      context: Get.context,
+      title: "Error",
+      message: "${error.message.toString()}",
+      backgroundColor: Colors.red,
+    );
   }
 
-  buildAddForm() {
+  @override
+  buildAddForm({String? parentId}) {
     clearEditingControllers();
-    getDialog(title: 'Add');
+    homeController.getDialog(
+      title: 'Add activity',
+      content: ActivityFormWidget(),
+    );
   }
 
+  @override
   buildUpdateForm({required String id}) {
-    final ActivityModel? activityModel = loading.value || documents.isEmpty
+    final ActivityModel? activityModel = loading || documents.isEmpty
         ? null
         : documents.firstWhereOrNull((e) => e!.id == id);
 
     if (activityModel == null) return;
 
     fillEditingControllers(activityModel);
-    getDialog(title: 'Update', id: id);
-  }
-
-  void getDialog({required String title, String? id}) {
-    Get.defaultDialog(
-      barrierDismissible: false,
-      radius: 12,
-      titlePadding: EdgeInsets.only(top: 10),
-      title: title,
+    homeController.getDialog(
+      title: 'Update activity',
       content: ActivityFormWidget(id: id),
     );
   }
 
-  List<Map<String, dynamic>?> get getDataForTableView {
-    return loading.value || documents.isEmpty
+  @override
+  List<Map<String, dynamic>?> get tableData {
+    return loading || documents.isEmpty
         ? []
         : documents.map((activity) {
             String assignedTasks = '';
@@ -162,7 +152,7 @@ class ActivityController extends GetxService {
             List<String?> drawingIdsOfActivity = [];
 
             if (drawingController.documents.isNotEmpty ||
-                !drawingController.loading.value) {
+                !drawingController.loading) {
               Iterable<DrawingModel?> drawingsOfActivity =
                   drawingController.documents.where((e) =>
                       e!.isHidden == false && e.activityCodeId == activity!.id);
@@ -172,31 +162,30 @@ class ActivityController extends GetxService {
                   : drawingsOfActivity.map((e) => e!.id).toList();
             }
 
-            List<TaskModel?> taskIdsOfDrawings = (taskController
-                        .documents.isNotEmpty ||
-                    !taskController.loading.value)
-                ? []
-                : taskController.documents
-                    .where(
-                        (task) => drawingIdsOfActivity.contains(task!.parentId))
-                    .toList();
+            List<TaskModel?> taskIdsOfDrawings =
+                (taskController.documents.isNotEmpty || !taskController.loading)
+                    ? []
+                    : taskController.documents
+                        .where((task) =>
+                            drawingIdsOfActivity.contains(task!.parentId))
+                        .toList();
 
             taskIdsOfDrawings.forEach((task) {
               if (task != null) {
-                DrawingModel? drawingModel = drawingController.loading.value ||
+                DrawingModel? drawingModel = drawingController.loading ||
                         drawingController.documents.isEmpty
                     ? null
                     : drawingController.documents
                         .firstWhereOrNull((e) => e!.id == task.parentId);
                 final String? drawingNumber =
                     drawingModel == null ? null : drawingModel.drawingNumber;
-                if (drawingNumber != null) {
+                if (![drawingNumber, task.id].contains(null)) {
                   assignedTasks += '|${drawingNumber};${task.id!}';
                 }
               }
             });
 
-            return <String, dynamic>{
+            Map<String, dynamic> map = <String, dynamic>{
               'id': activity!.id,
               'activityId': activity.activityId,
               'activityName': activity.activityName,
@@ -215,18 +204,19 @@ class ActivityController extends GetxService {
               'cumulative': activity.cumulative,
               'assignedTasks': assignedTasks,
             };
+            return homeController.getTableMap(map);
           }).toList();
   }
 
   ActivityModel? getById(String id) {
-    return loading.value || documents.isEmpty
+    return loading || documents.isEmpty
         ? null
         : documents.singleWhereOrNull((e) => e!.id == id);
   }
 
-  String? selectedActivities(String activityCodeId) {
+  String selectedActivities(String activityCodeId) {
     ActivityModel? activityModel = getById(activityCodeId);
-    return activityModel == null ? null : activityModel.activityId;
+    return activityModel == null ? ' ' : (activityModel.activityId ?? ' ');
   }
 
   int getPriority(DrawingModel drawing) {

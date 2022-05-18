@@ -19,7 +19,7 @@ import 'package:dops/modules/task/task_repository.dart';
 import 'package:dops/modules/values/value_controller.dart';
 import 'package:dops/modules/values/values_repository.dart';
 import 'package:dops/routes/app_pages.dart';
-import 'package:dops/services/firebase_service/firebase_storage_service.dart';
+import 'package:dops/services/firebase_service/firebase-database-service.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -134,12 +134,10 @@ Future<void> initServices() async {
 
   // Get.putAsync controllers
 
-  await Get.putAsync<HomeController>(() async => await HomeController());
-
-  await Get.putAsync<ListsController>(() async => await ListsController());
-
   await Get.putAsync<ActivityController>(
       () async => await ActivityController());
+
+  await Get.putAsync<ListsController>(() async => await ListsController());
 
   await Get.putAsync<ReferenceDocumentController>(
       () async => await ReferenceDocumentController());
@@ -153,6 +151,8 @@ Future<void> initServices() async {
   await Get.putAsync<StageController>(() async => await StageController());
 
   await Get.putAsync<ValueController>(() async => await ValueController());
+
+  await Get.putAsync<HomeController>(() async => await HomeController());
 }
 
 

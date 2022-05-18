@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/constants/lists.dart';
-import 'package:dops/services/firebase_service/firebase_storage_service.dart';
+import 'package:dops/services/firebase_service/firebase-database-service.dart';
 import 'lists_model.dart';
 import 'package:get/get.dart';
 

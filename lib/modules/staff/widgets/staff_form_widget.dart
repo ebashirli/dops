@@ -7,7 +7,10 @@ import 'package:get/get.dart';
 
 class StaffFormWidget extends StatelessWidget {
   final String? id;
-  const StaffFormWidget({Key? key, required this.id}) : super(key: key);
+  const StaffFormWidget({
+    Key? key,
+    this.id,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

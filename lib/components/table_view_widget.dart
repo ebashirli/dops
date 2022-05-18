@@ -1,66 +1,67 @@
 import 'package:dops/components/select_item_snackbar.dart';
 import 'package:dops/constants/constant.dart';
+import 'package:dops/modules/home/view_model.dart';
 import 'package:dops/routes/app_pages.dart';
 import 'package:expendable_fab/expendable_fab.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:recase/recase.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
-import '../constants/table_details.dart';
 
 import 'custom_widgets.dart';
 
-class TableView extends StatelessWidget {
-  final controller;
-  final String tableName;
+class TableViewWidget extends StatelessWidget {
+  TableViewWidget({Key? key}) : super(key: key);
 
-  TableView({
-    Key? key,
-    required this.controller,
-    required this.tableName,
-  }) : super(key: key);
+  final ViewModel tableViewModel = homeController.currentViewModel.value;
 
-  DataSource get dataSource => DataSource(data: controller.getDataForTableView);
+  DataSource get dataSource {
+    List<Map<String, dynamic>?> tableData =
+        tableViewModel.controller!.tableData;
+
+    return DataSource(data: tableData);
+  }
 
   @override
   Widget build(BuildContext context) {
     // TODO: apply timer here after several seconds that indicator turns column heads
-
-    return Obx(() => isDocumentsLoadingOrEmpty
-        ? Center(child: CircularProgressIndicator())
-        : Obx(
-            () => Scaffold(
-              floatingActionButton: baseFab(),
-              body: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: SfDataGrid(
-                  isScrollbarAlwaysShown: false,
-                  source: dataSource,
-                  columns: getColumns(tableColNames[tableName]!),
-                  gridLinesVisibility: GridLinesVisibility.both,
-                  headerGridLinesVisibility: GridLinesVisibility.both,
-                  columnWidthMode: ColumnWidthMode.fill,
-                  allowSorting: true,
-                  rowHeight: 70,
-                  controller: homeController.dataGridController.value,
-                  selectionMode: SelectionMode.singleDeselect,
-                  navigationMode: GridNavigationMode.row,
-                  onCellDoubleTap: onCellDoubleTap,
+    return Obx(() {
+      return isDocumentsLoadingOrEmpty
+          ? Center(child: CircularProgressIndicator())
+          : Obx(
+              () => Scaffold(
+                floatingActionButton: baseFab(),
+                body: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: SfDataGrid(
+                    isScrollbarAlwaysShown: false,
+                    source: dataSource,
+                    columns: getColumns(homeController.columnNames),
+                    gridLinesVisibility: GridLinesVisibility.both,
+                    headerGridLinesVisibility: GridLinesVisibility.both,
+                    columnWidthMode: ColumnWidthMode.auto,
+                    allowSorting: true,
+                    controller: homeController.dataGridController.value,
+                    selectionMode: SelectionMode.singleDeselect,
+                    navigationMode: GridNavigationMode.row,
+                    onCellDoubleTap: onCellDoubleTap,
+                  ),
                 ),
               ),
-            ),
-          ));
+            );
+    });
   }
 
   bool get isDocumentsLoadingOrEmpty {
-    return tableName == 'task'
-        ? drawingController.loading.value || drawingController.documents.isEmpty
-        : controller.loading.value || controller.documents.isEmpty;
+    return tableViewModel.tableName == 'task'
+        ? drawingController.loading || drawingController.documents.isEmpty
+        : tableViewModel.controller!.loading ||
+            tableViewModel.controller!.documents.isEmpty;
   }
 
   Widget? baseFab() {
     return staffController.isCoordinator
-        ? tableName == 'task'
+        ? tableViewModel.tableName == 'task'
             ? expandableFab()
             : fab()
         : null;
@@ -91,7 +92,7 @@ class TableView extends StatelessWidget {
   }
 
   void onCellDoubleTap(_) {
-    if (tableName == 'task') {
+    if (tableViewModel.tableName == 'task') {
       String? rowId = homeController.dataGridController.value.selectedRow!
           .getCells()[0]
           .value;
@@ -109,8 +110,9 @@ class TableView extends StatelessWidget {
       selectItemSnackbar();
     } else {
       String? id = selectedRow.getCells()[cellIndex].value;
+
       cellIndex == 0
-          ? controller.buildUpdateForm(id: id)
+          ? tableViewModel.controller!.buildUpdateForm(id: id!)
           : drawingController.buildUpdateForm(id: id!);
     }
   }
@@ -119,7 +121,7 @@ class TableView extends StatelessWidget {
     Get.defaultDialog(
       title: "Delete a staff member",
       titleStyle: TextStyle(fontSize: 20),
-      middleText: 'Are you sure to delete $tableName?',
+      middleText: 'Are you sure to delete ${tableViewModel.tableName}?',
       textCancel: "Cancel",
       textConfirm: "Confirm",
       confirmTextColor: Colors.black,
@@ -128,42 +130,58 @@ class TableView extends StatelessWidget {
     );
   }
 
-  List<GridColumn> getColumns(List<String> colNames) {
-    return colNames.map(
-      (colName) {
-        switch (colName) {
-          case 'parentid':
-          case 'id':
-            return GridColumn(
-              columnName: ReCase(colName).camelCase,
-              width: 0,
-              label: CustomText(
-                colName,
-              ),
-            );
-          default:
-            return GridColumn(
-              columnName: ReCase(colName).camelCase,
-              autoFitPadding: const EdgeInsets.all(8.0),
-              label: Center(
-                child: Container(
-                  decoration: BoxDecoration(),
-                  alignment: Alignment.center,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: CustomText(
-                      colName,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
+  List<GridColumn> getColumns(List<String?> colNames) {
+    return colNames.isEmpty
+        ? []
+        : colNames.map(
+            (colName) {
+              switch (colName) {
+                case 'Drawing Number':
+                  return GridColumn(
+                    columnWidthMode: ColumnWidthMode.auto,
+                    maximumWidth: 220,
+                    columnName: ReCase(colName!).camelCase,
+                    // autoFitPadding: const EdgeInsets.all(8.0),
+                    label: Center(
+                      child: Container(
+                        decoration: BoxDecoration(),
+                        alignment: Alignment.center,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CustomText(
+                            colName,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ),
-            );
-        }
-      },
-    ).toList();
+                  );
+                default:
+                  return GridColumn(
+                    columnWidthMode: ColumnWidthMode.auto,
+                    columnName: ReCase(colName!).camelCase,
+                    autoFitPadding: const EdgeInsets.all(8.0),
+                    label: Center(
+                      child: Container(
+                        decoration: BoxDecoration(),
+                        alignment: Alignment.center,
+                        child: Padding(
+                          padding: const EdgeInsets.all(0.0),
+                          child: CustomText(
+                            colName,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+              }
+            },
+          ).toList();
   }
 }
 
@@ -219,38 +237,28 @@ class DataSource extends DataGridSource {
             return Container(
               alignment: Alignment.center,
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: cell.columnName == 'files'
-                    ? TextButton(
-                        onPressed: cell.value.isNotEmpty
-                            ? () => filesDialog(cell.value)
-                            : null,
-                        child: Text(cell.value.length.toString()),
-                      )
-                    : (cell.columnName == 'assignedTasks' ||
-                            cell.columnName == 'drawingNumber')
-                        ? cell.columnName == 'drawingNumber'
-                            ? TextButton(
-                                onPressed: taskId == null
-                                    ? null
-                                    : () => onPressed(taskId!),
-                                child: textDrawingNumber,
-                              )
-                            : TextButton(
-                                onPressed: '|'.allMatches(cell.value).isNotEmpty
-                                    ? () =>
-                                        taskNumberDialog(cell.value, onPressed)
-                                    : null,
-                                child: Text('|'
-                                    .allMatches(cell.value)
-                                    .length
-                                    .toString()),
-                              )
-                        : CustomText(
-                            cell.value is DateTime
-                                ? dateTimeCellValue!.toDMYhm()
-                                : cell.value.toString(),
-                          ),
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child: ['assignedTasks', 'drawingNumber']
+                        .contains(cell.columnName)
+                    ? cell.columnName == 'drawingNumber'
+                        ? TextButton(
+                            onPressed: taskId == null
+                                ? null
+                                : () => onPressed(taskId!),
+                            child: textDrawingNumber,
+                          )
+                        : TextButton(
+                            onPressed: '|'.allMatches(cell.value).isNotEmpty
+                                ? () => taskNumberDialog(cell.value, onPressed)
+                                : null,
+                            child: Text(
+                                '|'.allMatches(cell.value).length.toString()),
+                          )
+                    : CustomText(
+                        cell.value is DateTime
+                            ? dateTimeCellValue!.toDMYhm()
+                            : cell.value.toString(),
+                      ),
               ),
             );
           } else {
@@ -265,7 +273,7 @@ class DataSource extends DataGridSource {
     String cellValue,
     void onPressed(String id),
   ) =>
-      Get.defaultDialog(
+      homeController.getDialog(
         title: 'Assigned Tasks',
         content: Column(
           children: cellValue.split('|').sublist(1).map<Widget>(

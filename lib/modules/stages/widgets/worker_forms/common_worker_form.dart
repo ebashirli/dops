@@ -10,8 +10,10 @@ class CommonWorkerForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
     return Obx(() {
       return Form(
+        key: formKey,
         child: Column(
           children: [
             SizedBox(height: 10),
@@ -37,13 +39,16 @@ class CommonWorkerForm extends StatelessWidget {
                   ),
                 if (stageDetailsList[index]['comment'] != null)
                   CustomDropdownMenuWithModel<String>(
+                    autoValidateMode: AutovalidateMode.always,
                     labelText: 'Comment',
                     itemAsString: (e) => e!,
                     width: 140,
-                    onChanged: (value) =>
-                        stageController.commentStatus.value = (value == 'With'),
+                    onChanged: (value) => stageController.commentStatus.value =
+                        value.contains('With'),
                     selectedItems: [''],
                     items: ['', 'With', 'Without'],
+                    validator: (value) =>
+                        value!.contains('') ? 'Select with or without!' : null,
                   ),
                 CustomTextFormField(
                   width: 200,
@@ -52,7 +57,13 @@ class CommonWorkerForm extends StatelessWidget {
                   controller: stageController.textEditingControllers.last,
                 ),
                 ElevatedButton(
-                  onPressed: stageController.onSubmitPressed,
+                  onPressed: () {
+                    final isValid = formKey.currentState!.validate();
+                    if (!isValid) {
+                      return;
+                    }
+                    stageController.onSubmitPressed();
+                  },
                   child: Text('Submit'),
                 ),
               ],

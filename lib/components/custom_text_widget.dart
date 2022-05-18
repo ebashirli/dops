@@ -6,10 +6,17 @@ class CustomText extends StatelessWidget {
   final Color? color;
   final FontWeight? weight;
   final TextStyle? style;
+  final bool selectable;
 
-  const CustomText(this.text,
-      {Key? key, this.size, this.color, this.weight, this.style})
-      : super(key: key);
+  const CustomText(
+    this.text, {
+    Key? key,
+    this.size,
+    this.color,
+    this.weight,
+    this.style,
+    this.selectable = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +29,15 @@ class CustomText extends StatelessWidget {
             selectionHandleColor: Colors.blue,
           ),
         ),
-        child: SelectableText(
-          text,
-          style: style,
-        ),
+        child: selectable
+            ? Text(
+                text,
+                style: style,
+              )
+            : SelectableText(
+                text,
+                style: style,
+              ),
       ),
     );
   }

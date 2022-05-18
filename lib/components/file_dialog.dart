@@ -1,7 +1,7 @@
+import 'package:dops/constants/constant.dart';
 import 'package:dops/services/file_api/file_api.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 void filesDialog(
   List<String?> fileNames, {
@@ -11,7 +11,7 @@ void filesDialog(
   List<String?>? valueModelIds,
   String? filingFolder,
 }) {
-  Get.defaultDialog(
+  homeController.getDialog(
     title: 'Files',
     content: Column(
       children: [

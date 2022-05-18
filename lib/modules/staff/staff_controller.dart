@@ -1,6 +1,7 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/table_details.dart';
+import 'package:dops/models/base_table_view_controller.dart';
 import 'package:dops/modules/staff/widgets/staff_form_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,7 @@ import 'package:get/get.dart';
 import 'staff_model.dart';
 import 'staff_repository.dart';
 
-class StaffController extends GetxService {
+class StaffController extends BaseViewController {
   final GlobalKey<FormState> staffFormKey = GlobalKey<FormState>();
   final _repo = Get.find<StaffRepository>();
   static StaffController instance = Get.find();
@@ -37,7 +38,9 @@ class StaffController extends GetxService {
 
   RxBool sortAscending = false.obs;
   RxInt sortColumnIndex = 0.obs;
-  RxBool loading = true.obs;
+  RxBool _loading = true.obs;
+  @override
+  bool get loading => _loading.value;
 
   RxList<StaffModel> _documents = RxList<StaffModel>([]);
   List<StaffModel> get documents => _documents;
@@ -76,7 +79,7 @@ class StaffController extends GetxService {
     _documents.bindStream(_repo.getAllDocumentsAsStream());
     _documents.listen((List<StaffModel?> staffModelList) {
       if (staffModelList.isNotEmpty) {
-        loading.value = false;
+        _loading.value = false;
       }
     });
   }
@@ -188,27 +191,26 @@ class StaffController extends GetxService {
     }
   }
 
-  buildAddForm({String? id}) {
+  @override
+  buildAddForm({String? parentId}) {
     clearEditingControllers();
-    getForm(title: 'Add staff');
+    homeController.getDialog(
+      title: 'Add staff',
+      content: StaffFormWidget(),
+    );
   }
 
+  @override
   buildUpdateForm({required String id}) {
     fillEditingControllers(id);
-    getForm(title: 'Update staff', id: id);
-  }
-
-  getForm({required String title, String? id}) {
-    Get.defaultDialog(
-      barrierDismissible: false,
-      radius: 12,
-      titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: title,
+    homeController.getDialog(
+      title: 'Update staff',
       content: StaffFormWidget(id: id),
     );
   }
 
-  List<Map<String, dynamic>> get getDataForTableView {
+  @override
+  List<Map<String, dynamic>?> get tableData {
     List<String> mapPropNames = mapPropNamesGetter('staff');
 
     return documents.map((staff) {
@@ -238,7 +240,7 @@ class StaffController extends GetxService {
         }
       });
 
-      return map;
+      return homeController.getTableMap(map);
     }).toList();
   }
 
@@ -262,7 +264,7 @@ class StaffController extends GetxService {
   }
 
   StaffModel? getById(String id) {
-    return loading.value || documents.isEmpty
+    return loading || documents.isEmpty
         ? null
         : documents.singleWhereOrNull((staff) => staff.id == id);
   }

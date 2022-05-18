@@ -32,13 +32,13 @@ List<Map<String, dynamic>> stageDetailsList = [
   // 1
   {
     'name': 'Modelling',
-    'staff job': 'Designers',
+    'staff job': 'Designer',
     'form fields': <String>['Weight', 'GAS', 'SFD', 'DTL'],
   },
   // 2
   {
     'name': 'Drafting',
-    'staff job': 'Drafters',
+    'staff job': 'Drafter',
     'form fields': <String>['Weight', 'GAS', 'SFD', 'DTL'],
     'file names': true,
   },
@@ -46,7 +46,7 @@ List<Map<String, dynamic>> stageDetailsList = [
   {
     'name': 'Checking',
     'get files': 'Get whitecopies',
-    'staff job': 'Checkers',
+    'staff job': 'Checker',
     'form fields': <String>['GAS', 'SFD', 'DTL'],
     'file names': true,
   },
@@ -54,7 +54,7 @@ List<Map<String, dynamic>> stageDetailsList = [
   {
     'name': 'Back Drafting',
     'get files': 'Get checkprints',
-    'staff job': 'Back Drafters',
+    'staff job': 'Back Drafter',
     'form fields': <String>[],
     'file names': true,
   },
@@ -62,7 +62,7 @@ List<Map<String, dynamic>> stageDetailsList = [
   {
     'name': 'Back Checking',
     'get files': 'Get checkprints',
-    'staff job': 'Back Checkers',
+    'staff job': 'Back Checker',
     'form fields': <String>[],
     'file names': true,
     "comment": true,

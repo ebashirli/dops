@@ -17,9 +17,7 @@ class AuthManager extends GetxService {
         email: email,
         password: password,
       );
-    } catch (firebaseAuthException) {
-      print(firebaseAuthException.toString());
-    }
+    } catch (firebaseAuthException) {}
     return null;
   }
 
@@ -31,9 +29,7 @@ class AuthManager extends GetxService {
         password: password,
       );
       if (auth.currentUser != null) initializeStaffModel();
-    } catch (firebaseAuthException) {
-      print(firebaseAuthException);
-    }
+    } catch (firebaseAuthException) {}
 
     isLoading.value = false;
   }

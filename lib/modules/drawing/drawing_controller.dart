@@ -1,6 +1,7 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/components/select_item_snackbar.dart';
 import 'package:dops/constants/constant.dart';
+import 'package:dops/models/base_table_view_controller.dart';
 import 'package:dops/modules/drawing/widgets/drawing_form_widget.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
@@ -10,12 +11,14 @@ import 'package:collection/collection.dart';
 import 'drawing_model.dart';
 import 'drawing_repository.dart';
 
-class DrawingController extends GetxService {
+class DrawingController extends BaseViewController {
   final GlobalKey<FormState> drawingFormKey = GlobalKey<FormState>();
   final _repo = Get.find<DrawingRepository>();
   static DrawingController instance = Get.find();
 
-  RxBool loading = true.obs;
+  RxBool _loading = true.obs;
+  @override
+  bool get loading => _loading.value;
 
   late TextEditingController drawingNumberController,
       nextRevisionMarkController,
@@ -33,6 +36,7 @@ class DrawingController extends GetxService {
       structureTypeText;
 
   RxList<DrawingModel?> _documents = RxList<DrawingModel>([]);
+  @override
   List<DrawingModel?> get documents => _documents;
 
   @override
@@ -54,7 +58,7 @@ class DrawingController extends GetxService {
 
     _documents.bindStream(_repo.getAllDocumentsAsStream());
     _documents.listen((List<DrawingModel?> drawingModelList) {
-      if (drawingModelList.isNotEmpty) loading.value = false;
+      if (drawingModelList.isNotEmpty) _loading.value = false;
     });
   }
 
@@ -89,7 +93,7 @@ class DrawingController extends GetxService {
   }
 
   DrawingModel? getById(String id) {
-    return loading.value || documents.isEmpty
+    return loading || documents.isEmpty
         ? null
         : documents.singleWhereOrNull((e) => e!.id == id);
   }
@@ -107,11 +111,6 @@ class DrawingController extends GetxService {
     }
 
     _repo.removeModel(id);
-  }
-
-  @override
-  void onReady() {
-    super.onReady();
   }
 
   void clearEditingControllers() {
@@ -145,39 +144,36 @@ class DrawingController extends GetxService {
     drawingTagList = drawingModel.drawingTag;
   }
 
-  buildAddForm() {
+  @override
+  buildAddForm({String? parentId}) {
     clearEditingControllers();
-    getDialog();
+    homeController.getDialog(
+      title: 'Add new drawing',
+      content: DrawingFormWidget(),
+    );
   }
 
+  @override
   buildUpdateForm({required String id}) {
     final DrawingModel? drawingModel = getById(id);
     drawingModel == null
         ? selectItemSnackbar()
         : fillEditingControllers(drawingModel);
 
-    getDialog(drawingId: id);
+    homeController.getDialog(
+      title: 'Update drawing',
+      content: DrawingFormWidget(id: id),
+    );
   }
 
-  void getDialog({String? drawingId, String? taskId}) => Get.defaultDialog(
-        barrierDismissible: false,
-        radius: 12,
-        titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-        title: drawingId == null ? 'Add new drawing' : 'Update drawing',
-        content: DrawingFormWidget(
-          dialogWidth: Get.width * 0.5,
-          drawingId: drawingId,
-        ),
-      );
-
-  DrawingModel? drawingModelByTaskModel(String? parentId) => (loading.value ||
+  DrawingModel? drawingModelByTaskModel(String? parentId) => (loading ||
           documents.isEmpty)
       ? null
       : drawingController.documents.firstWhereOrNull((e) => e!.id == parentId);
 
   List<DrawingModel?> get drawingModelsAssignedCU {
     return taskController.parentIdsAssignedCU.isEmpty ||
-            loading.value ||
+            loading ||
             documents.isEmpty
         ? []
         : documents
@@ -187,11 +183,14 @@ class DrawingController extends GetxService {
 
   List<DrawingModel?> get drawingModelsNotAssignedYet {
     return taskController.parentIdsNotAssignedYet.isEmpty ||
-            loading.value ||
+            loading ||
             documents.isEmpty
         ? []
         : taskController.parentIdsNotAssignedYet
             .map((e) => getById(e!))
             .toList();
   }
+
+  @override
+  List<Map<String, dynamic>?> get tableData => throw UnimplementedError();
 }

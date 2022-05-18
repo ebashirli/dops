@@ -16,6 +16,8 @@ class FilingStageWorkerForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
     if (valueModel != null)
       for (int i = 0; i < stageController.filingFiles.length; i++) {
         stageController.filingFiles[i].fileNames =
@@ -25,6 +27,7 @@ class FilingStageWorkerForm extends StatelessWidget {
     return valueModel == null
         ? SizedBox()
         : Form(
+            key: formKey,
             child: Container(
               height: 384,
               child: Row(
@@ -157,7 +160,9 @@ class FilingStageWorkerForm extends StatelessWidget {
                                 Obx(() => ElevatedButton(
                                       onPressed: !isChecked.value
                                           ? null
-                                          : stageController.onSubmitPressed,
+                                          : formKey.currentState!.validate()
+                                              ? null
+                                              : stageController.onSubmitPressed,
                                       child: Text('Submit'),
                                     )),
                                 SizedBox(width: 100),

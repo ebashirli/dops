@@ -8,14 +8,14 @@ import 'package:get/get.dart';
 class DrawingFormWidget extends StatelessWidget {
   const DrawingFormWidget({
     Key? key,
-    required this.dialogWidth,
-    this.drawingId,
+    this.id,
   }) : super(key: key);
-  final double dialogWidth;
-  final String? drawingId;
+  final String? id;
 
   @override
   Widget build(BuildContext context) {
+    final double dialogWidth = Get.width * 0.5;
+
     List<String?>? drawingTagItems =
         listsController.document.drawingTags == null
             ? null
@@ -29,17 +29,18 @@ class DrawingFormWidget extends StatelessWidget {
           topLeft: Radius.circular(8),
         ),
       ),
-      child: Form(
-        key: drawingController.drawingFormKey,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        child: SizedBox(
-          width: dialogWidth,
+      height: Get.height * .3,
+      child: SizedBox(
+        width: dialogWidth,
+        child: Form(
+          key: drawingController.drawingFormKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              SizedBox(
-                height: 160,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Flexible(
+                flex: 8,
+                child: ListView(
                   children: <Widget>[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -83,6 +84,7 @@ class DrawingFormWidget extends StatelessWidget {
                             )),
                       ],
                     ),
+                    SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
@@ -113,28 +115,23 @@ class DrawingFormWidget extends StatelessWidget {
                             )),
                       ],
                     ),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        CustomTextFormField(
-                          controller: drawingController.drawingTitleController,
-                          labelText: 'Drawing Title',
-                          width: dialogWidth * .7,
-                        ),
-                        CustomDropdownMenuWithModel<String?>(
-                          showSearchBox: true,
-                          isMultiSelectable: true,
-                          labelText: 'Drawing tags',
-                          items: drawingTagItems,
-                          onChanged: (values) =>
-                              drawingController.drawingTagList = values,
-                          selectedItems: drawingController.drawingTagList,
-                          itemAsString: (v) => v.toString(),
-                          width: dialogWidth * .29,
-                        ),
-                      ],
+                    SizedBox(height: 10),
+                    CustomTextFormField(
+                      controller: drawingController.drawingTitleController,
+                      labelText: 'Drawing Title',
                     ),
+                    SizedBox(height: 10),
+                    CustomDropdownMenuWithModel<String?>(
+                      showSearchBox: true,
+                      isMultiSelectable: true,
+                      labelText: 'Drawing tags',
+                      items: drawingTagItems,
+                      onChanged: (values) =>
+                          drawingController.drawingTagList = values,
+                      selectedItems: drawingController.drawingTagList,
+                      itemAsString: (v) => v.toString(),
+                    ),
+                    SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
@@ -164,34 +161,36 @@ class DrawingFormWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: 10),
-              Row(
-                children: <Widget>[
-                  if (drawingId != null)
-                    ElevatedButton.icon(
-                      onPressed: onDeletePressed,
-                      icon: Icon(Icons.delete),
-                      label: const Text('Delete'),
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                          Colors.red,
+              // Flexible(child: SizedBox(height: 10)),
+              Flexible(
+                child: Row(
+                  children: <Widget>[
+                    if (id != null)
+                      ElevatedButton.icon(
+                        onPressed: onDeletePressed,
+                        icon: Icon(Icons.delete),
+                        label: const Text('Delete'),
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                            Colors.red,
+                          ),
                         ),
                       ),
+                    const Spacer(),
+                    ElevatedButton(
+                      onPressed: () => Get.back(),
+                      child: const Text('Cancel'),
                     ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () => Get.back(),
-                    child: const Text('Cancel'),
-                  ),
-                  SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: onUpdateAddPressed,
-                    child: Text(
-                      drawingId != null ? 'Update' : 'Add',
+                    SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: onUpdateAddPressed,
+                      child: Text(
+                        id != null ? 'Update' : 'Add',
+                      ),
                     ),
-                  ),
-                ],
-              )
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -200,7 +199,7 @@ class DrawingFormWidget extends StatelessWidget {
   }
 
   void onDeletePressed() {
-    drawingController.deleteDrawing(drawingId!);
+    drawingController.deleteDrawing(id!);
     Get.back();
   }
 
@@ -218,10 +217,9 @@ class DrawingFormWidget extends StatelessWidget {
       drawingTag: drawingController.drawingTagList,
     );
 
-    drawingId == null
+    id == null
         ? drawingController.add(model: revisedOrNewDrawing)
-        : drawingController.update(
-            updatedModel: revisedOrNewDrawing, id: drawingId!);
+        : drawingController.update(updatedModel: revisedOrNewDrawing, id: id!);
   }
 
   List<String> itemsReferenceDocuments() {
@@ -245,7 +243,7 @@ class DrawingFormWidget extends StatelessWidget {
         activityModel == null ? '' : activityModel.id!;
   }
 
-  ActivityModel? get activitiCodeSelectedItem => drawingId != null
+  ActivityModel? get activitiCodeSelectedItem => id != null
       ? activityController.getById(drawingController.activityCodeIdText)
       : null;
 }

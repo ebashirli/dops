@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
+import 'package:dops/models/base_table_view_controller.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/reference_document/widgets/ref_doc_add_update_form_widget.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,7 @@ import 'package:get/get.dart';
 import 'reference_document_model.dart';
 import 'reference_document_repository.dart';
 
-class ReferenceDocumentController extends GetxService {
+class ReferenceDocumentController extends BaseViewController {
   final GlobalKey<FormState> referenceDocumentFormKey = GlobalKey<FormState>();
   final _repo = Get.find<ReferenceDocumentRepository>();
   static ReferenceDocumentController instance = Get.find();
@@ -29,8 +30,12 @@ class ReferenceDocumentController extends GetxService {
 
   RxList<ReferenceDocumentModel> _documents =
       RxList<ReferenceDocumentModel>([]);
+  @override
   List<ReferenceDocumentModel> get documents => _documents;
-  RxBool loading = true.obs;
+
+  RxBool _loading = true.obs;
+  @override
+  bool get loading => _loading.value;
 
   @override
   void onInit() {
@@ -43,7 +48,7 @@ class ReferenceDocumentController extends GetxService {
     _documents.bindStream(_repo.getAllDocumentsAsStream());
     _documents.listen((List<ReferenceDocumentModel?> refDocList) {
       if (refDocList.isNotEmpty) {
-        loading.value = false;
+        _loading.value = false;
       }
     });
   }
@@ -121,22 +126,20 @@ class ReferenceDocumentController extends GetxService {
     }
   }
 
-  buildAddForm() {
+  @override
+  buildAddForm({String? parentId}) {
     clearEditingControllers();
-    getForm(title: 'Add Reference Document');
+    homeController.getDialog(
+      title: 'Add Reference Document',
+      content: RefDocAddUpdateFormWidget(),
+    );
   }
 
+  @override
   buildUpdateForm({required String id}) {
     fillEditingControllers(id);
-    getForm(title: 'Update Reference Document', id: id);
-  }
-
-  getForm({required String title, String? id}) {
-    Get.defaultDialog(
-      barrierDismissible: false,
-      radius: 12,
-      titlePadding: EdgeInsets.only(top: 20),
-      title: title,
+    homeController.getDialog(
+      title: 'Update Reference Document',
       content: RefDocAddUpdateFormWidget(id: id),
     );
   }
@@ -145,24 +148,25 @@ class ReferenceDocumentController extends GetxService {
     actionRequiredOrNext.value = value!;
   }
 
-  List<Map<String, dynamic>> get getDataForTableView {
+  @override
+  List<Map<String, dynamic>?> get tableData {
     return documents.map((refDoc) {
       String assignedTasks = '';
 
-      if (!taskController.loading.value ||
-          taskController.documents.isNotEmpty) {
+      if (!taskController.loading || taskController.documents.isNotEmpty) {
         taskController.documents.forEach(
           (task) {
-            DrawingModel? drawingModel = drawingController.loading.value ||
-                    drawingController.documents.isEmpty
-                ? null
-                : drawingController.documents
-                    .firstWhereOrNull((e) => e!.id == task!.parentId);
+            DrawingModel? drawingModel =
+                drawingController.loading || drawingController.documents.isEmpty
+                    ? null
+                    : drawingController.documents
+                        .firstWhereOrNull((e) => e!.id == task!.parentId);
 
             final String? drawingNumber =
                 drawingModel == null ? null : drawingModel.drawingNumber;
 
-            if (task!.referenceDocuments.contains(refDoc.documentNumber)) {
+            if (drawingNumber != null &&
+                task!.referenceDocuments.contains(refDoc.documentNumber)) {
               assignedTasks += '|${drawingNumber};${task.id}';
             }
           },
@@ -183,7 +187,7 @@ class ReferenceDocumentController extends GetxService {
         'assignedTasks': assignedTasks,
       };
 
-      return map;
+      return homeController.getTableMap(map);
     }).toList();
   }
 }

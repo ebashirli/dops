@@ -51,7 +51,7 @@ Map<String, List<String>> tableColNames = {
   ],
   'task': [
     'id',
-    'parentid',
+    'parentId',
     'Priority',
     'Activity Code',
     'Drawing Number',
@@ -70,17 +70,6 @@ Map<String, List<String>> tableColNames = {
     'Reference Documents',
     'Change Number',
     'Task Create Date',
-  ],
-  'issue': [
-    'id',
-    'Group Number',
-    'Created By',
-    'Create Date',
-    'Linked Tasks',
-    'Files',
-    'Notes',
-    'Close/Close Date',
-    'Issue/Issue Date',
   ],
 };
 

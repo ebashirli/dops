@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class CustomDropdownMenuWithModel<T> extends StatelessWidget {
   final List<T>? items;
   final void Function(List<T?>) onChanged;
+  final String? Function(List<T?>?)? validator;
   final String Function(T?) itemAsString;
   final List<T?> selectedItems;
   final bool isMultiSelectable;
@@ -14,6 +15,7 @@ class CustomDropdownMenuWithModel<T> extends StatelessWidget {
   final double? width;
   final double? height;
   final bool enabled;
+  final AutovalidateMode? autoValidateMode;
 
   CustomDropdownMenuWithModel({
     Key? key,
@@ -22,13 +24,15 @@ class CustomDropdownMenuWithModel<T> extends StatelessWidget {
     required this.onChanged,
     required this.itemAsString,
     required this.labelText,
+    this.validator,
     this.isMultiSelectable = false,
     this.showSearchBox = true,
     this.showClearButton = false,
     this.clearButtonBuilder,
     this.width = 350,
-    this.height = 30,
+    this.height,
     this.enabled = true,
+    this.autoValidateMode = AutovalidateMode.disabled,
   }) : super(key: key);
 
   @override
@@ -38,6 +42,9 @@ class CustomDropdownMenuWithModel<T> extends StatelessWidget {
       height: height,
       child: !isMultiSelectable
           ? DropdownSearch<T>(
+              autoValidateMode: autoValidateMode,
+              validator:
+                  validator == null ? null : (value) => validator!([value]),
               dropdownButtonSplashRadius: 10,
               enabled: enabled,
               selectedItem: selectedItems.isNotEmpty ? selectedItems[0] : null,
@@ -59,6 +66,8 @@ class CustomDropdownMenuWithModel<T> extends StatelessWidget {
               showClearButton: showClearButton,
             )
           : DropdownSearch<T?>.multiSelection(
+              autoValidateMode: autoValidateMode,
+              validator: validator,
               dropdownButtonSplashRadius: 10,
               enabled: enabled,
               selectedItems: selectedItems,

@@ -30,7 +30,8 @@ class StageController extends GetxService {
 
   RxList<StageModel?> _documents = RxList<StageModel>([]);
   List<StageModel?> get documents => _documents;
-  RxBool loading = true.obs;
+  RxBool _loading = true.obs;
+  bool get loading => _loading.value;
   late List<TextEditingController> textEditingControllers;
   late TextEditingController noteController;
   late TextEditingController emailController;
@@ -41,7 +42,7 @@ class StageController extends GetxService {
 
     _documents.bindStream(_repo.getAllDocumentsAsStream());
     _documents.listen((List<StageModel?> stageModelList) {
-      if (stageModelList.isNotEmpty) loading.value = false;
+      if (stageModelList.isNotEmpty) _loading.value = false;
     });
 
     textEditingControllers =
@@ -61,7 +62,7 @@ class StageController extends GetxService {
 
   List<StageModel?> get stagesOfCurrentTask {
     List<StageModel?> _stagesOfCurrentTask =
-        (documents.isNotEmpty || currentTask != null) || !loading.value
+        (documents.isNotEmpty || currentTask != null) || !loading
             ? documents
                 .where((stageModel) => stageModel!.taskId == currentTask!.id)
                 .toList()
@@ -73,7 +74,7 @@ class StageController extends GetxService {
   }
 
   StageModel? getById(String id) {
-    return loading.value || documents.isEmpty
+    return loading || documents.isEmpty
         ? null
         : documents.singleWhereOrNull((e) => e!.id == id);
   }
@@ -114,19 +115,19 @@ class StageController extends GetxService {
   }
 
   List<StageModel?> getStagesOfTask(TaskModel? taskModel) =>
-      loading.value || taskModel == null
+      loading || taskModel == null
           ? []
           : documents.where((e) => e!.taskId == taskModel.id).toList();
 
   StageModel? getFirstStageOfFirstTask(TaskModel? taskModel) =>
-      (stageController.loading.value || taskModel == null)
+      (stageController.loading || taskModel == null)
           ? null
           : documents.firstWhereOrNull(
               (e) => e!.index == 0 && e.taskId == taskModel.id);
 
   List<Map<StageModel, List<ValueModel?>>?> getStagesAndValueModelsByTask(
       TaskModel? taskModel) {
-    if (documents.isEmpty || taskController.loading.value || taskModel == null)
+    if (documents.isEmpty || taskController.loading || taskModel == null)
       return [];
 
     List<StageModel?> stagesOfTask = getStagesOfTask(taskModel);
@@ -138,16 +139,16 @@ class StageController extends GetxService {
 
     if (!isFirstTask) {
       TaskModel? firstTaskModel =
-          taskController.loading.value || taskController.documents.isEmpty
+          taskController.loading || taskController.documents.isEmpty
               ? null
               : taskController.documents
                   .firstWhereOrNull((e) => e!.parentId == taskModel.parentId);
       StageModel? firstStageModel =
-          firstTaskModel == null || documents.isEmpty || loading.value
+          firstTaskModel == null || documents.isEmpty || loading
               ? null
               : documents.firstWhereOrNull(
                   (e) => e!.taskId == firstTaskModel.id && e.index == 0);
-      if (valueController.loading.value ||
+      if (valueController.loading ||
           valueController.documents.isEmpty ||
           firstStageModel == null) {
         firstValueModelOfFirstTask = null;
@@ -173,7 +174,7 @@ class StageController extends GetxService {
   }
 
   List<ValueModel?> getFirstValueModelOfFirstTask(StageModel? stageModel) {
-    List<ValueModel?> valueModels = valueController.loading.value ||
+    List<ValueModel?> valueModels = valueController.loading ||
             valueController.documents.isEmpty ||
             stageModel == null
         ? []
@@ -251,8 +252,6 @@ class StageController extends GetxService {
       .obs;
 
   final RxBool commentStatus = false.obs;
-
-  final RxBool commentCheckbox = false.obs;
 
   final RxInt issueGroup = 0.obs;
 
@@ -415,7 +414,7 @@ class StageController extends GetxService {
     } else if (getStagesAndValueModelsByTask(taskModel).length < 8) {
       return false;
     } else {
-      return valueController.loading.value
+      return valueController.loading
           ? false
           : getStagesAndValueModelsByTask(taskModel)[7]!.values.first.isEmpty
               ? false
@@ -552,7 +551,6 @@ class StageController extends GetxService {
     files.value = [];
     filingFiles.forEach((e) => e.files.value = <PlatformFile>[]);
     commentStatus.value = false;
-    commentCheckbox.value = false;
   }
 
   void onFileButtonPressed({
@@ -622,15 +620,11 @@ class StageController extends GetxService {
               stageAndValueModelsOfCurrentTask.last!.values.first.isNotEmpty) ||
           (item.index == 0 && !taskController.checkFirstTask(currentTask!)));
 
-  String phaseInitialValue() {
-    if (stageAndValueModelsOfCurrentTask.isEmpty) return ' ';
-    final List<ValueModel?> listValueModel =
-        stageController.stageAndValueModelsOfCurrentTask.first!.values.first;
-
-    if (listValueModel.first == null) return ' ';
-
-    return listValueModel.first!.phase.toString();
-  }
+  int? get phaseInitialValue => stageAndValueModelsOfCurrentTask.isEmpty
+      ? null
+      : stageAndValueModelsOfCurrentTask.first!.values.first.isEmpty
+          ? null
+          : stageAndValueModelsOfCurrentTask.first!.values.first.first!.phase;
 
   void copyToClipBoard(int index) {
     Clipboard.setData(
@@ -668,7 +662,7 @@ class StageController extends GetxService {
   }
 
   List<StageModel?> get stageModelsAssignedCU {
-    return loading.value || documents.isEmpty
+    return loading || documents.isEmpty
         ? []
         : documents
             .where(
@@ -677,7 +671,7 @@ class StageController extends GetxService {
   }
 
   List<StageModel?> get stageModelsNotAssignedYet {
-    return loading.value || documents.isEmpty
+    return loading || documents.isEmpty
         ? []
         : documents.where((e) {
             return e!.index != 0
@@ -702,7 +696,7 @@ class StageController extends GetxService {
   }
 
   List<StageModel?> get stageModelsWithoutValueModels {
-    return loading.value || documents.isEmpty
+    return loading || documents.isEmpty
         ? []
         : documents
             .where((e) => valueController.checkIfParentIdsContains(e!.id!))
@@ -730,6 +724,7 @@ class FilingFiles {
   });
 
   List<String?> get fileNames =>
+      // ignore: invalid_use_of_protected_member
       files.isNotEmpty ? files.map((e) => e!.name).toList() : _fileNames.value;
 
   set fileNames(List<String?> fns) => _fileNames.value = fns;

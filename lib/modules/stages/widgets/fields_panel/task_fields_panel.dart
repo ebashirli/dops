@@ -1,8 +1,8 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
+import 'package:dops/modules/stages/widgets/fields_panel/custom_flex_text_field.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class TaskFieldsWidget extends StatelessWidget {
   const TaskFieldsWidget({Key? key, required this.taskModel}) : super(key: key);
@@ -10,113 +10,131 @@ class TaskFieldsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double totalWidth = Get.width - 120;
-    final bool enabled = false;
+    final bool readonly = true;
 
-    return Column(
+    final double width = MediaQuery.of(context).size.width;
+    final double btwFields = width * .005;
+    final double btwColumns = width * .01;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            CustomTextFormField(
-              enabled: enabled,
-              width: totalWidth * .05,
-              initialValue: taskModel.revisionMark,
-              labelText: 'Revision mark',
-            ),
-            CustomTextFormField(
-              enabled: enabled,
-              width: totalWidth * .12,
-              readOnly: true,
-              initialValue: taskController.getRevTypeAndStatus(taskModel),
-              labelText: 'Revision Type',
-            ),
-            CustomTextFormField(
-              enabled: enabled,
-              width: totalWidth * .12,
-              readOnly: true,
-              initialValue: taskController.getRevTypeAndStatus(
-                taskModel,
-                isStatus: true,
+        Flexible(
+          flex: 4,
+          child: Column(
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  FlexTextWidget(
+                    initialValue: taskModel.revisionMark,
+                    labelText: 'Revision mark',
+                  ),
+                  SizedBox(width: btwFields),
+                  FlexTextWidget(
+                    initialValue: taskController.getRevTypeAndStatus(taskModel),
+                    labelText: 'Revision Type',
+                  ),
+                  SizedBox(width: btwFields),
+                  FlexTextWidget(
+                    initialValue: taskController.getRevTypeAndStatus(
+                      taskModel,
+                      isStatus: true,
+                    ),
+                    labelText: 'Revision Status',
+                  ),
+                  SizedBox(width: btwFields),
+                  FlexTextWidget(
+                    initialValue: taskModel.changeNumber == 0
+                        ? " "
+                        : '${taskModel.changeNumber}',
+                    labelText: 'ECF Number',
+                  ),
+                ],
               ),
-              labelText: 'Revision Status',
-            ),
-            CustomTextFormField(
-              enabled: enabled,
-              width: totalWidth * .1,
-              readOnly: true,
-              initialValue: taskModel.changeNumber.toString(),
-              labelText: 'ECF Number',
-            ),
-            // SizedBox(width: 2),
-            CustomTextFormField(
-              enabled: enabled,
-              width: totalWidth * .09,
-              readOnly: true,
-              initialValue: taskModel.creationDate!.toDMYhm(),
-              labelText: 'Task create date',
-            ),
-            CustomTextFormField(
-              enabled: enabled,
-              width: totalWidth * .09,
-              readOnly: true,
-              initialValue: stageController.lastActivityAndStatusDate(
-                taskModel,
-                isStatus: true,
+              SizedBox(height: 8),
+              CustomTextFormField(
+                initialValue: taskModel.referenceDocuments.join(', '),
+                readOnly: readonly,
+                labelText: 'Reference Documents',
               ),
-              labelText: 'Status date',
-            ),
-            CustomTextFormField(
-              enabled: enabled,
-              width: totalWidth * .09,
-              readOnly: true,
-              initialValue:
-                  stageController.lastActivityAndStatusDate(taskModel),
-              labelText: 'Last activity date',
-            ),
-            CustomTextFormField(
-              enabled: enabled,
-              width: totalWidth * .04,
-              readOnly: true,
-              initialValue: taskController.precentageProvider(taskModel),
-              labelText: 'Completion %',
-            ),
-            CustomTextFormField(
-              enabled: enabled,
-              width: totalWidth * .19,
-              initialValue: taskController.getActivityStatus(taskModel),
-              labelText: 'Activity Status',
-            ),
-          ],
+            ],
+          ),
         ),
-        SizedBox(height: 14),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            CustomTextFormField(
-              initialValue: taskModel.referenceDocuments.join(', '),
-              width: totalWidth * .44,
-              enabled: enabled,
-              labelText: 'Reference Documents',
-            ),
-            CustomTextFormField(
-              initialValue: taskModel.note,
-              enabled: enabled,
-              width: totalWidth * .35,
-              labelText: 'Note',
-            ),
-            SizedBox(width: 145),
-            if (staffController.isCoordinator)
-              Container(
-                width: (totalWidth * .333) * .3,
-                child: ElevatedButton(
-                  onPressed: () =>
-                      taskController.buildUpdateForm(id: taskModel.id!),
-                  child: Text('Edit'),
-                ),
-              )
-          ],
+        SizedBox(width: btwColumns),
+        Flexible(
+          flex: 4,
+          child: Column(
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  FlexTextWidget(
+                    initialValue: taskModel.creationDate!.toDMYhm(),
+                    labelText: 'Task create date',
+                  ),
+                  SizedBox(width: btwFields),
+                  FlexTextWidget(
+                    initialValue: stageController.lastActivityAndStatusDate(
+                      taskModel,
+                      isStatus: true,
+                    ),
+                    labelText: 'Status date',
+                  ),
+                  SizedBox(width: btwFields),
+                  FlexTextWidget(
+                    initialValue:
+                        stageController.lastActivityAndStatusDate(taskModel),
+                    labelText: 'Last activity date',
+                  ),
+                  SizedBox(width: btwFields),
+                  FlexTextWidget(
+                    controller: TextEditingController()
+                      ..text = taskController
+                          .precentageProvider(taskModel)
+                          .toString(),
+                    labelText: 'Completion %',
+                  ),
+                ],
+              ),
+              SizedBox(height: 8),
+              CustomTextFormField(
+                initialValue: taskModel.note,
+                readOnly: readonly,
+                labelText: 'Note',
+              ),
+            ],
+          ),
+        ),
+        SizedBox(width: btwColumns),
+        Flexible(
+          flex: 2,
+          child: Column(
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  FlexTextWidget(
+                    initialValue: taskController.getActivityStatus(taskModel),
+                    labelText: 'Activity Status',
+                  ),
+                ],
+              ),
+              SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  SizedBox(height: 32),
+                  if (staffController.isCoordinator)
+                    ElevatedButton(
+                      onPressed: () =>
+                          taskController.buildUpdateForm(id: taskModel.id!),
+                      child: Text('Edit'),
+                    ),
+                ],
+              ),
+            ],
+          ),
         ),
       ],
     );

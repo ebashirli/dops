@@ -1,5 +1,3 @@
-import 'package:dops/components/extentions.dart';
-import 'package:dops/enum.dart';
 import 'package:dops/modules/staff/staff_model.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -47,11 +45,10 @@ class CacheManager extends GetxService {
   Future<void> removeID() async =>
       await box.remove(CacheManagerKey.ID.toString());
 
-  Future<void> saveHomeState(HomeStates homeState) async {
-    await box.write(CacheManagerKey.HOMESTATE.toString(), homeState.toString());
-  }
+  Future<void> saveSelectedIndex(int index) async =>
+      await box.write(CacheManagerKey.INDEX.toString(), index);
 
-  String? getHomeState() => box.read(CacheManagerKey.HOMESTATE.toString());
+  int? getIndex() => box.read(CacheManagerKey.INDEX.toString());
 
   Future<void> saveValueModelIds(List<String?> valueModelIds) async =>
       await box.write(CacheManagerKey.VALUEMODELIDS.toString(), valueModelIds);
@@ -70,6 +67,6 @@ enum CacheManagerKey {
   PASSWORD,
   STAFF,
   ID,
-  HOMESTATE,
+  INDEX,
   VALUEMODELIDS,
 }

@@ -197,9 +197,7 @@ class DataSource extends DataGridSource {
             child: Center(
               child: TextButton(
                 onPressed: () {
-                  stageValueModelsList.forEach((e) {
-                    if (e!.fileNames != null) print(e.fileNames);
-                  });
+                  stageValueModelsList.forEach((e) {});
                 },
                 child: Text(
                   summaryValue,

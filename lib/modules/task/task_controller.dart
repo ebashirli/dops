@@ -5,7 +5,7 @@ import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/components/select_item_snackbar.dart';
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
-import 'package:dops/enum.dart';
+import 'package:dops/models/base_table_view_controller.dart';
 import 'package:dops/modules/activity/activity_model.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:dops/modules/stages/stage_model.dart';
@@ -18,7 +18,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'task_model.dart';
 import 'task_repository.dart';
 
-class TaskController extends GetxService {
+class TaskController extends BaseViewController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final _repo = Get.find<TaskRepository>();
   static TaskController instance = Get.find();
@@ -28,7 +28,8 @@ class TaskController extends GetxService {
       holdReasonController;
   late List<String> referenceDocumentsList;
   final RxBool isHeld = false.obs;
-  RxBool loading = true.obs;
+  RxBool _loading = true.obs;
+  bool get loading => _loading.value;
 
   RxList<TaskModel?> _documents = RxList<TaskModel?>([]);
   List<TaskModel?> get documents => _documents.isEmpty
@@ -46,7 +47,7 @@ class TaskController extends GetxService {
 
     _documents.bindStream(_repo.getAllDocumentsAsStream());
     _documents.listen((List<TaskModel?> taskModelList) {
-      if (taskModelList.isNotEmpty) loading.value = false;
+      if (taskModelList.isNotEmpty) _loading.value = false;
     });
   }
 
@@ -132,11 +133,18 @@ class TaskController extends GetxService {
     isHeld.value = taskModel.holdReason != null;
   }
 
-  void buildAddForm({required String parentId}) {
+  @override
+  void buildAddForm({String? parentId}) {
     clearEditingControllers();
-    formDialog(drawingId: parentId);
+    homeController.getDialog(
+      title: 'Add task',
+      content: TaskAddUpdateForm(
+        drawingId: parentId,
+      ),
+    );
   }
 
+  @override
   void buildUpdateForm({required String? id}) {
     if (id == null) {
       selectItemSnackbar();
@@ -145,30 +153,21 @@ class TaskController extends GetxService {
       if (taskModel == null) return;
 
       fillEditingControllers(taskModel);
-      formDialog(id: id);
+      homeController.getDialog(
+        title: 'Update task',
+        content: TaskAddUpdateForm(id: id),
+      );
     }
   }
 
-  void formDialog({String? id, String? drawingId}) {
-    Get.defaultDialog(
-      barrierDismissible: false,
-      radius: 12,
-      // titlePadding: EdgeInsets.only(top: 20, bottom: 20),
-      title: id == null ? 'Add next revision' : 'Update current revision',
-      content: TaskAddUpdateForm(id: id, drawingId: drawingId),
-    );
-  }
-
   List<TaskModel?> get taskModelsAssignedCU =>
-      stageController.taskIdsAsignedCU.isEmpty ||
-              loading.value ||
-              documents.isEmpty
+      stageController.taskIdsAsignedCU.isEmpty || loading || documents.isEmpty
           ? []
           : stageController.taskIdsAsignedCU.map((e) => getById(e!)).toList();
 
   List<TaskModel?> get taskModelsNotAssignedYet =>
       stageController.taskIdsNotAsignedYet.isEmpty ||
-              loading.value ||
+              loading ||
               documents.isEmpty
           ? []
           : stageController.taskIdsAsignedCU.map((e) => getById(e!)).toList();
@@ -182,14 +181,15 @@ class TaskController extends GetxService {
       : taskModelsNotAssignedYet.map((e) => e!.parentId).toList();
 
   TaskModel? getLastTaskByParentId(String? id) {
-    if (id == null || loading.value || documents.isEmpty) return null;
+    if (id == null || loading || documents.isEmpty) return null;
     return documents.lastWhereOrNull((e) => e!.parentId == id);
   }
 
-  List<Map<String, dynamic>?> get getDataForTableView {
+  @override
+  List<Map<String, dynamic>?> get tableData {
     List<DrawingModel?> drawingDocuments = [];
 
-    if (homeController.homeState == HomeStates.MyTasksState) {
+    if (homeController.currentViewModel.value.isMyTasks) {
       drawingDocuments = drawingController.drawingModelsAssignedCU;
       if (staffController.isCoordinator) {
         drawingDocuments = [
@@ -199,12 +199,12 @@ class TaskController extends GetxService {
       }
     } else {
       drawingDocuments =
-          drawingController.loading.value ? [] : drawingController.documents;
+          drawingController.loading ? [] : drawingController.documents;
     }
 
     late Map<String, dynamic> map;
 
-    return drawingDocuments.isEmpty
+    return drawingDocuments.isEmpty || homeController.columnNames.isEmpty
         ? []
         : drawingDocuments.map(
             (e) {
@@ -222,7 +222,7 @@ class TaskController extends GetxService {
                     taskModel == null ? null : taskModel.revisionMark,
                 'drawingTitle': e.drawingTitle,
                 'taskStatus': taskStatusProvider(taskModel),
-                'drawingTag': e.drawingTag,
+                'drawingTag': e.drawingTag.join(", "),
                 'module': e.module,
                 'revisionType':
                     taskModel == null ? null : getRevTypeAndStatus(taskModel),
@@ -241,7 +241,7 @@ class TaskController extends GetxService {
                 'taskCreateDate':
                     taskModel == null ? null : taskModel.creationDate,
               };
-              return map;
+              return homeController.getTableMap(map);
             },
           ).toList();
   }
@@ -404,13 +404,13 @@ class TaskController extends GetxService {
   String? get selectedTaskId =>
       homeController.dataGridController.value.selectedRow!.getCells()[0].value;
 
-  TaskModel? get selectedTask => loading.value
+  TaskModel? get selectedTask => loading
       ? null
       : documents.firstWhereOrNull((e) => e!.id == selectedTaskId);
 
   bool get isTaskCompleted {
     // TODO: Rearrage here
-    String? taskId = homeController.getSelectedId();
+    String? taskId = homeController.selectedId;
     TaskModel? taskModel = taskId == null ? null : getById(taskId);
     final List<Map<StageModel, List<ValueModel?>>?> valueModelList =
         stageController.getStagesAndValueModelsByTask(taskModel);
@@ -422,11 +422,11 @@ class TaskController extends GetxService {
   }
 
   List<TaskModel?> taskModelsByDrawingId(String? drawingId) =>
-      (loading.value || documents.isEmpty || drawingId == null)
+      (loading || documents.isEmpty || drawingId == null)
           ? []
           : documents.where((e) => e!.parentId == drawingId).toList();
 
-  bool checkFirstTask(TaskModel? taskModel) => (loading.value ||
+  bool checkFirstTask(TaskModel? taskModel) => (loading ||
           documents.isEmpty ||
           taskModel == null)
       ? false
@@ -434,7 +434,7 @@ class TaskController extends GetxService {
           taskModel;
 
   TaskModel? getById(String id) {
-    return (loading.value || documents.isEmpty)
+    return (loading || documents.isEmpty)
         ? null
         : documents.singleWhereOrNull((e) => e!.id == id);
   }
@@ -444,7 +444,7 @@ class TaskController extends GetxService {
     TaskModel? lastTaskModel = null;
 
     if (parentId != null && documents.isNotEmpty) {
-      lastTaskModel = loading.value || documents.isEmpty
+      lastTaskModel = loading || documents.isEmpty
           ? null
           : documents.lastWhereOrNull((e) => e!.parentId == parentId);
     }
@@ -473,7 +473,7 @@ class TaskController extends GetxService {
   }
 
   removeDeletedIds(List<String?> ids) {
-    List<String?> taskIds = (loading.value || documents.isEmpty || ids.isEmpty)
+    List<String?> taskIds = (loading || documents.isEmpty || ids.isEmpty)
         ? []
         : taskController.documents.map((e) => e!.id).toList();
     return ids.where((id) => taskIds.contains(id)).toList();

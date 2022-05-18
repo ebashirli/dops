@@ -15,7 +15,8 @@ class ValueController extends GetxService {
 
   final RxBool containsHold = false.obs;
 
-  RxBool loading = true.obs;
+  RxBool _loading = true.obs;
+  bool get loading => _loading.value;
 
   List<ValueModel?> get documents => _documents;
 
@@ -37,10 +38,10 @@ class ValueController extends GetxService {
 
     _documents.bindStream(_repo.getAllDocumentsAsStream());
     _documents.listen((List<ValueModel?> valueModelList) {
-      if (valueModelList.isNotEmpty) loading.value = false;
+      if (valueModelList.isNotEmpty) _loading.value = false;
 
       Set<String?> valueModelIdsAssignedCU =
-          loading.value ? {} : valueModelsAssignedCU.map((e) => e!.id).toSet();
+          loading ? {} : valueModelsAssignedCU.map((e) => e!.id).toSet();
 
       List a = cacheManager.getValueModelIds();
 
@@ -73,7 +74,7 @@ class ValueController extends GetxService {
       : [];
 
   List<ValueModel?> get valueModelsAssignedCU {
-    return loading.value || documents.isEmpty
+    return loading || documents.isEmpty
         ? []
         : documents
             .where(
@@ -84,7 +85,7 @@ class ValueController extends GetxService {
             .toList();
   }
 
-  Set<String?> get parentIds => loading.value || documents.isEmpty
+  Set<String?> get parentIds => loading || documents.isEmpty
       ? {}
       : documents.map((e) => e!.stageId).toSet();
 
@@ -106,7 +107,6 @@ class ValueController extends GetxService {
       if (stageModel != null) {
         int index = stageModel.index;
         String job = stageDetailsList[index]['staff job'];
-        job = job.substring(0, job.length - 1);
 
         QuickNotify.notify(
           title: stageDetailsList[index]['name'],

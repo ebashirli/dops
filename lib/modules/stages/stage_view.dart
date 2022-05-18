@@ -1,6 +1,7 @@
 // import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
+import 'package:dops/constants/style.dart';
 import 'package:dops/modules/stages/widgets/custom_expansion_panel_list.dart';
 import 'package:dops/modules/stages/widgets/fields_panel/fields_panel_widget.dart';
 import 'package:dops/routes/app_pages.dart';
@@ -9,31 +10,41 @@ import 'package:get/get.dart';
 
 class StageView extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: stageViewAppBar(),
-        // floatingActionButton: CustomExpendableFab(),
-        body: SingleChildScrollView(
+  Widget build(BuildContext context) {
+    double fieldsPanelHeigth = Get.height * .39;
+    return Scaffold(
+      appBar: stageViewAppBar(),
+      // floatingActionButton: CustomExpendableFab(),
+      body: Obx(() {
+        return SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(50, 10, 50, 0),
-            child: Column(
-              children: [
-                FieldsPanelWidget(),
-                SizedBox(
-                  height: Get.height * .468,
-                  child: Center(
-                    child: Obx(() => stageController.loading.value ||
-                            stageController.documents.isEmpty
-                        ? CircularProgressIndicator()
-                        : CustomExpansionPanelList(
-                            data: stageController.generateItems(),
-                          )),
+            padding: const EdgeInsets.fromLTRB(30, 10, 30, 0),
+            child: drawingController.loading ||
+                    taskController.loading ||
+                    stageController.loading ||
+                    valueController.loading ||
+                    stageController.documents.isEmpty
+                ? LinearProgressIndicator(
+                    backgroundColor: light,
+                  )
+                : Column(
+                    children: [
+                      SizedBox(
+                        height: fieldsPanelHeigth,
+                        child: FieldsPanelWidget(),
+                      ),
+                      SizedBox(
+                        height: Get.height - fieldsPanelHeigth,
+                        child: CustomExpansionPanelList(
+                            data: stageController.generateItems()),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ),
-        ),
-      );
+        );
+      }),
+    );
+  }
 
   AppBar stageViewAppBar() {
     return AppBar(
@@ -42,14 +53,15 @@ class StageView extends StatelessWidget {
         icon: Icon(Icons.home),
       ),
       actions: [
-        Center(child: CustomText(cacheManager.getStaff()!.initial)),
-        IconButton(
-          onPressed: () {
-            authManager.signOut();
-            Get.offAndToNamed(Routes.SPLASH);
-          },
-          icon: Icon(Icons.logout),
+        CircleAvatar(
+          child: Text(
+            cacheManager.getStaff()!.initial,
+            style: TextStyle(fontSize: 13),
+          ),
         ),
+        CustomPopUpMenuWidget(
+          isStageView: true
+        )
       ],
     );
   }

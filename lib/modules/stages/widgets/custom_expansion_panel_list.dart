@@ -36,7 +36,12 @@ class _CustomExpansionPanelListState extends State<CustomExpansionPanelList> {
         return ExpansionPanel(
           canTapOnHeader: true,
           headerBuilder: (BuildContext context, bool isExpanded) {
-            return ListTile(title: Center(child: CustomText(item.headerValue)));
+            return ListTile(
+                title: Center(
+                    child: CustomText(
+              item.headerValue,
+              selectable: true,
+            )));
           },
           body: ExpansionPanelBody(item: item),
           isExpanded: item.isExpanded,

@@ -127,48 +127,33 @@ class FilingStageWorkerForm extends StatelessWidget {
                                 stageController.textEditingControllers.last,
                           ),
                           SizedBox(height: 6),
-                          InkWell(
-                            onTap: () => isChecked.value = !isChecked.value,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Obx(() {
-                                  return Checkbox(
-                                    checkColor: Colors.white,
-                                    value: isChecked.value,
-                                    onChanged: (bool? isCh) =>
-                                        isChecked.value = isCh!,
-                                  );
-                                }),
-                                Column(
+                          Obx(() {
+                            return Column(
+                              children: [
+                                CheckboxListTile(
+                                  title: Text(
+                                      'By clicking this checkbox I confirm that all files are attached correctly and below appropriate task'),
+                                  controlAffinity:
+                                      ListTileControlAffinity.leading,
+                                  checkColor: Colors.white,
+                                  value: isChecked.value,
+                                  onChanged: (bool? isCh) =>
+                                      isChecked.value = isCh!,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-                                    SizedBox(height: 6),
-                                    CustomText(
-                                      'By clicking this checkbox I confirm that all files\nare attached correctly and below appropriate task',
+                                    ElevatedButton(
+                                      onPressed: !isChecked.value
+                                          ? null
+                                          : stageController.onSubmitPressed,
+                                      child: Text('Submit'),
                                     ),
                                   ],
                                 ),
                               ],
-                            ),
-                          ),
-                          SizedBox(height: 20),
-                          Container(
-                            color: Colors.amberAccent,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Obx(() => ElevatedButton(
-                                      onPressed: !isChecked.value
-                                          ? null
-                                          : formKey.currentState!.validate()
-                                              ? null
-                                              : stageController.onSubmitPressed,
-                                      child: Text('Submit'),
-                                    )),
-                                SizedBox(width: 100),
-                              ],
-                            ),
-                          ),
+                            );
+                          }),
                         ],
                       ),
                     )

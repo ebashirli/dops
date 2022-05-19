@@ -60,7 +60,8 @@ class TableViewWidget extends StatelessWidget {
   }
 
   Widget? baseFab() {
-    return staffController.isCoordinator
+    return staffController.isCoordinator &&
+            !homeController.currentViewModel.value.isMonitoring
         ? tableViewModel.tableName == 'task'
             ? expandableFab()
             : fab()

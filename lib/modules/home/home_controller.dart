@@ -121,9 +121,12 @@ class HomeController extends GetxService {
       .map((colName) => ReCase(colName!).camelCase)
       .toList();
 
-  void getDialog({required String title, Widget? content}) {
+  void getDialog(
+      {required String title,
+      Widget? content,
+      bool barrierDismissible = false}) {
     Get.defaultDialog(
-      barrierDismissible: false,
+      barrierDismissible: barrierDismissible,
       radius: 12,
       titlePadding: EdgeInsets.only(top: 20, bottom: 20),
       title: title,

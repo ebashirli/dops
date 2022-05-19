@@ -237,7 +237,8 @@ class DataSource extends DataGridSource {
                                 ? () => taskNumberDialog(cell.value, onPressed)
                                 : null,
                             child: Text(
-                                '|'.allMatches(cell.value).length.toString()),
+                              '|'.allMatches(cell.value).length.toString(),
+                            ),
                           )
                     : CustomText(
                         cell.value is DateTime
@@ -259,6 +260,7 @@ class DataSource extends DataGridSource {
     void onPressed(String id),
   ) =>
       homeController.getDialog(
+        barrierDismissible: true,
         title: 'Assigned Tasks',
         content: Column(
           children: cellValue.split('|').sublist(1).map<Widget>(
@@ -266,7 +268,7 @@ class DataSource extends DataGridSource {
               String taskId = taskNoId.split(';')[1];
               return TextButton(
                 onPressed: () => onPressed(taskId),
-                child: CustomText(taskController.taskNumber(taskNoId, taskId)),
+                child: Text(taskController.taskNumber(taskNoId, taskId)),
               );
             },
           ).toList(),

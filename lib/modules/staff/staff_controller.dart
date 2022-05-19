@@ -1,6 +1,5 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
-import 'package:dops/constants/table_details.dart';
 import 'package:dops/models/base_table_view_controller.dart';
 import 'package:dops/modules/staff/widgets/staff_form_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -45,14 +44,14 @@ class StaffController extends BaseViewController {
   RxList<StaffModel> _documents = RxList<StaffModel>([]);
   List<StaffModel> get documents => _documents;
 
-  Rx<StaffModel?> _currentStaff = Rx(cacheManager.getStaff());
+  Rx<StaffModel?> _currentStaff = Rx(cacheManager.getStaff);
   StaffModel? get currentStaff => _currentStaff.value;
 
-  bool get isCoordinator => cacheManager.getStaff() != null
-      ? cacheManager.getStaff()!.systemDesignation == 'Coordinator'
+  bool get isCoordinator => cacheManager.getStaff != null
+      ? cacheManager.getStaff!.systemDesignation == 'Coordinator'
       : false;
 
-  String get currentUserId => auth.currentUser!.uid;
+  String? get currentUserId => auth.currentUser?.uid;
 
   @override
   void onInit() {
@@ -211,12 +210,10 @@ class StaffController extends BaseViewController {
 
   @override
   List<Map<String, dynamic>?> get tableData {
-    List<String> mapPropNames = mapPropNamesGetter('staff');
-
     return documents.map((staff) {
       Map<String, dynamic> staffMap = staff.toMap();
       Map<String, dynamic> map = {};
-      mapPropNames.forEach((mapPropName) {
+      homeController.mapPropNames.forEach((mapPropName) {
         switch (mapPropName) {
           case 'id':
             map[mapPropName] = staff.id!;

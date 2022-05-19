@@ -9,14 +9,14 @@ class CacheManager extends GetxService {
   Future<void> saveStaff(StaffModel staffModel) async =>
       await box.write(CacheManagerKey.STAFF.toString(), staffModel.toMap());
 
-  StaffModel? getStaff() {
+  StaffModel? get getStaff {
     Map<String, dynamic>? logedInStaff =
         box.read(CacheManagerKey.STAFF.toString()) as Map<String, dynamic>?;
 
     return logedInStaff != null
         ? StaffModel.fromMap(
             logedInStaff,
-            getID(),
+            getID,
           )
         : null;
   }
@@ -27,20 +27,17 @@ class CacheManager extends GetxService {
   Future<void> savePassword(String password) async =>
       await box.write(CacheManagerKey.PASSWORD.toString(), password);
 
-  String? getPassword() => box.read(CacheManagerKey.PASSWORD.toString());
+  String? get getPassword => box.read(CacheManagerKey.PASSWORD.toString());
 
   Future<void> saveEmail(String email) async =>
       await box.write(CacheManagerKey.EMAIL.toString(), email);
 
-  String? getEmail() => box.read(CacheManagerKey.EMAIL.toString());
+  String? get getEmail => box.read(CacheManagerKey.EMAIL.toString());
 
   Future<void> saveID(String id) async =>
       await box.write(CacheManagerKey.ID.toString(), id);
 
-  String? getID() {
-    String? id = box.read(CacheManagerKey.ID.toString());
-    return id;
-  }
+  String? get getID => box.read(CacheManagerKey.ID.toString());
 
   Future<void> removeID() async =>
       await box.remove(CacheManagerKey.ID.toString());
@@ -48,15 +45,13 @@ class CacheManager extends GetxService {
   Future<void> saveSelectedIndex(int index) async =>
       await box.write(CacheManagerKey.INDEX.toString(), index);
 
-  int? getIndex() => box.read(CacheManagerKey.INDEX.toString());
+  int? get getIndex => box.read(CacheManagerKey.INDEX.toString());
 
   Future<void> saveValueModelIds(List<String?> valueModelIds) async =>
       await box.write(CacheManagerKey.VALUEMODELIDS.toString(), valueModelIds);
 
-  List getValueModelIds() {
-    List? valueModelIds = box.read(CacheManagerKey.VALUEMODELIDS.toString());
-    return valueModelIds ?? [];
-  }
+  List get getValueModelIds =>
+      box.read(CacheManagerKey.VALUEMODELIDS.toString());
 
   Future<void> removevalueModelIds() async =>
       await box.remove(CacheManagerKey.VALUEMODELIDS.toString());

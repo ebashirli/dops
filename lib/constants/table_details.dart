@@ -1,5 +1,3 @@
-import 'package:recase/recase.dart';
-
 Map<String, List<String>> tableColNames = {
   'reference document': [
     'id',
@@ -29,12 +27,12 @@ Map<String, List<String>> tableColNames = {
   ],
   'staff': [
     'id',
+    'Full name',
+    'Initial',
     'Badge No',
     'Name',
     'Surname',
     'Patronymic',
-    'Full name',
-    'Initial',
     'System Designation',
     'Job Title',
     'Email',
@@ -72,9 +70,3 @@ Map<String, List<String>> tableColNames = {
     'Task Create Date',
   ],
 };
-
-List<String> mapPropNamesGetter(String tableName) {
-  return tableColNames[tableName]!
-      .map((colName) => ReCase(colName).camelCase)
-      .toList();
-}

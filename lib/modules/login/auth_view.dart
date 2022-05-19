@@ -14,8 +14,8 @@ class LoginView extends GetView<AuthManager> {
   final focusNode = FocusNode();
   @override
   Widget build(BuildContext context) {
-    emailController.text = cacheManager.getEmail() ?? '';
-    passwordController.text = cacheManager.getPassword() ?? '';
+    emailController.text = cacheManager.getEmail ?? '';
+    passwordController.text = cacheManager.getPassword ?? '';
     return RawKeyboardListener(
       autofocus: true,
       focusNode: FocusNode(),

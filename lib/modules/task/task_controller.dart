@@ -433,10 +433,35 @@ class TaskController extends BaseViewController {
       : documents.firstWhereOrNull((e) => e!.parentId == taskModel.parentId) ==
           taskModel;
 
-  TaskModel? getById(String id) {
-    return (loading || documents.isEmpty)
-        ? null
-        : documents.singleWhereOrNull((e) => e!.id == id);
+  TaskModel? getById(String id) =>
+      documents.singleWhereOrNull((e) => e?.id == id);
+
+  List<TaskModel?> getByIds(List<String?> ids) =>
+      documents.where((e) => ids.contains(e?.id)).toList();
+
+  List<TaskModel?> taskModelsByEmployeeId({
+    required String employeeId,
+    required int index,
+  }) {
+    List<String?> taskIds = stageController.taskIdsByEmployeeId(
+      employeeId: employeeId,
+      index: index,
+    );
+    return getByIds(taskIds);
+  }
+
+  List<String?> getTaskNamesByEmpoyeeIdAndIndex(
+      {required String employeeId, required int index}) {
+    List<String?> taskNames = taskModelsByEmployeeId(
+      employeeId: employeeId,
+      index: index,
+    ).map((e) {
+      DrawingModel? drawingModel = drawingController.getById(e?.parentId);
+
+      return '${drawingModel?.drawingNumber}-${e?.revisionMark}';
+    }).toList();
+
+    return taskNames;
   }
 
   String? getRevisionMarkById({String? taskId, String? parentId}) {

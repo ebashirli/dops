@@ -92,7 +92,7 @@ class DrawingController extends BaseViewController {
     Get.back();
   }
 
-  DrawingModel? getById(String id) {
+  DrawingModel? getById(String? id) {
     return loading || documents.isEmpty
         ? null
         : documents.singleWhereOrNull((e) => e!.id == id);

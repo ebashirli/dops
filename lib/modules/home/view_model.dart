@@ -19,4 +19,5 @@ class ViewModel {
   bool get isTaskView => itemName == 'task' && title != 'My Tasks';
   bool get isMyTasks => title == 'My Tasks';
   bool get isDrawings => title == 'Drawings';
+  bool get isMonitoring => title == 'Monitoring';
 }

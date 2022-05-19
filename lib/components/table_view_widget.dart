@@ -133,55 +133,35 @@ class TableViewWidget extends StatelessWidget {
   List<GridColumn> getColumns(List<String?> colNames) {
     return colNames.isEmpty
         ? []
-        : colNames.map(
-            (colName) {
-              switch (colName) {
-                case 'Drawing Number':
-                  return GridColumn(
-                    columnWidthMode: ColumnWidthMode.auto,
-                    maximumWidth: 220,
-                    columnName: ReCase(colName!).camelCase,
-                    // autoFitPadding: const EdgeInsets.all(8.0),
-                    label: Center(
-                      child: Container(
-                        decoration: BoxDecoration(),
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: CustomText(
-                            colName,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+        : colNames
+            .map(
+              (colName) => GridColumn(
+                columnWidthMode: ColumnWidthMode.auto,
+                maximumWidth: colName == 'Drawing Number'
+                    ? 220
+                    : ['id', 'parentId'].contains(colName)
+                        ? 0
+                        : double.nan,
+                columnName: ReCase(colName!).camelCase,
+                autoFitPadding: const EdgeInsets.all(8.0),
+                label: Center(
+                  child: Container(
+                    decoration: BoxDecoration(),
+                    alignment: Alignment.center,
+                    child: Padding(
+                      padding: const EdgeInsets.all(0.0),
+                      child: CustomText(
+                        colName,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                  );
-                default:
-                  return GridColumn(
-                    columnWidthMode: ColumnWidthMode.auto,
-                    columnName: ReCase(colName!).camelCase,
-                    autoFitPadding: const EdgeInsets.all(8.0),
-                    label: Center(
-                      child: Container(
-                        decoration: BoxDecoration(),
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: const EdgeInsets.all(0.0),
-                          child: CustomText(
-                            colName,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-              }
-            },
-          ).toList();
+                  ),
+                ),
+              ),
+            )
+            .toList();
   }
 }
 
@@ -211,6 +191,10 @@ class DataSource extends DataGridSource {
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     return DataGridRowAdapter(
+      color: homeController.currentViewModel.value.isMonitoring &&
+              row.getCells()[3].value == 0
+          ? Colors.red[100]
+          : null,
       cells: row.getCells().map<Widget>(
         (cell) {
           if (cell.value != null) {

@@ -40,24 +40,11 @@ class ValueController extends GetxService {
     _documents.listen((List<ValueModel?> valueModelList) {
       if (valueModelList.isNotEmpty) _loading.value = false;
 
-      Set<String?> valueModelIdsAssignedCU =
-          loading ? {} : valueModelsAssignedCU.map((e) => e!.id).toSet();
-
-      List a = cacheManager.getValueModelIds();
-
-      Set<String?> oldValueModelIdsAssignedCU =
-          a.isNotEmpty ? a.map((e) => e.toString()).toSet() : {};
-
       valueModelIdsAssignedCU
-          .difference(oldValueModelIdsAssignedCU)
-          .forEach((e) {
-        if (e != null) {
-          getNotificationContent(e);
-        }
-      });
+          .difference(cacheManager.getValueModelIds.toSet())
+          .forEach((e) => getNotificationContent(e));
 
       cacheManager.saveValueModelIds(valueModelIdsAssignedCU.toList());
-      // cacheManager.removevalueModelIds();
     });
   }
 
@@ -66,24 +53,29 @@ class ValueController extends GetxService {
     super.onReady();
   }
 
-  ValueModel? getById(String id) =>
-      documents.firstWhere((e) => e == null ? false : e.id == id);
+  ValueModel? getById(String? id) => documents.firstWhere((e) => e?.id == id);
 
   List<ValueModel?> valueModelsByStageId(String stageId) => documents.isNotEmpty
       ? documents.where((e) => e!.stageId == stageId).toList()
       : [];
 
-  List<ValueModel?> get valueModelsAssignedCU {
-    return loading || documents.isEmpty
-        ? []
-        : documents
-            .where(
-              (e) =>
-                  e!.submitDateTime == null &&
-                  e.employeeId == staffController.currentUserId,
-            )
-            .toList();
+  List<ValueModel?> get valueModelsAssignedCU =>
+      staffController.currentUserId == null
+          ? []
+          : valueModelsByEmployeeId(staffController.currentUserId!);
+
+  List<ValueModel?> valueModelsByEmployeeId(String id) {
+    return documents
+        .where((e) => e?.submitDateTime == null && e?.employeeId == id)
+        .toList();
   }
+
+  List<String?> stageIdsByEmployeeId(String id) {
+    return valueModelsByEmployeeId(id).map((e) => e?.stageId).toList();
+  }
+
+  Set<String?> get valueModelIdsAssignedCU =>
+      loading ? {} : valueModelsAssignedCU.map((e) => e!.id).toSet();
 
   Set<String?> get parentIds => loading || documents.isEmpty
       ? {}
@@ -100,7 +92,7 @@ class ValueController extends GetxService {
   bool checkIfStageModelAssignedCUById(String id) =>
       stageIdsOfVmsAssignedCurrentUser.contains(id);
 
-  void getNotificationContent(String id) {
+  void getNotificationContent(String? id) {
     ValueModel? valueModel = getById(id);
     if (valueModel != null) {
       StageModel? stageModel = stageController.getById(valueModel.stageId);

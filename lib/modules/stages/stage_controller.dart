@@ -53,8 +53,7 @@ class StageController extends GetxService {
 
   String? get currentTaskId => Get.parameters['id'];
 
-  TaskModel? get currentTask =>
-      currentTaskId == null ? null : taskController.getById(currentTaskId!);
+  TaskModel? get currentTask => taskController.getById(currentTaskId!);
 
   DrawingModel? get currentDrawing => currentTask == null
       ? null
@@ -77,6 +76,37 @@ class StageController extends GetxService {
     return loading || documents.isEmpty
         ? null
         : documents.singleWhereOrNull((e) => e!.id == id);
+  }
+
+  List<StageModel?> getByIdsAndIndex({
+    required List<String?> ids,
+    required int index,
+  }) {
+    return documents
+        .where((e) => e?.index == index)
+        .where((e) => ids.contains(e?.id))
+        .toList();
+  }
+
+  List<StageModel?> stageModelsByEmployeeId({
+    required String employeeId,
+    required int index,
+  }) {
+    List<String?> stageIds = valueController.stageIdsByEmployeeId(employeeId);
+    return getByIdsAndIndex(
+      ids: stageIds,
+      index: index,
+    );
+  }
+
+  List<String?> taskIdsByEmployeeId({
+    required String employeeId,
+    required int index,
+  }) {
+    return stageModelsByEmployeeId(
+      employeeId: employeeId,
+      index: index,
+    ).map((e) => e?.taskId).toList();
   }
 
   void fillEditingControllers() {
@@ -315,7 +345,7 @@ class StageController extends GetxService {
     List<List<String>> rows = valueModelList.isNotEmpty
         ? valueModelList.map((ValueModel? valueModel) {
             return [
-              cacheManager.getStaff()!.initial,
+              cacheManager.getStaff!.initial,
               ...specialFieldNames
                   .map((fn) => valueModel!.toMap()[fn.toLowerCase()] != null
                       ? valueModel.toMap()[ReCase(fn).camelCase].toString()
@@ -355,7 +385,8 @@ class StageController extends GetxService {
 
       assigningEmployeeIds = assigningStaffModels.map((e) => e!.id!).toSet();
     } else {
-      assigningEmployeeIds = {staffController.currentUserId};
+      if (staffController.currentUserId == null) return;
+      assigningEmployeeIds = {staffController.currentUserId!};
       sendEmail(
         drawingNo:
             '${currentDrawing!.drawingNumber}-${currentTask!.revisionMark}',

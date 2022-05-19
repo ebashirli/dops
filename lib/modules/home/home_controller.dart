@@ -1,5 +1,6 @@
 import 'package:dops/components/filter_columns_widget.dart';
 import 'package:dops/constants/constant.dart';
+import 'package:dops/constants/lists.dart';
 import 'package:dops/constants/table_details.dart';
 import 'package:dops/modules/activity/widgets/activity_form_widget.dart';
 import 'package:dops/modules/drawing/widgets/drawing_form_widget.dart';
@@ -21,8 +22,12 @@ class HomeController extends GetxService {
   @override
   Future<void> onInit() async {
     super.onInit();
-    selectedIndex.value = cacheManager.getIndex() ?? 0;
+    selectedIndex.value = cacheManager.getIndex ?? 0;
     columns.value = currentViewModel.value.columns!
+        .sublist(currentViewModel.value.isDrawings ||
+                currentViewModel.value.isMyTasks
+            ? 2
+            : 1)
         .map((e) => CheckBoxState(title: e!, value: true.obs))
         .toList();
     columnNames.value = currentViewModel.value.columns!;
@@ -65,6 +70,13 @@ class HomeController extends GetxService {
       'columns': tableColNames['task'],
     },
     {
+      'title': 'Drawings',
+      'itemName': 'task',
+      'controller': taskController,
+      'formWidget': DrawingFormWidget,
+      'columns': tableColNames['task'],
+    },
+    {
       'title': 'Activity Code',
       'itemName': 'activity',
       'controller': activityController,
@@ -79,11 +91,15 @@ class HomeController extends GetxService {
       'columns': tableColNames['reference document'],
     },
     {
-      'title': 'Drawings',
-      'itemName': 'task',
-      'controller': taskController,
-      'formWidget': DrawingFormWidget,
-      'columns': tableColNames['task'],
+      'title': 'Monitoring',
+      'itemName': 'monitoring',
+      'controller': monitoringController,
+      'formWidget': SizedBox(),
+      'columns': [
+        ...tableColNames['staff']!.sublist(0, 3),
+        'Count',
+        ...stageDetailsList.map<String>((e) => e['name']).toList(),
+      ],
     },
     {
       'title': 'Staff',
@@ -100,6 +116,10 @@ class HomeController extends GetxService {
       'isTableView': false,
     },
   ];
+
+  List<String> get mapPropNames => currentViewModel.value.columns!
+      .map((colName) => ReCase(colName!).camelCase)
+      .toList();
 
   void getDialog({required String title, Widget? content}) {
     Get.defaultDialog(

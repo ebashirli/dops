@@ -55,13 +55,11 @@ class StageView extends StatelessWidget {
       actions: [
         CircleAvatar(
           child: Text(
-            cacheManager.getStaff()!.initial,
+            cacheManager.getStaff!.initial,
             style: TextStyle(fontSize: 13),
           ),
         ),
-        CustomPopUpMenuWidget(
-          isStageView: true
-        )
+        CustomPopUpMenuWidget(isStageView: true)
       ],
     );
   }

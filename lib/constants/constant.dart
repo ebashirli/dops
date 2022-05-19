@@ -6,6 +6,7 @@ import 'package:dops/modules/activity/activity_controller.dart';
 import 'package:dops/modules/drawing/drawing_controller.dart';
 import 'package:dops/modules/home/home_controller.dart';
 import 'package:dops/modules/list/lists_controller.dart';
+import 'package:dops/modules/monitoring/monitoring_controller.dart';
 import 'package:dops/modules/reference_document/reference_document_controller.dart';
 import 'package:dops/modules/staff/staff_controller.dart';
 import 'package:dops/modules/stages/stage_controller.dart';
@@ -24,6 +25,7 @@ ListsController listsController = ListsController.instance;
 StaffController staffController = StaffController.instance;
 StageController stageController = StageController.instance;
 ValueController valueController = ValueController.instance;
+MonitoringController monitoringController = MonitoringController.instance;
 FirebaseAuth auth = FirebaseAuth.instance;
 CacheManager cacheManager = CacheManager.instance;
 

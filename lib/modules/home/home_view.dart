@@ -13,13 +13,11 @@ class HomeView extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     controller.requestNotificationPermission();
-    return Obx(() {
-      return Scaffold(
-        drawer: _buildDrawer(),
-        appBar: _buildAppBar(),
-        body: _buildBody(),
-      );
-    });
+    return Obx(() => Scaffold(
+          drawer: _buildDrawer(),
+          appBar: _buildAppBar(cacheManager.getStaff!.initial),
+          body: _buildBody(),
+        ));
   }
 
   Widget _buildBody() {
@@ -28,14 +26,14 @@ class HomeView extends GetView<HomeController> {
         : ListsView();
   }
 
-  AppBar _buildAppBar() => AppBar(
+  AppBar _buildAppBar(String initial) => AppBar(
         title: CustomText(
           controller.currentViewModel.value.title,
         ),
         actions: [
           CircleAvatar(
             child: Text(
-              cacheManager.getStaff()!.initial,
+              initial,
               style: TextStyle(fontSize: 13),
             ),
           ),

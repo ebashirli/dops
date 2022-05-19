@@ -14,7 +14,9 @@ class CustomPopUpMenuWidget extends StatelessWidget {
     return PopupMenuButton<MenuItem>(
       onSelected: (item) => onSelected(context, item),
       itemBuilder: (context) => [
-        if (homeController.isAddButtonVisibile && isStageView == null)
+        if (homeController.isAddButtonVisibile &&
+            isStageView == null &&
+            !homeController.currentViewModel.value.isMonitoring)
           buildItem(MenuItems.itemAdd),
         if (homeController.isAddTaskButtonVisibile && isStageView == null)
           buildItem(MenuItems.itemAddTask),

@@ -2,7 +2,7 @@ import 'package:dops/constants/constant.dart';
 import 'package:dops/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../bindings/bindings.dart';
+// import '../bindings/bindings.dart';
 import '../modules/home/home_view.dart';
 import '../modules/login/auth_view.dart';
 import '../modules/stages/stage_view.dart';
@@ -23,19 +23,19 @@ class AppPages {
       name: _Paths.HOME,
       page: () => HomeView(),
       middlewares: [AuthMiddlware()],
-      binding: HomeBinding(),
+      // binding: HomeBinding(),
     ),
     GetPage(
       name: _Paths.LOGIN,
       page: () => LoginView(),
       // middlewares: [AuthMiddlware()],
-      binding: HomeBinding(),
+      // binding: HomeBinding(),
     ),
     GetPage(
       name: _Paths.STAGES,
       page: () => StageView(),
       middlewares: [AuthMiddlware()],
-      binding: HomeBinding(),
+      // binding: HomeBinding(),
     ),
     GetPage(
       name: _Paths.SPLASH,
@@ -48,5 +48,5 @@ class AppPages {
 
 class AuthMiddlware extends GetMiddleware {
   RouteSettings? redirect(String? route) =>
-      cacheManager.getID() != null ? null : RouteSettings(name: Routes.LOGIN);
+      cacheManager.getID != null ? null : RouteSettings(name: Routes.LOGIN);
 }

@@ -245,10 +245,14 @@ class DataSource extends DataGridSource {
                   ? TextButton(
                       key: Key('Files' + valueModelId!),
                       onPressed: cell.value.isNotEmpty
-                          ? () => filesDialog(
-                                cell.value,
-                                valueModelId: valueModelId,
-                                valueModelIds: valueModelIds,
+                          ? () => homeController.getDialog(
+                                barrierDismissible: true,
+                                title: 'Files',
+                                content: filesDialog(
+                                  cell.value,
+                                  valueModelId: valueModelId,
+                                  valueModelIds: valueModelIds,
+                                ),
                               )
                           : null,
                       child: Text(cell.value.length.toString()),

@@ -1,3 +1,6 @@
+import 'package:file_picker/file_picker.dart';
+import 'package:get/get.dart';
+
 List<String> get listNames => [
       'Companies',
       'Employee Places',
@@ -265,65 +268,106 @@ Map<String, List<String?>> dropDownMenuLists = {
   'systemDesignations': []
 };
 
-final List<List<String>> filingTypes = [
-  [
-    'General Arrangement Drawing - .dwg',
-    'dwg',
-    'gaddwg',
-  ],
-  [
-    'General Arrangement Drawing - .pdf',
-    'pdf',
-    'gadpdf',
-  ],
-  [
-    'Assembly Drawings - .dwg',
-    'dwg',
-    'addwg',
-  ],
-  [
-    'Assembly Drawings - .pdf',
-    'pdf',
-    'adpdf',
-  ],
-  [
-    'Single Part Drawings - .dwg',
-    'dwg',
-    'spddwg',
-  ],
-  [
-    'Single Part Drawings - .pdf',
-    'pdf',
-    'spdpdf',
-  ],
-  [
-    'Weld Report - .csv',
-    'csv',
-    'weldReport',
-  ],
-  [
-    'MTO Report - .csv',
-    'csv',
-    'mtoReport',
-  ],
-  [
-    'Drawing List - .csv',
-    'csv',
-    'drawingList',
-  ],
-  [
-    'Weld Index - .pdf',
-    'pdf',
-    'weldIndex',
-  ],
-  [
-    '3D file export - .dwg',
-    'dwg',
-    'exptdwg',
-  ],
-  [
-    '3D file export - .ifc',
-    'ifc',
-    'exptifc',
-  ],
+final List<FilingFileType> filingFileTypes = [
+  FilingFileType(
+    folderName: 'General Arrangement Drawing - .dwg',
+    allowedExtensions: ['dwg'],
+    dbName: 'gaddwg',
+    allowMultiple: false,
+  ),
+  FilingFileType(
+    folderName: 'General Arrangement Drawing - .pdf',
+    allowedExtensions: ['pdf'],
+    dbName: 'gadpdf',
+    allowMultiple: false,
+  ),
+  FilingFileType(
+    folderName: 'Assembly Drawings - .dwg',
+    allowedExtensions: ['dwg'],
+    dbName: 'addwg',
+    allowMultiple: false,
+  ),
+  FilingFileType(
+    folderName: 'Assembly Drawings - .pdf',
+    allowedExtensions: ['pdf'],
+    dbName: 'adpdf',
+    allowMultiple: false,
+  ),
+  FilingFileType(
+    folderName: 'Single Part Drawings - .dwg',
+    allowedExtensions: ['dwg'],
+    dbName: 'spddwg',
+    allowMultiple: false,
+  ),
+  FilingFileType(
+    folderName: 'Single Part Drawings - .pdf',
+    allowedExtensions: ['pdf'],
+    dbName: 'spdpdf',
+    allowMultiple: false,
+  ),
+  FilingFileType(
+    folderName: 'Weld Report - .csv',
+    allowedExtensions: ['csv'],
+    dbName: 'weldReport',
+  ),
+  FilingFileType(
+    folderName: 'MTO Report - .csv',
+    allowedExtensions: ['csv'],
+    dbName: 'mtoReport',
+  ),
+  FilingFileType(
+    folderName: 'Drawing List - .csv',
+    allowedExtensions: ['csv'],
+    dbName: 'drawingList',
+  ),
+  FilingFileType(
+    folderName: 'Weld Index - .pdf',
+    allowedExtensions: ['pdf'],
+    dbName: 'weldIndex',
+  ),
+  FilingFileType(
+    folderName: '3D file export - .dwg',
+    allowedExtensions: ['dwg'],
+    dbName: 'exptdwg',
+  ),
+  FilingFileType(
+    folderName: '3D file export - .ifc',
+    allowedExtensions: ['ifc'],
+    dbName: 'exptifc',
+  ),
 ];
+
+class UploadingFileType {
+  final List<String>? allowedExtensions;
+  final bool allowMultiple;
+  final String? folderName;
+
+  UploadingFileType({
+    this.folderName,
+    this.allowedExtensions,
+    this.allowMultiple = true,
+  });
+
+  RxList<PlatformFile?> _files = RxList([]);
+  RxList<String?> _fileNames = RxList([]);
+
+  List<PlatformFile?> get files => _files;
+  set files(List<PlatformFile?> files) => _files.value = files;
+
+  List<String?> get fileNames => _fileNames;
+  set fileNames(List<String?> fileNames) => _fileNames.value = fileNames;
+}
+
+class FilingFileType extends UploadingFileType implements Object {
+  final String dbName;
+  FilingFileType({
+    required this.dbName,
+    List<String>? allowedExtensions,
+    bool? allowMultiple,
+    String? folderName,
+  }) : super(
+          allowMultiple: allowMultiple ?? false,
+          allowedExtensions: allowedExtensions,
+          folderName: folderName,
+        );
+}

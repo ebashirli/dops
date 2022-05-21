@@ -32,11 +32,13 @@ class CommonWorkerForm extends StatelessWidget {
                   ),
                 ),
                 if (stageDetailsList[index]['file names'] != null)
-                  ElevatedButton(
-                    onPressed: () => stageController.onFileButtonPressed(),
-                    child: Center(
-                        child: Text('Files (${stageController.files.length})')),
-                  ),
+                  Obx(() => ElevatedButton(
+                        onPressed: () => stageController.onFileButtonPressed(
+                            uploadingFiles: stageController.files),
+                        child: Center(
+                            child: Text(
+                                'Files (${stageController.files.files.length})')),
+                      )),
                 if (stageDetailsList[index]['comment'] != null)
                   CustomDropdownMenuWithModel<String>(
                     autoValidateMode: AutovalidateMode.always,

@@ -1,45 +1,9 @@
 import 'dart:convert';
 import 'dart:html' as html;
-import 'package:file_picker/file_picker.dart';
+import 'package:dops/constants/lists.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:dops/constants/constant.dart';
-
-Future<String?> uploadFiles({
-  required List<PlatformFile?> files,
-  required String id,
-  String? folder,
-}) async {
-  if (files.isEmpty) return null;
-  try {
-    final String url =
-        baseUrl + 'upload/$id' + (folder == null ? '' : '/?folder=$folder');
-
-    final Uri uri = Uri.parse(url);
-    final http.MultipartRequest request = http.MultipartRequest("POST", uri);
-    files.forEach((file) {
-      request.files.add(
-        http.MultipartFile.fromBytes(
-          'files',
-          List<int>.from(file!.bytes!.toList()),
-          contentType: MediaType('application', file.extension!),
-          filename: file.name,
-        ),
-      );
-    });
-
-    final response = await request.send();
-    if (response.statusCode == 200) {
-      final respStr = await response.stream.bytesToString();
-
-      return respStr;
-    } else {
-      return null;
-    }
-  } catch (e) {
-    return e.toString();
-  }
-}
 
 dowloadFiles({
   required List<String?> ids,
@@ -87,4 +51,36 @@ Future<http.Response> sendEmail({
       'note': note,
     }),
   );
+}
+
+Future<String?> uploadFiles(UploadingFileType? filesType, String id) async {
+  try {
+    final String url = baseUrl +
+        'upload/$id' +
+        (filesType?.folderName == null
+            ? ''
+            : '/?folder=${filesType?.folderName}');
+
+    final Uri uri = Uri.parse(url);
+    final http.MultipartRequest request = http.MultipartRequest("POST", uri);
+    filesType?.files.forEach((file) {
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'files',
+          List<int>.from(file!.bytes!.toList()),
+          contentType: MediaType('application', file.extension!),
+          filename: file.name,
+        ),
+      );
+    });
+
+    final http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      final respStr = await response.stream.bytesToString();
+      return respStr;
+    }
+    return await response.statusCode.toString();
+  } catch (e) {
+    return e.toString();
+  }
 }

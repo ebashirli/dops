@@ -267,19 +267,7 @@ class StageController extends GetxService {
   List<String> get specialFieldNames =>
       stageDetailsList[indexOfLast]['form fields'];
 
-  final RxList<PlatformFile?> files = RxList<PlatformFile?>([]);
-
-  final RxList<FilingFiles> filingFiles = filingTypes
-      .map(
-        (e) => FilingFiles(
-          name: e[0],
-          extention: e[1],
-          dbName: e[2],
-          files: RxList<PlatformFile?>(<PlatformFile?>[]),
-        ),
-      )
-      .toList()
-      .obs;
+  UploadingFileType files = UploadingFileType();
 
   final RxBool commentStatus = false.obs;
 
@@ -289,13 +277,13 @@ class StageController extends GetxService {
     return List<ExpantionPanelItemModel>.generate(
       maxIndex,
       (int index) {
+        ValueModel? valueModel = stageAndValueModelsOfCurrentTask.length > 7
+            ? stageAndValueModelsOfCurrentTask[7]?.values.first.first
+            : null;
         final Widget workerForm = index == 7
-            ? FilingStageWorkerForm(
-                valueModel: stageAndValueModelsOfCurrentTask[7]!
-                    .values
-                    .first
-                    .firstWhereOrNull((e) => true),
-              )
+            ? valueModel == null
+                ? SizedBox()
+                : FilingStageWorkerForm(valueModel: valueModel)
             : CommonWorkerForm(index: index);
 
         final Widget coordinatorForm = CoordinatorForm(index: index);
@@ -458,7 +446,7 @@ class StageController extends GetxService {
     }
   }
 
-  void onSubmitPressed() async {
+  Future<void> onSubmitPressed() async {
     Map<String, dynamic> map = {};
 
     for (var i = 0; i < specialFieldNames.length; i++) {
@@ -477,12 +465,10 @@ class StageController extends GetxService {
     map['submitDateTime'] = DateTime.now();
 
     if (lastTaskStage.index == 7) {
-      filingFiles.forEach((e) {
-        if (e.files.isNotEmpty)
-          map[e.dbName] = e.files.map((PlatformFile? file) => file!.name);
-      });
+      filingFileTypes.forEach((e) =>
+          map[e.dbName] = e.files.map((PlatformFile? file) => file?.name));
     } else if (stageDetailsList[lastTaskStage.index]['file names'] != null) {
-      map['fileNames'] = files.isEmpty ? null : files.map((e) => e!.name);
+      map['fileNames'] = files.files.map((e) => e?.name).toList();
     }
 
     if (valueModelAssignedCurrentUser == null) return;
@@ -492,17 +478,13 @@ class StageController extends GetxService {
 
     valueController.addValues(map: map, id: id);
 
-    if (lastTaskStage.index != 7) {
-      uploadFiles(files: files, id: id);
-    } else {
-      filingFiles.forEach(
-        (e) => uploadFiles(
-          files: e.files,
-          id: id,
-          folder: e.name,
-        ),
-      );
-    }
+    List<UploadingFileType?> uploadingFilesList =
+        lastTaskStage.index != 7 ? filingFileTypes : [files];
+
+    if (uploadingFilesList.isEmpty) return null;
+
+    uploadingFilesList.forEach((UploadingFileType? filesType) async =>
+        await uploadFiles(filesType, id));
 
     if (isLastSubmit && indexOfLast != 9) {
       bool anyComment = await valueController.documents.any(
@@ -579,34 +561,19 @@ class StageController extends GetxService {
       }
     }
     textEditingControllers.forEach((e) => e.clear());
-    files.value = [];
-    filingFiles.forEach((e) => e.files.value = <PlatformFile>[]);
+    files.files = [];
     commentStatus.value = false;
   }
 
-  void onFileButtonPressed({
-    List<String>? allowedExtensions,
-    bool allowMultiple = true,
-    void Function(FilePickerResult result)? fun,
-  }) async {
+  void onFileButtonPressed({UploadingFileType? uploadingFiles}) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: allowedExtensions != null ? FileType.custom : FileType.any,
-      allowMultiple: allowMultiple,
-      allowedExtensions: allowedExtensions,
+      type: uploadingFiles?.allowedExtensions != null
+          ? FileType.custom
+          : FileType.any,
+      allowMultiple: uploadingFiles?.allowMultiple ?? false,
+      allowedExtensions: uploadingFiles?.allowedExtensions,
     );
-
-    if (result != null) {
-      if (fun != null) {
-        fun(result);
-      } else {
-        // fileNames.value = result.files.map((file) => file.name).toList();
-        files.value = result.files;
-      }
-    }
-  }
-
-  void onFileCountButtonPressed(fileNames) {
-    Get.defaultDialog();
+    if (result != null) files.files = result.files;
   }
 
   String? lastActivityAndStatusDate(

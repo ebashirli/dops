@@ -217,8 +217,8 @@ class RefDocAddUpdateFormWidget extends StatelessWidget {
                           assignedTasksCount: 0,
                         );
                         id == null
-                            ? refDocController.saveDocument(model: model)
-                            : refDocController.updateDocument(
+                            ? refDocController.add(model: model)
+                            : refDocController.update(
                                 model: model,
                                 id: id!,
                               );

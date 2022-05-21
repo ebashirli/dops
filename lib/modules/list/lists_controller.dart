@@ -43,7 +43,7 @@ class ListsController extends BaseViewController {
     await _repo.updateListModel(model);
   }
 
-  addNewItem() {
+  add() {
     map = document.toMap();
     map[ReCase(choosenList.value).camelCase] =
         map[ReCase(choosenList.value).camelCase]..add(textController.text);

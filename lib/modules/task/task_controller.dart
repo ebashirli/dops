@@ -51,7 +51,7 @@ class TaskController extends BaseViewController {
     });
   }
 
-  addNew(String parentId) {
+  add(String parentId) {
     CustomFullScreenDialog.showDialog();
     int nextChangeNumber = documents.isEmpty
         ? 0
@@ -73,21 +73,21 @@ class TaskController extends BaseViewController {
         taskId: taskId,
         creationDateTime: DateTime.now(),
       );
-      stageController.addNew(model: stage);
+      stageController.add(model: stage);
       if (!checkFirstTask(getById(taskId))) {
         StageModel stage = StageModel(
           index: 1,
           taskId: taskId,
           creationDateTime: DateTime.now(),
         );
-        stageController.addNew(model: stage);
+        stageController.add(model: stage);
       }
     });
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
-  updateTaskFields({
+  update({
     required Map<String, dynamic> map,
     required String id,
   }) async {
@@ -393,7 +393,7 @@ class TaskController extends BaseViewController {
               'referenceDocuments': referenceDocumentsList,
           };
 
-    updateTaskFields(map: map, id: id);
+    update(map: map, id: id);
   }
 
   void onDeletePressed(TaskModel? taskModel) {

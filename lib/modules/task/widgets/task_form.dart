@@ -100,7 +100,7 @@ class TaskAddUpdateForm extends StatelessWidget {
                             SizedBox(width: 10),
                             ElevatedButton(
                               onPressed: () => id == null
-                                  ? taskController.addNew(drawingModel.id!)
+                                  ? taskController.add(drawingModel.id!)
                                   : taskController.onUpdatePressed(id: id!),
                               child: Text(id == null ? 'Add' : 'Update'),
                             ),

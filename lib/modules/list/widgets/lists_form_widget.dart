@@ -33,7 +33,7 @@ class ListsFormWidget extends StatelessWidget {
               alignLabelWithHint: true,
               suffix: IconButton(
                   splashRadius: 16,
-                  onPressed: listsController.addNewItem,
+                  onPressed: listsController.add,
                   icon: Icon(Icons.add)),
               border: OutlineInputBorder(
                 borderSide: BorderSide(

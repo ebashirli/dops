@@ -53,14 +53,14 @@ class ReferenceDocumentController extends BaseViewController {
     });
   }
 
-  saveDocument({required ReferenceDocumentModel model}) async {
+  add({required ReferenceDocumentModel model}) async {
     CustomFullScreenDialog.showDialog();
     await _repo.addModel(model);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
 
-  updateDocument({
+  update({
     required ReferenceDocumentModel model,
     required String id,
   }) async {

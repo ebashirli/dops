@@ -20,13 +20,13 @@ class ValueController extends GetxService {
 
   List<ValueModel?> get documents => _documents;
 
-  addNew({required ValueModel model}) async {
+  add({required ValueModel model}) async {
     CustomFullScreenDialog.showDialog();
     await _repo.add(model);
     CustomFullScreenDialog.cancelDialog();
   }
 
-  addValues({required Map<String, dynamic> map, required String id}) async {
+  update({required Map<String, dynamic> map, required String id}) async {
     CustomFullScreenDialog.showDialog();
     await _repo.updateFileds(map, id);
     CustomFullScreenDialog.cancelDialog();

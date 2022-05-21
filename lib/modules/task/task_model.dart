@@ -61,8 +61,12 @@ class TaskModel {
   ActivityModel? get activityModel =>
       activityController.getById(drawingModel?.activityCodeId);
 
-  List<ValueModel?> get valueModels =>
-      valueController.documents.where((e) => e?.stageId == id).toList();
+  List<ValueModel?> get valueModels {
+    print(valueController.documents.length);
+    return valueController.documents
+        .where((e) => e?.taskModel?.id == id)
+        .toList();
+  }
 
   List<StageModel?> get stageModels =>
       stageController.documents.where((e) => e?.taskId == id).toList();

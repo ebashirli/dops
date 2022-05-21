@@ -6,6 +6,7 @@ import 'package:http_parser/http_parser.dart';
 
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
+import 'package:dops/modules/staff/staff_model.dart';
 import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:dops/modules/values/value_model.dart';
@@ -64,6 +65,8 @@ Future<http.Response?>? sendNotificationEmail({
   StageModel? stageModel,
   bool isUnassign = false,
 }) async {
+  print('UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU: $isUnassign');
+  print('helooooooooooo');
   final String url = baseUrl + 'send-notification-email';
   final Uri uri = Uri.parse(url);
 
@@ -72,46 +75,87 @@ Future<http.Response?>? sendNotificationEmail({
       .map((e) => e.email)
       .toList();
 
+  print('helooooooooooo0');
   if (taskModel == null)
     taskModel = stageModel?.taskModel ?? valueModel?.taskModel;
   if (taskModel == null) return null;
   if (stageModel == null)
     stageModel = valueModel?.stageModel ?? taskModel.stageModels.first;
   if (stageModel == null) return null;
+  print('helooooooooooo1');
+
+  StaffModel? staffModel =
+      staffController.getById(valueModel?.employeeId ?? '');
+  if (staffModel == null) return null;
+  print('subject');
+  String subject = 'DOPS Notification';
+  print('emails');
+  List<String> emails = valueModel != null
+      ? [staffController.getById(valueModel.employeeId!)!.email]
+      : coordinatorsEmails;
+  print('name');
+  final String name = valueModel != null
+      ? staffController.getById(valueModel.employeeId!)!.name
+      : 'Coordinators';
+  print('description');
+  final String description = 'description';
+  final String urlToTask =
+      "http://172.30.134.63:8080/stages?id=${taskModel.id}&index=${stageModel.index}";
+  final String taskNumber =
+      '${taskModel.drawingModel?.drawingNumber}-${taskModel.revisionMark}';
+  print('toDo');
+  final String toDo = "";
+  print('revisionType');
+  final String revisionType = taskModel.revisionType;
+  print('title');
+  final String title = taskModel.drawingModel!.drawingTitle;
+  print('module');
+  final String module = taskModel.drawingModel!.module;
+  print('level');
+  final String level = taskModel.drawingModel!.level;
+  print('structureType');
+  final String structureType = taskModel.drawingModel!.structureType;
+  print('referenceDrawings');
+  final List<String> referenceDrawings = taskModel.referenceDocuments;
+  print('teklaPhase');
+  final String teklaPhase = '${taskModel.teklaPhase}';
+  print('eCFNumber');
+  final String eCFNumber = "${taskModel.changeNumber}";
+  print('relatedPeopleInitials');
+  final List<String> relatedPeopleInitials = staffController.documents
+      .where((e) =>
+          stageModel!.valueModels.map((e) => e?.employeeId).contains(e.id))
+      .map((e) => e.initial)
+      .toList();
+  print('note');
+  final String? note = stageModel.note;
 
   Body body = Body(
-    subject: 'DOPS Notification',
-    emails: valueModel != null
-        ? [staffController.getById(valueModel.employeeId!)!.email]
-        : coordinatorsEmails,
-    name: valueModel != null
-        ? staffController.getById(valueModel.employeeId!)!.name
-        : 'Coordinators',
-    description: 'description',
-    url:
-        "http://172.30.134.63:8080/stages?id=${taskModel.id}&index=${stageModel.index}",
-    taskNumber:
-        '${taskModel.drawingModel?.drawingNumber}-${taskModel.revisionMark}',
-    toDo: "",
-    revisionType: taskModel.revisionType,
-    title: taskModel.drawingModel!.drawingTitle,
-    module: taskModel.drawingModel!.module,
-    level: taskModel.drawingModel!.level,
-    structureType: taskModel.drawingModel!.structureType,
-    referenceDrawings: taskModel.referenceDocuments,
-    teklaPhase: '${taskModel.teklaPhase}',
-    eCFNumber: "${taskModel.changeNumber}",
-    relatedPeopleInitials: staffController.documents
-        .where((e) =>
-            stageModel!.valueModels.map((e) => e?.employeeId).contains(e.id))
-        .map((e) => e.initial)
-        .toList(),
-    note: stageModel.note,
+    subject: subject,
+    emails: emails,
+    name: name,
+    description: description,
+    url: urlToTask,
+    taskNumber: taskNumber,
+    toDo: toDo,
+    revisionType: revisionType,
+    title: title,
+    module: module,
+    level: level,
+    structureType: structureType,
+    referenceDrawings: referenceDrawings,
+    teklaPhase: teklaPhase,
+    eCFNumber: eCFNumber,
+    relatedPeopleInitials: relatedPeopleInitials,
+    note: note,
   );
+  print('helooooooooooo2');
+  Map<String, dynamic> bodyToMap = body.toMap();
+  print(bodyToMap);
 
   return await http.post(
     uri,
-    body: jsonEncode(body),
+    body: jsonEncode(bodyToMap),
   );
 }
 
@@ -185,4 +229,52 @@ class Body {
     required this.relatedPeopleInitials,
     required this.note,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'emails': emails,
+      'subject': subject,
+      'name': name,
+      'description': description,
+      'url': url,
+      'taskNumber': taskNumber,
+      'toDo': toDo,
+      'revisionType': revisionType,
+      'title': title,
+      'module': module,
+      'level': level,
+      'structureType': structureType,
+      'referenceDrawings': referenceDrawings,
+      'teklaPhase': teklaPhase,
+      'eCFNumber': eCFNumber,
+      'relatedPeopleInitials': relatedPeopleInitials,
+      'note': note,
+    };
+  }
+
+  factory Body.fromMap(Map<String, dynamic> map) {
+    return Body(
+      emails: List<String>.from(map['emails']),
+      subject: map['subject'] ?? '',
+      name: map['name'] ?? '',
+      description: map['description'] ?? '',
+      url: map['url'] ?? '',
+      taskNumber: map['taskNumber'] ?? '',
+      toDo: map['toDo'],
+      revisionType: map['revisionType'] ?? '',
+      title: map['title'] ?? '',
+      module: map['module'] ?? '',
+      level: map['level'] ?? '',
+      structureType: map['structureType'] ?? '',
+      referenceDrawings: List<String>.from(map['referenceDrawings']),
+      teklaPhase: map['teklaPhase'] ?? '',
+      eCFNumber: map['eCFNumber'] ?? '',
+      relatedPeopleInitials: List<String>.from(map['relatedPeopleInitials']),
+      note: map['note'],
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory Body.fromJson(String source) => Body.fromMap(json.decode(source));
 }

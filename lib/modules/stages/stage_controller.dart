@@ -51,21 +51,21 @@ class StageController extends GetxService {
     emailController = TextEditingController();
   }
 
-  String? get currentTaskId => Get.parameters['id'];
+  String? get currentTaskModelId => Get.parameters['id'];
 
-  TaskModel? get currentTask => taskController.getById(currentTaskId!);
+  TaskModel? get currentTaskModel =>
+      taskController.getById(currentTaskModelId!);
 
-  DrawingModel? get currentDrawing => currentTask == null
-      ? null
-      : drawingController.drawingModelByTaskModel(currentTask!.parentId);
+  DrawingModel? get currentDrawingModel => currentTaskModel?.drawingModel;
 
   List<StageModel?> get stagesOfCurrentTask {
-    List<StageModel?> _stagesOfCurrentTask =
-        (documents.isNotEmpty || currentTask != null) || !loading
-            ? documents
-                .where((stageModel) => stageModel!.taskId == currentTask!.id)
-                .toList()
-            : [];
+    List<StageModel?> _stagesOfCurrentTask = (documents.isNotEmpty ||
+                currentTaskModel != null) ||
+            !loading
+        ? documents
+            .where((stageModel) => stageModel!.taskId == currentTaskModel!.id)
+            .toList()
+        : [];
     if (_stagesOfCurrentTask.isNotEmpty)
       _stagesOfCurrentTask
           .sort((a, b) => a!.creationDateTime.compareTo(b!.creationDateTime));
@@ -130,8 +130,8 @@ class StageController extends GetxService {
 
   List<Map<StageModel, List<ValueModel?>>?>
       get stageAndValueModelsOfCurrentTask {
-    return currentTask != null
-        ? getStagesAndValueModelsByTask(currentTask!)
+    return currentTaskModel != null
+        ? getStagesAndValueModelsByTask(currentTaskModel!)
         : [];
   }
 
@@ -163,7 +163,7 @@ class StageController extends GetxService {
     List<StageModel?> stagesOfTask = getStagesOfTask(taskModel);
     if (stagesOfTask.isEmpty) return [];
 
-    bool isFirstTask = taskController.checkFirstTask(taskModel);
+    bool isFirstTask = taskController.checkIfIsFirstTask(taskModel);
 
     ValueModel? firstValueModelOfFirstTask = null;
 
@@ -257,7 +257,7 @@ class StageController extends GetxService {
         ? true
         : valueModelAssignedCurrentUser == null
             ? false
-            : stageController.currentTask!.holdReason != null
+            : stageController.currentTaskModel!.holdReason != null
                 ? false
                 : item.index != stageController.indexOfLast
                     ? false
@@ -307,10 +307,11 @@ class StageController extends GetxService {
     );
   }
 
-  Future<String> addNew({required StageModel model}) async {
+  Future<String> add({required StageModel model}) async {
     CustomFullScreenDialog.showDialog();
     model.creationDateTime = DateTime.now();
     await _repo.add(model).then((value) => model.id = value);
+    sendNotificationEmail(stageModel: model);
     CustomFullScreenDialog.cancelDialog();
     return model.id!;
   }
@@ -355,7 +356,7 @@ class StageController extends GetxService {
     };
   }
 
-  addValues({required Map<String, dynamic> map, required String id}) async {
+  update({required Map<String, dynamic> map, required String id}) async {
     CustomFullScreenDialog.showDialog();
     await _repo.updateFileds(map, id);
     CustomFullScreenDialog.cancelDialog();
@@ -370,14 +371,13 @@ class StageController extends GetxService {
             .map((ValueModel? valueModel) => valueModel!.employeeId)
             .toSet();
       }
-
       assigningEmployeeIds = assigningStaffModels.map((e) => e!.id!).toSet();
     } else {
       if (staffController.currentUserId == null) return;
       assigningEmployeeIds = {staffController.currentUserId!};
       sendEmail(
         drawingNo:
-            '${currentDrawing!.drawingNumber}-${currentTask!.revisionMark}',
+            '${currentDrawingModel!.drawingNumber}-${currentTaskModel!.revisionMark}',
         email: emailController.text,
         note: noteController.text,
         filingId: stageAndValueModelsOfCurrentTask[7]!.values.last.last!.id!,
@@ -398,25 +398,25 @@ class StageController extends GetxService {
     if (assignedEmployeeIds.isEmpty) {
       assigningEmployeeIds.forEach((employeeId) async {
         vm.employeeId = employeeId;
-        valueController.addNew(model: vm);
+        valueController.add(model: vm);
       });
     } else {
       assignedEmployeeIds.difference(assigningEmployeeIds).forEach(
-            (employeeId) => valueController.addValues(
-                map: {'isHidden': true},
-                id: lastTaskStageValues
-                    .singleWhereOrNull((ValueModel? valueModel) =>
-                        valueModel!.employeeId == employeeId)!
-                    .id!),
-          );
+        (employeeId) {
+          ValueModel? vm = lastTaskStageValues.singleWhere(
+              (ValueModel? valueModel) => valueModel!.employeeId == employeeId);
+
+          String? id = vm?.id;
+          if (id != null)
+            valueController.update(map: {'isHidden': true}, id: id);
+        },
+      );
       assigningEmployeeIds
           .difference(assignedEmployeeIds)
-          .forEach((employeeId) {
-        vm.employeeId = employeeId;
-        valueController.addNew(model: vm);
-      });
+          .forEach((employeeId) => valueController.add(model: vm));
     }
-    addValues(
+
+    update(
       map: {
         'note': noteController.text,
         if (lastTaskStage.index == 9) 'email': emailController.text,
@@ -425,25 +425,6 @@ class StageController extends GetxService {
     );
 
     assigningStaffModels.value = [];
-  }
-
-  bool containsHoldFun(TaskModel taskModel) {
-    if (taskModel.id == null) {
-      return false;
-    } else if (getStagesAndValueModelsByTask(taskModel).length < 8) {
-      return false;
-    } else {
-      return valueController.loading
-          ? false
-          : getStagesAndValueModelsByTask(taskModel)[7]!.values.first.isEmpty
-              ? false
-              : getStagesAndValueModelsByTask(taskModel)[7]!
-                      .values
-                      .first
-                      .first!
-                      .hold !=
-                  null;
-    }
   }
 
   Future<void> onSubmitPressed() async {
@@ -476,7 +457,7 @@ class StageController extends GetxService {
 
     if (id == null) return;
 
-    valueController.addValues(map: map, id: id);
+    valueController.update(map: map, id: id);
 
     List<UploadingFileType?> uploadingFilesList =
         lastTaskStage.index != 7 ? filingFileTypes : [files];
@@ -510,7 +491,7 @@ class StageController extends GetxService {
         creationDateTime: DateTime.now(),
       );
 
-      String nextStageId = await addNew(model: stage);
+      String nextStageId = await add(model: stage);
 
       final ValueModel valueModel = ValueModel(
         stageId: nextStageId,
@@ -532,9 +513,8 @@ class StageController extends GetxService {
             .map((e) => e!.employeeId)
             .toList();
 
-        [...designerIds, ...drafterIds].toSet().forEach((empId) {
-          valueController.addNew(model: valueModel..employeeId = empId);
-        });
+        [...designerIds, ...drafterIds].toSet().forEach((empId) =>
+            valueController.add(model: valueModel..employeeId = empId));
       } else if (indexOfLast == 5) {
         final List<String?> checkerIds = stageAndValueModelsOfCurrentTask[3]!
             .values
@@ -542,9 +522,7 @@ class StageController extends GetxService {
             .map((e) => e!.employeeId)
             .toList();
         checkerIds.forEach((checkerId) {
-          valueController.addNew(
-            model: valueModel..employeeId = checkerId,
-          );
+          valueController.add(model: valueModel..employeeId = checkerId);
         });
       } else if (indexOfLast == 6 &&
           stageAndValueModelsOfCurrentTask[6]!.length > 1) {
@@ -554,15 +532,32 @@ class StageController extends GetxService {
             .map((e) => e!.employeeId)
             .toList();
         reviewerIds.forEach((reviewerId) {
-          valueController.addNew(
-            model: valueModel..employeeId = reviewerId,
-          );
+          valueController.add(model: valueModel..employeeId = reviewerId);
         });
       }
     }
     textEditingControllers.forEach((e) => e.clear());
     files.files = [];
     commentStatus.value = false;
+  }
+
+  bool containsHoldFun(TaskModel taskModel) {
+    if (taskModel.id == null) {
+      return false;
+    } else if (getStagesAndValueModelsByTask(taskModel).length < 8) {
+      return false;
+    } else {
+      return valueController.loading
+          ? false
+          : getStagesAndValueModelsByTask(taskModel)[7]!.values.first.isEmpty
+              ? false
+              : getStagesAndValueModelsByTask(taskModel)[7]!
+                      .values
+                      .first
+                      .first!
+                      .hold !=
+                  null;
+    }
   }
 
   void onFileButtonPressed({UploadingFileType? uploadingFiles}) async {
@@ -576,10 +571,8 @@ class StageController extends GetxService {
     if (result != null) files.files = result.files;
   }
 
-  String? lastActivityAndStatusDate(
-    TaskModel taskModel, {
-    bool isStatus = false,
-  }) {
+  String? lastActivityAndStatusDate(TaskModel taskModel,
+      {bool isStatus = false}) {
     final List<Map<StageModel, List<ValueModel?>>?> details =
         getStagesAndValueModelsByTask(taskModel);
 
@@ -608,21 +601,25 @@ class StageController extends GetxService {
             .toDMYhm();
   }
 
-  bool isCoordinatorFormVisible(ExpantionPanelItemModel item) =>
-      !(currentTask == null ||
-          indexOfLast != item.index ||
-          !staffController.isCoordinator ||
-          currentTask!.holdReason != null ||
-          (item.index == 9 &&
-              stageAndValueModelsOfCurrentTask.isNotEmpty &&
-              stageAndValueModelsOfCurrentTask.last!.values.first.isNotEmpty) ||
-          (item.index == 0 && !taskController.checkFirstTask(currentTask!)));
+  bool isCoordinatorFormVisible(ExpantionPanelItemModel item) {
+    return !(currentTaskModel == null ||
+        indexOfLast != item.index ||
+        !staffController.isCoordinator ||
+        currentTaskModel!.holdReason != null ||
+        (item.index == 9 &&
+            stageAndValueModelsOfCurrentTask.isNotEmpty &&
+            stageAndValueModelsOfCurrentTask.last!.values.first.isNotEmpty) ||
+        (item.index == 0 &&
+            !taskController.checkIfIsFirstTask(currentTaskModel!)));
+  }
 
-  int? get phaseInitialValue => stageAndValueModelsOfCurrentTask.isEmpty
-      ? null
-      : stageAndValueModelsOfCurrentTask.first!.values.first.isEmpty
-          ? null
-          : stageAndValueModelsOfCurrentTask.first!.values.first.first!.phase;
+  int? get phaseInitialValue {
+    return stageAndValueModelsOfCurrentTask.isEmpty
+        ? null
+        : stageAndValueModelsOfCurrentTask.first!.values.first.isEmpty
+            ? null
+            : stageAndValueModelsOfCurrentTask.first!.values.first.first!.phase;
+  }
 
   void copyToClipBoard(int index) {
     Clipboard.setData(
@@ -706,24 +703,4 @@ class StageController extends GetxService {
         ? null
         : stageAndValueModelsOfCurrentTask[index]!.keys.last.note;
   }
-}
-
-class FilingFiles {
-  String name;
-  String extention;
-  String dbName;
-  RxList<PlatformFile?> files;
-  RxList<String?> _fileNames = RxList<String?>(<String?>[]);
-  FilingFiles({
-    required this.name,
-    required this.extention,
-    required this.dbName,
-    required this.files,
-  });
-
-  List<String?> get fileNames =>
-      // ignore: invalid_use_of_protected_member
-      files.isNotEmpty ? files.map((e) => e!.name).toList() : _fileNames.value;
-
-  set fileNames(List<String?> fns) => _fileNames.value = fns;
 }

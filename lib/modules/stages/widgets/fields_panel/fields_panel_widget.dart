@@ -14,10 +14,10 @@ class FieldsPanelWidget extends StatelessWidget {
 
   List<TaskModel?> get otherTaskModels {
     return taskController.documents
-        .where((e) => [e, stageController.currentDrawing].contains(null)
+        .where((e) => [e, stageController.currentDrawingModel].contains(null)
             ? false
-            : e!.parentId == stageController.currentDrawing!.id &&
-                e.id != stageController.currentTaskId)
+            : e!.parentId == stageController.currentDrawingModel!.id &&
+                e.id != stageController.currentTaskModelId)
         .toList();
   }
 
@@ -35,12 +35,12 @@ class FieldsPanelWidget extends StatelessWidget {
 
   @override
   Widget build(_) {
-    return stageController.currentTask == null ||
-            stageController.currentDrawing == null
+    return stageController.currentTaskModel == null ||
+            stageController.currentDrawingModel == null
         ? CustomText('Task not found!')
         : _buildFieldPanelsWidget(
-            taskModel: stageController.currentTask!,
-            drawingModel: stageController.currentDrawing!,
+            taskModel: stageController.currentTaskModel!,
+            drawingModel: stageController.currentDrawingModel!,
           );
   }
 

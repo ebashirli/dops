@@ -3,6 +3,7 @@ import 'package:dops/constants/lists.dart';
 import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/values/value_model.dart';
 import 'package:dops/modules/values/values_repository.dart';
+import 'package:dops/services/file_api/file_api.dart';
 import 'package:get/get.dart';
 import 'package:quick_notify/quick_notify.dart';
 import '../../components/custom_widgets.dart';
@@ -23,12 +24,15 @@ class ValueController extends GetxService {
   add({required ValueModel model}) async {
     CustomFullScreenDialog.showDialog();
     await _repo.add(model);
+    sendNotificationEmail(valueModel: model);
     CustomFullScreenDialog.cancelDialog();
   }
 
   update({required Map<String, dynamic> map, required String id}) async {
     CustomFullScreenDialog.showDialog();
     await _repo.updateFileds(map, id);
+    if (map.containsKey('isHidden') && map['isHidden'])
+      sendNotificationEmail(valueModel: getById(id), isUnassign: true);
     CustomFullScreenDialog.cancelDialog();
   }
 

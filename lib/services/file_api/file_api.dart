@@ -1,9 +1,14 @@
 import 'dart:convert';
 import 'dart:html' as html;
-import 'package:dops/constants/lists.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+
 import 'package:dops/constants/constant.dart';
+import 'package:dops/constants/lists.dart';
+import 'package:dops/modules/stages/stage_model.dart';
+import 'package:dops/modules/task/task_model.dart';
+import 'package:dops/modules/values/value_model.dart';
 
 dowloadFiles({
   required List<String?> ids,
@@ -53,6 +58,63 @@ Future<http.Response> sendEmail({
   );
 }
 
+Future<http.Response?>? sendNotificationEmail({
+  TaskModel? taskModel,
+  ValueModel? valueModel,
+  StageModel? stageModel,
+  bool isUnassign = false,
+}) async {
+  final String url = baseUrl + 'send-notification-email';
+  final Uri uri = Uri.parse(url);
+
+  List<String> coordinatorsEmails = staffController.documents
+      .where((e) => e.systemDesignation == "Coordinator")
+      .map((e) => e.email)
+      .toList();
+
+  if (taskModel == null)
+    taskModel = stageModel?.taskModel ?? valueModel?.taskModel;
+  if (taskModel == null) return null;
+  if (stageModel == null)
+    stageModel = valueModel?.stageModel ?? taskModel.stageModels.first;
+  if (stageModel == null) return null;
+
+  Body body = Body(
+    subject: 'DOPS Notification',
+    emails: valueModel != null
+        ? [staffController.getById(valueModel.employeeId!)!.email]
+        : coordinatorsEmails,
+    name: valueModel != null
+        ? staffController.getById(valueModel.employeeId!)!.name
+        : 'Coordinators',
+    description: 'description',
+    url:
+        "http://172.30.134.63:8080/stages?id=${taskModel.id}&index=${stageModel.index}",
+    taskNumber:
+        '${taskModel.drawingModel?.drawingNumber}-${taskModel.revisionMark}',
+    toDo: "",
+    revisionType: taskModel.revisionType,
+    title: taskModel.drawingModel!.drawingTitle,
+    module: taskModel.drawingModel!.module,
+    level: taskModel.drawingModel!.level,
+    structureType: taskModel.drawingModel!.structureType,
+    referenceDrawings: taskModel.referenceDocuments,
+    teklaPhase: '${taskModel.teklaPhase}',
+    eCFNumber: "${taskModel.changeNumber}",
+    relatedPeopleInitials: staffController.documents
+        .where((e) =>
+            stageModel!.valueModels.map((e) => e?.employeeId).contains(e.id))
+        .map((e) => e.initial)
+        .toList(),
+    note: stageModel.note,
+  );
+
+  return await http.post(
+    uri,
+    body: jsonEncode(body),
+  );
+}
+
 Future<String?> uploadFiles(UploadingFileType? filesType, String id) async {
   try {
     final String url = baseUrl +
@@ -83,4 +145,44 @@ Future<String?> uploadFiles(UploadingFileType? filesType, String id) async {
   } catch (e) {
     return e.toString();
   }
+}
+
+class Body {
+  final List<String> emails;
+  final String subject;
+  final String name;
+  final String description;
+  final String url;
+  final String taskNumber;
+  final String? toDo;
+  final String revisionType;
+  final String title;
+  final String module;
+  final String level;
+  final String structureType;
+  final List<String> referenceDrawings;
+  final String teklaPhase;
+  final String eCFNumber;
+  final List<String> relatedPeopleInitials;
+  final String? note;
+
+  Body({
+    required this.subject,
+    required this.emails,
+    required this.name,
+    required this.description,
+    required this.url,
+    required this.taskNumber,
+    required this.toDo,
+    required this.revisionType,
+    required this.title,
+    required this.module,
+    required this.level,
+    required this.structureType,
+    required this.referenceDrawings,
+    required this.teklaPhase,
+    required this.eCFNumber,
+    required this.relatedPeopleInitials,
+    required this.note,
+  });
 }

@@ -208,7 +208,7 @@ class ActivityController extends BaseViewController {
           }).toList();
   }
 
-  ActivityModel? getById(String id) {
+  ActivityModel? getById(String? id) {
     return loading || documents.isEmpty
         ? null
         : documents.singleWhereOrNull((e) => e!.id == id);

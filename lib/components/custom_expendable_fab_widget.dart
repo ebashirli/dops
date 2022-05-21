@@ -16,7 +16,7 @@ class CustomExpendableFab extends StatelessWidget {
             children: [
               ActionButton(
                 onPressed: () {
-                  taskController.deleteTask(stageController.currentTask);
+                  taskController.deleteTask(stageController.currentTaskModel);
                   Get.offAndToNamed(Routes.SPLASH);
                 },
                 icon: const Icon(

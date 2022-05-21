@@ -1,4 +1,8 @@
+import 'package:dops/constants/constant.dart';
 import 'package:dops/models/change_info_model.dart';
+import 'package:dops/modules/stages/stage_model.dart';
+import 'package:dops/modules/task/task_model.dart';
+import 'package:dops/modules/values/value_model.dart';
 
 class ActivityModel {
   String? id;
@@ -61,4 +65,13 @@ class ActivityModel {
       isHidden: map['isHidden'] != null ? map['isHidden'] : null,
     );
   }
+
+  List<ValueModel?> get valueModels =>
+      valueController.documents.where((e) => e?.stageId == id).toList();
+
+  List<StageModel?> get stageModels =>
+      stageController.documents.where((e) => e?.taskId == id).toList();
+
+  List<TaskModel?> get taskModels =>
+      taskController.documents.where((e) => e?.parentId == id).toList();
 }

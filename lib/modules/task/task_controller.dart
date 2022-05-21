@@ -12,6 +12,7 @@ import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/task/widgets/task_form.dart';
 import 'package:dops/modules/values/value_model.dart';
 import 'package:dops/routes/app_pages.dart';
+import 'package:dops/services/file_api/file_api.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -51,38 +52,36 @@ class TaskController extends BaseViewController {
     });
   }
 
+  int colculateNextChangeNumber(String parentId) =>
+      documents.where((e) => e?.parentId == parentId).isEmpty
+          ? 0
+          : documentsAll.map((e) => e!.changeNumber).reduce(max) + 1;
+
   add(String parentId) {
     CustomFullScreenDialog.showDialog();
-    int nextChangeNumber = documents.isEmpty
-        ? 0
-        : documents.where((e) => e!.parentId == parentId).isEmpty
-            ? 0
-            : documentsAll.map((e) => e!.changeNumber).reduce(max) + 1;
-
+    final DateTime now = DateTime.now();
     TaskModel taskModel = TaskModel(
       parentId: parentId,
       referenceDocuments: referenceDocumentsList,
       revisionMark: nextRevisionMarkController.text,
       note: taskNoteController.text,
-      changeNumber: nextChangeNumber,
-      creationDate: DateTime.now(),
+      changeNumber: colculateNextChangeNumber(parentId),
+      creationDate: now,
     );
 
     _repo.add(taskModel).then((taskId) {
-      StageModel stage = StageModel(
-        taskId: taskId,
-        creationDateTime: DateTime.now(),
-      );
+      StageModel stage = StageModel(taskId: taskId, creationDateTime: now);
       stageController.add(model: stage);
-      if (!checkFirstTask(getById(taskId))) {
-        StageModel stage = StageModel(
-          index: 1,
-          taskId: taskId,
-          creationDateTime: DateTime.now(),
+      if (!checkIfIsFirstTask(getById(taskId)))
+        stageController.add(
+          model: StageModel(
+            index: 1,
+            taskId: taskId,
+            creationDateTime: now,
+          ),
         );
-        stageController.add(model: stage);
-      }
     });
+    sendNotificationEmail(taskModel: taskModel);
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }
@@ -426,15 +425,14 @@ class TaskController extends BaseViewController {
           ? []
           : documents.where((e) => e!.parentId == drawingId).toList();
 
-  bool checkFirstTask(TaskModel? taskModel) => (loading ||
+  bool checkIfIsFirstTask(TaskModel? taskModel) => (loading ||
           documents.isEmpty ||
           taskModel == null)
       ? false
       : documents.firstWhereOrNull((e) => e!.parentId == taskModel.parentId) ==
           taskModel;
 
-  TaskModel? getById(String id) =>
-      documents.singleWhereOrNull((e) => e?.id == id);
+  TaskModel? getById(String? id) => documents.singleWhere((e) => e?.id == id);
 
   List<TaskModel?> getByIds(List<String?> ids) =>
       documents.where((e) => ids.contains(e?.id)).toList();

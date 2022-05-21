@@ -51,7 +51,7 @@ class CacheManager extends GetxService {
       await box.write(CacheManagerKey.VALUEMODELIDS.toString(), valueModelIds);
 
   List get getValueModelIds =>
-      box.read(CacheManagerKey.VALUEMODELIDS.toString());
+      box.read(CacheManagerKey.VALUEMODELIDS.toString()) ?? [];
 
   Future<void> removevalueModelIds() async =>
       await box.remove(CacheManagerKey.VALUEMODELIDS.toString());

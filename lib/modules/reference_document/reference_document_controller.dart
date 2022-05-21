@@ -37,6 +37,8 @@ class ReferenceDocumentController extends BaseViewController {
   @override
   bool get loading => _loading.value;
 
+  // ReferenceDocumentModel getById(String? id) => documents.singleWhere((e) => e.id ==id)
+
   @override
   void onInit() {
     super.onInit();

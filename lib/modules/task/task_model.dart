@@ -1,3 +1,9 @@
+import 'package:dops/constants/constant.dart';
+import 'package:dops/modules/activity/activity_model.dart';
+import 'package:dops/modules/drawing/drawing_model.dart';
+import 'package:dops/modules/stages/stage_model.dart';
+import 'package:dops/modules/values/value_model.dart';
+
 class TaskModel {
   String? id;
   String? parentId;
@@ -48,4 +54,21 @@ class TaskModel {
       isHidden: map['isHidden'] != null ? map['isHidden'] : null,
     );
   }
+
+  // ReferenceDocumentModel get referenceDocumentModel => refDocController.
+
+  DrawingModel? get drawingModel => drawingController.getById(parentId);
+  ActivityModel? get activityModel =>
+      activityController.getById(drawingModel?.activityCodeId);
+
+  List<ValueModel?> get valueModels =>
+      valueController.documents.where((e) => e?.stageId == id).toList();
+
+  List<StageModel?> get stageModels =>
+      stageController.documents.where((e) => e?.taskId == id).toList();
+
+  String get revisionType =>
+      drawingModel?.taskModels.indexOf(this) == 0 ? "First Issue" : "Revision";
+
+  int get teklaPhase => valueModels.first?.phase ?? 0;
 }

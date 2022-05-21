@@ -1,3 +1,9 @@
+import 'package:dops/constants/constant.dart';
+import 'package:dops/modules/activity/activity_model.dart';
+import 'package:dops/modules/drawing/drawing_model.dart';
+import 'package:dops/modules/stages/stage_model.dart';
+import 'package:dops/modules/task/task_model.dart';
+
 class ValueModel {
   String? id;
   String stageId;
@@ -153,4 +159,14 @@ class ValueModel {
           map['exptifc'] != null ? List<String>.from(map['exptifc']) : null,
     );
   }
+
+  StageModel? get stageModel => stageController.getById(stageId);
+  TaskModel? get taskModel =>
+      stageModel == null ? null : taskController.getById(stageModel?.taskId);
+
+  DrawingModel? get drawingModel => taskModel == null
+      ? null
+      : drawingController.getById(taskModel?.parentId!);
+  ActivityModel? get activityModel =>
+      activityController.getById(drawingModel?.activityCodeId);
 }

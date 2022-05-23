@@ -190,11 +190,15 @@ class TaskController extends BaseViewController {
         drawingDocuments = [
           ...drawingDocuments,
           ...drawingController.documents.where((e) {
-            print(e?.taskModels.length);
-            print(e?.valueModels.length);
-            return e?.valueModels.every((v) {
-                  return v?.submitDateTime == null;
-                }) ??
+            TaskModel? latTaskModel = e?.taskModels.last;
+            StageModel? lastStageModel = latTaskModel?.stageModels.last;
+
+            print('${lastStageModel?.index}');
+
+            if (lastStageModel?.index == 0 &&
+                latTaskModel?.stageModels.length == 1) return true;
+
+            return e?.taskModels.last?.stageModels.last?.valueModels.isEmpty ??
                 false;
           }),
         ].toSet().toList();
@@ -435,7 +439,8 @@ class TaskController extends BaseViewController {
       : documents.firstWhereOrNull((e) => e!.parentId == taskModel.parentId) ==
           taskModel;
 
-  TaskModel? getById(String? id) => documents.singleWhere((e) => e?.id == id);
+  TaskModel? getById(String? id) =>
+      documents.singleWhereOrNull((e) => e?.id == id);
 
   List<TaskModel?> getByIds(List<String?> ids) =>
       documents.where((e) => ids.contains(e?.id)).toList();

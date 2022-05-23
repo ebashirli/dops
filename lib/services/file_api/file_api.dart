@@ -130,9 +130,7 @@ Future<http.Response?>? sendNotificationEmail({
     relatedPeopleInitials: relatedPeopleInitials,
     note: note,
   );
-  print('helooooooooooo2');
   Map<String, dynamic> bodyToMap = body.toMap();
-  print(bodyToMap);
 
   return await http.post(
     uri,

@@ -55,21 +55,18 @@ class TaskModel {
     );
   }
 
-  // ReferenceDocumentModel get referenceDocumentModel => refDocController.
-
   DrawingModel? get drawingModel => drawingController.getById(parentId);
   ActivityModel? get activityModel =>
       activityController.getById(drawingModel?.activityCodeId);
 
   List<ValueModel?> get valueModels {
-    print(valueController.documents.length);
     return valueController.documents
         .where((e) => e?.taskModel?.id == id)
         .toList();
   }
 
   List<StageModel?> get stageModels =>
-      stageController.documents.where((e) => e?.taskId == id).toList();
+      stageController.documents.where((e) => e?.taskModel == this).toList();
 
   String get revisionType =>
       drawingModel?.taskModels.indexOf(this) == 0 ? "First Issue" : "Revision";

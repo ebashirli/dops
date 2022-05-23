@@ -105,9 +105,11 @@ class FieldsPanelWidget extends StatelessWidget {
                 child: Container(
                   height: 20,
                   // width: (Get.width - 280) / 10,
-                  color: index == stageController.indexOfLast
+                  color: index == stageController.indexOfLast &&
+                          stageController.lastTaskStageValues
+                              .every((e) => e?.submitDateTime == null)
                       ? Colors.green
-                      : index > stageController.maxIndex
+                      : index >= stageController.maxIndex
                           ? Colors.grey
                           : Colors.yellow,
                   child: Center(child: CustomText('${index + 1}')),

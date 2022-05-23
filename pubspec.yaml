@@ -7,7 +7,6 @@ environment:
 
 dependencies:
   cloud_firestore: ^3.1.5
-  cupertino_icons: ^1.0.2
   dropdown_search2: ^1.0.2
   email_validator: ^2.0.1
   expendable_fab: ^0.0.3
@@ -23,7 +22,7 @@ dependencies:
   mask_text_input_formatter: ^2.0.0
   quick_notify: ^0.2.1
   recase: ^4.0.0
-  syncfusion_flutter_datagrid: ^20.1.55
+  syncfusion_flutter_datagrid: ^20.1.56
   url_strategy: ^0.2.0
 
 dev_dependencies:

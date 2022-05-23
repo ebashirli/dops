@@ -1,6 +1,7 @@
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/activity/activity_model.dart';
 import 'package:dops/modules/drawing/drawing_model.dart';
+import 'package:dops/modules/staff/staff_model.dart';
 import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/task/task_model.dart';
 
@@ -163,6 +164,8 @@ class ValueModel {
   StageModel? get stageModel => stageController.getById(stageId);
   TaskModel? get taskModel =>
       stageModel == null ? null : taskController.getById(stageModel?.taskId);
+
+  StaffModel? get staffModel => staffController.getById(this.employeeId ?? '');
 
   DrawingModel? get drawingModel => taskModel == null
       ? null

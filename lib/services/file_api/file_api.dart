@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:html' as html;
 
+import 'package:dops/modules/drawing/drawing_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
-import 'package:dops/modules/staff/staff_model.dart';
 import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/task/task_model.dart';
 import 'package:dops/modules/values/value_model.dart';
@@ -68,74 +68,41 @@ Future<http.Response?>? sendNotificationEmail({
   final String url = baseUrl + 'send-notification-email';
   final Uri uri = Uri.parse(url);
 
-  List<String> coordinatorsEmails = staffController.documents
-      .where((e) => e.systemDesignation == "Coordinator")
-      .map((e) => e.email)
-      .toList();
+  Map<String, dynamic> bodyToMap = {};
 
-  if (taskModel == null)
-    taskModel = stageModel?.taskModel ?? valueModel?.taskModel;
-  if (taskModel == null) return null;
-  if (stageModel == null)
-    stageModel = valueModel?.stageModel ?? taskModel.stageModels.first;
-  if (stageModel == null) return null;
+  if (taskModel != null) {
+    DrawingModel? drawingModel = taskModel.drawingModel;
+    if (drawingModel == null) return null;
+    bodyToMap = Body(drawingModel: drawingModel, taskModel: taskModel).toMap();
+  } else if (stageModel != null) {
+    TaskModel? taskModel = stageModel.taskModel;
+    if (taskModel == null) return null;
+    DrawingModel? drawingModel = taskModel.drawingModel;
+    if (drawingModel == null) return null;
+    bodyToMap = Body(
+      drawingModel: drawingModel,
+      taskModel: taskModel,
+      stageModel: stageModel,
+    ).toMap();
+  } else {
+    if (valueModel == null || valueModel.staffModel == null) return null;
+    StageModel? stageModel = valueModel.stageModel;
+    if (stageModel == null) return null;
+    TaskModel? taskModel = stageModel.taskModel;
+    if (taskModel == null) return null;
+    DrawingModel? drawingModel = taskModel.drawingModel;
+    if (drawingModel == null) return null;
 
-  StaffModel? staffModel =
-      staffController.getById(valueModel?.employeeId ?? '');
-  if (staffModel == null) return null;
-  String subject = 'DOPS Notification';
-  List<String> emails = valueModel != null
-      ? [staffController.getById(valueModel.employeeId!)!.email]
-      : coordinatorsEmails;
-  final String name = valueModel != null
-      ? staffController.getById(valueModel.employeeId!)!.name
-      : 'Coordinators';
-  final String description = 'description';
-  final String urlToTask =
-      "http://172.30.134.63:8080/stages?id=${taskModel.id}&index=${stageModel.index}";
-  final String taskNumber =
-      '${taskModel.drawingModel?.drawingNumber}-${taskModel.revisionMark}';
-  final String toDo = "";
-  final String revisionType = taskModel.revisionType;
-  final String title = taskModel.drawingModel!.drawingTitle;
-  final String module = taskModel.drawingModel!.module;
-  final String level = taskModel.drawingModel!.level;
-  final String structureType = taskModel.drawingModel!.structureType;
-  final List<String> referenceDrawings = taskModel.referenceDocuments;
-  final String teklaPhase = '${taskModel.teklaPhase}';
-  final String eCFNumber = "${taskModel.changeNumber}";
-  final List<String> relatedPeopleInitials = staffController.documents
-      .where((e) =>
-          stageModel!.valueModels.map((e) => e?.employeeId).contains(e.id))
-      .map((e) => e.initial)
-      .toList();
-  final String? note = stageModel.note;
+    bodyToMap = Body(
+      drawingModel: drawingModel,
+      taskModel: taskModel,
+      stageModel: stageModel,
+      valueModel: valueModel,
+      isUnassign: isUnassign,
+    ).toMap();
+  }
 
-  Body body = Body(
-    subject: subject,
-    emails: emails,
-    name: name,
-    description: description,
-    url: urlToTask,
-    taskNumber: taskNumber,
-    toDo: toDo,
-    revisionType: revisionType,
-    title: title,
-    module: module,
-    level: level,
-    structureType: structureType,
-    referenceDrawings: referenceDrawings,
-    teklaPhase: teklaPhase,
-    eCFNumber: eCFNumber,
-    relatedPeopleInitials: relatedPeopleInitials,
-    note: note,
-  );
-  Map<String, dynamic> bodyToMap = body.toMap();
-
-  return await http.post(
-    uri,
-    body: jsonEncode(bodyToMap),
-  );
+  return await http.post(uri, body: jsonEncode(bodyToMap));
 }
 
 Future<String?> uploadFiles(UploadingFileType? filesType, String id) async {
@@ -171,43 +138,61 @@ Future<String?> uploadFiles(UploadingFileType? filesType, String id) async {
 }
 
 class Body {
-  final List<String> emails;
-  final String subject;
-  final String name;
-  final String description;
-  final String url;
-  final String taskNumber;
-  final String? toDo;
-  final String revisionType;
-  final String title;
-  final String module;
-  final String level;
-  final String structureType;
-  final List<String> referenceDrawings;
-  final String teklaPhase;
-  final String eCFNumber;
-  final List<String> relatedPeopleInitials;
-  final String? note;
+  TaskModel taskModel;
+  DrawingModel drawingModel;
+  StageModel? stageModel;
+  ValueModel? valueModel;
+  bool isUnassign;
 
   Body({
-    required this.subject,
-    required this.emails,
-    required this.name,
-    required this.description,
-    required this.url,
-    required this.taskNumber,
-    required this.toDo,
-    required this.revisionType,
-    required this.title,
-    required this.module,
-    required this.level,
-    required this.structureType,
-    required this.referenceDrawings,
-    required this.teklaPhase,
-    required this.eCFNumber,
-    required this.relatedPeopleInitials,
-    required this.note,
+    required this.taskModel,
+    required this.drawingModel,
+    this.stageModel,
+    this.valueModel,
+    this.isUnassign = false,
   });
+
+  String get url =>
+      "http://172.30.134.63:8080/stages?id=${taskModel.id}&index=${stageModel?.index ?? 0}";
+  String get taskNumber => taskModel.taskNumber;
+  String get revisionType => taskModel.revisionType;
+  String get title => drawingModel.drawingTitle;
+  String get module => drawingModel.module;
+  String get level => drawingModel.level;
+  String get structureType => drawingModel.structureType;
+  List<String?> get referenceDrawings => taskModel.referenceDocuments;
+  String get teklaPhase => '${taskModel.teklaPhase}';
+  String get eCFNumber => '${taskModel.changeNumber}';
+  List<String?> get relatedPeopleInitials =>
+      stageModel?.valueModels.map((e) => e?.staffModel?.initial).toList() ?? [];
+  String get name => valueModel?.staffModel!.email ?? 'Coordinators';
+  String? get note => stageModel?.note ?? taskModel.note;
+  List<String> get emails => valueModel == null
+      ? staffController.documents
+          .where((e) => e.systemDesignation == "Coordinator")
+          .map((e) => e.email)
+          .toList()
+      : [valueModel!.staffModel!.email];
+
+  String get subject => stageModel == null
+      ? 'DOPS Notification | ${taskModel.taskNumber} has been created'
+      : valueModel != null
+          ? 'DOPS Notification | ${stageModel!.index - 1} stage of ${taskModel.taskNumber} revision has been completed'
+          : 'DOPS Notification | You are assigned to : unassigned from  ';
+
+  String get description => stageModel == null
+      ? 'New revision has been created with following details: '
+      : valueModel == null
+          ? '${stageModel!.index - 1} of the the following revison has been completed: '
+          : "You are ${isUnassign ? 'unassigned from' : 'assigned to'} following revision: ";
+
+  String get toDo => stageModel == null
+      ? taskModel.stageModels.length > 1
+          ? 'Assign 3D Admin'
+          : 'Assign designer'
+      : valueModel == null
+          ? 'Assign or update ${stageModel!.index}'
+          : 'Preparation ${stageModel!.index}';
 
   Map<String, dynamic> toMap() {
     return {
@@ -230,30 +215,4 @@ class Body {
       'note': note,
     };
   }
-
-  factory Body.fromMap(Map<String, dynamic> map) {
-    return Body(
-      emails: List<String>.from(map['emails']),
-      subject: map['subject'] ?? '',
-      name: map['name'] ?? '',
-      description: map['description'] ?? '',
-      url: map['url'] ?? '',
-      taskNumber: map['taskNumber'] ?? '',
-      toDo: map['toDo'],
-      revisionType: map['revisionType'] ?? '',
-      title: map['title'] ?? '',
-      module: map['module'] ?? '',
-      level: map['level'] ?? '',
-      structureType: map['structureType'] ?? '',
-      referenceDrawings: List<String>.from(map['referenceDrawings']),
-      teklaPhase: map['teklaPhase'] ?? '',
-      eCFNumber: map['eCFNumber'] ?? '',
-      relatedPeopleInitials: List<String>.from(map['relatedPeopleInitials']),
-      note: map['note'],
-    );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  factory Body.fromJson(String source) => Body.fromMap(json.decode(source));
 }

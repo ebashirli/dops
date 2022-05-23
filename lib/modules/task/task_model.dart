@@ -59,6 +59,9 @@ class TaskModel {
   ActivityModel? get activityModel =>
       activityController.getById(drawingModel?.activityCodeId);
 
+  String get taskNumber =>
+      '${drawingModel?.drawingNumber}-${this.revisionMark}';
+
   List<ValueModel?> get valueModels {
     return valueController.documents
         .where((e) => e?.taskModel?.id == id)

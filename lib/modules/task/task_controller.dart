@@ -175,10 +175,6 @@ class TaskController extends BaseViewController {
       ? []
       : taskModelsAssignedCU.map((e) => e!.parentId).toList();
 
-  List<String?> get parentIdsNotAssignedYet => taskModelsNotAssignedYet.isEmpty
-      ? []
-      : taskModelsNotAssignedYet.map((e) => e!.parentId).toList();
-
   TaskModel? getLastTaskByParentId(String? id) {
     if (id == null || loading || documents.isEmpty) return null;
     return documents.lastWhereOrNull((e) => e!.parentId == id);
@@ -193,7 +189,14 @@ class TaskController extends BaseViewController {
       if (staffController.isCoordinator) {
         drawingDocuments = [
           ...drawingDocuments,
-          ...drawingController.drawingModelsNotAssignedYet
+          ...drawingController.documents.where((e) {
+            print(e?.taskModels.length);
+            print(e?.valueModels.length);
+            return e?.valueModels.every((v) {
+                  return v?.submitDateTime == null;
+                }) ??
+                false;
+          }),
         ].toSet().toList();
       }
     } else {
@@ -432,20 +435,12 @@ class TaskController extends BaseViewController {
       : documents.firstWhereOrNull((e) => e!.parentId == taskModel.parentId) ==
           taskModel;
 
-  TaskModel? getById(String? id) {
-    print('Taskcontroller getById: $id');
-    TaskModel? taskModel = documents.singleWhere((e) {
-      print(e?.id);
-      return e?.id == id;
-    });
-
-    return taskModel;
-  }
+  TaskModel? getById(String? id) => documents.singleWhere((e) => e?.id == id);
 
   List<TaskModel?> getByIds(List<String?> ids) =>
       documents.where((e) => ids.contains(e?.id)).toList();
 
-  List<TaskModel?> taskModelsByEmployeeId({
+  List<TaskModel?> taskModelsByEmployeeIdAndIndex({
     required String employeeId,
     required int index,
   }) {
@@ -458,7 +453,7 @@ class TaskController extends BaseViewController {
 
   List<String?> getTaskNamesByEmpoyeeIdAndIndex(
       {required String employeeId, required int index}) {
-    List<String?> taskNames = taskModelsByEmployeeId(
+    List<String?> taskNames = taskModelsByEmployeeIdAndIndex(
       employeeId: employeeId,
       index: index,
     ).map((e) {

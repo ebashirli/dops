@@ -76,11 +76,11 @@ class DrawingModel {
       activityController.getById(activityCodeId);
 
   List<ValueModel?> get valueModels =>
-      valueController.documents.where((e) => e?.stageId == id).toList();
+      valueController.documents.where((e) => e?.drawingModel == this).toList();
 
   List<StageModel?> get stageModels =>
-      stageController.documents.where((e) => e?.taskId == id).toList();
-  
+      stageController.documents.where((e) => e?.drawingModel == this).toList();
+
   List<TaskModel?> get taskModels =>
-      taskController.documents.where((e) => e?.parentId == id).toList();
+      taskController.documents.where((e) => e?.drawingModel == this).toList();
 }

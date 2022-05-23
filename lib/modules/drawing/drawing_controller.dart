@@ -181,16 +181,6 @@ class DrawingController extends BaseViewController {
             .toList();
   }
 
-  List<DrawingModel?> get drawingModelsNotAssignedYet {
-    return taskController.parentIdsNotAssignedYet.isEmpty ||
-            loading ||
-            documents.isEmpty
-        ? []
-        : taskController.parentIdsNotAssignedYet
-            .map((e) => getById(e!))
-            .toList();
-  }
-
   @override
   List<Map<String, dynamic>?> get tableData => throw UnimplementedError();
 }

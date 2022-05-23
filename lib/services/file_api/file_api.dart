@@ -65,8 +65,6 @@ Future<http.Response?>? sendNotificationEmail({
   StageModel? stageModel,
   bool isUnassign = false,
 }) async {
-  print('UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU: $isUnassign');
-  print('helooooooooooo');
   final String url = baseUrl + 'send-notification-email';
   final Uri uri = Uri.parse(url);
 
@@ -75,59 +73,42 @@ Future<http.Response?>? sendNotificationEmail({
       .map((e) => e.email)
       .toList();
 
-  print('helooooooooooo0');
   if (taskModel == null)
     taskModel = stageModel?.taskModel ?? valueModel?.taskModel;
   if (taskModel == null) return null;
   if (stageModel == null)
     stageModel = valueModel?.stageModel ?? taskModel.stageModels.first;
   if (stageModel == null) return null;
-  print('helooooooooooo1');
 
   StaffModel? staffModel =
       staffController.getById(valueModel?.employeeId ?? '');
   if (staffModel == null) return null;
-  print('subject');
   String subject = 'DOPS Notification';
-  print('emails');
   List<String> emails = valueModel != null
       ? [staffController.getById(valueModel.employeeId!)!.email]
       : coordinatorsEmails;
-  print('name');
   final String name = valueModel != null
       ? staffController.getById(valueModel.employeeId!)!.name
       : 'Coordinators';
-  print('description');
   final String description = 'description';
   final String urlToTask =
       "http://172.30.134.63:8080/stages?id=${taskModel.id}&index=${stageModel.index}";
   final String taskNumber =
       '${taskModel.drawingModel?.drawingNumber}-${taskModel.revisionMark}';
-  print('toDo');
   final String toDo = "";
-  print('revisionType');
   final String revisionType = taskModel.revisionType;
-  print('title');
   final String title = taskModel.drawingModel!.drawingTitle;
-  print('module');
   final String module = taskModel.drawingModel!.module;
-  print('level');
   final String level = taskModel.drawingModel!.level;
-  print('structureType');
   final String structureType = taskModel.drawingModel!.structureType;
-  print('referenceDrawings');
   final List<String> referenceDrawings = taskModel.referenceDocuments;
-  print('teklaPhase');
   final String teklaPhase = '${taskModel.teklaPhase}';
-  print('eCFNumber');
   final String eCFNumber = "${taskModel.changeNumber}";
-  print('relatedPeopleInitials');
   final List<String> relatedPeopleInitials = staffController.documents
       .where((e) =>
           stageModel!.valueModels.map((e) => e?.employeeId).contains(e.id))
       .map((e) => e.initial)
       .toList();
-  print('note');
   final String? note = stageModel.note;
 
   Body body = Body(

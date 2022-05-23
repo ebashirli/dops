@@ -1,3 +1,6 @@
+import 'package:dops/constants/constant.dart';
+import 'package:dops/modules/task/task_model.dart';
+
 class ReferenceDocumentModel {
   String? id;
   String project;
@@ -59,4 +62,8 @@ class ReferenceDocumentModel {
       isHidden: map['isHidden'] != null ? map['isHidden'] : null,
     );
   }
+
+  List<TaskModel?> get taskModels => taskController.documents
+      .where((e) => e?.referenceDocuments.contains(id) ?? false)
+      .toList();
 }

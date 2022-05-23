@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dops/constants/constant.dart';
+import 'package:dops/modules/values/value_model.dart';
 
 class StaffModel {
   String? id;
@@ -111,4 +113,10 @@ class StaffModel {
       isHidden: map['isHidden'] != null ? map['isHidden'] : null,
     );
   }
+
+  List<ValueModel?> get allValueModels =>
+      valueController.documents.where((e) => e?.employeeId == id).toList();
+
+  List<ValueModel?> get valueModels =>
+      allValueModels.where((e) => e?.submitDateTime == null).toList();
 }

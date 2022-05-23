@@ -12,7 +12,6 @@ class HomeView extends GetView<HomeController> {
 
   @override
   Widget build(BuildContext context) {
-    controller.requestNotificationPermission();
     return Obx(() => Scaffold(
           drawer: _buildDrawer(),
           appBar: _buildAppBar(cacheManager.getStaff!.initial),

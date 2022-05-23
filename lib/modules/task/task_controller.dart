@@ -432,7 +432,15 @@ class TaskController extends BaseViewController {
       : documents.firstWhereOrNull((e) => e!.parentId == taskModel.parentId) ==
           taskModel;
 
-  TaskModel? getById(String? id) => documents.singleWhere((e) => e?.id == id);
+  TaskModel? getById(String? id) {
+    print('Taskcontroller getById: $id');
+    TaskModel? taskModel = documents.singleWhere((e) {
+      print(e?.id);
+      return e?.id == id;
+    });
+
+    return taskModel;
+  }
 
   List<TaskModel?> getByIds(List<String?> ids) =>
       documents.where((e) => ids.contains(e?.id)).toList();

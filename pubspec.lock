@@ -345,13 +345,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.2.4"
-  quick_notify:
-    dependency: "direct main"
-    description:
-      name: quick_notify
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.1"
   recase:
     dependency: "direct main"
     description:

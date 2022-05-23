@@ -20,7 +20,6 @@ dependencies:
   get_storage: ^2.0.3
   http: ^0.13.4
   mask_text_input_formatter: ^2.0.0
-  quick_notify: ^0.2.1
   recase: ^4.0.0
   syncfusion_flutter_datagrid: ^20.1.56
   url_strategy: ^0.2.0

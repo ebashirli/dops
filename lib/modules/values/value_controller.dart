@@ -1,11 +1,8 @@
 import 'package:dops/constants/constant.dart';
-import 'package:dops/constants/lists.dart';
-import 'package:dops/modules/stages/stage_model.dart';
 import 'package:dops/modules/values/value_model.dart';
 import 'package:dops/modules/values/values_repository.dart';
 import 'package:dops/services/file_api/file_api.dart';
 import 'package:get/get.dart';
-import 'package:quick_notify/quick_notify.dart';
 import '../../components/custom_widgets.dart';
 
 class ValueController extends GetxService {
@@ -43,12 +40,6 @@ class ValueController extends GetxService {
     _documents.bindStream(_repo.getAllDocumentsAsStream());
     _documents.listen((List<ValueModel?> valueModelList) {
       if (valueModelList.isNotEmpty) _loading.value = false;
-
-      valueModelIdsAssignedCU
-          .difference(cacheManager.getValueModelIds.toSet())
-          .forEach((e) => getNotificationContent(e));
-
-      cacheManager.saveValueModelIds(valueModelIdsAssignedCU.toList());
     });
   }
 
@@ -95,20 +86,4 @@ class ValueController extends GetxService {
 
   bool checkIfStageModelAssignedCUById(String id) =>
       stageIdsOfVmsAssignedCurrentUser.contains(id);
-
-  void getNotificationContent(String? id) {
-    ValueModel? valueModel = getById(id);
-    if (valueModel != null) {
-      StageModel? stageModel = stageController.getById(valueModel.stageId);
-      if (stageModel != null) {
-        int index = stageModel.index;
-        String job = stageDetailsList[index]['staff job'];
-
-        QuickNotify.notify(
-          title: stageDetailsList[index]['name'],
-          content: "You are assigned as $job.",
-        );
-      }
-    }
-  }
 }

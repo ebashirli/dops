@@ -9,7 +9,6 @@ import 'package:dops/modules/list/widgets/lists_form_widget.dart';
 import 'package:dops/modules/reference_document/widgets/ref_doc_add_update_form_widget.dart';
 import 'package:dops/modules/staff/widgets/staff_form_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:quick_notify/quick_notify.dart';
 import 'package:recase/recase.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -153,10 +152,6 @@ class HomeController extends GetxService {
     }
     cacheManager.saveSelectedIndex(index);
     Get.back();
-  }
-
-  requestNotificationPermission() async {
-    await QuickNotify.requestPermission();
   }
 
   Map<String, dynamic>? getTableMap(Map<String, dynamic> map) {

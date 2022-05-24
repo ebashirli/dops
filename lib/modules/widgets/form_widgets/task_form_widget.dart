@@ -63,6 +63,7 @@ class TaskAddUpdateForm extends StatelessWidget {
                             ),
                             SizedBox(height: 10),
                             CustomDropdownMenuWithModel<ReferenceDocumentModel>(
+                              width: Get.width * .3,
                               itemAsString: (e) => e!.documentNumber,
                               showSearchBox: true,
                               isMultiSelectable: true,

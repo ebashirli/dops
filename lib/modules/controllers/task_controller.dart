@@ -487,15 +487,18 @@ class TaskController extends BaseViewController {
   Color? getRowColor(DataGridRow row) => null;
 
   @override
-  Widget getCellWidget(DataGridCell cell, String? taskId) {
+  Widget getCellWidget(DataGridCell cell, String? id) {
     switch (cell.columnName) {
       case 'drawingNumber':
-        return TextButton(
-          onPressed: taskId == null ? null : () => goToStages(taskId),
-          child: Text(cell.value),
-        );
+        return id != null
+            ? TextButton(
+                onPressed: () => goToStages(id),
+                child: Text(cell.value),
+              )
+            : Text(cell.value);
       default:
-        return Text('${cell.value}');
+        final cellValue = cell.value;
+        return cellValue != null ? Text('$cellValue') : const SizedBox();
     }
   }
 }

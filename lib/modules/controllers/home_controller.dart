@@ -19,11 +19,6 @@ class HomeController extends GetxService {
     super.onInit();
     selectedIndex.value = cacheManager.getIndex ?? 0;
     columns.value = currentViewModel.value.columns!
-        .sublist(
-          currentViewModel.value.isDrawings || currentViewModel.value.isMyTasks
-              ? 2
-              : 1,
-        )
         .map((e) => CheckBoxState(title: e!, value: true.obs))
         .toList();
     columnNames.value = currentViewModel.value.columns!;

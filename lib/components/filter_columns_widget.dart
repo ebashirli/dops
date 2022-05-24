@@ -5,6 +5,11 @@ import 'package:get/get.dart';
 class FilterColumnsWidget extends StatelessWidget {
   const FilterColumnsWidget({Key? key}) : super(key: key);
 
+  int get sublistStartIndex => homeController.currentViewModel.value.isTask ||
+          homeController.currentViewModel.value.isMyTasks
+      ? 2
+      : 1;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -16,7 +21,10 @@ class FilterColumnsWidget extends StatelessWidget {
           width: Get.width * .21,
           child: ListView(
             children: [
-              ...homeController.columns.map(buildSingleCheckBox).toList(),
+              ...homeController.columns
+                  .sublist(sublistStartIndex)
+                  .map(buildSingleCheckBox)
+                  .toList(),
             ],
           ),
         ),
@@ -87,7 +95,9 @@ class FilterColumnsWidget extends StatelessWidget {
   void toggleGroupCheckbox(bool? value) {
     if (value == null) return;
     homeController.allColumns.value.value.value = value;
-    homeController.columns.forEach((e) => e.value.value = value);
+    homeController.columns
+        .sublist(sublistStartIndex)
+        .forEach((e) => e.value.value = value);
   }
 }
 

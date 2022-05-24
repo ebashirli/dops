@@ -191,11 +191,12 @@ class DataSource extends DataGridSource {
   }
 
   List<Widget> getCellsWidgets(DataGridRow row) {
-    int index = ((tableViewModel?.isMyTasks ?? false) ||
-            (tableViewModel?.isTask ?? false))
-        ? 1
-        : 0;
-    final String? id = row.getCells()[index].value;
+    // int index = ((tableViewModel?.isMyTasks ?? false) ||
+    //         (tableViewModel?.isTask ?? false))
+    //     ? 1
+    //     : 0;
+    // print(index);
+    final String? id = row.getCells().first.value;
 
     return row
         .getCells()

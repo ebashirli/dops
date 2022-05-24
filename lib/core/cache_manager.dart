@@ -1,4 +1,4 @@
-import 'package:dops/modules/staff/staff_model.dart';
+import 'package:dops/modules/models/staff_model.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 

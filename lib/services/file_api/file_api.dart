@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'dart:html' as html;
 
-import 'package:dops/modules/drawing/drawing_model.dart';
+import 'package:dops/modules/models/drawing_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 import 'package:dops/constants/constant.dart';
 import 'package:dops/constants/lists.dart';
-import 'package:dops/modules/stages/stage_model.dart';
-import 'package:dops/modules/task/task_model.dart';
-import 'package:dops/modules/values/value_model.dart';
+import 'package:dops/modules/models/stage_model.dart';
+import 'package:dops/modules/models/task_model.dart';
+import 'package:dops/modules/models/value_model.dart';
 
 dowloadFiles({
   required List<String?> ids,
@@ -161,7 +161,7 @@ class Body {
   String get level => drawingModel.level;
   String get structureType => drawingModel.structureType;
   List<String?> get referenceDrawings => taskModel.referenceDocuments;
-  String get teklaPhase => '${taskModel.teklaPhase}';
+  String get teklaPhase => '${taskModel.drawingModel?.teklaPhase}';
   String get eCFNumber => '${taskModel.changeNumber}';
   List<String?> get relatedPeopleInitials =>
       stageModel?.valueModels.map((e) => e?.staffModel?.initial).toList() ?? [];

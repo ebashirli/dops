@@ -1,7 +1,7 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
-import 'package:dops/modules/home/home_view.dart';
-import 'package:dops/modules/login/auth_view.dart';
+import 'package:dops/modules/views/auth_view.dart';
+import 'package:dops/modules/views/home_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

@@ -23,7 +23,7 @@ Map<String, List<String>> tableColNames = {
     'Start Date',
     'Finish Date',
     'Cumulative',
-    'Assigned Tasks',
+    'Assigned Drawings',
   ],
   'staff': [
     'id',

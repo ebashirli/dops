@@ -1,11 +1,10 @@
 import 'package:dops/constants/constant.dart';
+import 'package:dops/modules/views/auth_view.dart';
 import 'package:dops/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-// import '../bindings/bindings.dart';
-import '../modules/home/home_view.dart';
-import '../modules/login/auth_view.dart';
-import '../modules/stages/stage_view.dart';
+import '../modules/views/home_view.dart';
+import '../modules/views/stage_view.dart';
 import '../unknown_route_page.dart';
 
 part 'app_routes.dart';

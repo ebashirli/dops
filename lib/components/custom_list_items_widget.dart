@@ -1,6 +1,6 @@
 import 'package:dops/components/custom_widgets.dart';
 import 'package:dops/constants/constant.dart';
-import 'package:dops/modules/list/lists_model.dart';
+import 'package:dops/modules/models/lists_model.dart';
 import 'package:flutter/material.dart';
 import 'package:recase/recase.dart';
 

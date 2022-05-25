@@ -185,19 +185,17 @@ class TaskController extends BaseViewController {
               .map((e) => e?.drawingModel)
               .toList() ??
           [];
-      if (staffController.isCoordinator) {
-        drawingDocuments = [
-          ...drawingDocuments,
-          ...drawingController.documents.where((e) {
-            TaskModel? latTaskModel = e?.taskModels.last;
-            StageModel? lastStageModel = latTaskModel?.stageModels.last;
-            if (lastStageModel?.index == 0 &&
-                latTaskModel?.stageModels.length == 1) return true;
 
-            return e?.taskModels.last?.stageModels.last?.valueModels.isEmpty ??
-                false;
-          }),
-        ].toSet().toList();
+      if (staffController.isCoordinator) {
+        drawingDocuments.addAll(drawingController.documents.where((e) {
+          TaskModel? lastTaskModel = e?.taskModels.last;
+          StageModel? lastStageModel = lastTaskModel?.stageModels.last;
+
+          if (lastStageModel?.index == 0 &&
+              lastTaskModel?.stageModels.length == 1) return true;
+
+          return lastStageModel?.valueModels.isEmpty ?? false;
+        }));
       }
     } else {
       drawingDocuments =
@@ -205,39 +203,38 @@ class TaskController extends BaseViewController {
     }
 
     late Map<String, dynamic> map;
-
-    return drawingDocuments.isEmpty || homeController.columnNames.isEmpty
+    drawingDocuments = drawingDocuments.where((e) => e != null).toList();
+    return drawingDocuments.isEmpty
         ? []
         : drawingDocuments.map(
             (drawingModel) {
-              List<TaskModel?> tasksOfDrawing =
-                  taskModelsByDrawingId(drawingModel!.id);
+              List<TaskModel?> taskModels = drawingModel!.taskModels;
 
-              TaskModel? taskModel =
-                  tasksOfDrawing.isNotEmpty ? tasksOfDrawing.last : null;
+              TaskModel? lastTaskModel =
+                  taskModels.isNotEmpty ? taskModels.last : null;
               map = {
-                'id': taskModel?.id,
+                'id': lastTaskModel?.id,
                 'parentId': drawingModel.id,
                 'priority': activityController.getPriority(drawingModel),
                 'activityCode': getActivityCode(drawingModel),
                 'drawingNumber': drawingModel.drawingNumber,
-                'revisionMark': taskModel?.revisionMark,
+                'revisionMark': lastTaskModel?.revisionMark,
                 'drawingTitle': drawingModel.drawingTitle,
-                'taskStatus': taskStatusProvider(taskModel),
+                'taskStatus': taskStatusProvider(lastTaskModel),
                 'drawingTag': drawingModel.drawingTag.join(", "),
                 'module': drawingModel.module,
-                'revisionType': getRevTypeAndStatus(taskModel),
-                'percentage': precentageProvider(taskModel),
-                'revisionStatus': taskModel == null
+                'revisionType': getRevTypeAndStatus(lastTaskModel),
+                'percentage': precentageProvider(lastTaskModel),
+                'revisionStatus': lastTaskModel == null
                     ? null
-                    : getRevTypeAndStatus(taskModel, isStatus: true),
-                'hold': taskModel?.activityStatus,
-                'holdReason': taskModel?.totalHoldReason,
+                    : getRevTypeAndStatus(lastTaskModel, isStatus: true),
+                'hold': lastTaskModel?.activityStatus,
+                'holdReason': lastTaskModel?.totalHoldReason,
                 'level': drawingModel.level,
                 'structureType': drawingModel.structureType,
-                'referenceDocuments': getReferenceDocuments(taskModel),
-                'changeNumber': getChangeNumber(taskModel),
-                'taskCreateDate': taskModel?.creationDate,
+                'referenceDocuments': getReferenceDocuments(lastTaskModel),
+                'changeNumber': getChangeNumber(lastTaskModel),
+                'taskCreateDate': lastTaskModel?.creationDate,
               };
               return homeController.getTableMap(map);
             },

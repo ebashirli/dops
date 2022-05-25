@@ -131,12 +131,9 @@ class FilingFilesFormWidget extends StatelessWidget {
           : () => homeController.getDialog(
                 barrierDismissible: true,
                 title: 'Files',
-                content: filesDialog(
+                content: getFilesDialogContent(
                   filingFileType.fileNames,
                   files: filingFileType.files,
-                  valueModelIds: valueModel.submitDateTime == null
-                      ? null
-                      : [valueModel.id],
                   filingFolder: filingFileType.folderName,
                   valueModelId:
                       valueModel.submitDateTime == null ? null : valueModel.id,

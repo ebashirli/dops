@@ -8,15 +8,14 @@ import 'package:recase/recase.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:collection/collection.dart';
 
-
 class ValueTableView extends StatelessWidget {
   final int index;
-  final List<ValueModel?>? stageValueModelsList;
+  final List<ValueModel?>? valueModelsOfStage;
 
   ValueTableView({
     Key? key,
     required this.index,
-    required this.stageValueModelsList,
+    required this.valueModelsOfStage,
   }) : super(key: key);
 
   @override
@@ -24,39 +23,45 @@ class ValueTableView extends StatelessWidget {
     final List<String> tableColumns = <String>[
       ...valueTableCommonColumnHeadList.sublist(0, 4),
       ...stageDetailsList[index]['form fields'],
-      if (stageDetailsList[index]['file names'] != null) 'File Names',
       if (stageDetailsList[index]['comment'] != null) 'Is Commented',
+      if (stageDetailsList[index]['file names'] != null) 'File Names',
       valueTableCommonColumnHeadList[4],
       valueTableCommonColumnHeadList[5],
     ];
     final DataSource dataSource = DataSource(
       data: getDataSourceData(tableColumns),
       index: index,
-      stageValueModelsList: stageValueModelsList!,
+      valueModelsOfStage: valueModelsOfStage!,
     );
     final columnsWithTotal = ['Weight', 'GAS', 'SFD', 'DTL', 'File Names']
         .toSet()
         .intersection(stageDetailsList[index]['form fields'].toSet());
+    if (stageDetailsList[index]['file names'] != null) {
+      columnsWithTotal.add('File Names');
+    }
+
     final DataGridController _dataGridController = DataGridController();
-    return stageValueModelsList == null || stageValueModelsList!.isEmpty
+    return valueModelsOfStage == null || valueModelsOfStage!.isEmpty
         ? SizedBox.shrink()
         : Obx(
             () {
               if (valueController.documents.isEmpty) {
                 return CircularProgressIndicator();
               } else {
+                List<GridColumn> gridColumns = getColumns(tableColumns);
+
                 return Column(
                   children: [
                     Divider(),
                     Container(
-                      height: (stageValueModelsList!.length + 1) * 100,
+                      height: (valueModelsOfStage!.length + 1) * 100,
                       padding: const EdgeInsets.all(10.0),
                       child: SfDataGrid(
                         isScrollbarAlwaysShown: false,
                         source: dataSource,
                         columnWidthMode: ColumnWidthMode.fill,
                         tableSummaryRows: getTableSummaryRows(columnsWithTotal),
-                        columns: getColumns(tableColumns),
+                        columns: gridColumns,
                         gridLinesVisibility: GridLinesVisibility.both,
                         headerGridLinesVisibility: GridLinesVisibility.both,
                         // allowSorting: true,
@@ -96,13 +101,18 @@ class ValueTableView extends StatelessWidget {
   }
 
   List<Map<String, dynamic>> getDataSourceData(List<String> tableColumns) {
-    return stageValueModelsList!.map((ValueModel? valueModel) {
+    return valueModelsOfStage!.map((ValueModel? valueModel) {
       late Map<String, dynamic> map = {};
       tableColumns.forEach((columHead) {
         map[columHead] = valueModel!.toMap()[ReCase(columHead).camelCase];
       });
 
+      if (stageDetailsList[index]['file names'] != null) {
+        map['File Names'] = valueModel?.toMap()['fileNames']?.length;
+      }
+
       map['id'] = valueModel!.id;
+
       return map;
     }).toList();
   }
@@ -116,9 +126,7 @@ class ValueTableView extends StatelessWidget {
             return GridColumn(
               columnName: columnName,
               width: 0,
-              label: CustomText(
-                columnName,
-              ),
+              label: CustomText(columnName),
             );
 
           default:
@@ -159,12 +167,12 @@ List<DataGridRow> _data = [];
 
 class DataSource extends DataGridSource {
   final int index;
-  final List<ValueModel?> stageValueModelsList;
+  final List<ValueModel?> valueModelsOfStage;
 
   DataSource({
     required List<Map<String, dynamic>> data,
     required this.index,
-    required this.stageValueModelsList,
+    required this.valueModelsOfStage,
   }) {
     _data = data.map<DataGridRow>(
       (map) {
@@ -192,47 +200,47 @@ class DataSource extends DataGridSource {
     RowColumnIndex rowColumnIndex,
     String summaryValue,
   ) {
-    return (summaryColumn != null && summaryColumn.columnName == 'File Names')
-        ? Container(
-            padding: const EdgeInsets.all(15.0),
-            child: Center(
-              child: TextButton(
-                onPressed: () {
-                  stageValueModelsList.forEach((e) {});
-                },
+    List<String?> fileNames = valueModelsOfStage
+        .map((e) => e?.fileNames ?? [])
+        .reduce((a, b) => a + b);
+    return Container(
+      padding: const EdgeInsets.all(15.0),
+      child: Center(
+        child: summaryColumn?.columnName == 'File Names'
+            ? TextButton(
+                onPressed: fileNames.isNotEmpty
+                    ? () => homeController.getDialog(
+                          barrierDismissible: true,
+                          title: 'Files',
+                          content: getFilesDialogContent(
+                            fileNames,
+                            valueModelIds:
+                                valueModelsOfStage.map((e) => e?.id).toList(),
+                          ),
+                        )
+                    : null,
                 child: Text(
                   summaryValue,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
+              )
+            : CustomText(
+                summaryValue,
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-            ),
-          )
-        : Container(
-            padding: const EdgeInsets.all(15.0),
-            child: Center(
-                child: CustomText(
-              summaryValue,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            )),
-          );
+      ),
+    );
   }
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
-    final List<String?>? fileNames = stageValueModelsList.isNotEmpty
-        ? stageValueModelsList
+    final List<String?>? fileNames = valueModelsOfStage.isNotEmpty
+        ? valueModelsOfStage
             .singleWhereOrNull(
                 (ValueModel? e) => e!.id == row.getCells()[0].value)!
             .fileNames
         : null;
     final String? valueModelId = row.getCells()[0].value;
-    final List<String?> valueModelIds = stageValueModelsList.isEmpty
-        ? []
-        : stageValueModelsList.map((e) => e!.id).toList();
 
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>(
@@ -245,18 +253,20 @@ class DataSource extends DataGridSource {
               child: fileNames != null
                   ? TextButton(
                       key: Key('Files' + valueModelId!),
-                      onPressed: cell.value.isNotEmpty
+                      onPressed: cell.value != 0
                           ? () => homeController.getDialog(
                                 barrierDismissible: true,
                                 title: 'Files',
-                                content: filesDialog(
-                                  cell.value,
+                                content: getFilesDialogContent(
+                                  valueController
+                                          .getById(valueModelId)
+                                          ?.fileNames ??
+                                      [],
                                   valueModelId: valueModelId,
-                                  valueModelIds: valueModelIds,
                                 ),
                               )
                           : null,
-                      child: Text(cell.value.length.toString()),
+                      child: Text(cell.value.toString()),
                     )
                   : SizedBox(),
             );

@@ -15,13 +15,10 @@ dowloadFiles({
   required List<String?> ids,
   String? filingFolder,
 }) async {
-  final String url = baseUrl +
-      'download' +
-      (filingFolder == null ? '' : '/?folder=$filingFolder');
-
+  String url = baseUrl + 'download';
+  if (filingFolder != null) url += '/?folder=$filingFolder';
   final Uri uri = Uri.parse(url);
-
-  return await http
+  await http
       .post(uri, body: jsonEncode({'ids': ids}))
       .then((_) => html.window.location.href = url);
 }

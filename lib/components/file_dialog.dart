@@ -2,13 +2,13 @@ import 'package:dops/services/file_api/file_api.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-Column filesDialog(
+Column getFilesDialogContent(
   List<String?> fileNames, {
   List<PlatformFile?>? files,
   int? index,
   String? valueModelId,
-  List<String?>? valueModelIds,
   String? filingFolder,
+  List<String?>? valueModelIds,
 }) {
   return Column(
     children: [
@@ -32,14 +32,12 @@ Column filesDialog(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             TextButton(
-              onPressed: (valueModelIds == null)
-                  ? null
-                  : valueModelIds.isEmpty
-                      ? null
-                      : () => dowloadFiles(
-                            ids: valueModelIds,
-                            filingFolder: filingFolder,
-                          ),
+              onPressed: () async {
+                await dowloadFiles(
+                  ids: valueModelIds ?? [valueModelId],
+                  filingFolder: filingFolder,
+                );
+              },
               child: Text('Download All'),
             ),
           ],

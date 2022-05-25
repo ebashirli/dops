@@ -58,7 +58,7 @@ class PastCycleContent extends StatelessWidget {
                       '${list.index + 1} - ${list.checkerCommentCounter} - ${list.reviewerCommentCounter}'),
                   ValueTableView(
                     index: index,
-                    stageValueModelsList: stageController
+                    valueModelsOfStage: stageController
                             .stageAndValueModelsOfCurrentTask[index]![
                         stageController
                             .stageAndValueModelsOfCurrentTask[index]!.keys

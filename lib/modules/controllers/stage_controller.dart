@@ -267,7 +267,7 @@ class StageController extends GetxService {
 
         final Widget valueTableView = ValueTableView(
           index: index,
-          stageValueModelsList: stageAndValueModelsOfCurrentTask[index]![
+          valueModelsOfStage: stageAndValueModelsOfCurrentTask[index]![
               stageAndValueModelsOfCurrentTask[index]!.keys.last],
         );
         final String headerValue =
@@ -287,8 +287,7 @@ class StageController extends GetxService {
   Future<String> add({required StageModel model}) async {
     CustomFullScreenDialog.showDialog();
     model.creationDateTime = DateTime.now();
-    await _repo.add(model).then((value) => model.id = value);
-    sendNotificationEmail(stageModel: model);
+    await _repo.add(model).then((id) => model.id = id);
     CustomFullScreenDialog.cancelDialog();
     return model.id!;
   }
@@ -378,7 +377,10 @@ class StageController extends GetxService {
         valueController.add(model: vm);
       });
     } else {
-      assignedEmployeeIds.difference(assigningEmployeeIds).forEach(
+      Set<String?> difference1 =
+          assignedEmployeeIds.difference(assigningEmployeeIds);
+
+      difference1.forEach(
         (employeeId) {
           ValueModel? vm = lastTaskStageValues.singleWhere(
               (ValueModel? valueModel) => valueModel!.employeeId == employeeId);
@@ -388,9 +390,11 @@ class StageController extends GetxService {
             valueController.update(map: {'isHidden': true}, id: id);
         },
       );
-      assigningEmployeeIds
-          .difference(assignedEmployeeIds)
-          .forEach((employeeId) => valueController.add(model: vm));
+      Set<String?> difference2 =
+          assigningEmployeeIds.difference(assignedEmployeeIds);
+
+      difference2.forEach((employeeId) =>
+          valueController.add(model: vm..employeeId = employeeId));
     }
 
     update(
@@ -452,7 +456,7 @@ class StageController extends GetxService {
           ) ||
           commentStatus.value;
 
-      StageModel stage = StageModel(
+      StageModel stageModel = StageModel(
         taskId: lastTaskStage.taskId,
         index: anyComment ? 4 : indexOfLast + 1,
         checkerCommentCounter: indexOfLast == 4
@@ -468,7 +472,7 @@ class StageController extends GetxService {
         creationDateTime: DateTime.now(),
       );
 
-      String nextStageId = await add(model: stage);
+      String nextStageId = await add(model: stageModel);
 
       final ValueModel valueModel = ValueModel(
         stageId: nextStageId,
@@ -512,6 +516,7 @@ class StageController extends GetxService {
           valueController.add(model: valueModel..employeeId = reviewerId);
         });
       }
+      sendNotificationEmail(stageModel: stageModel);
     }
     textEditingControllers.forEach((e) => e.clear());
     files.files = [];
@@ -588,14 +593,6 @@ class StageController extends GetxService {
             stageAndValueModelsOfCurrentTask.last!.values.first.isNotEmpty) ||
         (item.index == 0 &&
             !taskController.checkIfIsFirstTask(currentTaskModel!)));
-  }
-
-  int? get phaseInitialValue {
-    return stageAndValueModelsOfCurrentTask.isEmpty
-        ? null
-        : stageAndValueModelsOfCurrentTask.first!.values.first.isEmpty
-            ? null
-            : stageAndValueModelsOfCurrentTask.first!.values.first.first!.phase;
   }
 
   void copyToClipBoard(int index) {

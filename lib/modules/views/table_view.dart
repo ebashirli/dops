@@ -136,7 +136,7 @@ class TableViewWidget extends StatelessWidget {
                 maximumWidth: colName == 'Drawing Number'
                     ? 220
                     : ['id', 'parentId'].contains(colName)
-                        ? 100
+                        ? 0
                         : double.nan,
                 columnName: ReCase(colName!).camelCase,
                 autoFitPadding: const EdgeInsets.all(8.0),
@@ -191,11 +191,6 @@ class DataSource extends DataGridSource {
   }
 
   List<Widget> getCellsWidgets(DataGridRow row) {
-    // int index = ((tableViewModel?.isMyTasks ?? false) ||
-    //         (tableViewModel?.isTask ?? false))
-    //     ? 1
-    //     : 0;
-    // print(index);
     final String? id = row.getCells().first.value;
 
     return row

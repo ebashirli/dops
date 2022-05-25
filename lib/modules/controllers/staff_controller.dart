@@ -261,17 +261,11 @@ class StaffController extends BaseViewController {
         : currentStaff!.initial;
   }
 
-  StaffModel? getById(String id) {
-    return loading || documents.isEmpty
-        ? null
-        : documents.singleWhereOrNull((staff) => staff.id == id);
+  StaffModel? getById(String? id) {
+    return documents.singleWhereOrNull((staff) => staff.id == id);
   }
 
-  String? getStaffInitialById(String id) {
-    StaffModel? staffModel = getById(id);
-
-    return staffModel == null ? null : staffModel.initial;
-  }
+  String? getStaffInitialById(String id) => getById(id)?.initial;
 
   @override
   Color? getRowColor(DataGridRow row) => null;

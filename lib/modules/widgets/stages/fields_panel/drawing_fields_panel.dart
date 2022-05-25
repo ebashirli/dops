@@ -91,9 +91,7 @@ class DrawingFieldsWidget extends StatelessWidget {
                   FlexTextWidget(
                     flex: 10,
                     controller: TextEditingController()
-                      ..text = stageController.phaseInitialValue == null
-                          ? ' '
-                          : '${stageController.phaseInitialValue}',
+                      ..text = "${drawingModel.teklaPhase}",
                     labelText: 'Tekla Phase',
                   ),
                   Flexible(child: SizedBox()),

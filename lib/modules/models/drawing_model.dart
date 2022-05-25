@@ -1,7 +1,6 @@
 import 'package:dops/constants/constant.dart';
 import 'package:dops/modules/models/activity_model.dart';
 import 'package:dops/modules/models/task_model.dart';
-import 'package:dops/modules/models/value_model.dart';
 
 class DrawingModel {
   String? id;
@@ -10,7 +9,7 @@ class DrawingModel {
   String drawingTitle;
   String module;
   String level;
-  List<String> area;
+  List<String?> area;
   List<String?> drawingTag;
   String functionalArea;
   String structureType;
@@ -74,11 +73,21 @@ class DrawingModel {
   ActivityModel? get activityModel =>
       activityController.getById(activityCodeId);
 
-  List<ValueModel?> get valueModels =>
-      valueController.documents.where((e) => e?.drawingModel == this).toList();
-
   List<TaskModel?> get taskModels =>
       taskController.documents.where((e) => e?.drawingModel == this).toList();
 
-  int get teklaPhase => valueModels.first?.phase ?? 0;
+  int get teklaPhase {
+    return taskModels.isEmpty
+        ? 0
+        : taskModels.first!.stageModels.isEmpty
+            ? 0
+            : taskModels.first!.stageModels.first!.valueModels.isEmpty
+                ? 0
+                : taskModels.first!.stageModels.first!.valueModels.first!
+                            .phase ==
+                        null
+                    ? 0
+                    : taskModels
+                        .first!.stageModels.first!.valueModels.first!.phase!;
+  }
 }

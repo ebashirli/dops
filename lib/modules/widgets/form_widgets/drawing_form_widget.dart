@@ -16,12 +16,6 @@ class DrawingFormWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final double dialogWidth = Get.width * 0.5;
 
-    List<String?>? drawingTagItems =
-        listsController.document.drawingTags == null
-            ? null
-            : listsController.document.drawingTags!
-                .map((e) => e.toString())
-                .toList();
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(
@@ -94,8 +88,8 @@ class DrawingFormWidget extends StatelessWidget {
                               showSearchBox: true,
                               labelText: 'Level',
                               selectedItems: [drawingController.levelText],
-                              onChanged: (value) => staffController
-                                  .jobTitleText = value.toString(),
+                              onChanged: (value) => drawingController
+                                  .levelText = value.first.toString(),
                               items: listsController.document.levels!
                                   .map((e) => e.toString())
                                   .toList(),
@@ -121,16 +115,18 @@ class DrawingFormWidget extends StatelessWidget {
                       labelText: 'Drawing Title',
                     ),
                     SizedBox(height: 10),
-                    CustomDropdownMenuWithModel<String?>(
-                      showSearchBox: true,
-                      isMultiSelectable: true,
-                      labelText: 'Drawing tags',
-                      items: drawingTagItems,
-                      onChanged: (values) =>
-                          drawingController.drawingTagList = values,
-                      selectedItems: drawingController.drawingTagList,
-                      itemAsString: (v) => v.toString(),
-                    ),
+                    Obx(() => CustomDropdownMenuWithModel<String?>(
+                          showSearchBox: true,
+                          isMultiSelectable: true,
+                          labelText: 'Drawing tags',
+                          items: listsController.document.drawingTags!
+                              .map((e) => e.toString())
+                              .toList(),
+                          onChanged: (values) =>
+                              drawingController.drawingTagList = values,
+                          selectedItems: drawingController.drawingTagList,
+                          itemAsString: (v) => v.toString(),
+                        )),
                     SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -149,9 +145,9 @@ class DrawingFormWidget extends StatelessWidget {
                             selectedItems: [
                               drawingController.functionalAreaText
                             ],
-                            onChanged: (value) =>
-                                staffController.jobTitleText = value.toString(),
-                            items: listsController.document.modules!
+                            onChanged: (value) => drawingController
+                                .functionalAreaText = value.first ?? '',
+                            items: listsController.document.functionalAreas!
                                 .map((e) => e.toString())
                                 .toList(),
                           );
@@ -228,14 +224,15 @@ class DrawingFormWidget extends StatelessWidget {
         .toList();
   }
 
-  void onStructureTypeChanged(value) {
-    drawingController.structureTypeText = value ?? '';
+  void onStructureTypeChanged(List<String?> value) {
+    drawingController.structureTypeText = value.first ?? '';
   }
 
-  void onAreaChanged(values) => drawingController.areaList = values;
+  void onAreaChanged(List<String?> values) =>
+      drawingController.areaList = values;
 
-  void onModuleNameChanged(value) =>
-      drawingController.moduleNameText = value ?? '';
+  void onModuleNameChanged(List<String?> value) =>
+      drawingController.moduleNameText = value.first ?? '';
 
   void onActivityCodeChanged(value) {
     ActivityModel? activityModel = activityController.getById(value.first!.id);

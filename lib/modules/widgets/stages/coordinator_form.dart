@@ -69,8 +69,8 @@ class CoordinatorForm extends StatelessWidget {
         ));
   }
 
-  void onStaffChanged(List<StaffModel?> listStaffModel) {
-    stageController.assigningStaffModels.value = listStaffModel;
+  void onStaffChanged(List<StaffModel?> staffModels) {
+    stageController.assigningStaffModels.value = staffModels;
 
     if (!stageController.coordinatorAssigns) {
       if (stageController.assigningStaffModels.isNotEmpty &&

@@ -39,7 +39,6 @@ class TaskController extends BaseViewController {
           .where((e) => e?.isHidden == false && e?.drawingModel != null)
           .toList();
   List<TaskModel?> get documentsAll => _documents.where((e) {
-        print(e?.drawingModel != null);
         return e?.drawingModel != null;
       }).toList();
 
@@ -57,27 +56,32 @@ class TaskController extends BaseViewController {
     });
   }
 
-  int colculateNextChangeNumber(String parentId) =>
-      documents.where((e) => e?.parentId == parentId).isEmpty
+  int colculateNextChangeNumber(DrawingModel drawingModel) =>
+      drawingModel.taskModels.isEmpty
           ? 0
           : documentsAll.map((e) => e!.changeNumber).reduce(max) + 1;
 
   add(String parentId) {
     CustomFullScreenDialog.showDialog();
     final DateTime now = DateTime.now();
+    DrawingModel? drawingModel = drawingController.getById(parentId);
+    if (drawingModel == null) return;
     TaskModel taskModel = TaskModel(
-      parentId: parentId,
+      parentId: drawingModel.id,
       referenceDocuments: refDocIds,
       revisionMark: nextRevisionMarkController.text,
       note: taskNoteController.text,
-      changeNumber: colculateNextChangeNumber(parentId),
+      changeNumber: colculateNextChangeNumber(drawingModel),
       creationDate: now,
     );
 
     _repo.add(taskModel).then((taskId) {
+      TaskModel? taskModel = getById(taskId);
+      if (taskModel == null) return;
+      sendNotificationEmail(taskModel: taskModel);
       StageModel stage = StageModel(taskId: taskId, creationDateTime: now);
       stageController.add(model: stage);
-      if (!checkIfIsFirstTask(getById(taskId)))
+      if (!checkIfIsFirstTask(taskModel))
         stageController.add(
           model: StageModel(
             index: 1,
@@ -86,7 +90,7 @@ class TaskController extends BaseViewController {
           ),
         );
     });
-    sendNotificationEmail(taskModel: taskModel);
+
     CustomFullScreenDialog.cancelDialog();
     Get.back();
   }

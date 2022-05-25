@@ -46,11 +46,11 @@ class ValueRepository {
     await _api.updateDocument(data.toMap(), id);
   }
 
-  add(ValueModel data) async {
-    await _api.addDocument(data.toMap());
+  Future<String> add(ValueModel model) async {
+    return await _api.addDocument(model.toMap()).then((value) => value.id);
   }
 
-  updateFileds(Map<String, dynamic> map, String id) async {
-    await _api.updateDocument(map, id);
+  Future updateFileds(Map<String, dynamic> map, String id) async {
+    return await _api.updateDocument(map, id);
   }
 }

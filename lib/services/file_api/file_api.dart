@@ -160,39 +160,34 @@ class Body {
   String get module => drawingModel.module;
   String get level => drawingModel.level;
   String get structureType => drawingModel.structureType;
-  List<String?> get referenceDrawings => taskModel.referenceDocuments;
-  String get teklaPhase => '${taskModel.drawingModel?.teklaPhase}';
+  List<String?> get referenceDrawings => taskModel.referenceDocuments
+      .map((e) => refDocController.getById(e)?.documentNumber)
+      .toList();
+  String get teklaPhase => '${drawingModel.teklaPhase}';
   String get eCFNumber => '${taskModel.changeNumber}';
   List<String?> get relatedPeopleInitials =>
       stageModel?.valueModels.map((e) => e?.staffModel?.initial).toList() ?? [];
-  String get name => valueModel?.staffModel!.email ?? 'Coordinators';
+  String get name => valueModel?.staffModel!.name ?? 'Coordinators';
   String? get note => stageModel?.note ?? taskModel.note;
   List<String> get emails => valueModel == null
       ? staffController.documents
           .where((e) => e.systemDesignation == "Coordinator")
           .map((e) => e.email)
+          .toSet()
           .toList()
       : [valueModel!.staffModel!.email];
 
-  String get subject => stageModel == null
-      ? 'DOPS Notification | ${taskModel.taskNumber} has been created'
-      : valueModel != null
-          ? 'DOPS Notification | ${stageModel!.index - 1} stage of ${taskModel.taskNumber} revision has been completed'
-          : 'DOPS Notification | You are assigned to : unassigned from  ';
+  String get subject => 'DOPS Notification | ${taskModel.taskNumber}';
 
   String get description => stageModel == null
       ? 'New revision has been created with following details: '
       : valueModel == null
-          ? '${stageModel!.index - 1} of the the following revison has been completed: '
+          ? "${stageDetailsList[stageModel!.index - 1]['name']} of the the following revison has been completed: "
           : "You are ${isUnassign ? 'unassigned from' : 'assigned to'} following revision: ";
 
-  String get toDo => stageModel == null
-      ? taskModel.stageModels.length > 1
-          ? 'Assign 3D Admin'
-          : 'Assign designer'
-      : valueModel == null
-          ? 'Assign or update ${stageModel!.index}'
-          : 'Preparation ${stageModel!.index}';
+  String get toDo => valueModel == null
+      ? 'Next action'
+      : '${stageDetailsList[stageModel!.index]['name']}';
 
   Map<String, dynamic> toMap() {
     return {

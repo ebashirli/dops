@@ -165,7 +165,7 @@ class ValueModel {
   TaskModel? get taskModel =>
       stageModel == null ? null : taskController.getById(stageModel?.taskId);
 
-  StaffModel? get staffModel => staffController.getById(this.employeeId ?? '');
+  StaffModel? get staffModel => staffController.getById(this.employeeId);
 
   DrawingModel? get drawingModel => taskModel == null
       ? null

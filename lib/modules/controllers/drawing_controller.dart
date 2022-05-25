@@ -26,7 +26,7 @@ class DrawingController extends BaseViewController {
       drawingTitleController,
       drawingNoteController;
 
-  late List<String> areaList;
+  late List<String?> areaList;
   late List<String?> drawingTagList;
   late List<String?> referenceDocumentsList;
 

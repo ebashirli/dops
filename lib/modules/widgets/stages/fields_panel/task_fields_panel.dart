@@ -54,7 +54,9 @@ class TaskFieldsWidget extends StatelessWidget {
               ),
               SizedBox(height: 8),
               CustomTextFormField(
-                initialValue: taskModel.referenceDocuments.join(', '),
+                initialValue: taskModel.referenceDocuments
+                    .map((e) => refDocController.getById(e)?.documentNumber)
+                    .join(', '),
                 readOnly: readonly,
                 labelText: 'Reference Documents',
               ),

@@ -11,7 +11,7 @@ class ValueController extends GetxService {
 
   RxList<ValueModel?> _documents = RxList<ValueModel?>([]);
   List<ValueModel?> get documents =>
-      _documents;//.where((e) => e?.stageModel != null).toList();
+      _documents; //.where((e) => e?.stageModel != null).toList();
 
   final RxBool containsHold = false.obs;
 
@@ -20,16 +20,26 @@ class ValueController extends GetxService {
 
   add({required ValueModel model}) async {
     CustomFullScreenDialog.showDialog();
-    await _repo.add(model);
-    sendNotificationEmail(valueModel: model);
+
+    await _repo.add(model).then((id) {
+      ValueModel? valueModel = getById(id);
+      sendNotificationEmail(valueModel: valueModel);
+    });
     CustomFullScreenDialog.cancelDialog();
   }
 
   update({required Map<String, dynamic> map, required String id}) async {
     CustomFullScreenDialog.showDialog();
-    await _repo.updateFileds(map, id);
-    if (map.containsKey('isHidden') && map['isHidden'])
-      sendNotificationEmail(valueModel: getById(id), isUnassign: true);
+    ValueModel? valueModel = getById(id);
+    await _repo.updateFileds(map, id).then((_) {
+      if (map.containsKey('isHidden') && map['isHidden']) {
+        sendNotificationEmail(
+          valueModel: valueModel,
+          isUnassign: true,
+        );
+      }
+    });
+
     CustomFullScreenDialog.cancelDialog();
   }
 
